@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>02-reverse-analysis — 역분석 문서 템플릿</title>
+<!-- ============================================================
+  CHANGELOG
+  v1.0 (2026-07-31) 최초 수립 — 출시 서비스 역분석 문서 템플릿.
+  ------------------------------------------------------------
+  용도: 동작하는 제품을 블랙박스로 분해한 "읽는 문서".
+  섹션 순서 = 독자의 이해 경로:
+    무엇을 봤나(개요) → 어떻게 봤나(방법) → 무엇이 있나(기능) →
+    어디가 위험한가(리스크) → 무엇이 남았나(미확인).
+  산출 시 이 <link>를 제거하고 생성 시점 마스터 CSS를 <style>에 inline할 것.
+  ============================================================ -->
+<link rel="stylesheet" href="../design-guide/design-guide-master.css">
+</head>
+<body>
+<div class="wrap">
+
+<header class="doc-header">
+  <h1>{대상 서비스} 역분석</h1>
+  <p class="doc-lead">{무엇을, 왜, 어느 범위까지 분석했는지 한 문단 리드.}</p>
+  <div class="meta-row">
+    <span class="badge">대상 <b>{서비스명 · 플랫폼}</b></span>
+    <span class="badge">조사일 <b>{YYYY-MM-DD}</b></span>
+    <span class="badge">근거 <b>{공식 문서 · 스토어 · 실측}</b></span>
+    <span class="badge">버전 <b>{앱/웹 버전}</b></span>
+  </div>
+  <nav class="toc">
+    <a href="#stats">개요</a><a href="#method">접근 방법</a><a href="#concepts">핵심 개념</a>
+    <a href="#matrix">기능 매트릭스</a><a href="#dist">분포</a><a href="#risk">리스크</a><a href="#unknown">미확인 목록</a>
+  </nav>
+</header>
+
+<h2 id="stats">개요</h2>
+<div class="stats">
+  <div class="stat"><div class="num">{N}</div><div class="lbl">기능 노드</div></div>
+  <div class="stat"><div class="num">{N}</div><div class="lbl">확인된 사양 수치</div></div>
+  <div class="stat"><div class="num"><em>{N}</em></div><div class="lbl">미확인(?) 항목</div></div>
+  <div class="stat"><div class="num">{N}</div><div class="lbl">알려진 결함 단서</div></div>
+</div>
+
+<h2 id="method">왜 이 접근인가</h2>
+<p>{방법론의 전제를 표가 아니라 문장으로. 수집 경로 우선순위(공식 1차 자료 → 스토어 → 실측 → 커뮤니티)와
+그렇게 정한 이유. 추측으로 기대값을 채우지 않고 ?로 남긴다는 원칙.}</p>
+
+<h2 id="concepts">핵심 개념</h2>
+<div class="card-grid">
+  <div class="card"><h3>{개념 1}</h3><p>{판정 규칙·용어 정의. 검증유형 분리가 필요한 서비스라면 여기서 4유형을 소개.}</p></div>
+  <div class="card"><h3>{개념 2}</h3><p>{…}</p></div>
+</div>
+
+<h2 id="matrix">기능 매트릭스</h2>
+<p>{매트릭스를 읽는 법 리드. 역할 기준으로 묶었고 명칭 차이는 비고에 있다는 안내.}</p>
+<div class="filters">
+  <button class="fbtn on">전체</button>
+  <button class="fbtn">{영역 1}</button>
+  <button class="fbtn">{영역 2}</button>
+</div>
+<div class="tbl-scroll">
+<table>
+  <thead><tr><th>기능 (역할)</th><th>지원</th><th>확인된 사양</th><th>근거</th></tr></thead>
+  <tbody>
+    <tr><td>{D1 &gt; D2 &gt; 노드}</td><td><span class="chip chip-ok">O</span></td><td>{수치·조건}</td><td>{출처}</td></tr>
+    <tr><td>{…}</td><td><span class="chip chip-unk">?</span></td><td>—</td><td>실측 필요</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h2 id="dist">분포</h2>
+<p>{영역별 수·구성 리드 문장.}</p>
+<div class="card">{Chart.js 인라인 차트 — 애니메이션 끔, "표로 보기" 토글 포함}</div>
+
+<h2 id="risk">리스크 · 회귀 단서</h2>
+<div class="callout danger">{금전·보호·유실 축에서 발견된 단서. 알려진 결함(리뷰·커뮤니티)은 회귀 스위트의 씨앗.}</div>
+<div class="tbl-scroll">
+<table>
+  <thead><tr><th>단서</th><th>축</th><th>출처</th><th>후속</th></tr></thead>
+  <tbody><tr><td>{…}</td><td><span class="chip chip-high">금전</span></td><td>{…}</td><td>{TC로 전개 여부}</td></tr></tbody>
+</table>
+</div>
+
+<h2 id="unknown">미확인 목록</h2>
+<div class="tbl-scroll">
+<table>
+  <thead><tr><th>항목</th><th>미확인 값</th><th>확인 방법</th></tr></thead>
+  <tbody><tr><td>{…}</td><td>{…}</td><td>{…}</td></tr></tbody>
+</table>
+</div>
+
+<footer class="doc-footer">
+  {대상 서비스} 역분석 · 템플릿 02-reverse-analysis v1.0 · design-guide-master v{CSS버전} 스냅샷
+</footer>
+
+</div>
+</body>
+</html>

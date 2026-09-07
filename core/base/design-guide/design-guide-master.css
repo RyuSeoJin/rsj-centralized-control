@@ -1,0 +1,424 @@
+/* ============================================================
+   design-guide-master.css — 스타일 정본
+   ------------------------------------------------------------
+   CHANGELOG
+   v2.5 (2026-08-05) 카드 안 아이템을 카드 전체로 누르게 했다(.item a::after). 테두리는
+     카드 전체가 밝아지는데 눌리는 곳은 제목뿐이라 신호와 동작이 어긋났다. 링크의 클릭
+     영역만 넓히므로 마크업도 생성기도 그대로다. 링크가 없는 항목(.item-off)은 반대로
+     강조를 걷었다 — 밝아지는데 눌리지 않으면 같은 어긋남이 뒤집힌 채로 남는다.
+   v2.4 (2026-08-05) 카드 안 아이템(.item-grid/.item)을 더했다. 카드 안에 항목이
+     여럿일 때 <p>로 잇대면 경계가 없어 한 덩어리 텍스트로 읽혔다. 카드를 그대로
+     겹칠 수는 없다 — 바깥이 surface라 안쪽도 surface면 층이 보이지 않는다. 그래서
+     접이식(.fold)이 쓰는 surface-2를 그대로 따라 층만 만들고 모양은 새로 들이지 않는다.
+   v2.3 (2026-08-05) 탭(.tabs/.tab-btn/.tab-panel)을 더했다. 한 문서가 성격이 다른
+     큰 표를 여럿 담을 때 세로로 잇대면 페이지가 감당이 안 되고, 접이식(.fold)은
+     본문 안 곁들임용이라 max-height에 갇힌다. 모양은 필터 버튼(.fbtn)을 그대로
+     따라 새 디자인 언어를 들이지 않는다 — 더한 것은 「누르면 화면이 갈린다」뿐이다.
+   v2.2 (2026-08-05) 접이식 블록(.fold)을 더했다. 본문 흐름을 끊지 않으면서
+     참고 자료(기능 골격 요약 등)를 곁들일 자리가 없었다. 기본은 접힘이고,
+     펼치면 그 자리에서 바로 읽힌다.
+   v2.1 (2026-08-05) 사이드바에 카테고리 머리말(.nav-cat)을 더했다.
+     워크스페이스 문서와 프로젝트 문서가 한 줄로 섞여 있어 프로젝트가 늘면
+     무너지는 구조였다. 묶음(.nav-sec)보다 한 단 위의 머리말을 두어
+     「이 아래는 이 프로젝트의 것」을 구분한다. 문서 안 절 목록(.nav-sub)은
+     사이드바에서 걷어냈다 — 본문 제목과 겹쳐 항목만 두 배로 늘었다.
+   v2.0 (2026-08-04) 라이트를 기본 테마로 삼고 다크를 토글로 내렸다.
+     산출물이 늘어 「읽는 문서」 하나로는 부족해졌고, 지표를 한눈에 보여줄
+     대시보드 셸이 필요했다(참고: Gentelella v4의 레이아웃 언어 —
+     코드는 가져오지 않고 값만 참고했다).
+     · 색 토큰을 두 벌로: :root(라이트) + :root[data-theme="dark"].
+       역할 이름은 그대로라 기존 컴포넌트·생성기 마크업은 손대지 않는다
+     · 셸 신설 — .app / .side(고정 사이드바·모바일 드로어) / .topbar / .main
+     · 스탯 타일에 비율 막대(.stat .bar)와 보조 문구(.stat .sub)
+     · 표 도구 신설 — .tbl-tools(검색·필터·건수)와 헤더 클릭 정렬(th.sortable)
+     · --on-accent 신설 — 인디고 채움 위 글자색(라이트에서 잉크를 쓰면 안 읽힌다)
+     · 셸이 없는 문서의 테마 토글 자리 — .doc-header 오른쪽. 버튼이 상단 바에만
+       있으면 기능 트리·중앙 허브에서는 테마를 바꿀 수단이 사라진다
+     · 구조도(.sd) 덮어쓰기를 다크일 때만 적용 — 정본 SVG가 밝은 배경 기준이라
+       라이트에서는 원본 색이 그대로 맞는다
+   v1.1 (2026-08-04) 구조도(.sd) 규칙을 index.html에서 옮겨 왔다 — 문서마다
+     복사해 두면 한쪽만 고쳤을 때 갈라진다. 경고 계열(grp-warn·nd-warn)과
+     화살표 색(arrow-green·arrow-red), 그림별 마커 id를 더했다.
+   v1.0 (2026-07-31) 최초 수립 — rules/html-report-guide.md의
+     다크 테마·인디고 포인트 체계를 마스터로 승격.
+     색 토큰 / 타이포 / 레이아웃 / 카드·표·칩·콜아웃·스탯 타일 /
+     상태·우선순위·검증유형 시맨틱 칩 / 트리·파이프라인 컴포넌트.
+   ------------------------------------------------------------
+   규칙: 원색 hex를 본문에 흩뿌리지 않는다 — 역할 변수로만 참조.
+   갱신은 Case B/C 승인 후에만, 기존 토큰 제거는 별도 승인.
+   테마: 라이트가 기본이다. 다크는 <html data-theme="dark">로 켜며,
+   스크립트가 없으면 라이트로 남는다(기본값이 안전한 쪽이다).
+   ============================================================ */
+
+/* ---------- 1. 색 토큰 (라이트 = 기본) ---------- */
+:root{
+  --page:#f4f6fa;        /* 페이지 바탕 */
+  --surface:#ffffff;     /* 카드·표 표면 */
+  --surface-2:#eef1f7;   /* 표면 위 한 단 (표 헤더·코드) */
+  --ink:#1f2328;         /* 본문 */
+  --ink-2:#414a56;       /* 보조 텍스트 */
+  --muted:#6e7781;       /* 축·라벨·각주 */
+  --grid:#e2e7ef;        /* 표 구분선 */
+  --axis:#cdd4de;        /* 축·경계 */
+  --hair:rgba(31,35,40,.10);    /* 헤어라인 테두리 */
+  --shadow:0 1px 2px rgba(31,35,40,.06),0 1px 8px rgba(31,35,40,.04);
+  --accent:#4f46e5;      /* 인디고 포인트 (제목 마커·링크·강조) */
+  --accent-dim:#4338ca;  /* 눌린 상태·채움 */
+  --on-accent:#ffffff;   /* 인디고 채움 위 글자 */
+
+  /* 셸 — 사이드바는 두 테마 모두 어둡게 둔다(본문과 역할이 갈린다) */
+  --side-bg:#212a3a;
+  --side-ink:#c2cbdb;
+  --side-ink-strong:#ffffff;
+  --side-hair:rgba(255,255,255,.10);
+  --side-active:rgba(129,140,248,.22);
+  --side-w:238px;
+  --top-h:54px;
+
+  /* 차트 카테고리 (고정 순서 — 필터로 빠져도 재배정 금지) */
+  --cat-1:#3987e5;  /* 파랑 */
+  --cat-2:#d95926;  /* 주황 */
+  --cat-3:#199e70;  /* 청록 */
+  --cat-4:#c98500;  /* 노랑 */
+
+  /* 상태 (지원 표기 O/X/△/? · 실행 결과) — 카테고리 색과 분리 */
+  --ok:#15803d;      /* O · Pass */
+  --no:#c9302c;      /* X · Fail */
+  --part:#b45309;    /* △ · Blocked */
+  --unk:#6e7781;     /* ? · N/A · Skip */
+  --ok-bg:rgba(21,128,61,.12);
+  --no-bg:rgba(201,48,44,.11);
+  --part-bg:rgba(180,83,9,.12);
+  --unk-bg:rgba(110,119,129,.12);
+
+  /* 우선순위 */
+  --pri-high:#c9302c;
+  --pri-mid:#b45309;
+  --pri-low:#6e7781;
+
+  /* 검증유형 */
+  --vt-det:#2f6fc4;   /* 결정적 */
+  --vt-prob:#a76a00;  /* 확률적 */
+  --vt-rub:#15803d;   /* 루브릭 */
+  --vt-ban:#c9302c;   /* 금칙 */
+  --vt-det-bg:rgba(47,111,196,.12);
+  --vt-prob-bg:rgba(167,106,0,.12);
+  --vt-rub-bg:rgba(21,128,61,.12);
+  --vt-ban-bg:rgba(201,48,44,.11);
+}
+
+/* ---------- 1-2. 다크 토큰 (토글로만 켜진다) ---------- */
+:root[data-theme="dark"]{
+  --page:#0d0d0d;
+  --surface:#16161a;
+  --surface-2:#1c1c21;
+  --ink:#f4f4f5;
+  --ink-2:#c3c2b7;
+  --muted:#898781;
+  --grid:#2c2c2a;
+  --axis:#383835;
+  --hair:rgba(255,255,255,.10);
+  --shadow:none;
+  --accent:#818cf8;
+  --accent-dim:#4f46e5;
+  --on-accent:#f4f4f5;
+
+  --side-bg:#121215;
+  --side-ink:#b8b7af;
+  --side-ink-strong:#f4f4f5;
+  --side-hair:rgba(255,255,255,.08);
+  --side-active:rgba(129,140,248,.18);
+
+  --ok:#34d399;
+  --no:#f87171;
+  --part:#fbbf24;
+  --unk:#9ca3af;
+  --ok-bg:rgba(52,211,153,.14);
+  --no-bg:rgba(248,113,113,.14);
+  --part-bg:rgba(251,191,36,.14);
+  --unk-bg:rgba(156,163,175,.14);
+
+  --pri-high:#f87171;
+  --pri-mid:#fbbf24;
+  --pri-low:#9ca3af;
+
+  --vt-det:#3987e5;
+  --vt-prob:#c98500;
+  --vt-rub:#199e70;
+  --vt-ban:#e24b4a;
+  --vt-det-bg:rgba(57,135,229,.14);
+  --vt-prob-bg:rgba(201,133,0,.14);
+  --vt-rub-bg:rgba(25,158,112,.14);
+  --vt-ban-bg:rgba(226,75,74,.14);
+}
+
+/* ---------- 2. 베이스·타이포 ---------- */
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;background:var(--page);color:var(--ink);
+  font-family:system-ui,-apple-system,"Segoe UI","Malgun Gothic",sans-serif;
+  font-size:15px;line-height:1.7;
+}
+.wrap{max-width:1080px;margin:0 auto;padding:32px 24px 80px}
+h1{font-size:26px;line-height:1.35;margin:0 0 8px}
+h2{font-size:19px;margin:48px 0 12px;padding-left:12px;border-left:3px solid var(--accent);
+  scroll-margin-top:calc(var(--top-h) + 16px)}
+h3{font-size:16px;margin:28px 0 8px;color:var(--ink)}
+p{margin:8px 0;color:var(--ink-2)}
+strong{color:var(--ink)}
+small,.foot{color:var(--muted);font-size:12.5px}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+code{background:var(--surface-2);border:1px solid var(--grid);border-radius:4px;
+  padding:1px 6px;font-size:13px;font-family:ui-monospace,Consolas,monospace;color:var(--ink)}
+pre{background:var(--surface-2);border:1px solid var(--grid);border-radius:8px;
+  padding:14px 16px;overflow-x:auto;font-size:13px;line-height:1.6}
+pre code{background:none;border:none;padding:0}
+hr{border:none;border-top:1px solid var(--grid);margin:32px 0}
+
+/* ---------- 3. 셸 (사이드바 + 상단 바) ----------
+   산출물이 여럿이라 문서마다 따로 놓이면 서로를 못 찾는다.
+   셸을 쓰는 문서는 body 바로 아래 .app > (.side + .main) 구조를 만든다. */
+.app{display:grid;grid-template-columns:var(--side-w) 1fr;min-height:100vh}
+.main{min-width:0}
+.app .wrap{padding-top:24px}
+
+.side{position:sticky;top:0;height:100vh;display:flex;flex-direction:column;
+  background:var(--side-bg);color:var(--side-ink);overflow-y:auto;z-index:30}
+.side-head{padding:16px 18px 14px;border-bottom:1px solid var(--side-hair)}
+.side-head a{display:block;color:var(--side-ink-strong);font-weight:700;font-size:15px}
+.side-head a:hover{text-decoration:none;opacity:.85}
+.side-head .sub{display:block;color:var(--side-ink);font-size:12px;opacity:.75;margin-top:2px}
+.side-nav{flex:1;padding:10px 0 20px}
+.nav-sec{padding:14px 18px 6px;font-size:11.5px;letter-spacing:.04em;
+  text-transform:uppercase;color:var(--side-ink);opacity:.55}
+/* 카테고리 머리말 — 아래 묶음들이 한 프로젝트에 속함을 보인다. 묶음 이름보다 한 단 위다 */
+.nav-cat{margin:18px 0 0;padding:14px 18px 2px;border-top:1px solid var(--side-hair);
+  font-size:12.5px;font-weight:700;color:var(--side-ink-strong)}
+.nav-i,.nav-sub{display:block;padding:7px 18px;color:var(--side-ink);font-size:13.5px;
+  border-left:3px solid transparent}
+.nav-i:hover,.nav-sub:hover{background:var(--side-active);color:var(--side-ink-strong);
+  text-decoration:none}
+.nav-i.on{background:var(--side-active);color:var(--side-ink-strong);
+  border-left-color:var(--accent);font-weight:600}
+.nav-off{opacity:.4;cursor:default}   /* 아직 만들지 않은 페이지 — 자리는 보이되 눌리지 않는다 */
+.nav-sub{padding-left:32px;font-size:13px;opacity:.85}
+.nav-sub.on{color:var(--side-ink-strong);border-left-color:var(--accent);opacity:1}
+.nav-i .tag{float:right;font-size:11.5px;opacity:.6}
+.side-foot{padding:12px 18px 18px;border-top:1px solid var(--side-hair);
+  font-size:12px;color:var(--side-ink);opacity:.7}
+
+.topbar{position:sticky;top:0;z-index:20;height:var(--top-h);display:flex;align-items:center;
+  gap:12px;padding:0 24px;background:var(--surface);border-bottom:1px solid var(--grid)}
+.topbar .crumb{font-size:13.5px;color:var(--muted);min-width:0;overflow:hidden;
+  text-overflow:ellipsis;white-space:nowrap}
+.topbar .crumb b{color:var(--ink);font-weight:600}
+.topbar .sp{margin-left:auto}
+.icon-btn{background:var(--surface);border:1px solid var(--hair);border-radius:8px;
+  color:var(--ink-2);padding:5px 12px;font-size:13px;cursor:pointer;line-height:1.6}
+.icon-btn:hover{border-color:var(--accent);color:var(--accent)}
+.side-toggle{display:none}
+.backdrop{display:none;position:fixed;inset:0;background:rgba(15,23,42,.45);z-index:25}
+.backdrop.on{display:block}
+
+/* ---------- 4. 헤더·메타 ---------- */
+.doc-header{position:relative;padding:8px 0 20px;border-bottom:1px solid var(--grid);margin-bottom:8px}
+/* 셸이 없는 문서(기능 트리·중앙 허브·분석 문서)의 테마 토글 자리.
+   버튼이 상단 바에만 있으면 그 문서들에서는 테마를 바꿀 수단이 사라진다. */
+.doc-header .icon-btn[data-theme-toggle]{position:absolute;top:6px;right:0}
+.doc-header:has(.icon-btn[data-theme-toggle]) h1{padding-right:76px}
+.doc-lead{color:var(--ink-2);max-width:72ch}
+.meta-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.badge{display:inline-block;background:var(--surface);border:1px solid var(--hair);
+  border-radius:999px;padding:3px 12px;font-size:12.5px;color:var(--ink-2)}
+.badge b{color:var(--ink);font-weight:600}
+.toc{display:flex;flex-wrap:wrap;gap:6px 16px;margin-top:14px;font-size:13px}
+
+/* ---------- 5. 스탯 타일 ---------- */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:20px 0}
+.stat{background:var(--surface);border:1px solid var(--hair);border-radius:12px;padding:16px 18px;
+  box-shadow:var(--shadow)}
+.stat .num{font-size:26px;font-weight:700;color:var(--ink);line-height:1.2}
+.stat .num em{font-style:normal;color:var(--accent)}
+.stat .lbl{font-size:12.5px;color:var(--muted);margin-top:4px}
+.stat .sub{font-size:12px;color:var(--ink-2);margin-top:6px}
+.stat .bar{height:4px;border-radius:999px;background:var(--surface-2);margin-top:10px;overflow:hidden}
+.stat .bar i{display:block;height:100%;background:var(--accent);border-radius:999px}
+.stat .bar i.ok{background:var(--ok)}
+.stat .bar i.no{background:var(--no)}
+.stat .bar i.part{background:var(--part)}
+
+/* ---------- 6. 카드 ---------- */
+.card{background:var(--surface);border:1px solid var(--hair);border-radius:12px;padding:20px;
+  margin:14px 0;box-shadow:var(--shadow)}
+.card h3{margin-top:0}
+.card-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin:14px 0}
+.card-grid .card{margin:0}
+
+/* ---------- 6-0. 카드 안 아이템 ---------- */
+/* 카드 안에 항목이 여럿일 때. 바깥이 surface라 안쪽은 surface-2로 층을 만든다 */
+.item-grid{display:grid;gap:8px;margin-top:12px}
+.item{position:relative;background:var(--surface-2);border:1px solid var(--hair);
+  border-radius:10px;padding:11px 13px}
+.item a{font-weight:600}
+.item .foot{display:block;margin-top:3px}
+.item:hover{border-color:var(--accent)}
+/* 카드 어디를 눌러도 그 링크로 간다. 테두리는 카드 전체가 밝아지는데 눌리는 곳이
+   제목뿐이면 신호와 동작이 어긋난다. 링크의 클릭 영역만 넓히므로 마크업은 그대로다.
+   **카드 안 링크가 하나일 때만 성립한다** — 둘을 넣으면 넓힌 영역이 서로 덮어
+   뒤엣것을 누를 수 없다 */
+.item a::after{content:"";position:absolute;inset:0}
+/* 아직 만들지 않은 문서. 누를 곳이 없으므로 강조도 하지 않는다 — 밝아지는데 눌리지
+   않으면 위와 같은 어긋남이 뒤집힌 채로 남는다. 사이드바의 .nav-off와 같은 규칙이다 */
+.item-off{opacity:.55;cursor:default}
+.item-off:hover{border-color:var(--hair)}
+
+/* ---------- 6-1. 접이식 블록 ---------- */
+/* 본문에 곁들이는 참고 자료. 기본은 접힘이라 흐름을 끊지 않는다 */
+.fold{margin:10px 0 2px;border:1px solid var(--hair);border-radius:8px;
+  background:var(--surface-2)}
+.fold>summary{cursor:pointer;padding:8px 12px;font-size:13px;color:var(--ink-2);
+  list-style:none}
+.fold>summary::-webkit-details-marker{display:none}
+.fold>summary::before{content:"▸";margin-right:8px;color:var(--muted)}
+.fold[open]>summary::before{content:"▾"}
+.fold>summary:hover{color:var(--ink)}
+.fold-body{max-height:340px;overflow:auto;padding:4px 12px 10px;
+  border-top:1px solid var(--hair)}
+.fold-body .body{padding:2px 0;font-size:12.5px;color:var(--ink-2)}
+.fold-body .depth-tag{color:var(--muted);font-size:11px;margin-right:4px}
+
+/* ---------- 7. 표 ---------- */
+.tbl-scroll{overflow-x:auto;border:1px solid var(--grid);border-radius:10px;margin:14px 0;
+  background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:13px}
+thead th{background:var(--surface-2);color:var(--ink-2);text-align:left;
+  padding:9px 12px;position:sticky;top:0;white-space:nowrap;font-weight:600}
+tbody td{padding:8px 12px;border-top:1px solid var(--grid);color:var(--ink-2);vertical-align:top}
+tbody tr:nth-child(even){background:rgba(31,35,40,.022)}
+:root[data-theme="dark"] tbody tr:nth-child(even){background:rgba(255,255,255,.015)}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+
+/* 표 도구 — 행이 수십 줄을 넘으면 눈으로 찾는 비용이 검증 비용을 넘는다 */
+.tbl-tools{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:14px 0 8px}
+.tbl-search{background:var(--surface);border:1px solid var(--hair);border-radius:8px;
+  color:var(--ink);padding:6px 12px;font-size:13px;min-width:220px;font-family:inherit}
+.tbl-search:focus{outline:none;border-color:var(--accent)}
+.tbl-count{margin-left:auto;color:var(--muted);font-size:12.5px;font-variant-numeric:tabular-nums}
+th.sortable{cursor:pointer;user-select:none}
+th.sortable::after{content:"↕";margin-left:6px;opacity:.35;font-size:11px}
+th.sort-asc::after{content:"↑";opacity:1;color:var(--accent)}
+th.sort-desc::after{content:"↓";opacity:1;color:var(--accent)}
+tbody tr.row-hide{display:none}
+
+/* ---------- 8. 칩 (상태·우선순위·검증유형) ---------- */
+.chip{display:inline-block;border-radius:999px;padding:1px 10px;font-size:12px;
+  font-weight:600;color:var(--ink);border:1px solid transparent;white-space:nowrap}
+.chip-ok{background:var(--ok-bg);border-color:var(--ok)}
+.chip-no{background:var(--no-bg);border-color:var(--no)}
+.chip-part{background:var(--part-bg);border-color:var(--part)}
+.chip-unk{background:var(--unk-bg);border-color:var(--unk)}
+.chip-high{background:var(--no-bg);border-color:var(--pri-high)}
+.chip-mid{background:var(--part-bg);border-color:var(--pri-mid)}
+.chip-low{background:var(--unk-bg);border-color:var(--pri-low)}
+.chip-det{background:var(--vt-det-bg);border-color:var(--vt-det)}
+.chip-prob{background:var(--vt-prob-bg);border-color:var(--vt-prob)}
+.chip-rub{background:var(--vt-rub-bg);border-color:var(--vt-rub)}
+.chip-ban{background:var(--vt-ban-bg);border-color:var(--vt-ban)}
+
+/* ---------- 9. 필터 버튼 ---------- */
+.filters{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+.fbtn{background:var(--surface);border:1px solid var(--hair);border-radius:8px;
+  color:var(--ink-2);padding:5px 14px;font-size:13px;cursor:pointer;font-family:inherit}
+.fbtn:hover{border-color:var(--accent)}
+.fbtn.on{background:var(--accent-dim);border-color:var(--accent-dim);color:var(--on-accent)}
+
+/* ---------- 9-1. 탭 ----------
+   성격이 다른 큰 표 여럿을 한 문서에 담을 때 씁니다. 세로로 잇대면 페이지가 감당이
+   안 되고, .fold는 곁들임용이라 max-height에 갇힙니다. 스크립트가 꺼져 있어도 첫
+   패널은 보입니다 — .tab-panel의 기본이 보임이고 감추는 쪽을 JS가 붙입니다. */
+.tabs{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0 4px;
+  border-bottom:1px solid var(--hair);padding-bottom:12px}
+.tab-btn{background:var(--surface);border:1px solid var(--hair);border-radius:8px;
+  color:var(--ink-2);padding:6px 16px;font-size:13px;cursor:pointer;font-family:inherit}
+.tab-btn:hover{border-color:var(--accent)}
+.tab-btn.on{background:var(--accent-dim);border-color:var(--accent-dim);color:var(--on-accent)}
+.tab-btn .n{opacity:.7;margin-left:6px;font-size:12px}
+.tab-panel[hidden]{display:none}
+
+/* ---------- 10. 콜아웃 ---------- */
+.callout{border-left:3px solid var(--accent);background:var(--surface);
+  border-radius:0 10px 10px 0;padding:12px 16px;margin:14px 0;color:var(--ink-2)}
+.callout.warn{border-left-color:var(--part);background:var(--part-bg)}
+.callout.danger{border-left-color:var(--no);background:var(--no-bg)}
+
+/* ---------- 11. 기능 트리 ---------- */
+.tree{list-style:none;padding-left:0;margin:12px 0;font-size:13.5px}
+.tree ul{list-style:none;padding-left:22px;border-left:1px solid var(--grid);margin:2px 0 2px 7px}
+.tree li{padding:3px 0;color:var(--ink-2)}
+.tree .node{color:var(--ink)}
+.tree .depth-tag{color:var(--muted);font-size:11.5px;margin-right:6px;
+  font-family:ui-monospace,Consolas,monospace}
+.tree .note{color:var(--muted);font-size:12px;margin-left:8px}
+
+/* ---------- 12. 파이프라인·단계 ---------- */
+.steps{display:flex;flex-direction:column;gap:10px;margin:16px 0;counter-reset:step}
+.step{display:flex;gap:14px;background:var(--surface);border:1px solid var(--hair);
+  border-radius:10px;padding:14px 16px;box-shadow:var(--shadow)}
+.step::before{counter-increment:step;content:counter(step);flex:0 0 26px;height:26px;
+  border-radius:50%;background:var(--accent-dim);color:var(--on-accent);font-size:13px;
+  font-weight:700;display:flex;align-items:center;justify-content:center}
+.step .body{color:var(--ink-2)}
+.step .body b{color:var(--ink)}
+
+/* ---------- 13. footer ---------- */
+.doc-footer{margin-top:56px;padding-top:16px;border-top:1px solid var(--grid);
+  color:var(--muted);font-size:12.5px}
+
+/* ---------- 14. 구조도·설명 다이어그램 (SVG 인라인) ----------
+   정본은 저장소 루트 structure.svg와 base/diagrams/*.svg이며 색은 밝은 배경 기준으로 그린다.
+   라이트 테마에서는 원본 색이 그대로 맞으므로 덮지 않고, 다크에서만 표면에 맞춘다 —
+   그림 파일을 테마마다 따로 두지 않기 위해서다. */
+.sd{width:100%;height:auto;display:block}
+:root[data-theme="dark"] .sd .grp-entry{fill:#131316;stroke:#3a3a3f}
+:root[data-theme="dark"] .sd .nd-entry{fill:#1c1c21;stroke:#565660}
+:root[data-theme="dark"] .sd .grp-proc{fill:#0e1a24;stroke:#3987e5}
+:root[data-theme="dark"] .sd .nd-proc{fill:#152634;stroke:#3987e5}
+:root[data-theme="dark"] .sd .grp-form{fill:#16161f;stroke:#6b74d6}
+:root[data-theme="dark"] .sd .nd-form{fill:#1e1f2e;stroke:#6b74d6}
+:root[data-theme="dark"] .sd .grp-out{fill:#0f1c17;stroke:#199e70}
+:root[data-theme="dark"] .sd .nd-out{fill:#132923;stroke:#199e70}
+:root[data-theme="dark"] .sd .grp-warn{fill:#241a12;stroke:#c2410c}
+:root[data-theme="dark"] .sd .nd-warn{fill:#33241a;stroke:#c2410c}
+:root[data-theme="dark"] .sd text.t{fill:var(--ink)}
+:root[data-theme="dark"] .sd text.s{fill:var(--ink-2)}
+:root[data-theme="dark"] .sd text.lbl{fill:var(--ink-2)}
+:root[data-theme="dark"] .sd rect.pill{fill:var(--surface-2);stroke:var(--grid)}
+:root[data-theme="dark"] .sd path.arrow-gray{stroke:#8b8f98}
+:root[data-theme="dark"] .sd path.arrow-green{stroke:var(--ok)}
+:root[data-theme="dark"] .sd path.arrow-red{stroke:#fb923c}
+:root[data-theme="dark"] .sd marker#ar-gray path,
+:root[data-theme="dark"] .sd marker#cv-ar-gray path,
+:root[data-theme="dark"] .sd marker#fm-ar-gray path,
+:root[data-theme="dark"] .sd marker#ai-ar-gray path{fill:#8b8f98}
+:root[data-theme="dark"] .sd marker#cv-ar-green path,
+:root[data-theme="dark"] .sd marker#ai-ar-green path{fill:var(--ok)}
+:root[data-theme="dark"] .sd marker#cv-ar-red path,
+:root[data-theme="dark"] .sd marker#fm-ar-red path{fill:#fb923c}
+
+/* ---------- 15. 반응형 ----------
+   좁은 화면에서는 사이드바를 서랍으로 내린다. 문서가 먼저 보여야 한다. */
+@media (max-width:980px){
+  .app{grid-template-columns:1fr}
+  .side{position:fixed;top:0;left:0;width:var(--side-w);transform:translateX(-100%);
+    transition:transform .18s ease}
+  .side.open{transform:none}
+  .side-toggle{display:inline-block}
+  .app .wrap{padding-left:18px;padding-right:18px}
+  .topbar{padding:0 16px}
+}
+@media print{
+  .side,.topbar,.tbl-tools,.filters,.backdrop{display:none!important}
+  .app{display:block}
+}

@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>01-feature-tree — 기능 골격 트리 템플릿</title>
+<!-- ============================================================
+  CHANGELOG
+  v1.0 (2026-07-31) 최초 수립 — 기능 골격 트리 + TC 관계도 문서 템플릿.
+  ------------------------------------------------------------
+  용도: spec/{프로젝트}-feature-tree.md 정본의 파생 HTML.
+  섹션 순서 = 독자의 이해 경로: 개요 수치 → 트리 전체 → 관계도 → 미확인.
+  산출 시 이 <link>를 제거하고 생성 시점 마스터 CSS를 <style>에 inline할 것.
+  {중괄호}는 산출 시 치환되는 자리.
+  ============================================================ -->
+<link rel="stylesheet" href="../design-guide/design-guide-master.css">
+</head>
+<body>
+<div class="wrap">
+
+<header class="doc-header">
+  <h1>{프로젝트} 기능 골격 v{X.Y}</h1>
+  <p class="doc-lead">{이 골격이 무엇을 다루는지 한 문단 리드. 대상 서비스·범위·기준 시점.}</p>
+  <div class="meta-row">
+    <span class="badge">골격 버전 <b>v{X.Y}</b></span>
+    <span class="badge">정본 <b>{프로젝트}-feature-tree.md</b></span>
+    <span class="badge">기준일 <b>{YYYY-MM-DD}</b></span>
+  </div>
+  <nav class="toc">
+    <a href="#stats">개요</a><a href="#tree">기능 트리</a><a href="#relations">TC 관계도</a><a href="#unknown">미확인 목록</a>
+  </nav>
+</header>
+
+<h2 id="stats">개요</h2>
+<div class="stats">
+  <div class="stat"><div class="num">{N}</div><div class="lbl">트리 노드</div></div>
+  <div class="stat"><div class="num">{N}</div><div class="lbl">최대 Depth</div></div>
+  <div class="stat"><div class="num"><em>{N}</em></div><div class="lbl">미확인(?) 항목</div></div>
+  <div class="stat"><div class="num">{N}%</div><div class="lbl">결정적 비율</div></div>
+</div>
+
+<h2 id="tree">기능 트리</h2>
+<p>{트리를 읽는 법 리드 문장. 명칭이 아니라 역할로 묶었음을 밝히고, 상태는 Pre-Condition으로 흡수했음을 안내.}</p>
+<ul class="tree">
+  <li><span class="depth-tag">D1</span><span class="node">{화면/기능 영역}</span>
+    <ul>
+      <li><span class="depth-tag">D2</span><span class="node">{영역·패널}</span>
+        <ul>
+          <li><span class="depth-tag">D3</span><span class="node">{구성 요소}</span>
+            <span class="chip chip-det">결정적</span> <span class="chip chip-ok">O</span>
+            <span class="note">{비고: 확인된 사양 수치·명칭 차이}</span></li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+<!-- 노드가 많아 트리가 장황해지면 영역별 카드 그리드(.card-grid)로 요약을 먼저 두고 전체 트리를 뒤에 -->
+
+<h2 id="relations">TC 관계도</h2>
+<p>{케이스 사이의 선행 관계 리드. 루트·병목·병렬 시작점이 어디인지 문장으로 먼저.}</p>
+<div class="card">
+  <!-- 생성 시점에 구운 Mermaid SVG 인라인. 소스는 아래 pre에 병기 -->
+  {Mermaid SVG}
+</div>
+<pre><code>{Mermaid 소스(.mmd)}</code></pre>
+
+<h2 id="unknown">미확인 목록</h2>
+<div class="callout warn">아래 항목은 실측 전까지 기대값이 성립하지 않습니다. 그래서 `?`의 분포가 곧 실측 계획이 됩니다.</div>
+<div class="tbl-scroll">
+<table>
+  <thead><tr><th>노드 경로</th><th>미확인 값</th><th>확인 방법</th></tr></thead>
+  <tbody>
+    <tr><td>{D1 &gt; D2 &gt; D3}</td><td>{예: 세이브 슬롯 상한}</td><td>{예: 실기기 실측}</td></tr>
+  </tbody>
+</table>
+</div>
+
+<footer class="doc-footer">
+  {프로젝트} 기능 골격 v{X.Y} · 템플릿 01-feature-tree v1.0 · design-guide-master v{CSS버전} 스냅샷
+</footer>
+
+</div>
+</body>
+</html>

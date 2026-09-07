@@ -1,0 +1,774 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>rsj-centralized-control — 중앙 규칙 구조</title><style>/* ============================================================
+   design-guide-master.css — 스타일 정본
+   ------------------------------------------------------------
+   CHANGELOG
+   v2.5 (2026-08-05) 카드 안 아이템을 카드 전체로 누르게 했다(.item a::after). 테두리는
+     카드 전체가 밝아지는데 눌리는 곳은 제목뿐이라 신호와 동작이 어긋났다. 링크의 클릭
+     영역만 넓히므로 마크업도 생성기도 그대로다. 링크가 없는 항목(.item-off)은 반대로
+     강조를 걷었다 — 밝아지는데 눌리지 않으면 같은 어긋남이 뒤집힌 채로 남는다.
+   v2.4 (2026-08-05) 카드 안 아이템(.item-grid/.item)을 더했다. 카드 안에 항목이
+     여럿일 때 <p>로 잇대면 경계가 없어 한 덩어리 텍스트로 읽혔다. 카드를 그대로
+     겹칠 수는 없다 — 바깥이 surface라 안쪽도 surface면 층이 보이지 않는다. 그래서
+     접이식(.fold)이 쓰는 surface-2를 그대로 따라 층만 만들고 모양은 새로 들이지 않는다.
+   v2.3 (2026-08-05) 탭(.tabs/.tab-btn/.tab-panel)을 더했다. 한 문서가 성격이 다른
+     큰 표를 여럿 담을 때 세로로 잇대면 페이지가 감당이 안 되고, 접이식(.fold)은
+     본문 안 곁들임용이라 max-height에 갇힌다. 모양은 필터 버튼(.fbtn)을 그대로
+     따라 새 디자인 언어를 들이지 않는다 — 더한 것은 「누르면 화면이 갈린다」뿐이다.
+   v2.2 (2026-08-05) 접이식 블록(.fold)을 더했다. 본문 흐름을 끊지 않으면서
+     참고 자료(기능 골격 요약 등)를 곁들일 자리가 없었다. 기본은 접힘이고,
+     펼치면 그 자리에서 바로 읽힌다.
+   v2.1 (2026-08-05) 사이드바에 카테고리 머리말(.nav-cat)을 더했다.
+     워크스페이스 문서와 프로젝트 문서가 한 줄로 섞여 있어 프로젝트가 늘면
+     무너지는 구조였다. 묶음(.nav-sec)보다 한 단 위의 머리말을 두어
+     「이 아래는 이 프로젝트의 것」을 구분한다. 문서 안 절 목록(.nav-sub)은
+     사이드바에서 걷어냈다 — 본문 제목과 겹쳐 항목만 두 배로 늘었다.
+   v2.0 (2026-08-04) 라이트를 기본 테마로 삼고 다크를 토글로 내렸다.
+     산출물이 늘어 「읽는 문서」 하나로는 부족해졌고, 지표를 한눈에 보여줄
+     대시보드 셸이 필요했다(참고: Gentelella v4의 레이아웃 언어 —
+     코드는 가져오지 않고 값만 참고했다).
+     · 색 토큰을 두 벌로: :root(라이트) + :root[data-theme="dark"].
+       역할 이름은 그대로라 기존 컴포넌트·생성기 마크업은 손대지 않는다
+     · 셸 신설 — .app / .side(고정 사이드바·모바일 드로어) / .topbar / .main
+     · 스탯 타일에 비율 막대(.stat .bar)와 보조 문구(.stat .sub)
+     · 표 도구 신설 — .tbl-tools(검색·필터·건수)와 헤더 클릭 정렬(th.sortable)
+     · --on-accent 신설 — 인디고 채움 위 글자색(라이트에서 잉크를 쓰면 안 읽힌다)
+     · 셸이 없는 문서의 테마 토글 자리 — .doc-header 오른쪽. 버튼이 상단 바에만
+       있으면 기능 트리·중앙 허브에서는 테마를 바꿀 수단이 사라진다
+     · 구조도(.sd) 덮어쓰기를 다크일 때만 적용 — 정본 SVG가 밝은 배경 기준이라
+       라이트에서는 원본 색이 그대로 맞는다
+   v1.1 (2026-08-04) 구조도(.sd) 규칙을 index.html에서 옮겨 왔다 — 문서마다
+     복사해 두면 한쪽만 고쳤을 때 갈라진다. 경고 계열(grp-warn·nd-warn)과
+     화살표 색(arrow-green·arrow-red), 그림별 마커 id를 더했다.
+   v1.0 (2026-07-31) 최초 수립 — rules/html-report-guide.md의
+     다크 테마·인디고 포인트 체계를 마스터로 승격.
+     색 토큰 / 타이포 / 레이아웃 / 카드·표·칩·콜아웃·스탯 타일 /
+     상태·우선순위·검증유형 시맨틱 칩 / 트리·파이프라인 컴포넌트.
+   ------------------------------------------------------------
+   규칙: 원색 hex를 본문에 흩뿌리지 않는다 — 역할 변수로만 참조.
+   갱신은 Case B/C 승인 후에만, 기존 토큰 제거는 별도 승인.
+   테마: 라이트가 기본이다. 다크는 <html data-theme="dark">로 켜며,
+   스크립트가 없으면 라이트로 남는다(기본값이 안전한 쪽이다).
+   ============================================================ */
+
+/* ---------- 1. 색 토큰 (라이트 = 기본) ---------- */
+:root{
+  --page:#f4f6fa;        /* 페이지 바탕 */
+  --surface:#ffffff;     /* 카드·표 표면 */
+  --surface-2:#eef1f7;   /* 표면 위 한 단 (표 헤더·코드) */
+  --ink:#1f2328;         /* 본문 */
+  --ink-2:#414a56;       /* 보조 텍스트 */
+  --muted:#6e7781;       /* 축·라벨·각주 */
+  --grid:#e2e7ef;        /* 표 구분선 */
+  --axis:#cdd4de;        /* 축·경계 */
+  --hair:rgba(31,35,40,.10);    /* 헤어라인 테두리 */
+  --shadow:0 1px 2px rgba(31,35,40,.06),0 1px 8px rgba(31,35,40,.04);
+  --accent:#4f46e5;      /* 인디고 포인트 (제목 마커·링크·강조) */
+  --accent-dim:#4338ca;  /* 눌린 상태·채움 */
+  --on-accent:#ffffff;   /* 인디고 채움 위 글자 */
+
+  /* 셸 — 사이드바는 두 테마 모두 어둡게 둔다(본문과 역할이 갈린다) */
+  --side-bg:#212a3a;
+  --side-ink:#c2cbdb;
+  --side-ink-strong:#ffffff;
+  --side-hair:rgba(255,255,255,.10);
+  --side-active:rgba(129,140,248,.22);
+  --side-w:238px;
+  --top-h:54px;
+
+  /* 차트 카테고리 (고정 순서 — 필터로 빠져도 재배정 금지) */
+  --cat-1:#3987e5;  /* 파랑 */
+  --cat-2:#d95926;  /* 주황 */
+  --cat-3:#199e70;  /* 청록 */
+  --cat-4:#c98500;  /* 노랑 */
+
+  /* 상태 (지원 표기 O/X/△/? · 실행 결과) — 카테고리 색과 분리 */
+  --ok:#15803d;      /* O · Pass */
+  --no:#c9302c;      /* X · Fail */
+  --part:#b45309;    /* △ · Blocked */
+  --unk:#6e7781;     /* ? · N/A · Skip */
+  --ok-bg:rgba(21,128,61,.12);
+  --no-bg:rgba(201,48,44,.11);
+  --part-bg:rgba(180,83,9,.12);
+  --unk-bg:rgba(110,119,129,.12);
+
+  /* 우선순위 */
+  --pri-high:#c9302c;
+  --pri-mid:#b45309;
+  --pri-low:#6e7781;
+
+  /* 검증유형 */
+  --vt-det:#2f6fc4;   /* 결정적 */
+  --vt-prob:#a76a00;  /* 확률적 */
+  --vt-rub:#15803d;   /* 루브릭 */
+  --vt-ban:#c9302c;   /* 금칙 */
+  --vt-det-bg:rgba(47,111,196,.12);
+  --vt-prob-bg:rgba(167,106,0,.12);
+  --vt-rub-bg:rgba(21,128,61,.12);
+  --vt-ban-bg:rgba(201,48,44,.11);
+}
+
+/* ---------- 1-2. 다크 토큰 (토글로만 켜진다) ---------- */
+:root[data-theme="dark"]{
+  --page:#0d0d0d;
+  --surface:#16161a;
+  --surface-2:#1c1c21;
+  --ink:#f4f4f5;
+  --ink-2:#c3c2b7;
+  --muted:#898781;
+  --grid:#2c2c2a;
+  --axis:#383835;
+  --hair:rgba(255,255,255,.10);
+  --shadow:none;
+  --accent:#818cf8;
+  --accent-dim:#4f46e5;
+  --on-accent:#f4f4f5;
+
+  --side-bg:#121215;
+  --side-ink:#b8b7af;
+  --side-ink-strong:#f4f4f5;
+  --side-hair:rgba(255,255,255,.08);
+  --side-active:rgba(129,140,248,.18);
+
+  --ok:#34d399;
+  --no:#f87171;
+  --part:#fbbf24;
+  --unk:#9ca3af;
+  --ok-bg:rgba(52,211,153,.14);
+  --no-bg:rgba(248,113,113,.14);
+  --part-bg:rgba(251,191,36,.14);
+  --unk-bg:rgba(156,163,175,.14);
+
+  --pri-high:#f87171;
+  --pri-mid:#fbbf24;
+  --pri-low:#9ca3af;
+
+  --vt-det:#3987e5;
+  --vt-prob:#c98500;
+  --vt-rub:#199e70;
+  --vt-ban:#e24b4a;
+  --vt-det-bg:rgba(57,135,229,.14);
+  --vt-prob-bg:rgba(201,133,0,.14);
+  --vt-rub-bg:rgba(25,158,112,.14);
+  --vt-ban-bg:rgba(226,75,74,.14);
+}
+
+/* ---------- 2. 베이스·타이포 ---------- */
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;background:var(--page);color:var(--ink);
+  font-family:system-ui,-apple-system,"Segoe UI","Malgun Gothic",sans-serif;
+  font-size:15px;line-height:1.7;
+}
+.wrap{max-width:1080px;margin:0 auto;padding:32px 24px 80px}
+h1{font-size:26px;line-height:1.35;margin:0 0 8px}
+h2{font-size:19px;margin:48px 0 12px;padding-left:12px;border-left:3px solid var(--accent);
+  scroll-margin-top:calc(var(--top-h) + 16px)}
+h3{font-size:16px;margin:28px 0 8px;color:var(--ink)}
+p{margin:8px 0;color:var(--ink-2)}
+strong{color:var(--ink)}
+small,.foot{color:var(--muted);font-size:12.5px}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+code{background:var(--surface-2);border:1px solid var(--grid);border-radius:4px;
+  padding:1px 6px;font-size:13px;font-family:ui-monospace,Consolas,monospace;color:var(--ink)}
+pre{background:var(--surface-2);border:1px solid var(--grid);border-radius:8px;
+  padding:14px 16px;overflow-x:auto;font-size:13px;line-height:1.6}
+pre code{background:none;border:none;padding:0}
+hr{border:none;border-top:1px solid var(--grid);margin:32px 0}
+
+/* ---------- 3. 셸 (사이드바 + 상단 바) ----------
+   산출물이 여럿이라 문서마다 따로 놓이면 서로를 못 찾는다.
+   셸을 쓰는 문서는 body 바로 아래 .app > (.side + .main) 구조를 만든다. */
+.app{display:grid;grid-template-columns:var(--side-w) 1fr;min-height:100vh}
+.main{min-width:0}
+.app .wrap{padding-top:24px}
+
+.side{position:sticky;top:0;height:100vh;display:flex;flex-direction:column;
+  background:var(--side-bg);color:var(--side-ink);overflow-y:auto;z-index:30}
+.side-head{padding:16px 18px 14px;border-bottom:1px solid var(--side-hair)}
+.side-head a{display:block;color:var(--side-ink-strong);font-weight:700;font-size:15px}
+.side-head a:hover{text-decoration:none;opacity:.85}
+.side-head .sub{display:block;color:var(--side-ink);font-size:12px;opacity:.75;margin-top:2px}
+.side-nav{flex:1;padding:10px 0 20px}
+.nav-sec{padding:14px 18px 6px;font-size:11.5px;letter-spacing:.04em;
+  text-transform:uppercase;color:var(--side-ink);opacity:.55}
+/* 카테고리 머리말 — 아래 묶음들이 한 프로젝트에 속함을 보인다. 묶음 이름보다 한 단 위다 */
+.nav-cat{margin:18px 0 0;padding:14px 18px 2px;border-top:1px solid var(--side-hair);
+  font-size:12.5px;font-weight:700;color:var(--side-ink-strong)}
+.nav-i,.nav-sub{display:block;padding:7px 18px;color:var(--side-ink);font-size:13.5px;
+  border-left:3px solid transparent}
+.nav-i:hover,.nav-sub:hover{background:var(--side-active);color:var(--side-ink-strong);
+  text-decoration:none}
+.nav-i.on{background:var(--side-active);color:var(--side-ink-strong);
+  border-left-color:var(--accent);font-weight:600}
+.nav-off{opacity:.4;cursor:default}   /* 아직 만들지 않은 페이지 — 자리는 보이되 눌리지 않는다 */
+.nav-sub{padding-left:32px;font-size:13px;opacity:.85}
+.nav-sub.on{color:var(--side-ink-strong);border-left-color:var(--accent);opacity:1}
+.nav-i .tag{float:right;font-size:11.5px;opacity:.6}
+.side-foot{padding:12px 18px 18px;border-top:1px solid var(--side-hair);
+  font-size:12px;color:var(--side-ink);opacity:.7}
+
+.topbar{position:sticky;top:0;z-index:20;height:var(--top-h);display:flex;align-items:center;
+  gap:12px;padding:0 24px;background:var(--surface);border-bottom:1px solid var(--grid)}
+.topbar .crumb{font-size:13.5px;color:var(--muted);min-width:0;overflow:hidden;
+  text-overflow:ellipsis;white-space:nowrap}
+.topbar .crumb b{color:var(--ink);font-weight:600}
+.topbar .sp{margin-left:auto}
+.icon-btn{background:var(--surface);border:1px solid var(--hair);border-radius:8px;
+  color:var(--ink-2);padding:5px 12px;font-size:13px;cursor:pointer;line-height:1.6}
+.icon-btn:hover{border-color:var(--accent);color:var(--accent)}
+.side-toggle{display:none}
+.backdrop{display:none;position:fixed;inset:0;background:rgba(15,23,42,.45);z-index:25}
+.backdrop.on{display:block}
+
+/* ---------- 4. 헤더·메타 ---------- */
+.doc-header{position:relative;padding:8px 0 20px;border-bottom:1px solid var(--grid);margin-bottom:8px}
+/* 셸이 없는 문서(기능 트리·중앙 허브·분석 문서)의 테마 토글 자리.
+   버튼이 상단 바에만 있으면 그 문서들에서는 테마를 바꿀 수단이 사라진다. */
+.doc-header .icon-btn[data-theme-toggle]{position:absolute;top:6px;right:0}
+.doc-header:has(.icon-btn[data-theme-toggle]) h1{padding-right:76px}
+.doc-lead{color:var(--ink-2);max-width:72ch}
+.meta-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.badge{display:inline-block;background:var(--surface);border:1px solid var(--hair);
+  border-radius:999px;padding:3px 12px;font-size:12.5px;color:var(--ink-2)}
+.badge b{color:var(--ink);font-weight:600}
+.toc{display:flex;flex-wrap:wrap;gap:6px 16px;margin-top:14px;font-size:13px}
+
+/* ---------- 5. 스탯 타일 ---------- */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:20px 0}
+.stat{background:var(--surface);border:1px solid var(--hair);border-radius:12px;padding:16px 18px;
+  box-shadow:var(--shadow)}
+.stat .num{font-size:26px;font-weight:700;color:var(--ink);line-height:1.2}
+.stat .num em{font-style:normal;color:var(--accent)}
+.stat .lbl{font-size:12.5px;color:var(--muted);margin-top:4px}
+.stat .sub{font-size:12px;color:var(--ink-2);margin-top:6px}
+.stat .bar{height:4px;border-radius:999px;background:var(--surface-2);margin-top:10px;overflow:hidden}
+.stat .bar i{display:block;height:100%;background:var(--accent);border-radius:999px}
+.stat .bar i.ok{background:var(--ok)}
+.stat .bar i.no{background:var(--no)}
+.stat .bar i.part{background:var(--part)}
+
+/* ---------- 6. 카드 ---------- */
+.card{background:var(--surface);border:1px solid var(--hair);border-radius:12px;padding:20px;
+  margin:14px 0;box-shadow:var(--shadow)}
+.card h3{margin-top:0}
+.card-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin:14px 0}
+.card-grid .card{margin:0}
+
+/* ---------- 6-0. 카드 안 아이템 ---------- */
+/* 카드 안에 항목이 여럿일 때. 바깥이 surface라 안쪽은 surface-2로 층을 만든다 */
+.item-grid{display:grid;gap:8px;margin-top:12px}
+.item{position:relative;background:var(--surface-2);border:1px solid var(--hair);
+  border-radius:10px;padding:11px 13px}
+.item a{font-weight:600}
+.item .foot{display:block;margin-top:3px}
+.item:hover{border-color:var(--accent)}
+/* 카드 어디를 눌러도 그 링크로 간다. 테두리는 카드 전체가 밝아지는데 눌리는 곳이
+   제목뿐이면 신호와 동작이 어긋난다. 링크의 클릭 영역만 넓히므로 마크업은 그대로다.
+   **카드 안 링크가 하나일 때만 성립한다** — 둘을 넣으면 넓힌 영역이 서로 덮어
+   뒤엣것을 누를 수 없다 */
+.item a::after{content:"";position:absolute;inset:0}
+/* 아직 만들지 않은 문서. 누를 곳이 없으므로 강조도 하지 않는다 — 밝아지는데 눌리지
+   않으면 위와 같은 어긋남이 뒤집힌 채로 남는다. 사이드바의 .nav-off와 같은 규칙이다 */
+.item-off{opacity:.55;cursor:default}
+.item-off:hover{border-color:var(--hair)}
+
+/* ---------- 6-1. 접이식 블록 ---------- */
+/* 본문에 곁들이는 참고 자료. 기본은 접힘이라 흐름을 끊지 않는다 */
+.fold{margin:10px 0 2px;border:1px solid var(--hair);border-radius:8px;
+  background:var(--surface-2)}
+.fold>summary{cursor:pointer;padding:8px 12px;font-size:13px;color:var(--ink-2);
+  list-style:none}
+.fold>summary::-webkit-details-marker{display:none}
+.fold>summary::before{content:"▸";margin-right:8px;color:var(--muted)}
+.fold[open]>summary::before{content:"▾"}
+.fold>summary:hover{color:var(--ink)}
+.fold-body{max-height:340px;overflow:auto;padding:4px 12px 10px;
+  border-top:1px solid var(--hair)}
+.fold-body .body{padding:2px 0;font-size:12.5px;color:var(--ink-2)}
+.fold-body .depth-tag{color:var(--muted);font-size:11px;margin-right:4px}
+
+/* ---------- 7. 표 ---------- */
+.tbl-scroll{overflow-x:auto;border:1px solid var(--grid);border-radius:10px;margin:14px 0;
+  background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:13px}
+thead th{background:var(--surface-2);color:var(--ink-2);text-align:left;
+  padding:9px 12px;position:sticky;top:0;white-space:nowrap;font-weight:600}
+tbody td{padding:8px 12px;border-top:1px solid var(--grid);color:var(--ink-2);vertical-align:top}
+tbody tr:nth-child(even){background:rgba(31,35,40,.022)}
+:root[data-theme="dark"] tbody tr:nth-child(even){background:rgba(255,255,255,.015)}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+
+/* 표 도구 — 행이 수십 줄을 넘으면 눈으로 찾는 비용이 검증 비용을 넘는다 */
+.tbl-tools{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:14px 0 8px}
+.tbl-search{background:var(--surface);border:1px solid var(--hair);border-radius:8px;
+  color:var(--ink);padding:6px 12px;font-size:13px;min-width:220px;font-family:inherit}
+.tbl-search:focus{outline:none;border-color:var(--accent)}
+.tbl-count{margin-left:auto;color:var(--muted);font-size:12.5px;font-variant-numeric:tabular-nums}
+th.sortable{cursor:pointer;user-select:none}
+th.sortable::after{content:"↕";margin-left:6px;opacity:.35;font-size:11px}
+th.sort-asc::after{content:"↑";opacity:1;color:var(--accent)}
+th.sort-desc::after{content:"↓";opacity:1;color:var(--accent)}
+tbody tr.row-hide{display:none}
+
+/* ---------- 8. 칩 (상태·우선순위·검증유형) ---------- */
+.chip{display:inline-block;border-radius:999px;padding:1px 10px;font-size:12px;
+  font-weight:600;color:var(--ink);border:1px solid transparent;white-space:nowrap}
+.chip-ok{background:var(--ok-bg);border-color:var(--ok)}
+.chip-no{background:var(--no-bg);border-color:var(--no)}
+.chip-part{background:var(--part-bg);border-color:var(--part)}
+.chip-unk{background:var(--unk-bg);border-color:var(--unk)}
+.chip-high{background:var(--no-bg);border-color:var(--pri-high)}
+.chip-mid{background:var(--part-bg);border-color:var(--pri-mid)}
+.chip-low{background:var(--unk-bg);border-color:var(--pri-low)}
+.chip-det{background:var(--vt-det-bg);border-color:var(--vt-det)}
+.chip-prob{background:var(--vt-prob-bg);border-color:var(--vt-prob)}
+.chip-rub{background:var(--vt-rub-bg);border-color:var(--vt-rub)}
+.chip-ban{background:var(--vt-ban-bg);border-color:var(--vt-ban)}
+
+/* ---------- 9. 필터 버튼 ---------- */
+.filters{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+.fbtn{background:var(--surface);border:1px solid var(--hair);border-radius:8px;
+  color:var(--ink-2);padding:5px 14px;font-size:13px;cursor:pointer;font-family:inherit}
+.fbtn:hover{border-color:var(--accent)}
+.fbtn.on{background:var(--accent-dim);border-color:var(--accent-dim);color:var(--on-accent)}
+
+/* ---------- 9-1. 탭 ----------
+   성격이 다른 큰 표 여럿을 한 문서에 담을 때 씁니다. 세로로 잇대면 페이지가 감당이
+   안 되고, .fold는 곁들임용이라 max-height에 갇힙니다. 스크립트가 꺼져 있어도 첫
+   패널은 보입니다 — .tab-panel의 기본이 보임이고 감추는 쪽을 JS가 붙입니다. */
+.tabs{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0 4px;
+  border-bottom:1px solid var(--hair);padding-bottom:12px}
+.tab-btn{background:var(--surface);border:1px solid var(--hair);border-radius:8px;
+  color:var(--ink-2);padding:6px 16px;font-size:13px;cursor:pointer;font-family:inherit}
+.tab-btn:hover{border-color:var(--accent)}
+.tab-btn.on{background:var(--accent-dim);border-color:var(--accent-dim);color:var(--on-accent)}
+.tab-btn .n{opacity:.7;margin-left:6px;font-size:12px}
+.tab-panel[hidden]{display:none}
+
+/* ---------- 10. 콜아웃 ---------- */
+.callout{border-left:3px solid var(--accent);background:var(--surface);
+  border-radius:0 10px 10px 0;padding:12px 16px;margin:14px 0;color:var(--ink-2)}
+.callout.warn{border-left-color:var(--part);background:var(--part-bg)}
+.callout.danger{border-left-color:var(--no);background:var(--no-bg)}
+
+/* ---------- 11. 기능 트리 ---------- */
+.tree{list-style:none;padding-left:0;margin:12px 0;font-size:13.5px}
+.tree ul{list-style:none;padding-left:22px;border-left:1px solid var(--grid);margin:2px 0 2px 7px}
+.tree li{padding:3px 0;color:var(--ink-2)}
+.tree .node{color:var(--ink)}
+.tree .depth-tag{color:var(--muted);font-size:11.5px;margin-right:6px;
+  font-family:ui-monospace,Consolas,monospace}
+.tree .note{color:var(--muted);font-size:12px;margin-left:8px}
+
+/* ---------- 12. 파이프라인·단계 ---------- */
+.steps{display:flex;flex-direction:column;gap:10px;margin:16px 0;counter-reset:step}
+.step{display:flex;gap:14px;background:var(--surface);border:1px solid var(--hair);
+  border-radius:10px;padding:14px 16px;box-shadow:var(--shadow)}
+.step::before{counter-increment:step;content:counter(step);flex:0 0 26px;height:26px;
+  border-radius:50%;background:var(--accent-dim);color:var(--on-accent);font-size:13px;
+  font-weight:700;display:flex;align-items:center;justify-content:center}
+.step .body{color:var(--ink-2)}
+.step .body b{color:var(--ink)}
+
+/* ---------- 13. footer ---------- */
+.doc-footer{margin-top:56px;padding-top:16px;border-top:1px solid var(--grid);
+  color:var(--muted);font-size:12.5px}
+
+/* ---------- 14. 구조도·설명 다이어그램 (SVG 인라인) ----------
+   정본은 저장소 루트 structure.svg와 base/diagrams/*.svg이며 색은 밝은 배경 기준으로 그린다.
+   라이트 테마에서는 원본 색이 그대로 맞으므로 덮지 않고, 다크에서만 표면에 맞춘다 —
+   그림 파일을 테마마다 따로 두지 않기 위해서다. */
+.sd{width:100%;height:auto;display:block}
+:root[data-theme="dark"] .sd .grp-entry{fill:#131316;stroke:#3a3a3f}
+:root[data-theme="dark"] .sd .nd-entry{fill:#1c1c21;stroke:#565660}
+:root[data-theme="dark"] .sd .grp-proc{fill:#0e1a24;stroke:#3987e5}
+:root[data-theme="dark"] .sd .nd-proc{fill:#152634;stroke:#3987e5}
+:root[data-theme="dark"] .sd .grp-form{fill:#16161f;stroke:#6b74d6}
+:root[data-theme="dark"] .sd .nd-form{fill:#1e1f2e;stroke:#6b74d6}
+:root[data-theme="dark"] .sd .grp-out{fill:#0f1c17;stroke:#199e70}
+:root[data-theme="dark"] .sd .nd-out{fill:#132923;stroke:#199e70}
+:root[data-theme="dark"] .sd .grp-warn{fill:#241a12;stroke:#c2410c}
+:root[data-theme="dark"] .sd .nd-warn{fill:#33241a;stroke:#c2410c}
+:root[data-theme="dark"] .sd text.t{fill:var(--ink)}
+:root[data-theme="dark"] .sd text.s{fill:var(--ink-2)}
+:root[data-theme="dark"] .sd text.lbl{fill:var(--ink-2)}
+:root[data-theme="dark"] .sd rect.pill{fill:var(--surface-2);stroke:var(--grid)}
+:root[data-theme="dark"] .sd path.arrow-gray{stroke:#8b8f98}
+:root[data-theme="dark"] .sd path.arrow-green{stroke:var(--ok)}
+:root[data-theme="dark"] .sd path.arrow-red{stroke:#fb923c}
+:root[data-theme="dark"] .sd marker#ar-gray path,
+:root[data-theme="dark"] .sd marker#cv-ar-gray path,
+:root[data-theme="dark"] .sd marker#fm-ar-gray path,
+:root[data-theme="dark"] .sd marker#ai-ar-gray path{fill:#8b8f98}
+:root[data-theme="dark"] .sd marker#cv-ar-green path,
+:root[data-theme="dark"] .sd marker#ai-ar-green path{fill:var(--ok)}
+:root[data-theme="dark"] .sd marker#cv-ar-red path,
+:root[data-theme="dark"] .sd marker#fm-ar-red path{fill:#fb923c}
+
+/* ---------- 15. 반응형 ----------
+   좁은 화면에서는 사이드바를 서랍으로 내린다. 문서가 먼저 보여야 한다. */
+@media (max-width:980px){
+  .app{grid-template-columns:1fr}
+  .side{position:fixed;top:0;left:0;width:var(--side-w);transform:translateX(-100%);
+    transition:transform .18s ease}
+  .side.open{transform:none}
+  .side-toggle{display:inline-block}
+  .app .wrap{padding-left:18px;padding-right:18px}
+  .topbar{padding:0 16px}
+}
+@media print{
+  .side,.topbar,.tbl-tools,.filters,.backdrop{display:none!important}
+  .app{display:block}
+}
+</style><script>/* ============================================================
+   design-guide-master.js — 셸 동작 정본 (v2.1 · 2026-08-05)
+   ------------------------------------------------------------
+   테마 토글 · 사이드바 서랍 · 표 도구(검색·필터·정렬)를 담습니다.
+   CSS와 같은 방식으로 다룹니다 — 규칙서는 <script src>로 참조하고,
+   산출물은 생성 시점 사본을 <script>에 inline합니다(네트워크 요청 0건).
+
+   <head>에서 동기로 불러야 합니다. 테마는 첫 페인트 전에 적용되고,
+   DOM을 만지는 나머지는 DOMContentLoaded 뒤에 붙습니다.
+
+   마크업 약속
+   · 테마 토글 버튼      <button data-theme-toggle>
+   · 사이드바 서랍       .side / .backdrop / .side-toggle
+   · 표 도구            <div class="tbl-tools" data-table="표id">
+                          <input class="tbl-search">
+                          <button class="fbtn" data-col="3" data-val="Fail">
+                          <button class="fbtn" data-attr="issue" data-val="1">
+                          <span class="tbl-count"></span>
+                        </div>
+                        data-col은 그 열의 글자를, data-attr은 행의 data-* 값을
+                        봅니다. 화면에 안 적힌 기준으로 거를 때 뒤엣것을 씁니다
+   · 정렬               <th class="sortable">   (숫자 열은 class="num sortable")
+   · 탭                 <div class="tabs" data-tabs="묶음이름">
+                          <button class="tab-btn" data-panel="패널id">라벨</button>
+                        </div>
+                        <div class="tab-panel" id="패널id"> … </div>
+                        스크립트가 꺼져 있어도 **첫 패널은 보입니다** — 감추는 쪽을
+                        JS가 붙이므로 자바스크립트 없이도 문서가 죽지 않습니다
+   ============================================================ */
+(function () {
+  var KEY = 'qavn-theme';
+  var root = document.documentElement;
+
+  function applyTheme(t) { root.setAttribute('data-theme', t); }
+
+  /* 기본값은 라이트 고정입니다. OS 설정을 따라가면 처음 여는 사람마다 다른 화면을
+     보게 되고, 문서에 첨부한 화면과도 어긋납니다. 다크는 고른 사람에게만 남습니다. */
+  var saved = null;
+  try { saved = localStorage.getItem(KEY); } catch (e) {}
+  applyTheme(saved === 'dark' ? 'dark' : 'light');
+
+  function ready(fn) {
+    if (document.readyState !== 'loading') { fn(); }
+    else { document.addEventListener('DOMContentLoaded', fn); }
+  }
+
+  function each(sel, fn, ctx) {
+    var list = (ctx || document).querySelectorAll(sel);
+    for (var i = 0; i < list.length; i++) { fn(list[i], i); }
+  }
+
+  /* ---------- 테마 토글 ---------- */
+  function initTheme() {
+    var btn = document.querySelector('[data-theme-toggle]');
+    if (!btn) { return; }
+    function label() {
+      var dark = root.getAttribute('data-theme') === 'dark';
+      btn.textContent = dark ? '라이트' : '다크';
+      btn.setAttribute('aria-label', dark ? '라이트 테마로 전환' : '다크 테마로 전환');
+    }
+    label();
+    btn.addEventListener('click', function () {
+      var next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      applyTheme(next);
+      try { localStorage.setItem(KEY, next); } catch (e) {}
+      label();
+    });
+  }
+
+  /* ---------- 사이드바 서랍 (좁은 화면) ---------- */
+  function initDrawer() {
+    var side = document.querySelector('.side');
+    var back = document.querySelector('.backdrop');
+    var tog = document.querySelector('.side-toggle');
+    if (!side) { return; }
+    function close() {
+      side.classList.remove('open');
+      if (back) { back.classList.remove('on'); }
+    }
+    if (tog) {
+      tog.addEventListener('click', function () {
+        side.classList.toggle('open');
+        if (back) { back.classList.toggle('on'); }
+      });
+    }
+    if (back) { back.addEventListener('click', close); }
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') { close(); }
+    });
+    each('.side a', function (a) {
+      a.addEventListener('click', function () {
+        if (window.innerWidth <= 980) { close(); }
+      });
+    });
+  }
+
+  /* ---------- 사이드바 목차 — 지금 읽는 절 표시 ---------- */
+  function initScrollSpy() {
+    var subs = [];
+    each('.nav-sub[href^="#"]', function (a) {
+      var el = document.getElementById(a.getAttribute('href').slice(1));
+      if (el) { subs.push({ a: a, el: el }); }
+    });
+    if (!subs.length) { return; }
+    function mark() {
+      var y = window.scrollY + 90, cur = subs[0];
+      for (var i = 0; i < subs.length; i++) {
+        if (subs[i].el.offsetTop <= y) { cur = subs[i]; }
+      }
+      for (var j = 0; j < subs.length; j++) {
+        subs[j].a.classList.toggle('on', subs[j] === cur);
+      }
+    }
+    mark();
+    window.addEventListener('scroll', mark, { passive: true });
+  }
+
+  /* ---------- 표 도구 — 검색·필터·정렬 ---------- */
+  function cellText(row, i) {
+    var td = row.cells[i];
+    return td ? (td.textContent || '').trim() : '';
+  }
+
+  function numOf(s) {
+    var m = String(s).replace(/,/g, '').match(/-?\d+(\.\d+)?/);
+    return m ? parseFloat(m[0]) : null;
+  }
+
+  function initTable(tools) {
+    var table = document.getElementById(tools.getAttribute('data-table'));
+    if (!table) { return; }
+    var body = table.tBodies[0];
+    if (!body) { return; }
+    var rows = [].slice.call(body.rows);
+    var search = tools.querySelector('.tbl-search');
+    var count = tools.querySelector('.tbl-count');
+    var buttons = [].slice.call(tools.querySelectorAll('.fbtn[data-col],.fbtn[data-attr]'));
+    var active = null;
+
+    function refresh() {
+      var q = search ? search.value.trim().toLowerCase() : '';
+      var shown = 0;
+      for (var i = 0; i < rows.length; i++) {
+        var row = rows[i];
+        var okText = !q || (row.textContent || '').toLowerCase().indexOf(q) >= 0;
+        var okFilter = true;
+        if (active) {
+          var want = active.getAttribute('data-val');
+          var attr = active.getAttribute('data-attr');
+          okFilter = attr
+            ? row.getAttribute('data-' + attr) === want
+            : cellText(row, parseInt(active.getAttribute('data-col'), 10)).indexOf(want) >= 0;
+        }
+        var show = okText && okFilter;
+        row.classList.toggle('row-hide', !show);
+        if (show) { shown++; }
+      }
+      if (count) {
+        count.textContent = shown === rows.length
+          ? rows.length + '건'
+          : shown + ' / ' + rows.length + '건';
+      }
+    }
+
+    if (search) { search.addEventListener('input', refresh); }
+    buttons.forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        if (active === btn) { active = null; } else { active = btn; }
+        buttons.forEach(function (b) { b.classList.toggle('on', b === active); });
+        refresh();
+      });
+    });
+
+    each('th.sortable', function (th, idx) {
+      var col = th.cellIndex;
+      th.addEventListener('click', function () {
+        var asc = !th.classList.contains('sort-asc');
+        each('th.sortable', function (o) {
+          o.classList.remove('sort-asc', 'sort-desc');
+        }, table);
+        th.classList.add(asc ? 'sort-asc' : 'sort-desc');
+        var sorted = rows.slice().sort(function (a, b) {
+          var x = cellText(a, col), y = cellText(b, col);
+          var nx = numOf(x), ny = numOf(y);
+          var r = (nx !== null && ny !== null) ? nx - ny : x.localeCompare(y, 'ko');
+          return asc ? r : -r;
+        });
+        for (var i = 0; i < sorted.length; i++) { body.appendChild(sorted[i]); }
+      });
+    }, table);
+
+    refresh();
+  }
+
+  /* 탭 — 칩 하나가 패널 하나를 켠다. 감추는 일을 JS가 맡으므로 스크립트가
+     꺼져 있으면 패널이 전부 보인다(문서가 죽지 않는다). */
+  function initTabs(box) {
+    var btns = [].slice.call(box.querySelectorAll('.tab-btn'));
+    if (!btns.length) { return; }
+    var panels = btns.map(function (b) {
+      return document.getElementById(b.getAttribute('data-panel'));
+    });
+    function show(i) {
+      btns.forEach(function (b, j) {
+        var on = i === j;
+        b.classList.toggle('on', on);
+        b.setAttribute('aria-selected', on ? 'true' : 'false');
+        if (panels[j]) { panels[j].hidden = !on; }
+      });
+    }
+    btns.forEach(function (b, i) {
+      b.setAttribute('role', 'tab');
+      b.addEventListener('click', function () { show(i); });
+    });
+    box.setAttribute('role', 'tablist');
+    // 처음 칠 자리는 .on이 붙은 칩, 없으면 첫째
+    var start = 0;
+    for (var k = 0; k < btns.length; k++) {
+      if (btns[k].classList.contains('on')) { start = k; break; }
+    }
+    show(start);
+  }
+
+  ready(function () {
+    initTheme();
+    initDrawer();
+    initScrollSpy();
+    each('.tbl-tools[data-table]', initTable);
+    each('.tabs[data-tabs]', initTabs);
+  });
+})();
+</script></head><body><div class="app"><aside class="side"><div class="side-head"><a href="index.html">rsj-centralized-control</a><span class="sub">프로젝트를 위한 중앙 규칙 문서</span></div><nav class="side-nav"><div class="nav-sec">소개</div><a class="nav-i on" href="index.html">중앙 규칙 구조</a><a class="nav-sub" href="index.html#map">중앙 규칙 워크플로우</a><a class="nav-sub" href="index.html#why">왜 중앙 규칙을 분리했나요?</a><a class="nav-sub" href="index.html#what">무엇이 중앙 규칙에 포함되나요?</a><a class="nav-sub" href="index.html#step">중앙 규칙의 작업 절차</a><a class="nav-sub" href="index.html#doc">규칙 문서</a><a class="nav-sub" href="index.html#tool">사람이 반복하지 않게 만든 도구</a><a class="nav-i" href="index.html#project-guide">프로젝트 생성 방식</a><a class="nav-sub" href="index.html#run">한 줄로 만듭니다</a><a class="nav-sub" href="index.html#made">무엇이 생기나</a><a class="nav-sub" href="index.html#not">일부러 만들지 않는 것</a><a class="nav-sub" href="index.html#module">만든 다음 — 모듈을 켭니다</a><a class="nav-sub" href="index.html#next">그다음 순서</a><a class="nav-i" href="https://github.com/RyuSeoJin/rsj-centralized-control" target="_blank" rel="noopener">저장소 깃허브 링크<span class="tag">git</span></a></nav></aside><div class="main"><header class="topbar"><button class="icon-btn side-toggle" aria-label="메뉴 열기">☰</button><div class="crumb">rsj-centralized-control · <b>중앙 규칙 구조</b></div><span class="sp"></span><button class="icon-btn" data-theme-toggle>다크</button></header><div class="wrap"><div class="doc-header"><h1>중앙 규칙: 모든 프로젝트가 따라야 하는 규칙</h1><p class="doc-lead">프로젝트를 시작하기 전, <strong>절차와 판단 기준과 형식부터 세웠습니다.</strong> 작업을 진행하는 도중 중앙 규칙 단위로 바뀌어야 하는 규칙이 있다면 유저에게 추가·편집할 것인지 제안하고, 유저는 그에 대한 결정을 내립니다. 이를 기반으로 어긋나는 규칙이 있다면 한쪽으로 일치시킴으로써, <strong>프로젝트를 진행할수록 자라는 구조</strong>로 설계하였습니다.</p><div class="meta-row"><span class="badge">규칙 문서 <b>15편</b></span><span class="badge">생성 도구 <b>18개</b></span><span class="badge">확인 게이트 <b>2곳</b></span></div></div><h2 id="map">중앙 규칙 워크플로우</h2><p>중앙 규칙은 <strong>모든 작업 앞에</strong> 있고, 프로젝트는 그 규칙을 기반으로 삼아 자신만의 프로젝트에 필요한 규칙이나 문서를 추가로 작성해 나갑니다. 아래 그림은 중앙 규칙의 워크플로우를 도식화한 이미지입니다.</p><div class="card" style="padding:14px"><svg class="sd" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 940 600" width="940" height="600" role="img" aria-labelledby="sdt sdd">
+<title id="sdt">rsj-centralized-control 저장소 구조와 관계</title>
+<desc id="sdd">중앙 규칙은 core/ 한 폴더에 모여 있고, 그 안이 base(안 켤 수 없는 것)와 modules(켠 프로젝트만)로 갈린다. 프로젝트는 도구가 찍어 projects/ 아래에 생기며, 이 그림은 프로젝트 안을 그리지 않는다.</desc>
+<!--
+  CHANGELOG
+  v2.0 (2026-09-04) 구조 재편에 맞춰 전면 재작성. 담는 것을 「중앙 규칙과 프로젝트 생성」으로
+                    좁혔다 — 프로젝트 안에 무엇이 쌓이는지는 그리지 않는다(중앙 규칙의
+                    그림이므로). core/를 base·modules로 가르고, 모듈 판별 질문과 전제
+                    사슬, 「폴더를 만드는 것이 곧 등록」을 넣었다.
+  v1.6 이전         옛 구조(project-process/·폐지된 허브·프로젝트 산출물 파이프라인) 기준.
+                    폴더 재편과 모듈 도입으로 전부 맞지 않게 되었다.
+
+  이 파일이 정본이며 사본은 없다. 이 그림을 싣는 페이지의 생성기가 만들 때마다
+  이 파일을 읽어 넣는다(루트 index.html — gen_intro_html.py).
+
+  변환 없이 그대로 실리므로 root의 class="sd"와 id(sdt/sdd)는 바꾸지 않는다.
+  색은 밝은 배경 기준이고, 다크 테마에서는 마스터 CSS가 클래스를 덮는다.
+  쓰는 클래스: grp-entry/nd-entry · grp-form/nd-form · grp-out/nd-out ·
+               text.t/.s/.lbl · path.arrow-gray + marker#ar-gray
+-->
+<defs>
+<marker id="ar-gray" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#6e7781"/></marker>
+</defs>
+<g font-family="system-ui, -apple-system, Segoe UI, Malgun Gothic, sans-serif">
+
+<rect class="grp-entry" x="40" y="14" width="860" height="88" rx="8" fill="#f7f8fa" stroke="#c4c9d0"/>
+<text class="t" x="58" y="36" font-size="13" font-weight="600" fill="#1f2328">저장소 루트</text>
+<g class="nd-entry" fill="#e8eaed" stroke="#9aa0a6">
+<rect x="58" y="46" width="262" height="44" rx="6"/><rect x="339" y="46" width="262" height="44" rx="6"/><rect x="620" y="46" width="262" height="44" rx="6"/>
+</g>
+<g text-anchor="middle">
+<text class="t" x="189" y="66" font-size="12.5" font-weight="600" fill="#1f2328">index.html</text>
+<text class="s" x="189" y="82" font-size="10.5" fill="#57606a">중앙 규칙 구조 · 프로젝트 생성 방식</text>
+<text class="t" x="470" y="66" font-size="12.5" font-weight="600" fill="#1f2328">workspace.json</text>
+<text class="s" x="470" y="82" font-size="10.5" fill="#57606a">저장소 이름표 — 이름 · 부제 · 주소</text>
+<text class="t" x="751" y="66" font-size="12.5" font-weight="600" fill="#1f2328">center-change-log · remaining-work</text>
+<text class="s" x="751" y="82" font-size="10.5" fill="#57606a">중앙 규칙에 일어난 일 · 남은 일</text>
+</g>
+
+<rect class="grp-entry" x="40" y="126" width="860" height="310" rx="8" fill="#fbfcfd" stroke="#c4c9d0"/>
+<text class="t" x="58" y="148" font-size="13" font-weight="600" fill="#1f2328">core/ — 중앙 규칙</text>
+<text class="s" x="196" y="148" font-size="10.5" fill="#57606a">이름을 담지 않아 그대로 다른 저장소로 옮길 수 있습니다</text>
+
+<rect class="grp-form" x="58" y="160" width="404" height="234" rx="8" fill="#f4f5fd" stroke="#6b74d6"/>
+<text class="t" x="74" y="182" font-size="12.5" font-weight="600" fill="#1f2328">base/ — 안 켤 수 없는 것</text>
+<g class="nd-form" fill="#e9ebfa" stroke="#6b74d6">
+<rect x="74" y="194" width="182" height="46" rx="6"/><rect x="266" y="194" width="180" height="46" rx="6"/>
+<rect x="74" y="250" width="182" height="46" rx="6"/><rect x="266" y="250" width="180" height="46" rx="6"/>
+<rect x="74" y="306" width="182" height="46" rx="6"/><rect x="266" y="306" width="180" height="46" rx="6"/>
+</g>
+<g text-anchor="middle">
+<text class="t" x="165" y="214" font-size="12" font-weight="600" fill="#1f2328">rules/</text>
+<text class="s" x="165" y="230" font-size="10" fill="#57606a">문체 · 배치 · git · 기능 요청</text>
+<text class="t" x="356" y="214" font-size="12" font-weight="600" fill="#1f2328">scripts/</text>
+<text class="s" x="356" y="230" font-size="10" fill="#57606a">골격 · 재생성 · 모듈 · 검사</text>
+<text class="t" x="165" y="270" font-size="12" font-weight="600" fill="#1f2328">design-guide/</text>
+<text class="s" x="165" y="286" font-size="10" fill="#57606a">스타일 · 동작 정본</text>
+<text class="t" x="356" y="270" font-size="12" font-weight="600" fill="#1f2328">design-template/</text>
+<text class="s" x="356" y="286" font-size="10" fill="#57606a">문서 서식 · 프로젝트 서식</text>
+<text class="t" x="165" y="326" font-size="12" font-weight="600" fill="#1f2328">diagrams/</text>
+<text class="s" x="165" y="342" font-size="10" fill="#57606a">설명 그림의 정본</text>
+<text class="t" x="356" y="326" font-size="12" font-weight="600" fill="#1f2328">절차서 · 용어집</text>
+<text class="s" x="356" y="342" font-size="10" fill="#57606a">무엇을 어떤 순서로 하는가</text>
+</g>
+<text class="lbl" x="74" y="374" font-size="10" fill="#57606a">안 켜면 워크스페이스 자체가 성립하지 않는 것 — 모든 프로젝트가 따릅니다</text>
+
+<rect class="grp-out" x="478" y="160" width="404" height="234" rx="8" fill="#f1faf6" stroke="#199e70"/>
+<text class="t" x="494" y="182" font-size="12.5" font-weight="600" fill="#1f2328">modules/ — 켠 프로젝트만</text>
+<g class="nd-out" fill="#e3f5ec" stroke="#199e70">
+<rect x="494" y="194" width="372" height="42" rx="6"/>
+<rect x="494" y="244" width="372" height="42" rx="6"/>
+<rect x="494" y="294" width="372" height="42" rx="6"/>
+<rect x="494" y="344" width="372" height="42" rx="6"/>
+</g>
+<g>
+<text class="t" x="510" y="212" font-size="12" font-weight="600" fill="#1f2328">tc</text>
+<text class="s" x="540" y="212" font-size="10" fill="#57606a">테스트 케이스를 설계하고 시트로 냅니다</text>
+<text class="s" x="510" y="228" font-size="10" fill="#57606a">TC를 만드는가?</text>
+<text class="t" x="510" y="262" font-size="12" font-weight="600" fill="#1f2328">llm</text>
+<text class="s" x="540" y="262" font-size="10" fill="#57606a">출력을 생성하는 기능을 무엇으로 검증하는가</text>
+<text class="s" x="510" y="278" font-size="10" fill="#57606a">같은 입력에 출력이 매번 달라지는가?</text>
+<text class="t" x="510" y="312" font-size="12" font-weight="600" fill="#1f2328">automation</text>
+<text class="s" x="588" y="312" font-size="10" fill="#57606a">TC를 사람이 아니라 코드가 돌립니다</text>
+<text class="s" x="510" y="328" font-size="10" fill="#57606a">TC를 코드로 돌리는가?</text>
+<text class="t" x="510" y="362" font-size="12" font-weight="600" fill="#1f2328">sut</text>
+<text class="s" x="540" y="362" font-size="10" fill="#57606a">검증 대상을 직접 만들고 결함을 심습니다</text>
+<text class="s" x="510" y="378" font-size="10" fill="#57606a">검증 대상을 직접 만드는가?</text>
+</g>
+<text class="lbl" x="494" y="374" font-size="10" fill="#57606a"> </text>
+
+<text class="lbl" x="58" y="416" font-size="10.5" fill="#57606a">base는 기본 참조. modules는 기본 참조 금지 — change-log에 「이 모듈을 켠다」가 적혀 있을 때만 읽습니다.</text>
+<text class="lbl" x="58" y="430" font-size="10.5" fill="#57606a">전제 사슬 — tc ← automation ← sut · tc ← llm. 저절로 켜지지 않고, 켤 때마다 동의를 받습니다.</text>
+
+<path class="arrow-gray" d="M 260 436 L 260 486" fill="none" stroke="#6e7781" stroke-width="1.4" marker-end="url(#ar-gray)"/>
+<text class="lbl" x="268" y="462" font-size="10.5" fill="#57606a">항상 따릅니다</text>
+<path class="arrow-gray" d="M 680 436 L 680 486" fill="none" stroke="#6e7781" stroke-width="1.4" marker-end="url(#ar-gray)"/>
+<text class="lbl" x="688" y="462" font-size="10.5" fill="#57606a">켠 모듈만 따릅니다</text>
+
+<rect class="grp-entry" x="40" y="490" width="860" height="96" rx="8" fill="#f7f8fa" stroke="#c4c9d0"/>
+<text class="t" x="58" y="512" font-size="13" font-weight="600" fill="#1f2328">projects/ — 프로젝트가 사는 곳</text>
+<text class="s" x="256" y="512" font-size="10.5" fill="#57606a">중앙 저장소에서는 비어 있습니다</text>
+<g class="nd-entry" fill="#e8eaed" stroke="#9aa0a6"><rect x="58" y="522" width="824" height="52" rx="6"/></g>
+<text class="t" x="80" y="542" font-size="12.5" font-weight="600" fill="#1f2328">projects/{프로젝트}/</text>
+<text class="s" x="228" y="542" font-size="10.5" fill="#57606a">new_project.py가 폴더와 정본 문서를 찍습니다 — 폴더를 만드는 것이 곧 등록입니다</text>
+<text class="s" x="80" y="562" font-size="10.5" fill="#57606a">이 그림은 프로젝트 안을 그리지 않습니다 — 무엇이 쌓이는지는 그 프로젝트의 사정입니다</text>
+</g>
+</svg>
+</div><h2 id="why">왜 중앙 규칙을 분리했나요?</h2><div class="card-grid"><div class="card"><h3>한 프로젝트의 결정이 다른 프로젝트에 유입되지 않도록 사전 차단</h3><p>규칙을 프로젝트 안에 두고 대화로 키우면, 프로젝트가 늘었을 때 <strong>A의 스펙이 B에 섞여 들어옵니다.</strong> 규칙을 밖으로 빼면 프로젝트는 서로를 참조할 일이 없어지고, 공유되는 것은 「따라야 하는 기준」뿐입니다.</p></div><div class="card"><h3>매번 같은 판단을 참조</h3><p>규칙이 늘어남에 따라 여러 문서에 담길 수 있는 규칙들의 중복을 제거하고, <strong>하나의 규칙을 기반으로 동일한 판단을 참조</strong>할 수 있도록 의도하였습니다.</p></div></div><h2 id="what">무엇이 중앙 규칙에 포함되나요?</h2><p>판별 기준은 <strong>「문장에서 프로젝트 이름을 지워도 성립하는가」</strong>입니다. 성립하면 중앙 규칙이고, 아니면 <b>프로젝트 규칙 구조</b>입니다.</p><div class="card-grid"><div class="card"><h3><code>base/</code> — 절차와 판단 기준</h3><p>프로젝트의 진행 절차의 규칙을 사전에 정의함으로써, <strong>프로젝트가 늘어도 같은 방식으로 일하도록</strong> 유도합니다.</p><p class="foot">파이프라인 절차서 · 규칙 문서 15편 · 중앙 용어집 · 생성 도구</p></div><div class="card"><h3><code>base/design-guide/</code> — 형식의 정본</h3><p>색·타이포·컴포넌트의 정본이 하나라, 문서마다 스타일을 다시 정하지 않습니다. 산출물은 만들 때마다 그 사본을 품어 네트워크 요청 없이 혼자 열립니다.</p><p class="foot"><a href="core/base/design-guide/design-guide-master.html">시각 규칙서 열기</a></p></div><div class="card"><h3><code>base/design-template/</code> — 새 문서를 만들 때의 틀</h3><p>새 문서가 <strong>기존 템플릿으로 되는지, 기준을 고쳐야 하는지, 새로 만들어야 하는지</strong>를 세 갈래로 판별합니다. 문서의 목적과 다른 템플릿을 사용하지 않도록 <strong>일관적인 템플릿을 유도</strong>합니다.</p><p class="foot">모듈을 켜면 그 템플릿도 함께 봅니다</p></div><div class="card"><h3>루트의 <code>main-*.html</code> — 저장소를 소개하는 층</h3><p>지금 읽고 계신 문서들입니다. 「프로젝트를 만들기 전에 세운 규칙」처럼 특정 프로젝트 소유가 아닌 이야기가 섞이므로 프로젝트 밖에 둡니다.</p><p class="foot">전부 생성기가 만드는 파생물입니다</p></div></div><h2 id="step">중앙 규칙의 작업 절차</h2><p>문서 제작 요청이 오면 아래 순서를 처음부터 끝까지 따릅니다. 단계 이름은 절차서에서 그대로 읽어 온 것이라, 절차가 바뀌면 이 목록도 함께 바뀝니다.</p><div class="steps"><div class="step"><div class="body"><b>STEP 0</b> — 상태 파악</div></div><div class="step"><div class="body"><b>STEP 1</b> — 자료 수집 + 저작권 점검</div></div><div class="step"><div class="body"><b>STEP 2</b> — 아웃라인 초안 &amp; 사용자 확인 ①</div></div><div class="step"><div class="body"><b>STEP 3</b> — 템플릿 판별 &amp; 사용자 확인 ②</div></div><div class="step"><div class="body"><b>STEP 4</b> — 마스터/템플릿 갱신 (Case B·C만)</div></div><div class="step"><div class="body"><b>STEP 5</b> — 기능 골격 작업</div></div><div class="step"><div class="body"><b>STEP 6</b> — TC 설계 &amp; 산출</div></div></div><div class="callout">이 절차의 핵심은 <strong>확인 게이트 두 곳</strong>입니다. 아웃라인을 확인받기 전에는 본문을 쓰지 않고, 어떤 형식으로 낼지 정하기 전에는 만들지 않습니다. 다 쓰고 나서 방향이 어긋난 것을 알면 그때는 전부 다시 써야 하기 때문입니다.</div><div class="callout warn">규칙을 파악하는 과정에서 <strong>중앙 규칙과 다른 상태가 들어오면 그 자리에서 맞추지 않고 유저에게 되묻습니다</strong> — 이 프로젝트의 예외로 둘 것인지, 중앙 규칙을 고칠 것인지. 임의로 한쪽에 맞추면 어느 것이 기준인지 알 수 없게 되고, 다음 프로젝트가 그 상태를 물려받습니다.</div><h2 id="doc">규칙 문서</h2><p>각 문서가 스스로 밝힌 존재 이유를 그대로 가져왔습니다 — 여기에 요약을 옮겨 적으면 규칙이 바뀔 때 이 페이지만 옛말을 하게 됩니다.</p><h3>무엇을 어떤 순서로 하는가</h3><div class="tbl-scroll"><table><tbody><tr><td style="width:230px"><a href="https://github.com/RyuSeoJin/rsj-centralized-control/blob/main/core/base/doc-playbook.md" target="_blank" rel="noopener"><code>doc-playbook.md</code></a></td><td>문서 제작 요청(역분석·기획서 분석·기능 골격·TC 설계)이 오면 이 절차를 처음부터 끝까지 따릅니다. 규칙의 정의 자체는 rules/의 각 문서가 정본이며, 이 문서는 그것들을 순서로 엮습니다.</td></tr><tr><td style="width:230px"><a href="https://github.com/RyuSeoJin/rsj-centralized-control/blob/main/core/base/rules/remaining-work.md" target="_blank" rel="noopener"><code>base/rules/remaining-work.md</code></a></td><td>이후 해야 할 일이 대화나 기억에만 있으면 세션이 바뀔 때 소실되므로, 남은 작업을 전용 파일로 관리합니다. change-log가 과거(한 일)를 쌓는 파일이라면, remaining-work는 미래(할 일)만 남기는 파일입니다 — 갱신 방향이 반대라서 한 파일에 섞지 않습니다.</td></tr><tr><td style="width:230px"><a href="https://github.com/RyuSeoJin/rsj-centralized-control/blob/main/core/base/rules/git-rules.md" target="_blank" rel="noopener"><code>base/rules/git-rules.md</code></a></td><td>이 저장소의 모든 git 작업이 따르는 규칙입니다. 2026-07-31 확정했습니다. Claude는 이 규칙 밖의 git 작업을 임의로 수행하지 않습니다.</td></tr></tbody></table></div><h3>테스트를 어떻게 설계하는가</h3><div class="tbl-scroll"><table><tbody><tr><td style="width:230px"><a href="https://github.com/RyuSeoJin/rsj-centralized-control/blob/main/core/modules/tc/rules/depth-and-tn.md" target="_blank" rel="noopener"><code>modules/tc/rules/depth-and-tn.md</code></a></td><td>테스트 케이스의 뼈대를 이루는 셋을 정합니다 — 기능을 계층으로 정리할 때 어디까지 내려갈지(Depth), 케이스 하나 안에서 동작을 몇 번으로 나눠 적을지(TN), 그리고 무엇부터 확인할지(우선순위)입니다. 이 셋이 흔들리면 같은 기능을 두 사람이 다른 모양으로 적게 되고, 나중에 두 케이스가 같은 것을 보는지조차 알 수 없게 됩니다.</td></tr><tr><td style="width:230px"><a href="https://github.com/RyuSeoJin/rsj-centralized-control/blob/main/core/modules/tc/rules/case-expansion.md" target="_blank" rel="noopener"><code>modules/tc/rules/case-expansion.md</code></a></td><td>기능 하나에 케이스 하나만 쓰면 설계대로 되는 경우만 확인하고 끝납니다. 결함은 대개 제한의 언저리나 실패했을 때, 막아 둔 길을 돌아갈 때 나옵니다. 그래서 기능마다 네 갈래로 펼칩니다 — 정상(설계대로 되는가) · 경계(제한의 앞뒤에서 되는가) · 예외(실패·빈 상태에서 되는가) · 우회(막은 길을 돌아갈 수 있는가).</td></tr><tr><td style="width:230px"><a href="https://github.com/RyuSeoJin/rsj-centralized-control/blob/main/core/modules/tc/rules/verification-types.md" target="_blank" rel="noopener"><code>modules/tc/rules/verification-types.md</code></a></td><td>케이스를 쓰기 전에 무엇을 통과라고 부를지부터 정합니다. 값이 하나로 정해지는 항목은 한 번 실행해 맞는지 보면 되지만, 같은 입력에도 출력이 매번 달라지는 항목은 그렇게 자를 수 없습니다. 그래서 항목마다 판정 방식을 넷 중 하나로 먼저 고르고, 그 선택이 몇 번 돌려야 하는지와 어디부터 합격인지까지 함께 정합니다.</td></tr><tr><td style="width:230px"><a href="https://github.com/RyuSeoJin/rsj-centralized-control/blob/main/core/modules/tc/rules/tc-relations.md" target="_blank" rel="noopener"><code>modules/tc/rules/tc-relations.md</code></a></td><td>케이스 하나를 실행하려면 먼저 통과해 있어야 하는 다른 케이스가 있습니다. 로그인이 되어야 결제를 볼 수 있는 식입니다. 그 선행 관계를 적어 두어 실행 순서를 정하고, 앞선 케이스가 실패했을 때 뒤따르는 케이스를 어떻게 처리할지도 함께 정합니다. 한 케이스 안의 스텝 순서(TN)와는 다른 층위입니다.</td></tr><tr><td style="width:230px"><a href="https://github.com/RyuSeoJin/rsj-centralized-control/blob/main/core/modules/tc/rules/tc-sheet-format.md" target="_blank" rel="noopener"><code>modules/tc/rules/tc-sheet-format.md</code></a></td><td>설계한 테스트 케이스를 실제로 적어 넣는 엑셀 시트의 서식을 정합니다 — 어떤 열을 두고, 한 행에 무엇을 담고, 실행 결과를 어떤 값으로 적을지입니다. 받는 사람이 시트를 읽는 법부터 배우지 않도록 실무에서 쓰는 서식을 그대로 따르고, 규칙만 이 문서로 못박습니다.</td></tr></tbody></table></div><h3>만들고 돌리는 규칙</h3><div class="tbl-scroll"><table><tbody><tr><td style="width:230px"><a href="https://github.com/RyuSeoJin/rsj-centralized-control/blob/main/core/modules/automation/rules/automation.md" target="_blank" rel="noopener"><code>modules/automation/rules/automation.md</code></a></td><td>TC 시트를 사람이 보며 손으로 확인하던 것을, 코드가 대신 돌리게 하는 규칙입니다. 여기는 플랫폼과 무관한 원칙만 두고, 무엇을 어떤 접점으로 잡는지는 그 프로젝트의 사정입니다.</td></tr><tr><td style="width:230px"><a href="https://github.com/RyuSeoJin/rsj-centralized-control/blob/main/core/modules/sut/rules/sut-build.md" target="_blank" rel="noopener"><code>modules/sut/rules/sut-build.md</code></a></td><td>테스트 대상(SUT)을 직접 만드는 프로젝트가 따르는 방법론 정본입니다. 여기는 프로젝트와 무관한 원칙만 두고, 실물(이 SUT의 testid 목록·API·화면)은 각 프로젝트의 spec/sut-design/{프로젝트}-sut-blueprint.md가 정본입니다.</td></tr></tbody></table></div><h3>문서를 어떻게 쓰고 어디에 두는가</h3><div class="tbl-scroll"><table><tbody><tr><td style="width:230px"><a href="https://github.com/RyuSeoJin/rsj-centralized-control/blob/main/core/base/rules/doc-write-style.md" target="_blank" rel="noopener"><code>base/rules/doc-write-style.md</code></a></td><td>이 워크스페이스에서 만드는 모든 문서의 문체와 문장 구조를 정합니다. 문서마다 말투와 설명 순서가 달라지면 읽는 사람이 매번 다시 적응해야 하므로, 기준을 한곳에 모읍니다.</td></tr><tr><td style="width:230px"><a href="https://github.com/RyuSeoJin/rsj-centralized-control/blob/main/core/base/rules/html-report-guide.md" target="_blank" rel="noopener"><code>base/rules/html-report-guide.md</code></a></td><td>역분석 결과를 읽는 문서로 만들 때의 규칙입니다. 단일 HTML 파일 하나로, 오프라인에서 열리고, 차트·다이어그램·표가 한 시스템으로 읽히게 하는 것이 목표입니다.</td></tr><tr><td style="width:230px"><a href="https://github.com/RyuSeoJin/rsj-centralized-control/blob/main/core/base/rules/site-structure.md" target="_blank" rel="noopener"><code>base/rules/site-structure.md</code></a></td><td>저장소가 Pages로 공개되는 하나의 사이트이므로, 어떤 문서가 어느 자리에 놓이고 누가 그것을 만드는지를 정해 둡니다. 자리를 정하지 않으면 같은 성격의 문서가 프로젝트 안팎에 흩어지고, 만드는 주체를 정하지 않으면 손으로 고친 파일과 재생성한 파일이 갈라집니다.</td></tr></tbody></table></div><h3>그 밖에</h3><div class="tbl-scroll"><table><tbody><tr><td style="width:230px"><a href="https://github.com/RyuSeoJin/rsj-centralized-control/blob/main/core/base/rules/feature-request.md" target="_blank" rel="noopener"><code>base/rules/feature-request.md</code></a></td><td>프로젝트를 하다 보면 「A 기능을 넣고 싶다」가 나옵니다. 그때 바로 만들지 않습니다. 이미 있는 것을 못 보고 새로 만들면 같은 규칙이 두 벌이 되고, 반대로 이 프로젝트에만 필요한 것을 중앙에 올리면 다른 프로젝트가 쓰지 않는 규칙을 물려받습니다.</td></tr><tr><td style="width:230px"><a href="https://github.com/RyuSeoJin/rsj-centralized-control/blob/main/core/base/rules/project-scaffold.md" target="_blank" rel="noopener"><code>base/rules/project-scaffold.md</code></a></td><td>프로젝트마다 자리가 다르면 「어디를 보면 되는가」를 매번 다시 찾아야 합니다. 그래서 시작 모양을 하나로 고정하고, 손이 아니라 도구가 찍습니다 — core/base/scripts/new_project.py.</td></tr><tr><td style="width:230px"><a href="https://github.com/RyuSeoJin/rsj-centralized-control/blob/main/core/modules/llm/rules/llm-verification.md" target="_blank" rel="noopener"><code>modules/llm/rules/llm-verification.md</code></a></td><td>modules/tc/rules/verification-types.md가 검증유형 4종의 축과 판정 방식을 정한다면, 이 문서는 LLM이 출력을 만드는 서비스에서 각 유형이 무엇을 대상으로 삼는가를 정합니다.</td></tr></tbody></table></div><p class="foot">md 문서와 폴더 링크는 GitHub 저장소에서 열리고, HTML 문서는 이 사이트에서 바로 렌더링됩니다 — GitHub Pages에서는 md가 원본 텍스트로 뜨기 때문입니다.</p><h2 id="tool">사람이 반복하지 않게 만든 도구</h2><p>같은 일을 두 번 이상 손으로 하면 언젠가 한 번은 틀립니다. 아래는 그 자리마다 만들어 둔 도구이고, 설명은 각 파일이 스스로 적어 둔 첫 줄입니다.</p><div class="tbl-tools" data-table="tool-tbl"><input class="tbl-search" type="search" placeholder="도구 검색"><span class="tbl-count"></span></div><div class="tbl-scroll"><table id="tool-tbl"><thead><tr><th class="sortable">도구</th><th>무엇을 하나</th></tr></thead><tbody><tr><td><a href="https://github.com/RyuSeoJin/rsj-centralized-control/blob/main/core/base/scripts/check_copyright.py" target="_blank" rel="noopener"><code>check_copyright.py</code></a></td><td>사람이 봐야 할 커밋인지 가릅니다</td></tr><tr><td><a href="https://github.com/RyuSeoJin/rsj-centralized-control/blob/main/core/base/scripts/check_rules.py" target="_blank" rel="noopener"><code>check_rules.py</code></a></td><td>규칙대로 썼는지 기계가 봅니다</td></tr><tr><td><a href="https://github.com/RyuSeoJin/rsj-centralized-control/blob/main/core/base/scripts/gen_dictionary_html.py" target="_blank" rel="noopener"><code>gen_dictionary_html.py</code></a></td><td>{프로젝트}-dictionary.md (정본) -&gt; -dictionary.html (파생, 자기완결 단일 파일)</td></tr><tr><td><a href="https://github.com/RyuSeoJin/rsj-centralized-control/blob/main/core/base/scripts/gen_intro_html.py" target="_blank" rel="noopener"><code>gen_intro_html.py</code></a></td><td>「무엇을 할 줄 아는가」를 먼저 보이는 층</td></tr><tr><td><a href="https://github.com/RyuSeoJin/rsj-centralized-control/blob/main/core/base/scripts/modcheck.py" target="_blank" rel="noopener"><code>modcheck.py</code></a></td><td>각 모듈의 check.py가 같은 모양이 되게 합니다</td></tr><tr><td><a href="https://github.com/RyuSeoJin/rsj-centralized-control/blob/main/core/base/scripts/module.py" target="_blank" rel="noopener"><code>module.py</code></a></td><td>무엇이 있고 무엇이 켜져 있는지 보고, 동의를 받은 뒤 켭니다</td></tr><tr><td><a href="https://github.com/RyuSeoJin/rsj-centralized-control/blob/main/core/base/scripts/new_project.py" target="_blank" rel="noopener"><code>new_project.py</code></a></td><td>폴더와 세 정본 파일을 규칙대로 한 번에 세웁니다</td></tr><tr><td><a href="https://github.com/RyuSeoJin/rsj-centralized-control/blob/main/core/base/scripts/norm.py" target="_blank" rel="noopener"><code>norm.py</code></a></td><td>Test-Step은 &#x27;~한다&#x27;, Expected-Result는 &#x27;~된다&#x27; 체.</td></tr><tr><td><a href="https://github.com/RyuSeoJin/rsj-centralized-control/blob/main/core/base/scripts/regen.py" target="_blank" rel="noopener"><code>regen.py</code></a></td><td>그리고 낡은 것이 있는지 봅니다</td></tr><tr><td><a href="https://github.com/RyuSeoJin/rsj-centralized-control/blob/main/core/base/scripts/shell.py" target="_blank" rel="noopener"><code>shell.py</code></a></td><td>산출물 공통 셸(사이드바·상단 바·테마 토글)을 한 곳에서 발행</td></tr><tr><td><a href="https://github.com/RyuSeoJin/rsj-centralized-control/blob/main/core/modules/automation/scripts/gen_qa_report_html.py" target="_blank" rel="noopener"><code>gen_qa_report_html.py</code></a></td><td>흩어진 산출물을 한 장으로 모읍니다 (automation 모듈의 리포트 규칙)</td></tr><tr><td><a href="https://github.com/RyuSeoJin/rsj-centralized-control/blob/main/core/modules/sut/scripts/run_fault_matrix.py" target="_blank" rel="noopener"><code>run_fault_matrix.py</code></a></td><td>내 테스트가 결함을 실제로 잡는지 증명합니다</td></tr><tr><td><a href="https://github.com/RyuSeoJin/rsj-centralized-control/blob/main/core/modules/tc/scripts/build_tc_template_xlsx.py" target="_blank" rel="noopener"><code>build_tc_template_xlsx.py</code></a></td><td>TC 입력 JSON -&gt; TC 시트 xlsx (5시트 자기완결 산출물)</td></tr><tr><td><a href="https://github.com/RyuSeoJin/rsj-centralized-control/blob/main/core/modules/tc/scripts/check_tc_coverage.py" target="_blank" rel="noopener"><code>check_tc_coverage.py</code></a></td><td>덮이지 않은 것을 목록으로 냅니다 (rules/case-expansion.md §커버리지 보증)</td></tr><tr><td><a href="https://github.com/RyuSeoJin/rsj-centralized-control/blob/main/core/modules/tc/scripts/gen_feature_tree_html.py" target="_blank" rel="noopener"><code>gen_feature_tree_html.py</code></a></td><td>feature-tree.md (정본) -&gt; feature-tree.html (파생, 자기완결 단일 파일)</td></tr><tr><td><a href="https://github.com/RyuSeoJin/rsj-centralized-control/blob/main/core/modules/tc/scripts/gen_tc_sheet_html.py" target="_blank" rel="noopener"><code>gen_tc_sheet_html.py</code></a></td><td>xlsx를 받지 않고도 워크북 다섯 시트를 화면에서 읽습니다</td></tr><tr><td><a href="https://github.com/RyuSeoJin/rsj-centralized-control/blob/main/core/modules/tc/scripts/gen_traceability_html.py" target="_blank" rel="noopener"><code>gen_traceability_html.py</code></a></td><td>기능 단위 → TC → 자동화 함수 → 이슈를 한 줄로 잇습니다</td></tr><tr><td><a href="https://github.com/RyuSeoJin/rsj-centralized-control/blob/main/core/modules/tc/scripts/parse_feature_tree.py" target="_blank" rel="noopener"><code>parse_feature_tree.py</code></a></td><td>feature-tree.md (정본) -&gt; 트리 구조 JSON</td></tr></tbody></table></div><div class="doc-footer">이 문서는 파생물입니다 — <code>gen_intro_html.py --page central</code>로 재생성합니다. 규칙 목록·절차 단계·도구 설명은 전부 실제 파일에서 읽고, 구조도는 <code>structure.svg</code>를 읽습니다.</div><h2 id="project-guide">프로젝트 생성 방식</h2><p class="doc-lead">새 프로젝트는 <strong>도구가 찍습니다.</strong> 손으로 만들면 프로젝트마다 자리가 조금씩 달라지고, 그러면 「어디를 보면 되는가」를 매번 다시 찾아야 합니다. 시작 모양을 하나로 고정해 두는 이유입니다.</p><div class="meta-row"><span class="badge">만드는 폴더 <b>8개</b></span><span class="badge">만드는 문서 <b>3개</b></span></div><h3 id="run">한 줄로 만듭니다</h3><pre><code>python core/base/scripts/new_project.py {슬러그}</code></pre><p>슬러그는 소문자 kebab-case이고, <strong>폴더 이름이자 파일 접두</strong>가 됩니다. 이미 있는 이름이면 도구가 멈춥니다 — 덮어쓰면 기존 기록이 사라지기 때문입니다.</p><h3 id="made">무엇이 생기나</h3><pre><code>projects/{슬러그}/
+    {슬러그}-change-log.md
+    {슬러그}-remaining-work.md
+    {슬러그}-dictionary.md
+    spec/design/
+    spec/rationale/
+    spec/archive/
+    test-case/
+    analysis/
+    reference/
+    rules/
+    docs/</code></pre><div class="card-grid"><div class="card"><h3>세 문서는 역할이 갈립니다</h3><p><b>change-log</b>는 한 일을 쌓고, <b>remaining-work</b>는 할 일만 남기며 끝나면 지웁니다. 갱신 방향이 반대라 한 파일에 섞지 않습니다. <b>dictionary</b>는 그 프로젝트에서만 통하는 말을 모읍니다.</p><p class="foot">앞의 둘은 작업 전 항상 먼저 읽습니다</p></div><div class="card"><h3>빈 폴더도 만듭니다</h3><p>조사를 하지 않는 프로젝트에서도 <code>analysis/</code>·<code>reference/</code>를 만듭니다. <b>비어 있는 것이 곧 「이 프로젝트는 조사를 하지 않았다」는 기록</b>이기 때문입니다. 자리를 조건부로 만들면 나중에 켤 때 자리를 새로 정하게 됩니다.</p><p class="foot">빈 폴더는 .gitkeep으로 자리를 지킵니다</p></div></div><h3 id="not">일부러 만들지 않는 것</h3><div class="callout warn"><strong>기능 골격 정본</strong>(<code>spec/{슬러그}-feature-tree.md</code>)은 만들지 않습니다. 빈 정본이 있으면 생성기가 0노드짜리 문서를 찍어내고, <strong>그것이 「골격이 있다」는 신호로 읽힙니다.</strong> 골격은 서식이 아니라 내용이라 도구가 만들 수 없습니다.</div><p>같은 이유로 <code>sut/</code>·<code>automation/</code>·<code>spec/sut-design/</code>도 만들지 않습니다. 이 셋이 있으면 「검증 대상을 직접 만든다」는 뜻이 되므로, 실제로 그렇게 정한 프로젝트에만 생깁니다.</p><h3 id="module">만든 다음 — 모듈을 켭니다</h3><p>중앙 규칙이라고 해서 모든 프로젝트가 전부 따르는 것은 아닙니다. TC를 만들지 않는 프로젝트에 TC 시트 서식은 필요 없습니다. 그래서 <code>core/modules/</code>는 <strong>기본 참조 금지</strong>이고, change-log에 「이 모듈을 켠다」가 적혀 있을 때만 읽습니다.</p><div class="tbl-scroll"><table><thead><tr><th>모듈</th><th>켜면 따르는 규칙</th></tr></thead><tbody><tr><td style="width:120px"><code>automation</code></td><td><a href="https://github.com/RyuSeoJin/rsj-centralized-control/blob/main/core/modules/automation/rules/automation.md" target="_blank" rel="noopener"><code>automation.md</code></a></td></tr><tr><td style="width:120px"><code>llm</code></td><td><a href="https://github.com/RyuSeoJin/rsj-centralized-control/blob/main/core/modules/llm/rules/llm-verification.md" target="_blank" rel="noopener"><code>llm-verification.md</code></a></td></tr><tr><td style="width:120px"><code>sut</code></td><td><a href="https://github.com/RyuSeoJin/rsj-centralized-control/blob/main/core/modules/sut/rules/sut-build.md" target="_blank" rel="noopener"><code>sut-build.md</code></a></td></tr><tr><td style="width:120px"><code>tc</code></td><td><a href="https://github.com/RyuSeoJin/rsj-centralized-control/blob/main/core/modules/tc/rules/case-expansion.md" target="_blank" rel="noopener"><code>case-expansion.md</code></a> · <a href="https://github.com/RyuSeoJin/rsj-centralized-control/blob/main/core/modules/tc/rules/depth-and-tn.md" target="_blank" rel="noopener"><code>depth-and-tn.md</code></a> · <a href="https://github.com/RyuSeoJin/rsj-centralized-control/blob/main/core/modules/tc/rules/tc-relations.md" target="_blank" rel="noopener"><code>tc-relations.md</code></a> · <a href="https://github.com/RyuSeoJin/rsj-centralized-control/blob/main/core/modules/tc/rules/tc-sheet-format.md" target="_blank" rel="noopener"><code>tc-sheet-format.md</code></a> · <a href="https://github.com/RyuSeoJin/rsj-centralized-control/blob/main/core/modules/tc/rules/verification-types.md" target="_blank" rel="noopener"><code>verification-types.md</code></a></td></tr></tbody></table></div><p class="foot">모듈은 규칙과 도구를 자기 안에 함께 둡니다 — 규칙만 옮기고 도구가 남으면 켜지 않은 프로젝트에도 그 도구가 보입니다.</p><h3 id="next">그다음 순서</h3><div class="steps"><div class="step"><div class="body"><b>①</b> — change-log의 <b>§프로젝트 정의</b>를 채웁니다 — 무엇을 다루고 무엇을 남기는 프로젝트인가</div></div><div class="step"><div class="body"><b>②</b> — <b>§켠 모듈</b>을 정합니다. 안 켠 모듈의 규칙은 읽지 않습니다</div></div><div class="step"><div class="body"><b>③</b> — 그 뒤의 순서는 켠 모듈이 정합니다</div></div></div><div class="callout"><strong>목록에 등록하는 절차는 없습니다.</strong> 폴더를 만드는 것이 곧 등록이고, 생성기가 <code>projects/</code>를 훑습니다. 손으로 적는 목록은 문서가 늘 때마다 낡습니다.</div><p class="foot">자리 목록은 <code>new_project.py</code>에서, 모듈 목록은 폴더에서 읽습니다. 규칙 정본은 <a href="https://github.com/RyuSeoJin/rsj-centralized-control/blob/main/core/base/rules/project-scaffold.md" target="_blank" rel="noopener">project-scaffold.md</a>입니다.</p></div></div></div><div class="backdrop"></div></body></html>

@@ -1,0 +1,106 @@
+<svg class="sd" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 940 520" width="940" height="520" role="img" aria-labelledby="fmt fmd">
+<title id="fmt">결함 주입 매트릭스 — 「봤을 때 알아챈다」를 증명하는 방법</title>
+<desc id="fmd">일부러 만든 결함을 URL 파라미터로 하나씩 켜고 같은 테스트 스위트를 반복 실행합니다. 주입 없음 1회는 전부 통과해야 하고, 결함별 1회는 담당 TC만 깨져야 합니다. 담당은 관측이 아니라 주입 지점을 지나고 그 오동작을 판정하는가로 정하며, 담당인데 통과하면 그 TC가 부실한 것이고 담당이 아닌데 깨지면 주입이 넓거나 담당을 빠뜨린 것입니다. 판정이 양방향이라 담당 목록이 낡으면 스스로 드러납니다.</desc>
+<!--
+  CHANGELOG
+  v1.0 (2026-08-04) 최초 수립. 저장소 구조도(structure.svg)에서 automation/ 안쪽을
+                    확대한 그림 둘 중 하나다(다른 하나는 automation-isolation.svg).
+
+  이 파일이 정본이다. 소개 생성기가 이 파일을 읽어 넣으므로 사본을 손으로
+  맞출 일이 없다 — 고친 뒤 gen_intro_html.py로 「자동화 설계와 결과」 페이지를
+  다시 만들면 된다.
+
+  여기에 옵션 표기를 그대로 적지 않는다. XML 주석에는 연속 하이픈을 쓸 수 없어서,
+  적는 순간 이 파일이 단독으로 열리지 않는다(브라우저가 파싱 오류를 낸다).
+
+  변환 없이 그대로 주입되므로 root의 class="sd"와 id(fmt/fmd)는 바꾸지 않는다.
+-->
+<defs>
+<marker id="fm-ar-gray" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#6e7781"/></marker>
+<marker id="fm-ar-red" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#c2410c"/></marker>
+</defs>
+
+<g font-family="system-ui, -apple-system, 'Segoe UI', 'Malgun Gothic', sans-serif">
+<text class="t" x="20" y="30" font-size="13.5" font-weight="600" fill="#1f2328">결함 주입 매트릭스 — 커버리지가 「빠짐없이 봤다」라면, 이쪽은 「봤을 때 알아챈다」</text>
+</g>
+
+<!-- 주입 -->
+<rect class="grp-warn" x="20" y="52" width="234" height="196" rx="8" fill="#fff5ed" stroke="#c2410c"/>
+<g font-family="system-ui, -apple-system, 'Segoe UI', 'Malgun Gothic', sans-serif">
+<text class="t" x="36" y="74" font-size="12.5" font-weight="500" fill="#1f2328">일부러 만든 결함</text>
+<text class="s" x="36" y="91" font-size="11.5" fill="#57606a">?inject= 로만 켭니다 · 한 번에 하나</text>
+</g>
+<g class="nd-warn" fill="#fde8d7" stroke="#c2410c">
+<rect x="36" y="104" width="202" height="30" rx="6"/><rect x="36" y="138" width="202" height="30" rx="6"/><rect x="36" y="172" width="202" height="30" rx="6"/><rect x="36" y="206" width="202" height="30" rx="6"/>
+</g>
+<g font-family="system-ui, -apple-system, 'Segoe UI', 'Malgun Gothic', sans-serif">
+<text class="s" x="50" y="123" font-size="11.5" fill="#1f2328">persona-drift — 치환 무시</text>
+<text class="s" x="50" y="157" font-size="11.5" fill="#1f2328">save-leak — 참조 공유</text>
+<text class="s" x="50" y="191" font-size="11.5" fill="#1f2328">ghost-memory — 판정 무력화</text>
+<text class="s" x="50" y="225" font-size="11.5" fill="#1f2328">gate-bypass — 가드 무력화</text>
+</g>
+
+<!-- 실행 -->
+<rect class="nd-proc" x="316" y="96" width="164" height="108" rx="8" fill="#e0eefb" stroke="#3987e5"/>
+<g font-family="system-ui, -apple-system, 'Segoe UI', 'Malgun Gothic', sans-serif" text-anchor="middle">
+<text class="t" x="398" y="126" font-size="13" font-weight="500" fill="#1f2328">같은 스위트를</text>
+<text class="t" x="398" y="146" font-size="13" font-weight="500" fill="#1f2328">5회 실행</text>
+<text class="s" x="398" y="170" font-size="11.5" fill="#57606a">주입 없음 1 + 결함별 1</text>
+<text class="s" x="398" y="188" font-size="11.5" fill="#57606a">케이스는 한 줄도 안 고칩니다</text>
+</g>
+
+<!-- 기대표 -->
+<rect class="grp-form" x="316" y="248" width="164" height="128" rx="8" fill="#f2f5fe" stroke="#6b74d6"/>
+<g font-family="system-ui, -apple-system, 'Segoe UI', 'Malgun Gothic', sans-serif">
+<text class="t" x="332" y="270" font-size="12.5" font-weight="500" fill="#1f2328">담당 TC 기대표</text>
+</g>
+<g class="nd-form" fill="#e3e9fd" stroke="#6b74d6"><rect x="332" y="282" width="132" height="80" rx="6"/></g>
+<g font-family="system-ui, -apple-system, 'Segoe UI', 'Malgun Gothic', sans-serif">
+<text class="s" x="344" y="302" font-size="11.5" fill="#1f2328">point — 주입 지점</text>
+<text class="s" x="344" y="322" font-size="11.5" fill="#1f2328">expect — 담당 TC</text>
+<text class="s" x="344" y="342" font-size="11.5" fill="#1f2328">why — 담당인 근거</text>
+<text class="s" x="344" y="358" font-size="11.5" fill="#57606a">사양 §2가 정본</text>
+</g>
+
+<!-- 판정 -->
+<rect class="grp-out" x="540" y="52" width="380" height="152" rx="8" fill="#eef9f4" stroke="#199e70"/>
+<g font-family="system-ui, -apple-system, 'Segoe UI', 'Malgun Gothic', sans-serif">
+<text class="t" x="556" y="74" font-size="12.5" font-weight="500" fill="#1f2328">정상 — 담당만 깨집니다</text>
+</g>
+<g class="nd-out" fill="#d9f2e6" stroke="#199e70">
+<rect x="556" y="88" width="348" height="46" rx="6"/><rect x="556" y="142" width="348" height="46" rx="6"/>
+</g>
+<g font-family="system-ui, -apple-system, 'Segoe UI', 'Malgun Gothic', sans-serif">
+<text class="s" x="572" y="108" font-size="11.5" fill="#1f2328">주입 없음 — 전부 통과</text>
+<text class="s" x="572" y="126" font-size="11.5" fill="#57606a">기준선이 깨져 있으면 매트릭스를 읽을 수 없습니다</text>
+<text class="s" x="572" y="162" font-size="11.5" fill="#1f2328">결함별 — 담당 TC만 FAIL</text>
+<text class="s" x="572" y="180" font-size="11.5" fill="#57606a">그 결함을 그 케이스가 실제로 잡아냈다는 뜻</text>
+</g>
+
+<!-- 어긋남 -->
+<rect class="grp-warn" x="540" y="222" width="380" height="154" rx="8" fill="#fff5ed" stroke="#c2410c"/>
+<g font-family="system-ui, -apple-system, 'Segoe UI', 'Malgun Gothic', sans-serif">
+<text class="t" x="556" y="244" font-size="12.5" font-weight="500" fill="#1f2328">어긋나면 — 양방향으로 봅니다</text>
+</g>
+<g class="nd-warn" fill="#fde8d7" stroke="#c2410c">
+<rect x="556" y="258" width="348" height="48" rx="6"/><rect x="556" y="314" width="348" height="48" rx="6"/>
+</g>
+<g font-family="system-ui, -apple-system, 'Segoe UI', 'Malgun Gothic', sans-serif">
+<text class="s" x="572" y="278" font-size="11.5" fill="#1f2328">담당인데 PASS</text>
+<text class="s" x="572" y="296" font-size="11.5" fill="#57606a">결함이 아니라 그 TC가 부실 → 케이스로 되돌아갑니다</text>
+<text class="s" x="572" y="334" font-size="11.5" fill="#1f2328">담당 밖인데 FAIL</text>
+<text class="s" x="572" y="352" font-size="11.5" fill="#57606a">주입이 넓거나 담당을 빠뜨렸습니다 → 어느 쪽인지 판단</text>
+</g>
+
+<path class="arrow arrow-red" d="M258,150 H310" fill="none" stroke="#c2410c" stroke-width="1.8" marker-end="url(#fm-ar-red)"/>
+<path class="arrow arrow-gray" d="M398,248 V210" fill="none" stroke="#6e7781" stroke-width="1.6" marker-end="url(#fm-ar-gray)"/>
+<path class="arrow arrow-gray" d="M486,150 H534" fill="none" stroke="#6e7781" stroke-width="1.6" marker-end="url(#fm-ar-gray)"/>
+<path class="arrow arrow-gray" d="M486,312 H534" fill="none" stroke="#6e7781" stroke-width="1.6" marker-end="url(#fm-ar-gray)"/>
+
+<g font-family="system-ui, -apple-system, 'Segoe UI', 'Malgun Gothic', sans-serif">
+<text class="s" x="20" y="410" font-size="11.5" fill="#57606a">담당은 <tspan class="t" font-weight="600">관측이 아니라 주입 지점</tspan>으로 정합니다 — 「돌려 보니 깨졌다」를 담당으로 삼으면 이 표는 항상 통과하고 아무것도 증명하지 않습니다.</text>
+<text class="s" x="20" y="430" font-size="11.5" fill="#57606a">그 지점을 ①지나고 ②그 오동작을 판정하는 케이스만 담당입니다. 지나가기만 하고 결과를 보지 않는 케이스는 담당이 아닙니다.</text>
+<text class="s" x="20" y="456" font-size="11.5" fill="#57606a">판정이 양방향이라 <tspan class="t" font-weight="600">담당 목록이 낡으면 스스로 드러납니다</tspan> — 실제로 이 검사가 자동화 결함 셋을 잡아냈습니다.</text>
+<text class="s" x="20" y="476" font-size="11.5" fill="#57606a">시트에 적힌 스텝을 자동화가 구현하지 않은 것, 오라클이 결함의 증상을 합격으로 센 것, 픽스처가 조건을 아예 만들지 않은 것.</text>
+</g>
+</svg>

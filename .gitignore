@@ -1,0 +1,13 @@
+.DS_Store
+**/.DS_Store
+
+# 재생성 가능한 것과 환경에 묶인 것은 커밋하지 않습니다. 만드는 방법만 커밋합니다.
+.venv/
+nodes.json
+__pycache__/
+*.pyc
+~$*
+
+# 매트릭스의 원자료 — 표(fault-matrix.md)를 만드는 재료라 매 실행마다 통째로 바뀝니다.
+# 판정에 필요한 것은 표 쪽이고, 원자료까지 커밋하면 이력이 결과 파일로 도배됩니다
+**/automation/result/**/junit-*.xml

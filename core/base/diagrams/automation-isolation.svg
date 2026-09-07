@@ -1,0 +1,105 @@
+<svg class="sd" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 940 490" width="940" height="490" role="img" aria-labelledby="ait aid">
+<title id="ait">자동화 실행과 격리 — 테스트가 서로 오염되지 않는 구조</title>
+<desc id="aid">정적 서버는 세션당 한 번 띄우고, 매 테스트 전에 페이지를 열어 상태를 초기값으로 되돌립니다. 되돌리기는 메모리뿐 아니라 브라우저 저장소까지 지웁니다. 게이팅 상태 다섯은 헬퍼 한 곳에서 만들고, 대기는 고정 시간이 아니라 상태 표식이 바뀌는 것을 조건으로 삼습니다. 결과는 junit으로 남아 매트릭스와 리포트의 입력이 됩니다.</desc>
+<!--
+  CHANGELOG
+  v1.0 (2026-08-04) 최초 수립. 저장소 구조도(structure.svg)에서 automation/ 안쪽을
+                    확대한 그림 둘 중 하나다(다른 하나는 fault-matrix.svg).
+
+  이 파일이 정본이다. 소개 생성기가 이 파일을 읽어 넣으므로 사본을 손으로
+  맞출 일이 없다 — 고친 뒤 gen_intro_html.py로 「자동화 설계와 결과」 페이지를
+  다시 만들면 된다.
+
+  여기에 옵션 표기를 그대로 적지 않는다. XML 주석에는 연속 하이픈을 쓸 수 없어서,
+  적는 순간 이 파일이 단독으로 열리지 않는다(브라우저가 파싱 오류를 낸다).
+
+  변환 없이 그대로 주입되므로 root의 class="sd"와 id(ait/aid)는 바꾸지 않는다.
+-->
+<defs>
+<marker id="ai-ar-gray" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#6e7781"/></marker>
+<marker id="ai-ar-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#199e70"/></marker>
+</defs>
+
+<g font-family="system-ui, -apple-system, 'Segoe UI', 'Malgun Gothic', sans-serif">
+<text class="t" x="20" y="30" font-size="13.5" font-weight="600" fill="#1f2328">자동화 실행과 격리 — 앞 테스트가 남긴 것이 다음 테스트로 새지 않게</text>
+</g>
+
+<!-- 세션 1회 -->
+<rect class="grp-proc" x="20" y="52" width="200" height="96" rx="8" fill="#f0f7fd" stroke="#3987e5"/>
+<g font-family="system-ui, -apple-system, 'Segoe UI', 'Malgun Gothic', sans-serif">
+<text class="t" x="36" y="74" font-size="12.5" font-weight="500" fill="#1f2328">세션당 한 번</text>
+</g>
+<g class="nd-proc" fill="#e0eefb" stroke="#3987e5"><rect x="36" y="86" width="168" height="46" rx="6"/></g>
+<g font-family="system-ui, -apple-system, 'Segoe UI', 'Malgun Gothic', sans-serif">
+<text class="s" x="50" y="106" font-size="11.5" fill="#1f2328">정적 서버 (빈 포트)</text>
+<text class="s" x="50" y="124" font-size="11.5" fill="#57606a">남이 띄운 서버를 안 잡게</text>
+</g>
+
+<!-- 매 테스트 전 -->
+<rect class="grp-out" x="20" y="176" width="560" height="214" rx="8" fill="#eef9f4" stroke="#199e70"/>
+<g font-family="system-ui, -apple-system, 'Segoe UI', 'Malgun Gothic', sans-serif">
+<text class="t" x="36" y="198" font-size="12.5" font-weight="500" fill="#1f2328">매 테스트 전 — 시작점을 같게 만듭니다</text>
+<text class="s" x="36" y="215" font-size="11.5" fill="#57606a">격리 계열 검증(계정 간·방 간·슬롯 간)은 시작점이 같아야 성립합니다</text>
+</g>
+<g class="nd-out" fill="#d9f2e6" stroke="#199e70">
+<rect x="36" y="228" width="122" height="60" rx="6"/><rect x="176" y="228" width="122" height="60" rx="6"/><rect x="316" y="228" width="122" height="60" rx="6"/><rect x="456" y="228" width="108" height="60" rx="6"/>
+</g>
+<g font-family="system-ui, -apple-system, 'Segoe UI', 'Malgun Gothic', sans-serif" text-anchor="middle">
+<text class="t" x="97" y="252" font-size="12" font-weight="500" fill="#1f2328">페이지 열기</text>
+<text class="s" x="97" y="270" font-size="11.5" fill="#1f2328">부팅 완료를 조건으로</text>
+<text class="t" x="237" y="252" font-size="12" font-weight="500" fill="#1f2328">reset()</text>
+<text class="s" x="237" y="270" font-size="11.5" fill="#1f2328">메모리 + 저장소</text>
+<text class="t" x="377" y="252" font-size="12" font-weight="500" fill="#1f2328">gate(상태)</text>
+<text class="s" x="377" y="270" font-size="11.5" fill="#1f2328">게이팅 5종 생성</text>
+<text class="t" x="510" y="252" font-size="12" font-weight="500" fill="#1f2328">room · send</text>
+<text class="s" x="510" y="270" font-size="11.5" fill="#1f2328">공통 사전조건</text>
+</g>
+<g font-family="system-ui, -apple-system, 'Segoe UI', 'Malgun Gothic', sans-serif">
+<text class="s" x="36" y="316" font-size="11.5" fill="#57606a">저장소까지 지우는 것이 격리의 유일한 근거입니다 —</text>
+<text class="s" x="36" y="333" font-size="11.5" fill="#57606a">메모리만 되돌리면 앞 테스트의 계정으로 복원됩니다.</text>
+<text class="s" x="36" y="356" font-size="11.5" fill="#57606a">상태를 케이스마다 다르게 세우면 사전조건 탓 실패와</text>
+<text class="s" x="36" y="373" font-size="11.5" fill="#57606a">기능 결함이 구분되지 않습니다.</text>
+</g>
+
+<!-- 대기 규칙 -->
+<rect class="grp-form" x="612" y="176" width="308" height="214" rx="8" fill="#f2f5fe" stroke="#6b74d6"/>
+<g font-family="system-ui, -apple-system, 'Segoe UI', 'Malgun Gothic', sans-serif">
+<text class="t" x="628" y="198" font-size="12.5" font-weight="500" fill="#1f2328">대기는 조건으로</text>
+<text class="s" x="628" y="215" font-size="11.5" fill="#57606a">고정 시간 대기 금지</text>
+</g>
+<g class="nd-form" fill="#e3e9fd" stroke="#6b74d6">
+<rect x="628" y="228" width="276" height="52" rx="6"/><rect x="628" y="290" width="276" height="66" rx="6"/>
+</g>
+<g font-family="system-ui, -apple-system, 'Segoe UI', 'Malgun Gothic', sans-serif">
+<text class="s" x="644" y="248" font-size="11.5" fill="#1f2328">상태 표식이 바뀌는 것을 기다립니다</text>
+<text class="s" x="644" y="268" font-size="11.5" fill="#57606a">스트리밍 표시가 사라짐 · 부팅이 끝남</text>
+<text class="s" x="644" y="312" font-size="11.5" fill="#1f2328">타임아웃은 성공이 아니라 실패 판정</text>
+<text class="s" x="644" y="331" font-size="11.5" fill="#57606a">브라우저가 백그라운드 탭 타이머를 늦추면</text>
+<text class="s" x="644" y="348" font-size="11.5" fill="#57606a">sleep 기반 대기는 환경에 따라 깨집니다</text>
+</g>
+
+<!-- 결과 -->
+<rect class="nd-proc" x="248" y="76" width="330" height="48" rx="8" fill="#e0eefb" stroke="#3987e5"/>
+<g font-family="system-ui, -apple-system, 'Segoe UI', 'Malgun Gothic', sans-serif">
+<text class="s" x="264" y="96" font-size="11.5" fill="#1f2328">케이스명 = TC ID — <tspan font-family="ui-monospace, Consolas, monospace">test_tc_{영역}_{번호}_{요약}</tspan></text>
+<text class="s" x="264" y="114" font-size="11.5" fill="#57606a">리포트만 보고 시트를 찾을 수 있고, 반대로도 갑니다</text>
+</g>
+<rect class="nd-out" x="612" y="76" width="308" height="48" rx="8" fill="#d9f2e6" stroke="#199e70"/>
+<g font-family="system-ui, -apple-system, 'Segoe UI', 'Malgun Gothic', sans-serif">
+<text class="s" x="628" y="96" font-size="11.5" fill="#1f2328">junit 결과 → 매트릭스 · 리포트 · 추적 매트릭스</text>
+<text class="s" x="628" y="114" font-size="11.5" fill="#57606a">조인 키는 TC ID 하나</text>
+</g>
+
+<path class="arrow arrow-gray" d="M226,100 H242" fill="none" stroke="#6e7781" stroke-width="1.6" marker-end="url(#ai-ar-gray)"/>
+<path class="arrow arrow-green" d="M584,100 H606" fill="none" stroke="#199e70" stroke-width="1.8" marker-end="url(#ai-ar-green)"/>
+<path class="arrow arrow-gray" d="M162,258 H170" fill="none" stroke="#6e7781" stroke-width="1.6" marker-end="url(#ai-ar-gray)"/>
+<path class="arrow arrow-gray" d="M302,258 H310" fill="none" stroke="#6e7781" stroke-width="1.6" marker-end="url(#ai-ar-gray)"/>
+<path class="arrow arrow-gray" d="M442,258 H450" fill="none" stroke="#6e7781" stroke-width="1.6" marker-end="url(#ai-ar-gray)"/>
+<path class="arrow arrow-green" d="M120,148 V170" fill="none" stroke="#199e70" stroke-width="1.8" marker-end="url(#ai-ar-green)"/>
+
+<g font-family="system-ui, -apple-system, 'Segoe UI', 'Malgun Gothic', sans-serif">
+<text class="s" x="20" y="422" font-size="11.5" fill="#57606a">이 구조가 실제로 잡은 것 — 픽스처가 실행마다 <tspan class="t" font-weight="600">같은 초기값</tspan>을 고정하고 있어, 계측이 무엇을 재든 통과하고 있었습니다.</text>
+<text class="s" x="20" y="442" font-size="11.5" fill="#57606a">그리고 자산 하나가 로드에 실패했을 때 준비 완료 판정이 <tspan class="t" font-weight="600">반쪽 상태</tspan>를 통과시켜, 제품이 아닌 이유로 빨간불이 켜졌습니다.</text>
+<text class="s" x="20" y="468" font-size="11.5" fill="#57606a">자기 사정으로 내는 빨간불이 반복되면 실행자가 리포트를 믿지 않게 됩니다 — 그래서 부팅 완료를 조건에 넣고 연결을 재사용하게 고쳤습니다.</text>
+</g>
+</svg>

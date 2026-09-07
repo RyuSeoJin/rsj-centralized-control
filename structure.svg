@@ -1,0 +1,107 @@
+<svg class="sd" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 940 600" width="940" height="600" role="img" aria-labelledby="sdt sdd">
+<title id="sdt">rsj-centralized-control 저장소 구조와 관계</title>
+<desc id="sdd">중앙 규칙은 core/ 한 폴더에 모여 있고, 그 안이 base(안 켤 수 없는 것)와 modules(켠 프로젝트만)로 갈린다. 프로젝트는 도구가 찍어 projects/ 아래에 생기며, 이 그림은 프로젝트 안을 그리지 않는다.</desc>
+<!--
+  CHANGELOG
+  v2.0 (2026-09-04) 구조 재편에 맞춰 전면 재작성. 담는 것을 「중앙 규칙과 프로젝트 생성」으로
+                    좁혔다 — 프로젝트 안에 무엇이 쌓이는지는 그리지 않는다(중앙 규칙의
+                    그림이므로). core/를 base·modules로 가르고, 모듈 판별 질문과 전제
+                    사슬, 「폴더를 만드는 것이 곧 등록」을 넣었다.
+  v1.6 이전         옛 구조(project-process/·폐지된 허브·프로젝트 산출물 파이프라인) 기준.
+                    폴더 재편과 모듈 도입으로 전부 맞지 않게 되었다.
+
+  이 파일이 정본이며 사본은 없다. 이 그림을 싣는 페이지의 생성기가 만들 때마다
+  이 파일을 읽어 넣는다(루트 index.html — gen_intro_html.py).
+
+  변환 없이 그대로 실리므로 root의 class="sd"와 id(sdt/sdd)는 바꾸지 않는다.
+  색은 밝은 배경 기준이고, 다크 테마에서는 마스터 CSS가 클래스를 덮는다.
+  쓰는 클래스: grp-entry/nd-entry · grp-form/nd-form · grp-out/nd-out ·
+               text.t/.s/.lbl · path.arrow-gray + marker#ar-gray
+-->
+<defs>
+<marker id="ar-gray" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#6e7781"/></marker>
+</defs>
+<g font-family="system-ui, -apple-system, Segoe UI, Malgun Gothic, sans-serif">
+
+<rect class="grp-entry" x="40" y="14" width="860" height="88" rx="8" fill="#f7f8fa" stroke="#c4c9d0"/>
+<text class="t" x="58" y="36" font-size="13" font-weight="600" fill="#1f2328">저장소 루트</text>
+<g class="nd-entry" fill="#e8eaed" stroke="#9aa0a6">
+<rect x="58" y="46" width="262" height="44" rx="6"/><rect x="339" y="46" width="262" height="44" rx="6"/><rect x="620" y="46" width="262" height="44" rx="6"/>
+</g>
+<g text-anchor="middle">
+<text class="t" x="189" y="66" font-size="12.5" font-weight="600" fill="#1f2328">index.html</text>
+<text class="s" x="189" y="82" font-size="10.5" fill="#57606a">중앙 규칙 구조 · 프로젝트 생성 방식</text>
+<text class="t" x="470" y="66" font-size="12.5" font-weight="600" fill="#1f2328">workspace.json</text>
+<text class="s" x="470" y="82" font-size="10.5" fill="#57606a">저장소 이름표 — 이름 · 부제 · 주소</text>
+<text class="t" x="751" y="66" font-size="12.5" font-weight="600" fill="#1f2328">center-change-log · remaining-work</text>
+<text class="s" x="751" y="82" font-size="10.5" fill="#57606a">중앙 규칙에 일어난 일 · 남은 일</text>
+</g>
+
+<rect class="grp-entry" x="40" y="126" width="860" height="310" rx="8" fill="#fbfcfd" stroke="#c4c9d0"/>
+<text class="t" x="58" y="148" font-size="13" font-weight="600" fill="#1f2328">core/ — 중앙 규칙</text>
+<text class="s" x="196" y="148" font-size="10.5" fill="#57606a">이름을 담지 않아 그대로 다른 저장소로 옮길 수 있습니다</text>
+
+<rect class="grp-form" x="58" y="160" width="404" height="234" rx="8" fill="#f4f5fd" stroke="#6b74d6"/>
+<text class="t" x="74" y="182" font-size="12.5" font-weight="600" fill="#1f2328">base/ — 안 켤 수 없는 것</text>
+<g class="nd-form" fill="#e9ebfa" stroke="#6b74d6">
+<rect x="74" y="194" width="182" height="46" rx="6"/><rect x="266" y="194" width="180" height="46" rx="6"/>
+<rect x="74" y="250" width="182" height="46" rx="6"/><rect x="266" y="250" width="180" height="46" rx="6"/>
+<rect x="74" y="306" width="182" height="46" rx="6"/><rect x="266" y="306" width="180" height="46" rx="6"/>
+</g>
+<g text-anchor="middle">
+<text class="t" x="165" y="214" font-size="12" font-weight="600" fill="#1f2328">rules/</text>
+<text class="s" x="165" y="230" font-size="10" fill="#57606a">문체 · 배치 · git · 기능 요청</text>
+<text class="t" x="356" y="214" font-size="12" font-weight="600" fill="#1f2328">scripts/</text>
+<text class="s" x="356" y="230" font-size="10" fill="#57606a">골격 · 재생성 · 모듈 · 검사</text>
+<text class="t" x="165" y="270" font-size="12" font-weight="600" fill="#1f2328">design-guide/</text>
+<text class="s" x="165" y="286" font-size="10" fill="#57606a">스타일 · 동작 정본</text>
+<text class="t" x="356" y="270" font-size="12" font-weight="600" fill="#1f2328">design-template/</text>
+<text class="s" x="356" y="286" font-size="10" fill="#57606a">문서 서식 · 프로젝트 서식</text>
+<text class="t" x="165" y="326" font-size="12" font-weight="600" fill="#1f2328">diagrams/</text>
+<text class="s" x="165" y="342" font-size="10" fill="#57606a">설명 그림의 정본</text>
+<text class="t" x="356" y="326" font-size="12" font-weight="600" fill="#1f2328">절차서 · 용어집</text>
+<text class="s" x="356" y="342" font-size="10" fill="#57606a">무엇을 어떤 순서로 하는가</text>
+</g>
+<text class="lbl" x="74" y="374" font-size="10" fill="#57606a">안 켜면 워크스페이스 자체가 성립하지 않는 것 — 모든 프로젝트가 따릅니다</text>
+
+<rect class="grp-out" x="478" y="160" width="404" height="234" rx="8" fill="#f1faf6" stroke="#199e70"/>
+<text class="t" x="494" y="182" font-size="12.5" font-weight="600" fill="#1f2328">modules/ — 켠 프로젝트만</text>
+<g class="nd-out" fill="#e3f5ec" stroke="#199e70">
+<rect x="494" y="194" width="372" height="42" rx="6"/>
+<rect x="494" y="244" width="372" height="42" rx="6"/>
+<rect x="494" y="294" width="372" height="42" rx="6"/>
+<rect x="494" y="344" width="372" height="42" rx="6"/>
+</g>
+<g>
+<text class="t" x="510" y="212" font-size="12" font-weight="600" fill="#1f2328">tc</text>
+<text class="s" x="540" y="212" font-size="10" fill="#57606a">테스트 케이스를 설계하고 시트로 냅니다</text>
+<text class="s" x="510" y="228" font-size="10" fill="#57606a">TC를 만드는가?</text>
+<text class="t" x="510" y="262" font-size="12" font-weight="600" fill="#1f2328">llm</text>
+<text class="s" x="540" y="262" font-size="10" fill="#57606a">출력을 생성하는 기능을 무엇으로 검증하는가</text>
+<text class="s" x="510" y="278" font-size="10" fill="#57606a">같은 입력에 출력이 매번 달라지는가?</text>
+<text class="t" x="510" y="312" font-size="12" font-weight="600" fill="#1f2328">automation</text>
+<text class="s" x="588" y="312" font-size="10" fill="#57606a">TC를 사람이 아니라 코드가 돌립니다</text>
+<text class="s" x="510" y="328" font-size="10" fill="#57606a">TC를 코드로 돌리는가?</text>
+<text class="t" x="510" y="362" font-size="12" font-weight="600" fill="#1f2328">sut</text>
+<text class="s" x="540" y="362" font-size="10" fill="#57606a">검증 대상을 직접 만들고 결함을 심습니다</text>
+<text class="s" x="510" y="378" font-size="10" fill="#57606a">검증 대상을 직접 만드는가?</text>
+</g>
+<text class="lbl" x="494" y="374" font-size="10" fill="#57606a"> </text>
+
+<text class="lbl" x="58" y="416" font-size="10.5" fill="#57606a">base는 기본 참조. modules는 기본 참조 금지 — change-log에 「이 모듈을 켠다」가 적혀 있을 때만 읽습니다.</text>
+<text class="lbl" x="58" y="430" font-size="10.5" fill="#57606a">전제 사슬 — tc ← automation ← sut · tc ← llm. 저절로 켜지지 않고, 켤 때마다 동의를 받습니다.</text>
+
+<path class="arrow-gray" d="M 260 436 L 260 486" fill="none" stroke="#6e7781" stroke-width="1.4" marker-end="url(#ar-gray)"/>
+<text class="lbl" x="268" y="462" font-size="10.5" fill="#57606a">항상 따릅니다</text>
+<path class="arrow-gray" d="M 680 436 L 680 486" fill="none" stroke="#6e7781" stroke-width="1.4" marker-end="url(#ar-gray)"/>
+<text class="lbl" x="688" y="462" font-size="10.5" fill="#57606a">켠 모듈만 따릅니다</text>
+
+<rect class="grp-entry" x="40" y="490" width="860" height="96" rx="8" fill="#f7f8fa" stroke="#c4c9d0"/>
+<text class="t" x="58" y="512" font-size="13" font-weight="600" fill="#1f2328">projects/ — 프로젝트가 사는 곳</text>
+<text class="s" x="256" y="512" font-size="10.5" fill="#57606a">중앙 저장소에서는 비어 있습니다</text>
+<g class="nd-entry" fill="#e8eaed" stroke="#9aa0a6"><rect x="58" y="522" width="824" height="52" rx="6"/></g>
+<text class="t" x="80" y="542" font-size="12.5" font-weight="600" fill="#1f2328">projects/{프로젝트}/</text>
+<text class="s" x="228" y="542" font-size="10.5" fill="#57606a">new_project.py가 폴더와 정본 문서를 찍습니다 — 폴더를 만드는 것이 곧 등록입니다</text>
+<text class="s" x="80" y="562" font-size="10.5" fill="#57606a">이 그림은 프로젝트 안을 그리지 않습니다 — 무엇이 쌓이는지는 그 프로젝트의 사정입니다</text>
+</g>
+</svg>

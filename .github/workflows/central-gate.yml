@@ -1,0 +1,112 @@
+# 중앙 저장소 게이트 — 프로젝트 정보가 중앙으로 올라오는 것을 막습니다.
+#
+# 규칙 정본은 core/base/rules/git-rules.md §6-3입니다. 규칙 문장만 두면 언젠가 새어
+# 나가므로, 사람이 아니라 여기서 막습니다. 하나라도 실패하면 머지할 수 없습니다.
+name: central-gate
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  no-project-files:
+    name: ① 프로젝트 파일이 섞이지 않았는가
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: 변경 파일 검사
+        run: |
+          base="${{ github.event.pull_request.base.sha }}"
+          head="${{ github.event.pull_request.head.sha }}"
+          changed=$(git diff --name-only "$base" "$head")
+          echo "$changed"
+
+          # projects/ 아래는 fork에서만 삽니다. .gitkeep 하나는 자리를 지키는 빈 파일이라 예외입니다
+          bad=$(echo "$changed" | grep -E '^projects/' | grep -v '^projects/\.gitkeep$' || true)
+          if [ -n "$bad" ]; then
+            echo "::error::프로젝트 파일이 PR에 포함되어 있습니다. 중앙 저장소는 프로젝트를 담지 않습니다."
+            echo "$bad"
+            exit 1
+          fi
+
+          # intro/ 는 2026-09-04에 없앴습니다. 프로젝트 산출물은 프로젝트 폴더 안에 둡니다
+          bad=$(echo "$changed" | grep -E '^intro/' || true)
+          if [ -n "$bad" ]; then
+            echo "::error::intro/ 는 두지 않습니다. 워크스페이스 문서는 루트, 프로젝트 산출물은 projects/ 안입니다."
+            echo "$bad"
+            exit 1
+          fi
+
+          # .github/workflows/ 에는 중앙 저장소 자신의 워크플로만 둡니다.
+          # 프로젝트 CI를 여기 두면 프로젝트가 중앙 규칙 바깥에 드러납니다
+          bad=$(echo "$changed" | grep -E '^\.github/workflows/' | grep -v '^\.github/workflows/central-gate\.yml$' || true)
+          if [ -n "$bad" ]; then
+            echo "::error::.github/workflows/ 에는 central-gate.yml 만 둡니다. 프로젝트 CI는 중앙에 두지 않습니다."
+            echo "$bad"
+            exit 1
+          fi
+
+          # workspace.json은 저장소 이름표라 fork마다 값이 다릅니다
+          if echo "$changed" | grep -qx 'workspace.json'; then
+            echo "::error::workspace.json은 fork마다 값이 달라 중앙으로 올리지 않습니다."
+            exit 1
+          fi
+          echo "통과 — 프로젝트 파일 0건"
+
+  self-contained:
+    name: ③ 프로젝트 0개로도 도는가
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: projects/ 를 비운다
+        # 중앙 저장소에는 원래 없지만, 혹시 남아 있어도 「없는 상태」로 검사합니다
+        run: |
+          rm -rf projects
+          mkdir -p projects
+          : > projects/.gitkeep
+
+      - name: 골격 생성이 도는가
+        run: |
+          python core/base/scripts/new_project.py probe
+          test -f projects/probe/probe-change-log.md
+          test -f projects/probe/probe-remaining-work.md
+          test -f projects/probe/probe-dictionary.md
+          test -d projects/probe/spec/design
+
+      - name: 문서 생성이 도는가
+        # 프로젝트 데이터를 읽는 순간 여기서 걸립니다 — 규칙 문서에 이름이 없어도 잡힙니다
+        run: |
+          css=core/base/design-guide/design-guide-master.css
+          python core/base/scripts/gen_intro_html.py \
+            --repo-root . --slug probe --css "$css" -o index.html
+          test -s index.html
+
+      - name: 모듈이 저마다 도는가
+        # 모듈 이름을 여기 적지 않습니다 — 폴더를 훑으므로 모듈이 늘어도 이 단계는
+        # 그대로입니다. 의존성도 모듈이 자기 requirements.txt에 적습니다.
+        # 점검이 있어야 하는 모듈에 없으면 check_rules 가 따로 잡습니다
+        run: |
+          for d in core/modules/*/; do
+            if [ -f "$d/requirements.txt" ]; then
+              pip install --quiet -r "$d/requirements.txt"
+            fi
+            if [ -f "$d/check.py" ]; then
+              python "$d/check.py"
+            fi
+          done
+
+      - name: 문체가 규칙과 맞는가
+        run: python core/base/scripts/check_rules.py
+
+      - name: 도구가 전부 뜨는가
+        run: |
+          for f in $(find core -name '*.py'); do
+            python -c "import ast,io,sys; ast.parse(io.open('$f',encoding='utf-8').read())"
+          done
+          echo "통과 — 프로젝트 없이 골격·문서·도구 전부 정상"
