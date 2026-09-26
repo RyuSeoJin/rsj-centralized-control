@@ -43,3 +43,5 @@ python core/base/scripts/module.py list
 | `tc` · `automation` · `sut` · `llm` | 테스트 케이스 설계 · 자동화 · 검증 대상 제작 · LLM 출력 검증 |
 | `html-design-kit` · `app-preview` | 부품 조립형 HTML · 앱 화면 흐름 미리보기 |
 | `android-emulator` | Android 에뮬레이터 설치 · 점검 (호스트 모듈) |
+| `pixel-art` | 등신대 픽셀 캐릭터 — 스타일 규칙 · 그림 → 픽셀 변환 절차 · 검수 · 공유 Spine 뼈대 |
+| `aseprite` | Aseprite 배치 실행 · MCP 연결 점검 (호스트 모듈) |

@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "canvas": {"width": 128, "height": 128},
+  "center_x": 64,
+  "light": "top-left",
+  "anchors": {
+    "head_top": 18, "eye": 27, "chin": 35, "shoulder": 40, "waist": 57,
+    "crotch": 69, "knee": 93, "ankle": 115, "sole": 119, "ground": 120
+  },
+  "palette": {
+    "outline": "#221A26",
+    "ramps": {
+      "SKIN":    ["#FFF1E4", "#F6D2BC", "#E2A895", "#B87574", "#7A4A58"],
+      "HAIR":    ["#FFE6A6", "#F2C069", "#CC8A45", "#8F5438", "#57303A"],
+      "CLOTH_A": ["#9FC3E8", "#6A8FC9", "#4A63A0", "#353F75", "#241F4A"],
+      "CLOTH_B": ["#FAF6F0", "#E3DCD8", "#BCB0BC", "#8A7D97", "#5A506E"],
+      "LEATHER": ["#D8A87A", "#A8744C", "#7A4E38", "#523030", "#33202A"],
+      "METAL":   ["#F4F7FA", "#C3CCD8", "#8C97AD", "#5B637F", "#383C55"],
+      "ACCENT":  ["#FFB0A0", "#E8646A", "#B43A56", "#7A2446", "#4A1636"],
+      "EYE":     ["#FFFFFF", "#7FD0E0", "#3E8FB8", "#2A4F80"]
+    }
+  },
+  "limits": {"colors_max": 48},
+  "slots": [
+    "hair_back", "tail",
+    "thigh_L", "shin_L", "foot_L", "thigh_R", "shin_R", "foot_R",
+    "pelvis", "torso", "head", "eyes", "mouth", "ear_L", "ear_R",
+    "hair_front", "horns", "acc_head", "acc_body",
+    "upperarm_L", "forearm_L", "offhand", "hand_L",
+    "upperarm_R", "forearm_R", "weapon", "hand_R"
+  ],
+  "bones": {
+    "root":       [null,         64, 120],
+    "hip":        ["root",       64, 66],
+    "spine":      ["hip",        64, 52],
+    "neck":       ["spine",      64, 36],
+    "head":       ["neck",       64, 36],
+    "ear_L":      ["head",       55, 28],
+    "ear_R":      ["head",       73, 28],
+    "shoulder_L": ["spine",      54, 40],
+    "elbow_L":    ["shoulder_L", 51, 55],
+    "wrist_L":    ["elbow_L",    50, 68],
+    "shoulder_R": ["spine",      74, 40],
+    "elbow_R":    ["shoulder_R", 77, 55],
+    "wrist_R":    ["elbow_R",    78, 68],
+    "thigh_L":    ["hip",        59, 68],
+    "knee_L":     ["thigh_L",    59, 93],
+    "ankle_L":    ["knee_L",     59, 115],
+    "thigh_R":    ["hip",        69, 68],
+    "knee_R":     ["thigh_R",    69, 93],
+    "ankle_R":    ["knee_R",     69, 115],
+    "tail":       ["hip",        64, 66]
+  },
+  "slot_bone": {
+    "hair_back": "head", "tail": "tail",
+    "thigh_L": "thigh_L", "shin_L": "knee_L", "foot_L": "ankle_L",
+    "thigh_R": "thigh_R", "shin_R": "knee_R", "foot_R": "ankle_R",
+    "pelvis": "hip", "torso": "spine", "head": "head", "eyes": "head", "mouth": "head",
+    "ear_L": "ear_L", "ear_R": "ear_R", "hair_front": "head", "horns": "head",
+    "acc_head": "head", "acc_body": "spine",
+    "upperarm_L": "shoulder_L", "forearm_L": "elbow_L", "offhand": "wrist_L", "hand_L": "wrist_L",
+    "upperarm_R": "shoulder_R", "forearm_R": "elbow_R", "weapon": "wrist_R", "hand_R": "wrist_R"
+  }
+}

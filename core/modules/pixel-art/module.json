@@ -1,0 +1,4 @@
+{
+  "scope": "project",
+  "creates": ["source", "sprites", "export"]
+}
