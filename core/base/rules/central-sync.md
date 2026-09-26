@@ -19,9 +19,14 @@
 ## 2. 받기
 
 ```bash
-python core/base/scripts/sync_core.py --from {중앙 저장소 경로} --check   # 무엇이 바뀌는지만 봅니다
-python core/base/scripts/sync_core.py --from {중앙 저장소 경로}           # 받습니다
+python core/base/scripts/sync_core.py --from {중앙 저장소} --check   # 무엇이 바뀌는지만 봅니다
+python core/base/scripts/sync_core.py --from {중앙 저장소}           # 받습니다
+python core/base/scripts/sync_core.py --from {주소} --ref {태그}      # 그 태그로 받습니다
 ```
+
+`{중앙 저장소}`는 로컬 폴더 또는 git 주소입니다. 주소를 주면 도구가 임시 폴더로 받아 쓰고 지우므로,
+그 컴퓨터에 중앙 저장소를 따로 clone해 둘 필요가 없습니다. 받는 저장소 **자기 `core/`의 도구**로
+실행합니다 — 중앙 저장소의 도구로 돌리면 `--repo-root`로 받는 저장소를 가리켜야 합니다.
 
 1. **`--check`로 먼저 봅니다.** 더해지는 · 바뀌는 · 지워지는 파일과, 지난번 받은 뒤 새로 생긴 중앙
    이력 항목이 나옵니다.

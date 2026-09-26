@@ -10,7 +10,7 @@
 2. 이 저장소의 도구로 받습니다.
 
    ```bash
-   python {이 저장소}/core/base/scripts/sync_core.py --from {이 저장소} --repo-root {받는 저장소}
+   python {이 저장소 clone}/core/base/scripts/sync_core.py --from https://github.com/RyuSeoJin/rsj-centralized-control --repo-root {받는 저장소}
    ```
 3. 받는 저장소 루트에 진입점과 저장소 이력을 둡니다 — 빈 서식은 `core/base/design-template/repo/`.
 4. 기존 프로젝트 폴더가 있으면 옮기지 않고 등록합니다(`core/base/rules/project-scaffold.md` §5).
@@ -20,8 +20,8 @@
 ## 다시 받기
 
 ```bash
-python core/base/scripts/sync_core.py --from {이 저장소} --check
-python core/base/scripts/sync_core.py --from {이 저장소}
+python core/base/scripts/sync_core.py --from https://github.com/RyuSeoJin/rsj-centralized-control --check
+python core/base/scripts/sync_core.py --from https://github.com/RyuSeoJin/rsj-centralized-control
 ```
 
 받은 뒤 받는 저장소에서 `core/`를 고친 파일이 있으면 도구가 멈춥니다. 그 수정은 이 저장소로 먼저

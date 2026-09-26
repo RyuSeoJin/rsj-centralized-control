@@ -10,7 +10,11 @@
 
 사용법
 ------
+  {중앙 저장소}는 로컬 폴더 또는 git 주소(https://… · git@…)입니다. 주소를 주면 임시 폴더로
+  얕게 clone해서 받고 끝나면 지웁니다. --ref로 태그 · 브랜치를 고를 수 있습니다(주소일 때만).
+
     python core/base/scripts/sync_core.py --from {중앙 저장소} --check    무엇이 바뀌는지만 본다
+    python core/base/scripts/sync_core.py --from {주소} --ref core-v2.0.0 그 태그로 받는다
     python core/base/scripts/sync_core.py --from {중앙 저장소}            받는다
     python core/base/scripts/sync_core.py --from {중앙 저장소} --discard-local
                                                                           손댄 파일을 버리고 받는다
@@ -26,6 +30,7 @@ import re
 import shutil
 import subprocess
 import sys
+import tempfile
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import workspace  # noqa: E402
@@ -107,7 +112,8 @@ def main():
         except AttributeError:
             pass
     ap = argparse.ArgumentParser()
-    ap.add_argument("--from", dest="central", help="중앙 저장소 경로 (core/가 있는 폴더)")
+    ap.add_argument("--from", dest="central", help="중앙 저장소 — 로컬 폴더 또는 git 주소")
+    ap.add_argument("--ref", help="주소로 받을 때 태그 · 브랜치 (생략하면 기본 브랜치)")
     ap.add_argument("--check", action="store_true", help="받지 않고 바뀔 것만 봅니다")
     ap.add_argument("--discard-local", action="store_true",
                     help="이 저장소에서 손댄 core/ 파일을 버리고 받습니다 (사용자 확인 뒤에만)")
@@ -134,8 +140,34 @@ def main():
         return 1
 
     if not args.central:
-        sys.exit("--from {중앙 저장소 경로}가 필요합니다")
-    central = os.path.abspath(args.central)
+        sys.exit("--from {중앙 저장소 경로 또는 주소}가 필요합니다")
+    tmp = None
+    if is_url(args.central):
+        tmp = tempfile.mkdtemp(prefix="central-")
+        cmd = ["git", "clone", "--quiet", "--depth", "1"]
+        if args.ref:
+            cmd += ["--branch", args.ref]
+        r = subprocess.run(cmd + [args.central, tmp], capture_output=True, text=True)
+        if r.returncode:
+            shutil.rmtree(tmp, ignore_errors=True)
+            sys.exit("중앙 저장소를 받지 못했습니다: %s\n%s" % (args.central, r.stderr.strip()))
+        central = tmp
+    elif args.ref:
+        sys.exit("--ref는 주소로 받을 때만 씁니다 — 로컬 폴더는 그 폴더에서 원하는 커밋으로 옮긴 뒤 받습니다")
+    else:
+        central = os.path.abspath(args.central)
+    try:
+        return receive(args, root, core, src, changed, central, args.central if tmp else None)
+    finally:
+        if tmp:
+            shutil.rmtree(tmp, ignore_errors=True)
+
+
+def is_url(value):
+    return value.startswith(("https://", "http://", "git@", "ssh://", "file://")) or value.endswith(".git")
+
+
+def receive(args, root, core, src, changed, central, url):
     c_core = os.path.join(central, "core")
     if not os.path.isdir(os.path.join(c_core, "base")):
         sys.exit("중앙 저장소가 아닙니다 — core/base/가 없습니다: %s" % central)
@@ -149,7 +181,7 @@ def main():
     rem = sorted(p for p in mine if p not in theirs)
     head, dirty, tag = git_head(central)
 
-    print("중앙 저장소  %s" % central)
+    print("중앙 저장소  %s" % (url or central))
     print("   커밋 %s%s%s" % (head or "(없음)", " · 태그 " + tag if tag else "",
                            " · 커밋 안 된 변경 있음" if dirty else ""))
     print("받은 기록    %s" % (src.get("synced") or "(처음 받습니다)"))
@@ -184,7 +216,7 @@ def main():
         os.makedirs(os.path.dirname(dst), exist_ok=True)
         shutil.copy2(os.path.join(c_core, *p.split("/")), dst)
     record = {
-        "source": central.replace(os.sep, "/"),
+        "source": url or central.replace(os.sep, "/"),
         "commit": head,
         "tag": tag,
         "dirty": dirty,

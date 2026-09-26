@@ -2,6 +2,8 @@
    design-guide-master.css — 스타일 정본
    ------------------------------------------------------------
    CHANGELOG
+   이관 (2026-09-28, 버전 변경 없음) 중앙 규칙 재편으로 qa-site 모듈에 옮겨졌다. 14절 주석의
+     그림 정본 자리를 base/diagrams에서 qa-site 모듈의 diagrams/로 고쳤다. 스타일 무변경.
    v2.5 (2026-08-05) 카드 안 아이템을 카드 전체로 누르게 했다(.item a::after). 테두리는
      카드 전체가 밝아지는데 눌리는 곳은 제목뿐이라 신호와 동작이 어긋났다. 링크의 클릭
      영역만 넓히므로 마크업도 생성기도 그대로다. 링크가 없는 항목(.item-off)은 반대로
@@ -377,7 +379,8 @@ tbody tr.row-hide{display:none}
   color:var(--muted);font-size:12.5px}
 
 /* ---------- 14. 구조도·설명 다이어그램 (SVG 인라인) ----------
-   정본은 저장소 루트 structure.svg와 base/diagrams/*.svg이며 색은 밝은 배경 기준으로 그린다.
+   정본은 저장소 루트 structure.svg(그 저장소 것)와 qa-site 모듈의 diagrams/*.svg이며
+   색은 밝은 배경 기준으로 그린다.
    라이트 테마에서는 원본 색이 그대로 맞으므로 덮지 않고, 다크에서만 표면에 맞춘다 —
    그림 파일을 테마마다 따로 두지 않기 위해서다. */
 .sd{width:100%;height:auto;display:block}

@@ -4,8 +4,12 @@
 # 나가므로, 사람이 아니라 여기서 막습니다. 하나라도 실패하면 머지할 수 없습니다.
 name: central-gate
 
+# PR뿐 아니라 main에 직접 올린 push도 검사합니다 — PR에서만 돌면 직접 push한 변경은
+# 아무 검사 없이 들어옵니다(2026-09-28 개정)
 on:
   pull_request:
+    branches: [main]
+  push:
     branches: [main]
 
 jobs:
@@ -18,8 +22,18 @@ jobs:
           fetch-depth: 0
       - name: 변경 파일 검사
         run: |
-          base="${{ github.event.pull_request.base.sha }}"
-          head="${{ github.event.pull_request.head.sha }}"
+          # 비교 기준 — PR은 대상 브랜치와, push는 올리기 전 커밋과 비교합니다.
+          # 새 브랜치의 첫 push처럼 이전 커밋이 없으면(0000…) 바로 앞 커밋과 비교합니다
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            base="${{ github.event.pull_request.base.sha }}"
+            head="${{ github.event.pull_request.head.sha }}"
+          else
+            base="${{ github.event.before }}"
+            head="${{ github.sha }}"
+            if [ -z "$base" ] || [ "$base" = "0000000000000000000000000000000000000000" ]; then
+              base=$(git rev-parse "$head^" 2>/dev/null || git hash-object -t tree /dev/null)
+            fi
+          fi
           changed=$(git diff --name-only "$base" "$head")
           echo "$changed"
 
@@ -48,8 +62,9 @@ jobs:
             exit 1
           fi
 
-          # workspace.json은 저장소 이름표라 fork마다 값이 다릅니다
-          if echo "$changed" | grep -qx 'workspace.json'; then
+          # workspace.json은 저장소 이름표라 fork마다 값이 다릅니다. fork에서 보내는 PR만
+          # 막습니다 — 중앙 저장소 자신의 이름표는 main에서 직접 고칩니다
+          if [ "${{ github.event_name }}" = "pull_request" ] && echo "$changed" | grep -qx 'workspace.json'; then
             echo "::error::workspace.json은 fork마다 값이 달라 중앙으로 올리지 않습니다."
             exit 1
           fi
