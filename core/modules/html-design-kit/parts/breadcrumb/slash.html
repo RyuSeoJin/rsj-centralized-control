@@ -1,0 +1,22 @@
+<!--
+part: breadcrumb
+variant: slash
+source: tabler/tabler
+fits: frame.sidebar-shell, topbar
+mood: dense, corporate
+slots: items, item, label
+requires: none
+added: 2026-08-25
+spec: 0.5
+notes: 슬래시 구분 텍스트. 가장 가벼움. 마지막 항목은 aria-current="page" 로 진하게
+-->
+<section data-part="breadcrumb" data-variant="slash" class="hdk-breadcrumb hdk-breadcrumb--slash">
+<style>
+.hdk-breadcrumb--slash .hdk-breadcrumb__list { display: flex; flex-wrap: wrap; gap: var(--hdk-sp-2); list-style: none; margin: 0; padding: 0; font-size: var(--hdk-fs-sm); }
+.hdk-breadcrumb--slash li + li::before { content: "/"; color: var(--hdk-fg-faint); margin-right: var(--hdk-sp-2); }
+.hdk-breadcrumb--slash a { color: var(--hdk-fg-muted); text-decoration: none; }
+.hdk-breadcrumb--slash a:hover { color: var(--hdk-fg); }
+.hdk-breadcrumb--slash [aria-current="page"] { color: var(--hdk-fg); font-weight: var(--hdk-fw-medium); }
+</style>
+  <ol class="hdk-breadcrumb__list" data-slot="items"><li data-slot="item"><a href="#" data-slot="label">상위 자리</a></li><li><a href="#">중간 자리</a></li><li><span aria-current="page">현재 자리</span></li></ol>
+</section>

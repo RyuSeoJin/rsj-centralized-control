@@ -1,0 +1,28 @@
+<!--
+part: avatar
+variant: stacked-group
+source: thedevdojo/tails
+fits: card, table, feed
+mood: airy, corporate
+slots: items, item, label, meta
+requires: none
+added: 2026-08-25
+spec: 0.5
+notes: 겹쳐진 아바타 묶음 + "+N". 참여자·담당자 표시. 최대 4개 노출 후 나머지는 meta
+-->
+<section data-part="avatar" data-variant="stacked-group" class="hdk-avatar hdk-avatar--stacked-group">
+<style>
+.hdk-avatar--stacked-group { display: inline-flex; align-items: center; }
+.hdk-avatar--stacked-group .hdk-avatar__list { display: inline-flex; list-style: none; margin: 0; padding: 0; }
+.hdk-avatar--stacked-group .hdk-avatar__img { width: 32px; height: 32px; display: grid; place-items: center; border-radius: var(--hdk-radius-full); background: var(--hdk-accent-soft); color: var(--hdk-accent); font-size: var(--hdk-fs-xs); font-weight: var(--hdk-fw-medium); border: 2px solid var(--hdk-bg-elev); overflow: hidden; }
+.hdk-avatar--stacked-group .hdk-avatar__img img { width: 100%; height: 100%; object-fit: cover; }
+.hdk-avatar--stacked-group li + li { margin-left: -10px; }
+.hdk-avatar--stacked-group li:hover { z-index: 1; position: relative; }
+.hdk-avatar--stacked-group .hdk-avatar__meta { margin-left: var(--hdk-sp-2); font-size: var(--hdk-fs-xs); color: var(--hdk-fg-muted); }
+</style>
+  <ul class="hdk-avatar__list" data-slot="items">
+    <li data-slot="item"><span class="hdk-avatar__img"><span data-slot="label">A</span></span></li>
+    <li><span class="hdk-avatar__img">B</span></li><li><span class="hdk-avatar__img">C</span></li>
+  </ul>
+  <span class="hdk-avatar__meta" data-slot="meta">+0</span>
+</section>

@@ -1,0 +1,27 @@
+<!--
+part: card
+variant: image-top
+source: startbootstrap/startbootstrap-agency
+fits: frame.scroll-stack, section, slider
+mood: airy, editorial
+slots: image, eyebrow, title, body, meta
+requires: badge.dot
+added: 2026-08-25
+spec: 0.5
+notes: 이미지 상단 + 텍스트. 블로그·포트폴리오·상품 카드. 전체가 링크면 <a> 로 감싸 조립
+-->
+<section data-part="card" data-variant="image-top" class="hdk-card hdk-card--image-top">
+<style>
+.hdk-card--image-top { display: flex; flex-direction: column; background: var(--hdk-bg-elev); border: 1px solid var(--hdk-line); border-radius: var(--hdk-radius-lg); overflow: hidden; transition: transform var(--hdk-dur-base) var(--hdk-ease), box-shadow var(--hdk-dur-base); }
+.hdk-card--image-top:hover { transform: translateY(-2px); box-shadow: var(--hdk-shadow-md); }
+.hdk-card--image-top .hdk-card__image { aspect-ratio: 16 / 10; background: var(--hdk-bg-elev-2); }
+.hdk-card--image-top .hdk-card__image img { width: 100%; height: 100%; object-fit: cover; }
+.hdk-card--image-top .hdk-card__content { padding: var(--hdk-sp-4); display: grid; gap: var(--hdk-sp-2); }
+.hdk-card--image-top .hdk-card__eyebrow { margin: 0; font-size: var(--hdk-fs-xs); color: var(--hdk-accent); letter-spacing: var(--hdk-tracking-caps); text-transform: uppercase; }
+.hdk-card--image-top .hdk-card__title { margin: 0; font-size: var(--hdk-fs-lg); font-weight: var(--hdk-fw-bold); line-height: var(--hdk-lh-tight); }
+.hdk-card--image-top .hdk-card__body { margin: 0; color: var(--hdk-fg-muted); font-size: var(--hdk-fs-sm); }
+.hdk-card--image-top .hdk-card__meta { margin: var(--hdk-sp-1) 0 0; font-size: var(--hdk-fs-xs); color: var(--hdk-fg-faint); }
+</style>
+  <div class="hdk-card__image" data-slot="image"></div>
+  <div class="hdk-card__content"><p class="hdk-card__eyebrow" data-slot="eyebrow">분류 자리</p><h3 class="hdk-card__title" data-slot="title">카드 제목 자리</h3><p class="hdk-card__body" data-slot="body">카드 설명 자리</p><p class="hdk-card__meta" data-slot="meta">날짜·작성자 자리</p></div>
+</section>

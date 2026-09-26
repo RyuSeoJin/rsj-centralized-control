@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>기준서 — 범용 문서 템플릿</title>
+  <!-- CHANGELOG v1.0 (2026-09-08): 지원 환경 전용 서식에서 범용 기준 구조 분리.
+       검증 마스터 CSS v2.5 / JS v2.1. 템플릿은 최신 정본을 참조.
+       실제 산출물은 정본에서 생성하고 CSS/JS를 인라인하며 생성 당시 버전을 기록. -->
+  <link rel="stylesheet" href="../design-guide/design-guide-master.css">
+  <script src="../design-guide/design-guide-master.js"></script>
+</head>
+<body>
+<main class="wrap">
+  <header class="doc-header">
+    <button type="button" class="icon-btn" data-theme-toggle aria-label="다크 테마로 전환">다크</button>
+    <h1>{문서명} 기준서</h1>
+    <p class="doc-lead">{무엇을 어떤 목적으로 정하고, 누가 구현·운영·검증에 사용하는지 설명합니다.}</p>
+    <div class="meta-row">
+      <span class="badge">범용 서식 <b>04 · v1.0</b></span>
+      <span class="badge">상태 <b>{초안 / 검토 중 / 승인}</b></span>
+      <span class="badge">담당자 <b>{이름}</b></span>
+      <span class="badge">개정 <b>{번호·날짜}</b></span>
+    </div>
+    <nav class="toc" aria-label="문서 목차">
+      <a href="#scope">01 목적·범위</a><a href="#definitions">02 용어·전제</a>
+      <a href="#evidence">03 근거</a><a href="#criteria">04 기준·예외</a>
+      <a href="#application">05 적용·검증</a><a href="#pending">06 결정 대기</a>
+    </nav>
+  </header>
+  <div class="callout warn"><b>범용 구조의 미리보기입니다.</b> 문서 주제만 다르면 이 서식을 재사용합니다. 용도별 작성 안내에 따라 절과 표를 구체화하고, 실제 목차는 본문 작성 전에 확인받습니다. 중괄호는 입력 자리이며 승인값이 아닙니다.</div>
+
+  <h2 id="scope">1. 목적·범위·문서 상태</h2>
+  <p>{기준이 필요한 이유와 적용 대상·제외 범위를 기록합니다.}</p>
+  <div class="tbl-scroll" tabindex="0" role="region" aria-label="문서 관리 정보">
+    <table><thead><tr><th scope="col">항목</th><th scope="col">기록 내용</th></tr></thead><tbody>
+      <tr><th scope="row">문서 ID·담당</th><td>{문서 ID·담당자}</td></tr>
+      <tr><th scope="row">적용·제외 범위</th><td>{대상·기간·제외 대상과 이유}</td></tr>
+      <tr><th scope="row">정본·생성</th><td>{정본 경로·출력 경로·생성 명령}</td></tr>
+      <tr><th scope="row">승인·재검토</th><td>{승인자·일자·승인 범위·재검토 조건}</td></tr>
+    </tbody></table>
+  </div>
+  <p>초안과 확정 사양을 구분합니다. 프로젝트 정본은 승인 전후에 수정 가능한 사본으로 중복 보관하지 않으며, HTML은 정본에서 생성합니다.</p>
+
+  <h2 id="definitions">2. 용어·단위·전제</h2>
+  <p>{같은 값을 다르게 해석하지 않도록 용어, 단위, 판단 전제를 먼저 정의합니다.}</p>
+  <div class="tbl-scroll" tabindex="0" role="region" aria-label="용어와 전제">
+    <table><thead><tr><th scope="col">항목</th><th scope="col">정의·단위</th><th scope="col">조건·참조</th></tr></thead><tbody>
+      <tr><td>{용어·지표}</td><td>{정의·단위·표기 순서}</td><td>{측정 조건·기존 정의 참조}</td></tr>
+    </tbody></table>
+  </div>
+
+  <h2 id="evidence">3. 근거·검토 내용</h2>
+  <p>{기준의 근거가 되는 자료·실측·사용자 결정을 기록합니다. 제안이나 추정은 확인된 사실과 구분합니다.}</p>
+  <div class="tbl-scroll" tabindex="0" role="region" aria-label="근거와 검토">
+    <table><thead><tr><th scope="col">근거 ID</th><th scope="col">내용·종류</th><th scope="col">출처·확인일</th><th scope="col">상태·한계</th></tr></thead><tbody>
+      <tr><td>{근거 ID}</td><td>{자료 / 실측 / 결정} · {내용}</td><td>{참조·날짜}</td><td>{확인 / 미확인} · {한계}</td></tr>
+    </tbody></table>
+  </div>
+  <p>대안이나 선정안이 필요하면 이 절 아래에 추가합니다. 이유 없이 최종값만 남기지 않으며, 값이 충돌하면 양쪽 근거와 결정 대기 ID를 기록합니다.</p>
+
+  <h2 id="criteria">4. 기준·예외·승인</h2>
+  <p>{적용할 기준과 예외를 판정 가능한 표현으로 기록합니다. 근거가 있다는 사실만으로 승인된 기준이 되지는 않습니다.}</p>
+  <div class="tbl-scroll" tabindex="0" role="region" aria-label="기준과 승인">
+    <table><thead><tr><th scope="col">기준 ID</th><th scope="col">대상·조건</th><th scope="col">기준·예외</th><th scope="col">이유·근거 ID</th><th scope="col">승인 상태</th></tr></thead><tbody>
+      <tr><td>{기준 ID}</td><td>{적용 조건}</td><td>{규칙·값·예외}</td><td>{이유·참조}</td><td>{제안 / 승인 / 제외} · {승인 기록}</td></tr>
+    </tbody></table>
+  </div>
+  <p>공통 기준은 한 번만 정의하고 대상별 문서에는 참조와 예외만 남깁니다. 미승인 값은 확정 사양이나 검증 기대값으로 사용하지 않습니다.</p>
+
+  <h2 id="application">5. 적용·연결·검증</h2>
+  <p>{기준을 어느 화면·설정·데이터·운영 절차에 연결하고, 일치 여부를 어떻게 확인하는지 기록합니다.}</p>
+  <div class="tbl-scroll" tabindex="0" role="region" aria-label="적용과 검증">
+    <table><thead><tr><th scope="col">기준 ID</th><th scope="col">적용 대상</th><th scope="col">연결 방법</th><th scope="col">검증 기준</th></tr></thead><tbody>
+      <tr><td>{기준 ID}</td><td>{파일·화면·설정 ID}</td><td>{키 대응·생성 명령·참조}</td><td>{방법·완료 조건·검증 한계}</td></tr>
+    </tbody></table>
+  </div>
+  <p>실제 검증 결과는 담당 검증 기록에 남기고 이 문서에서는 참조합니다. 이 템플릿은 구조를 제공하며 문서 생성기나 데이터 변환 기능을 구현하지는 않습니다.</p>
+
+  <h2 id="pending">6. 미확인·결정 대기</h2>
+  <p>{확정되지 않은 내용과 결정 전까지 보류할 작업을 기록합니다.}</p>
+  <div class="tbl-scroll" tabindex="0" role="region" aria-label="결정 대기">
+    <table><thead><tr><th scope="col">대기 ID</th><th scope="col">질문·관련 ID</th><th scope="col">필요 근거</th><th scope="col">담당·시점</th><th scope="col">영향</th></tr></thead><tbody>
+      <tr><td>{대기 ID}</td><td>{질문·참조}</td><td>{자료 / 실측 / 승인}</td><td>{담당자·필요 시점}</td><td>{보류할 적용·검증}</td></tr>
+    </tbody></table>
+  </div>
+  <p>작성 후 입력 자리·출처·단위·승인 범위·참조 ID·재생성 결과를 확인합니다. 개별 문서와 허브의 값이 같은 정본에서 나오는지도 확인합니다.</p>
+  <footer class="doc-footer">04-standard v1.0 · 최신 마스터 참조 (검증: CSS v2.5 / JS v2.1). 실제 산출물에는 생성 당시 마스터 버전을 기록합니다.</footer>
+</main>
+</body>
+</html>

@@ -1,0 +1,22 @@
+<!--
+part: empty-state
+variant: inline-row
+source: tabler/tabler
+fits: table, feed, sidebar
+mood: dense, corporate
+slots: icon, body, cta
+requires: button.ghost
+added: 2026-08-25
+spec: 0.5
+notes: 한 줄짜리. 표 tbody 안이나 목록 끝에 끼워 넣는 용도. 높이가 행 하나 수준
+-->
+<section data-part="empty-state" data-variant="inline-row" class="hdk-empty-state hdk-empty-state--inline-row">
+<style>
+.hdk-empty-state--inline-row { display: flex; align-items: center; gap: var(--hdk-sp-3); padding: var(--hdk-sp-4); color: var(--hdk-fg-muted); font-size: var(--hdk-fs-sm); }
+.hdk-empty-state--inline-row .hdk-empty-state__icon { width: 20px; height: 20px; color: var(--hdk-fg-faint); flex: none; }
+.hdk-empty-state--inline-row .hdk-empty-state__body { margin: 0; flex: 1; }
+</style>
+  <svg class="hdk-empty-state__icon" data-slot="icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="10" cy="10" r="7"/><path d="M7 10h6"/></svg>
+  <p class="hdk-empty-state__body" data-slot="body">비어 있음 안내 자리</p>
+  <span data-slot="cta"><!-- button.ghost --></span>
+</section>

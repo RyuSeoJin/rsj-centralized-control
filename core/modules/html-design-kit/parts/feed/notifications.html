@@ -1,0 +1,29 @@
+<!--
+part: feed
+variant: notifications
+source: satnaing/shadcn-admin
+fits: modal.drawer, topbar, card
+mood: dense, tech
+slots: items, item, icon, title, body, meta
+requires: badge.count
+added: 2026-08-25
+spec: 0.5
+notes: 알림 센터 목록. 읽지 않음은 data-unread="true"(좌측 점 + 배경). 드롭다운·드로어 안에서 사용
+-->
+<section data-part="feed" data-variant="notifications" class="hdk-feed hdk-feed--notifications">
+<style>
+.hdk-feed--notifications .hdk-feed__list { list-style: none; margin: 0; padding: 0; }
+.hdk-feed--notifications .hdk-feed__item { position: relative; display: grid; grid-template-columns: 36px 1fr; gap: var(--hdk-sp-3); padding: var(--hdk-sp-3) var(--hdk-sp-4) var(--hdk-sp-3) var(--hdk-sp-5); border-bottom: 1px solid var(--hdk-line); font-size: var(--hdk-fs-sm); }
+.hdk-feed--notifications .hdk-feed__item[data-unread="true"] { background: var(--hdk-accent-soft); }
+.hdk-feed--notifications .hdk-feed__item[data-unread="true"]::before { content: ""; position: absolute; left: var(--hdk-sp-2); top: 50%; width: 6px; height: 6px; border-radius: var(--hdk-radius-full); background: var(--hdk-accent); transform: translateY(-50%); }
+.hdk-feed--notifications .hdk-feed__icon { width: 36px; height: 36px; display: grid; place-items: center; border-radius: var(--hdk-radius-md); background: var(--hdk-bg-elev-2); color: var(--hdk-fg-muted); }
+.hdk-feed--notifications .hdk-feed__icon svg { width: 18px; height: 18px; }
+.hdk-feed--notifications .hdk-feed__title { margin: 0; font-weight: var(--hdk-fw-medium); }
+.hdk-feed--notifications .hdk-feed__body { margin: 2px 0 0; color: var(--hdk-fg-muted); font-size: var(--hdk-fs-xs); }
+.hdk-feed--notifications .hdk-feed__meta { display: block; margin-top: var(--hdk-sp-1); font-size: var(--hdk-fs-xs); color: var(--hdk-fg-faint); }
+</style>
+  <ul class="hdk-feed__list" data-slot="items">
+    <li class="hdk-feed__item" data-unread="true" data-slot="item"><span class="hdk-feed__icon" data-slot="icon"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M4 7a5 5 0 0110 0v4l1 2H3l1-2zM7 15h4"/></svg></span><div><p class="hdk-feed__title" data-slot="title">알림 제목 자리</p><p class="hdk-feed__body" data-slot="body">알림 내용 자리</p><span class="hdk-feed__meta" data-slot="meta">시각 자리</span></div></li>
+    <li class="hdk-feed__item"><span class="hdk-feed__icon"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="9" cy="9" r="6"/></svg></span><div><p class="hdk-feed__title">알림 제목 자리</p><p class="hdk-feed__body">알림 내용 자리</p><span class="hdk-feed__meta">시각 자리</span></div></li>
+  </ul>
+</section>

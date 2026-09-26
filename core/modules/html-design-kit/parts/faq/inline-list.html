@@ -1,0 +1,27 @@
+<!--
+part: faq
+variant: inline-list
+source: original
+fits: card, section, modal
+mood: dense, tech
+slots: items, item, label, body
+requires: none
+added: 2026-08-25
+spec: 0.5
+notes: 제목 없이 Q/A 마커만 붙는 컴팩트 목록. 카드·사이드 패널 안 "이 항목에 대한 도움말"용
+-->
+<section data-part="faq" data-variant="inline-list" class="hdk-faq hdk-faq--inline-list">
+<style>
+.hdk-faq--inline-list { display: grid; gap: var(--hdk-sp-3); font-size: var(--hdk-fs-sm); }
+.hdk-faq--inline-list .hdk-faq__item { display: grid; grid-template-columns: 20px 1fr; gap: var(--hdk-sp-1) var(--hdk-sp-2); }
+.hdk-faq--inline-list .hdk-faq__q, .hdk-faq--inline-list .hdk-faq__a { font-family: var(--hdk-font-mono); font-size: var(--hdk-fs-xs); font-weight: var(--hdk-fw-bold); padding-top: 2px; }
+.hdk-faq--inline-list .hdk-faq__q { color: var(--hdk-accent); }
+.hdk-faq--inline-list .hdk-faq__a { color: var(--hdk-fg-faint); }
+.hdk-faq--inline-list .hdk-faq__label { margin: 0; font-weight: var(--hdk-fw-medium); }
+.hdk-faq--inline-list .hdk-faq__body { margin: 0; color: var(--hdk-fg-muted); }
+</style>
+  <div data-slot="items">
+    <div class="hdk-faq__item" data-slot="item"><span class="hdk-faq__q">Q</span><p class="hdk-faq__label" data-slot="label">질문 자리</p><span class="hdk-faq__a">A</span><p class="hdk-faq__body" data-slot="body">답변 자리</p></div>
+    <div class="hdk-faq__item"><span class="hdk-faq__q">Q</span><p class="hdk-faq__label">질문 자리</p><span class="hdk-faq__a">A</span><p class="hdk-faq__body">답변 자리</p></div>
+  </div>
+</section>

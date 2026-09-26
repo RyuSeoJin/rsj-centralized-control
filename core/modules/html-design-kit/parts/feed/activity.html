@@ -1,0 +1,29 @@
+<!--
+part: feed
+variant: activity
+source: ColorlibHQ/gentelella
+fits: card, frame.sidebar-shell
+mood: dense, corporate
+slots: items, item, image, title, body, meta
+requires: avatar.circle
+added: 2026-08-25
+spec: 0.5
+notes: 아바타 + "누가 무엇을" 한 줄 + 시각. 대시보드 최근 활동용
+-->
+<section data-part="feed" data-variant="activity" class="hdk-feed hdk-feed--activity">
+<style>
+.hdk-feed--activity .hdk-feed__list { list-style: none; margin: 0; padding: 0; }
+.hdk-feed--activity .hdk-feed__item { display: grid; grid-template-columns: 32px 1fr auto; gap: var(--hdk-sp-3); padding: var(--hdk-sp-3) 0; border-bottom: 1px solid var(--hdk-line); font-size: var(--hdk-fs-sm); }
+.hdk-feed--activity .hdk-feed__item:last-child { border-bottom: 0; }
+.hdk-feed--activity .hdk-feed__image { width: 32px; height: 32px; border-radius: var(--hdk-radius-full); background: var(--hdk-accent-soft); }
+.hdk-feed--activity .hdk-feed__title { margin: 0; }
+.hdk-feed--activity .hdk-feed__title b { font-weight: var(--hdk-fw-medium); }
+.hdk-feed--activity .hdk-feed__body { margin: 2px 0 0; color: var(--hdk-fg-muted); font-size: var(--hdk-fs-xs); }
+.hdk-feed--activity .hdk-feed__meta { font-size: var(--hdk-fs-xs); color: var(--hdk-fg-faint); white-space: nowrap; }
+</style>
+  <ul class="hdk-feed__list" data-slot="items">
+    <li class="hdk-feed__item" data-slot="item"><span class="hdk-feed__image" data-slot="image"></span><div><p class="hdk-feed__title" data-slot="title"><b>행위자 자리</b>가 행동 자리</p><p class="hdk-feed__body" data-slot="body">부가 설명 자리</p></div><span class="hdk-feed__meta" data-slot="meta">방금</span></li>
+    <li class="hdk-feed__item"><span class="hdk-feed__image"></span><div><p class="hdk-feed__title"><b>행위자 자리</b>가 행동 자리</p></div><span class="hdk-feed__meta">5분 전</span></li>
+    <li class="hdk-feed__item"><span class="hdk-feed__image"></span><div><p class="hdk-feed__title"><b>행위자 자리</b>가 행동 자리</p></div><span class="hdk-feed__meta">1시간 전</span></li>
+  </ul>
+</section>

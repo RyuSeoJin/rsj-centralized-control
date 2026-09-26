@@ -1,0 +1,11 @@
+/* tokens/reset.css — .hdk-root 아래에서만 적용되는 최소 리셋.
+   독립 페이지: <html class="hdk-root" data-theme="dark">
+   기존 프로젝트에 꽂을 때: <div class="hdk-root" data-theme="dark"> 로 감싼다. 바깥 스타일은 건드리지 않는다. */
+.hdk-root, .hdk-root *, .hdk-root *::before, .hdk-root *::after { box-sizing: border-box; }
+.hdk-root { background: var(--hdk-bg); color: var(--hdk-fg); font-family: var(--hdk-font-sans); font-size: var(--hdk-fs-md); line-height: var(--hdk-lh-base); -webkit-font-smoothing: antialiased; }
+html.hdk-root, html.hdk-root body { margin: 0; min-height: 100%; }
+html.hdk-root body { background: inherit; color: inherit; font: inherit; }
+.hdk-root button, .hdk-root input, .hdk-root select, .hdk-root textarea { font: inherit; color: inherit; }
+.hdk-root img, .hdk-root svg { display: block; max-width: 100%; }
+.hdk-root :focus-visible { outline: 2px solid var(--hdk-focus); outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) { .hdk-root *, .hdk-root *::before, .hdk-root *::after { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; } }

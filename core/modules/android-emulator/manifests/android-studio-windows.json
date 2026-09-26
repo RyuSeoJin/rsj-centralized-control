@@ -1,0 +1,29 @@
+{
+  "schema": 2,
+  "platform": "windows-x64",
+  "officialSources": {
+    "studioPage": "https://developer.android.com/studio",
+    "selectionRule": "실행 시점에 공식 다운로드 표의 Windows 권장 .exe와 Windows Command-line Tools 항목을 읽어 파일명·URL·SHA-256을 함께 선택한다."
+  },
+  "defaultAvd": {
+    "deviceProfile": "pixel_8",
+    "systemImageSelector": "system-images;android-{가장_큰_숫자_API};google_apis;x86_64",
+    "avdNameTemplate": "Pixel_8_API_{api}"
+  },
+  "minimumHost": {
+    "freeSpaceGiB": 16,
+    "virtualization": true
+  },
+  "requiredComponents": [
+    "Android SDK",
+    "Android SDK Platform-Tools",
+    "Android Emulator"
+  ],
+  "license": "Android SDK License Agreement를 설치하는 사람이 설치 프로그램에서 직접 확인하고 동의합니다.",
+  "lastVerifiedSnapshot": {
+    "capturedAt": "2026-09-07",
+    "androidStudio": "Android Studio Quail 4 | 2026.1.4",
+    "commandLineTools": "commandlinetools-win-15859902_latest.zip",
+    "systemImage": "system-images;android-36;google_apis;x86_64"
+  }
+}

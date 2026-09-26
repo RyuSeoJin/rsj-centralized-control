@@ -1,0 +1,28 @@
+<!--
+part: code-block
+variant: terminal
+source: original
+fits: section, hero, card
+mood: dense, tech
+slots: title, body
+requires: none
+added: 2026-08-25
+spec: 0.5
+notes: 터미널 창 모양(신호등 점 + 프롬프트). 설치 명령·CLI 데모용. $ 로 시작하는 줄이 명령, 나머지는 출력색
+-->
+<section data-part="code-block" data-variant="terminal" class="hdk-code-block hdk-code-block--terminal">
+<style>
+.hdk-code-block--terminal { background: var(--hdk-fg); color: var(--hdk-bg); border-radius: var(--hdk-radius-lg); overflow: hidden; box-shadow: var(--hdk-shadow-lg); font-family: var(--hdk-font-mono); font-size: var(--hdk-fs-sm); }
+.hdk-code-block--terminal .hdk-code-block__head { display: flex; align-items: center; gap: var(--hdk-sp-2); padding: var(--hdk-sp-2) var(--hdk-sp-4); opacity: .7; font-size: var(--hdk-fs-xs); }
+.hdk-code-block--terminal .hdk-code-block__head i { width: 10px; height: 10px; border-radius: var(--hdk-radius-full); background: currentColor; opacity: .5; }
+.hdk-code-block--terminal .hdk-code-block__head span { margin-left: auto; }
+.hdk-code-block--terminal pre { margin: 0; padding: var(--hdk-sp-4); line-height: var(--hdk-lh-loose); overflow-x: auto; }
+.hdk-code-block--terminal .hdk-code-block__cmd::before { content: "$ "; color: var(--hdk-accent); }
+.hdk-code-block--terminal .hdk-code-block__out { opacity: .7; }
+</style>
+  <div class="hdk-code-block__head"><i></i><i></i><i></i><span data-slot="title">터미널 제목 자리</span></div>
+  <pre data-slot="body"><span class="hdk-code-block__cmd">npm install html-design-kit</span>
+<span class="hdk-code-block__out">added 1 package in 0.4s</span>
+<span class="hdk-code-block__cmd">python3 build.py</span>
+<span class="hdk-code-block__out">parts: 96 → catalog.json, preview.html</span></pre>
+</section>

@@ -1,0 +1,22 @@
+<!--
+part: avatar
+variant: circle
+source: tabler/tabler
+fits: any
+mood: dense, corporate
+slots: image, label
+requires: none
+added: 2026-08-25
+spec: 0.5
+notes: 원형 이미지. 이미지 없으면 이니셜(label) 표시. data-size="sm|md|lg"
+-->
+<section data-part="avatar" data-variant="circle" class="hdk-avatar hdk-avatar--circle" data-size="md">
+<style>
+.hdk-avatar--circle { display: inline-flex; }
+.hdk-avatar--circle .hdk-avatar__img { --avatar-size: 36px; width: var(--avatar-size); height: var(--avatar-size); display: grid; place-items: center; border-radius: var(--hdk-radius-full); background: var(--hdk-accent-soft); color: var(--hdk-accent); font-size: var(--hdk-fs-sm); font-weight: var(--hdk-fw-medium); overflow: hidden; }
+.hdk-avatar--circle .hdk-avatar__img img { width: 100%; height: 100%; object-fit: cover; }
+.hdk-avatar--circle[data-size="sm"] .hdk-avatar__img { --avatar-size: 28px; font-size: var(--hdk-fs-xs); }
+.hdk-avatar--circle[data-size="lg"] .hdk-avatar__img { --avatar-size: 56px; font-size: var(--hdk-fs-lg); }
+</style>
+  <span class="hdk-avatar__img" data-slot="image"><span data-slot="label">JH</span></span>
+</section>

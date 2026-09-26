@@ -9,10 +9,22 @@
 
 무엇을 다시 만드나
 -----------------
-  워크스페이스   index.html 한 장 (설명서가 늘어도 절이 늘 뿐입니다)
-  프로젝트       정본이 있는 것만 — 용어집 HTML · 기능 골격 HTML · TC 시트 xlsx
+  base           읽기 게이트 두 자리(AGENTS.md · CLAUDE.md 참조 규칙)
+                 프로젝트 구조 설정({폴더}-structure.json)에 등록된 생성 작업
+  켠 모듈        그 모듈의 jobs.py가 내놓는 작업 — 워크스페이스 모듈은 저장소 전체에,
+                 프로젝트 모듈은 켠 프로젝트에만
 
-  **정본이 없으면 건너뜁니다.** 켜지 않은 모듈의 산출물을 억지로 만들지 않습니다.
+  **base는 모듈 이름을 모릅니다.** 모듈이 자기 산출물을 jobs.py로 알려 주고, 여기서는
+  켠 모듈의 jobs.py를 훑어 돌리기만 합니다. 그래야 core/base/만 떼어내도 이 도구가
+  없는 모듈을 부르지 않습니다(rules/site-structure.md §base와 modules).
+
+jobs.py의 모양 (모듈 폴더 바로 밑, 필요한 함수만 둡니다)
+-----------------
+    def workspace_jobs(ctx): return [(설명, 정본 목록, 산출물, 명령), ...]
+    def project_jobs(ctx):   return [(설명, 정본 목록, 산출물, 명령), ...]
+
+  ctx는 dict입니다 — root · core · python, 프로젝트 작업이면 folder · key · slug · prefix ·
+  managed(종류 → 경로 함수)가 더해집니다.
 
 사용법
 ------
@@ -20,90 +32,103 @@
     python core/base/scripts/regen.py --check    낡은 것만 알려준다 (만들지 않음)
 """
 import argparse
+import importlib.util
 import io
 import json
 import os
 import subprocess
 import sys
 
-CORE = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import workspace  # noqa: E402
+from project_paths import discover  # noqa: E402
+from project_structure import load_structure, local_path, path_role  # noqa: E402
 
-
-def repo_root():
-    d = os.path.dirname(os.path.abspath(__file__))
-    while True:
-        if os.path.exists(os.path.join(d, "workspace.json")):
-            return d
-        p = os.path.dirname(d)
-        if p == d:
-            return os.path.dirname(CORE)
-        d = p
-
-
-ROOT = repo_root()
-CSS = os.path.join(CORE, "base", "design-guide", "design-guide-master.css")
+CORE = workspace.core_root()
+ROOT = workspace.repo_root()
 
 
 def rel(p):
     return os.path.relpath(p, ROOT).replace(os.sep, "/")
 
 
-def jobs():
-    """(설명, 정본 목록, 산출물, 명령) 목록. 정본이 없는 것은 넣지 않는다."""
+def module_hook(name):
+    """켠 모듈의 jobs.py를 불러옵니다. 없으면 None — 산출물이 없는 모듈입니다."""
+    path = os.path.join(CORE, "modules", name, "jobs.py")
+    if not os.path.isfile(path):
+        return None
+    spec = importlib.util.spec_from_file_location("jobs_" + name.replace("-", "_"), path)
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod
+
+
+def enabled(folder):
+    """프로젝트가 켠 모듈 — {폴더}-modules.json의 on에 워크스페이스 모듈을 더합니다."""
+    p = os.path.join(str(folder), os.path.basename(str(folder)) + "-modules.json")
+    try:
+        with io.open(p, encoding="utf-8") as f:
+            on = json.load(f).get("on", [])
+    except (OSError, ValueError):
+        on = []
+    return list(dict.fromkeys(workspace.workspace_modules(ROOT) + on))
+
+
+def base_jobs():
     out = []
-    intro = os.path.join(CORE, "base", "scripts", "gen_intro_html.py")
-    #: 소개 한 장은 폴더를 훑어 만들므로 정본이 따로 없다 — 규칙·도구가 바뀌면 낡는다
-    rules_srcs = []
-    for kind in ("base", "modules"):
-        base = os.path.join(CORE, kind)
-        for cur, _d, names in os.walk(base):
-            if "__pycache__" in cur:
-                continue
-            rules_srcs += [os.path.join(cur, n) for n in names
-                           if n.endswith((".md", ".py"))]
-    idx = os.path.join(ROOT, "index.html")
-    out.append(("워크스페이스 문서", rules_srcs, idx,
-                [sys.executable, intro, "--repo-root", ROOT,
-                 "--slug", "none", "--css", CSS, "-o", idx]))
+    #: 읽기 게이트는 두 자리에 찍힌다 — 한쪽만 다시 만들면 도구마다 규칙이 갈린다
+    gates = os.path.join(CORE, "base", "rules", "read-gates.md")
+    gen_g = os.path.join(CORE, "base", "scripts", "gen_read_gates.py")
+    for target, out_path, label in (
+            ("agents", os.path.join(ROOT, "AGENTS.md"), "읽기 게이트 — AGENTS.md"),
+            ("claude", os.path.join(ROOT, "CLAUDE.md"), "읽기 게이트 — CLAUDE.md 참조 규칙")):
+        out.append((label, [gates, gen_g], out_path,
+                    [sys.executable, gen_g, "--repo-root", ROOT, "--target", target]))
+    return out
 
-    projects = os.path.join(ROOT, "projects")
-    if not os.path.isdir(projects):
+
+def structure_jobs(folder):
+    """구조 설정에 등록된 생성 작업. 정본은 프로젝트의 {폴더}-structure.json입니다."""
+    out = []
+    structure = load_structure(folder)
+    if not structure:
         return out
-    for slug in sorted(os.listdir(projects)):
-        p = os.path.join(projects, slug)
-        if not os.path.isdir(p):
-            continue
-        pre = slug            # 파일 접두 — {slug}-site.json이 있으면 그것을 따른다
-        cfg = os.path.join(p, "%s-site.json" % slug)
-        if os.path.exists(cfg):
-            try:
-                pre = json.load(io.open(cfg, encoding="utf-8")).get("prefix", slug)
-            except ValueError:
-                pass
+    slug = folder.name
+    resources = {r['id']: r for r in structure['resources']}
+    config = folder / (slug + '-structure.json')
+    for job in structure.get('jobs', []):
+        sources = [str(config), str(local_path(folder, job['script']))]
+        for key in job['inputs']:
+            target = local_path(folder, resources[key]['path'])
+            if target.is_dir():
+                sources.extend(str(f) for f in target.rglob('*')
+                               if f.is_file() and '__pycache__' not in f.parts
+                               and path_role(folder, f) not in ('archive', 'output'))
+            else:
+                sources.append(str(target))
+        for value in job['outputs']:
+            out.append((job['label'] + ' — ' + slug, sources, str(local_path(folder, value)),
+                        [sys.executable, str(local_path(folder, job['script']))]))
+    return out
 
-        d_md = os.path.join(p, "%s-dictionary.md" % slug)
-        if os.path.exists(d_md):
-            o = os.path.join(p, "docs", "%s-dictionary.html" % pre)
-            out.append(("용어집 — " + slug, [d_md], o,
-                        [sys.executable,
-                         os.path.join(CORE, "base", "scripts", "gen_dictionary_html.py"),
-                         d_md, "--css", CSS, "-o", o]))
 
-        t_md = os.path.join(p, "spec", "%s-feature-tree.md" % slug)
-        if os.path.exists(t_md):
-            o = os.path.join(p, "docs", "%s-feature-tree.html" % pre)
-            out.append(("기능 골격 — " + slug, [t_md], o,
-                        [sys.executable,
-                         os.path.join(CORE, "modules", "tc", "scripts",
-                                      "gen_feature_tree_html.py"), t_md, "-o", o]))
-
-        tc_in = os.path.join(p, "test-case", "%s-tc-input-v1.0.json" % slug)
-        if os.path.exists(tc_in):
-            o = os.path.join(p, "test-case", "%s-tc-v1.0.xlsx" % slug)
-            out.append(("TC 시트 — " + slug, [tc_in], o,
-                        [sys.executable,
-                         os.path.join(CORE, "modules", "tc", "scripts",
-                                      "build_tc_template_xlsx.py"), tc_in, "-o", o]))
+def jobs():
+    """(설명, 정본 목록, 산출물, 명령) 목록. 정본이 없는 것은 모듈이 넣지 않는다."""
+    out = base_jobs()
+    ctx = {"root": ROOT, "core": CORE, "python": sys.executable}
+    for name in workspace.workspace_modules(ROOT):
+        hook = module_hook(name)
+        if hook and hasattr(hook, "workspace_jobs"):
+            out += hook.workspace_jobs(dict(ctx))
+    for key, folder in discover(ROOT):
+        out += structure_jobs(folder)
+        pctx = dict(ctx, folder=str(folder), key=key, slug=folder.name,
+                    prefix=workspace.project_prefix(folder),
+                    managed=lambda kind, _f=folder: workspace.managed_file(_f, kind))
+        for name in enabled(folder):
+            hook = module_hook(name)
+            if hook and hasattr(hook, "project_jobs"):
+                out += hook.project_jobs(dict(pctx))
     return out
 
 
@@ -135,14 +160,28 @@ def main():
 
     old = [j for j in todo if stale(j[1], j[2])]
     if args.check:
-        if not old:
+        # 읽기 게이트는 수정 시각이 아니라 내용으로 봅니다 — CLAUDE.md는 손으로 고치는
+        # 부분이 있어 시각만 보면 늘 낡은 것으로 잡힙니다
+        old = [j for j in old if not j[0].startswith("읽기 게이트")]
+        gate_fail = []
+        for name, _s, out_path, cmd in todo:
+            if name.startswith("읽기 게이트"):
+                r = subprocess.run(cmd + ["--check"], capture_output=True, text=True,
+                                   encoding="utf-8", errors="replace")
+                if r.returncode:
+                    gate_fail.append((name, out_path))
+        if not old and not gate_fail:
             print("낡은 산출물이 없습니다.")
             return 0
-        print("정본보다 오래된 산출물 %d개 — regen.py로 다시 만드세요." % len(old))
+        print("정본보다 오래된 산출물 %d개 — regen.py로 다시 만드세요."
+              % (len(old) + len(gate_fail)))
         for name, _s, out_path, _c in old:
+            print("   %-22s %s" % (name, rel(out_path)))
+        for name, out_path in gate_fail:
             print("   %-22s %s" % (name, rel(out_path)))
         return 1
 
+    executed = set()
     for name, _s, out_path, cmd in todo:
         d = os.path.dirname(out_path)
         if d and not os.path.isdir(d):
@@ -150,12 +189,17 @@ def main():
         # 자식이 콘솔 기본 인코딩으로 찍으면 디코딩이 깨집니다 — utf-8을 강제하고
         # 그래도 못 읽는 바이트는 버립니다. 여기서 필요한 것은 실패 여부와 메시지뿐입니다
         env = dict(os.environ, PYTHONIOENCODING="utf-8")
-        r = subprocess.run(cmd, capture_output=True, text=True,
-                           encoding="utf-8", errors="replace", env=env)
-        if r.returncode:
-            print("실패 %-18s %s" % (name, rel(out_path)))
-            print((r.stderr or "").strip()[-500:])
-            return r.returncode
+        if tuple(cmd) not in executed:
+            r = subprocess.run(cmd, capture_output=True, text=True,
+                               encoding="utf-8", errors="replace", env=env)
+            if r.returncode:
+                print("실패 %-18s %s" % (name, rel(out_path)))
+                print((r.stderr or r.stdout or "").strip()[-500:])
+                return r.returncode
+            executed.add(tuple(cmd))
+        if not os.path.isfile(out_path):
+            print("생성기가 등록한 출력을 만들지 않았습니다: " + rel(out_path))
+            return 1
         print("  ok  %-22s %s" % (name, rel(out_path)))
     print("\n%d개를 다시 만들었습니다." % len(todo))
     return 0

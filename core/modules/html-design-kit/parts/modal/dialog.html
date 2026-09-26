@@ -1,0 +1,32 @@
+<!--
+part: modal
+variant: dialog
+source: ColorlibHQ/gentelella
+fits: any
+mood: dense, corporate
+slots: title, body, cta
+requires: button.solid, button.outline, button.ghost
+added: 2026-08-25
+spec: 0.5
+notes: 중앙 대화상자. <dialog> 기반. 열기: root.querySelector('dialog').showModal(). 프리뷰용으로 data-inline="true" 면 정적 렌더
+-->
+<section data-part="modal" data-variant="dialog" data-init="modal.dialog" class="hdk-modal hdk-modal--dialog">
+<style>
+.hdk-modal--dialog dialog { width: min(480px, calc(100vw - var(--hdk-sp-6))); padding: 0; border: 1px solid var(--hdk-line); border-radius: var(--hdk-radius-lg); background: var(--hdk-bg-elev-2); color: var(--hdk-fg); box-shadow: var(--hdk-shadow-lg); }
+.hdk-modal--dialog dialog::backdrop { background: var(--hdk-fg); opacity: .4; }
+.hdk-modal--dialog[data-inline="true"] dialog { display: block; position: static; margin: 0; }
+.hdk-modal--dialog .hdk-modal__head { display: flex; align-items: center; justify-content: space-between; padding: var(--hdk-sp-4) var(--hdk-sp-5); border-bottom: 1px solid var(--hdk-line); }
+.hdk-modal--dialog .hdk-modal__title { margin: 0; font-size: var(--hdk-fs-md); font-weight: var(--hdk-fw-medium); }
+.hdk-modal--dialog .hdk-modal__close { border: 0; background: none; color: var(--hdk-fg-faint); cursor: pointer; font-size: var(--hdk-fs-lg); line-height: 1; }
+.hdk-modal--dialog .hdk-modal__body { padding: var(--hdk-sp-5); color: var(--hdk-fg-muted); font-size: var(--hdk-fs-sm); }
+.hdk-modal--dialog .hdk-modal__foot { display: flex; justify-content: flex-end; gap: var(--hdk-sp-2); padding: var(--hdk-sp-3) var(--hdk-sp-5); border-top: 1px solid var(--hdk-line); background: var(--hdk-bg-elev); border-radius: 0 0 var(--hdk-radius-lg) var(--hdk-radius-lg); }
+</style>
+  <dialog>
+    <div class="hdk-modal__head"><h3 class="hdk-modal__title" data-slot="title">대화상자 제목 자리</h3><button class="hdk-modal__close" type="button" data-action="close" aria-label="닫기">×</button></div>
+    <div class="hdk-modal__body" data-slot="body">본문 자리</div>
+    <div class="hdk-modal__foot" data-slot="cta"><!-- button.outline "취소" · button.solid "확인" --></div>
+  </dialog>
+<script>
+hdk.register('modal.dialog', function (root) {const r=root,d=r.querySelector('dialog');r.querySelectorAll('[data-action="close"]').forEach(b=>b.addEventListener('click',()=>d.close()));});
+</script>
+</section>

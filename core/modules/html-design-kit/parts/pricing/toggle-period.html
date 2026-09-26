@@ -1,0 +1,41 @@
+<!--
+part: pricing
+variant: toggle-period
+source: thedevdojo/tails
+fits: frame.scroll-stack
+mood: airy, corporate
+slots: title, items, item, label, value, body, cta
+requires: tabs.pill, button.solid
+added: 2026-08-25
+spec: 0.5
+notes: 월/연 토글로 가격이 바뀌는 2열. 값은 data-monthly / data-yearly 속성에 두고 스크립트가 교체
+-->
+<section data-part="pricing" data-variant="toggle-period" data-init="pricing.toggle-period" class="hdk-pricing hdk-pricing--toggle-period" data-period="monthly">
+<style>
+.hdk-pricing--toggle-period { padding: var(--hdk-sp-8) var(--hdk-sp-4); }
+.hdk-pricing--toggle-period .hdk-pricing__inner { max-width: 860px; margin: 0 auto; text-align: center; }
+.hdk-pricing--toggle-period .hdk-pricing__title { margin: 0 0 var(--hdk-sp-4); font-family: var(--hdk-font-display); font-size: var(--hdk-fs-2xl); font-weight: var(--hdk-fw-bold); }
+.hdk-pricing--toggle-period .hdk-pricing__toggle { display: inline-flex; gap: var(--hdk-sp-1); padding: var(--hdk-sp-1); background: var(--hdk-bg-elev-2); border-radius: var(--hdk-radius-full); margin-bottom: var(--hdk-sp-6); }
+.hdk-pricing--toggle-period .hdk-pricing__toggle button { padding: var(--hdk-sp-1) var(--hdk-sp-4); border: 0; border-radius: var(--hdk-radius-full); background: none; color: var(--hdk-fg-muted); font-size: var(--hdk-fs-sm); cursor: pointer; }
+.hdk-pricing--toggle-period .hdk-pricing__toggle button[aria-pressed="true"] { background: var(--hdk-bg-elev); color: var(--hdk-fg); box-shadow: var(--hdk-shadow-sm); }
+.hdk-pricing--toggle-period .hdk-pricing__grid { display: grid; gap: var(--hdk-sp-4); text-align: left; }
+.hdk-pricing--toggle-period .hdk-pricing__tier { padding: var(--hdk-sp-5); background: var(--hdk-bg-elev); border: 1px solid var(--hdk-line); border-radius: var(--hdk-radius-lg); display: grid; gap: var(--hdk-sp-3); }
+.hdk-pricing--toggle-period .hdk-pricing__label { margin: 0; font-weight: var(--hdk-fw-medium); }
+.hdk-pricing--toggle-period .hdk-pricing__value { margin: 0; font-family: var(--hdk-font-display); font-size: var(--hdk-fs-2xl); font-weight: var(--hdk-fw-bold); }
+.hdk-pricing--toggle-period .hdk-pricing__value small { font-size: var(--hdk-fs-sm); color: var(--hdk-fg-faint); font-weight: var(--hdk-fw-regular); }
+.hdk-pricing--toggle-period .hdk-pricing__body { margin: 0; padding: 0; list-style: none; display: grid; gap: var(--hdk-sp-1); font-size: var(--hdk-fs-sm); color: var(--hdk-fg-muted); }
+.hdk-pricing--toggle-period .hdk-pricing__cta [data-part="button"], .hdk-pricing--toggle-period .hdk-pricing__cta .hdk-button__btn { width: 100%; justify-content: center; }
+@media (min-width: 640px) { .hdk-pricing--toggle-period .hdk-pricing__grid { grid-template-columns: 1fr 1fr; } } /* sm */
+</style>
+  <div class="hdk-pricing__inner">
+    <h2 class="hdk-pricing__title" data-slot="title">요금제 제목 자리</h2>
+    <div class="hdk-pricing__toggle"><button type="button" aria-pressed="true" data-period="monthly">월간</button><button type="button" aria-pressed="false" data-period="yearly">연간 (-20%)</button></div>
+    <div class="hdk-pricing__grid" data-slot="items">
+      <div class="hdk-pricing__tier" data-slot="item"><p class="hdk-pricing__label" data-slot="label">요금제 이름</p><p class="hdk-pricing__value"><span data-slot="value" data-monthly="₩0" data-yearly="₩0">₩0</span><small>/월</small></p><ul class="hdk-pricing__body" data-slot="body"><li>기능 자리</li><li>기능 자리</li></ul><div class="hdk-pricing__cta" data-slot="cta"><!-- button --></div></div>
+      <div class="hdk-pricing__tier"><p class="hdk-pricing__label">요금제 이름</p><p class="hdk-pricing__value"><span data-monthly="₩9,900" data-yearly="₩7,900">₩9,900</span><small>/월</small></p><ul class="hdk-pricing__body"><li>기능 자리</li><li>기능 자리</li></ul><div class="hdk-pricing__cta"><!-- button --></div></div>
+    </div>
+  </div>
+<script>
+hdk.register('pricing.toggle-period', function (root) {const r=root;r.querySelectorAll('.hdk-pricing__toggle button').forEach(b=>b.addEventListener('click',()=>{r.dataset.period=b.dataset.period;r.querySelectorAll('.hdk-pricing__toggle button').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));r.querySelectorAll('[data-monthly]').forEach(v=>v.textContent=v.dataset[b.dataset.period]);}));});
+</script>
+</section>

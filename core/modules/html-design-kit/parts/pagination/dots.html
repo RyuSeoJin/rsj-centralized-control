@@ -1,0 +1,20 @@
+<!--
+part: pagination
+variant: dots
+source: original
+fits: slider, hero
+mood: airy, playful
+slots: items, item
+requires: none
+added: 2026-08-25
+spec: 0.5
+notes: 슬라이더 하단 점 인디케이터. 현재는 길쭉한 알약. 클릭 시 data-index 이벤트는 조립 단계에서 슬라이더와 연결
+-->
+<section data-part="pagination" data-variant="dots" class="hdk-pagination hdk-pagination--dots">
+<style>
+.hdk-pagination--dots .hdk-pagination__list { display: inline-flex; gap: var(--hdk-sp-2); list-style: none; margin: 0; padding: 0; }
+.hdk-pagination--dots button { width: 8px; height: 8px; padding: 0; border: 0; border-radius: var(--hdk-radius-full); background: var(--hdk-line-strong); cursor: pointer; transition: width var(--hdk-dur-base) var(--hdk-ease), background var(--hdk-dur-base); }
+.hdk-pagination--dots button[aria-current="true"] { width: 24px; background: var(--hdk-accent); }
+</style>
+  <ul class="hdk-pagination__list" data-slot="items"><li data-slot="item"><button type="button" aria-current="true" aria-label="1"></button></li><li><button type="button" aria-label="2"></button></li><li><button type="button" aria-label="3"></button></li><li><button type="button" aria-label="4"></button></li></ul>
+</section>

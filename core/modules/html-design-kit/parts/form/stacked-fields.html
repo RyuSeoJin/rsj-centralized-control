@@ -1,0 +1,39 @@
+<!--
+part: form
+variant: stacked-fields
+source: original
+fits: modal, section, card
+mood: airy, corporate
+slots: title, fields, cta
+requires: button.solid, button.outline
+added: 2026-08-25
+spec: 0.5
+notes: 일반 입력 폼. 라벨 위·입력 아래, 도움말·오류 줄 포함. 오류는 .hdk-form__field[data-invalid="true"]
+-->
+<section data-part="form" data-variant="stacked-fields" class="hdk-form hdk-form--stacked-fields">
+<style>
+.hdk-form--stacked-fields { display: grid; gap: var(--hdk-sp-4); max-width: 520px; }
+.hdk-form--stacked-fields .hdk-form__title { margin: 0; font-size: var(--hdk-fs-lg); font-weight: var(--hdk-fw-medium); }
+.hdk-form--stacked-fields .hdk-form__field { display: grid; gap: var(--hdk-sp-1); font-size: var(--hdk-fs-sm); }
+.hdk-form--stacked-fields label { display: grid; gap: var(--hdk-sp-1); }
+.hdk-form--stacked-fields label > span { font-weight: var(--hdk-fw-medium); }
+.hdk-form--stacked-fields input, .hdk-form--stacked-fields textarea, .hdk-form--stacked-fields select { width: 100%; padding: var(--hdk-sp-2) var(--hdk-sp-3); background: var(--hdk-bg); border: 1px solid var(--hdk-line-strong); border-radius: var(--hdk-radius-md); font-size: var(--hdk-fs-sm); }
+.hdk-form--stacked-fields input:focus, .hdk-form--stacked-fields textarea:focus, .hdk-form--stacked-fields select:focus { outline: none; border-color: var(--hdk-accent); box-shadow: var(--hdk-focus-ring); }
+.hdk-form--stacked-fields .hdk-form__help { font-size: var(--hdk-fs-xs); color: var(--hdk-fg-faint); }
+.hdk-form--stacked-fields .hdk-form__field[data-invalid="true"] input { border-color: var(--hdk-danger); }
+.hdk-form--stacked-fields .hdk-form__field[data-invalid="true"] .hdk-form__help { color: var(--hdk-danger); }
+.hdk-form--stacked-fields .hdk-form__grid { display: grid; gap: var(--hdk-sp-3); }
+.hdk-form--stacked-fields .hdk-form__cta { display: flex; gap: var(--hdk-sp-2); justify-content: flex-end; padding-top: var(--hdk-sp-2); border-top: 1px solid var(--hdk-line); }
+@media (min-width: 640px) { .hdk-form--stacked-fields .hdk-form__grid { grid-template-columns: 1fr 1fr; } } /* sm */
+</style>
+  <h3 class="hdk-form__title" data-slot="title">폼 제목 자리</h3>
+  <div style="display:contents" data-slot="fields">
+    <div class="hdk-form__grid">
+      <div class="hdk-form__field"><label><span>이름</span><input type="text" placeholder="입력 자리"></label></div>
+      <div class="hdk-form__field" data-invalid="true"><label><span>이메일</span><input type="email" value="wrong@"></label><span class="hdk-form__help">올바른 이메일 형식이 아닙니다</span></div>
+    </div>
+    <div class="hdk-form__field"><label><span>구분</span><select><option>선택 자리</option></select></label></div>
+    <div class="hdk-form__field"><label><span>메모</span><textarea rows="3" placeholder="입력 자리"></textarea></label><span class="hdk-form__help">도움말 자리</span></div>
+  </div>
+  <div class="hdk-form__cta" data-slot="cta"><!-- button.outline "취소" · button.solid "저장" --></div>
+</section>

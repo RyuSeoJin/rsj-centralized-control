@@ -30,6 +30,8 @@ sys.path.insert(0, _HERE)
 # 모듈 도구는 base의 공용 부품(shell.py·norm.py)을 씁니다. 모듈은 base 위에서만 돕니다 —
 # 반대 방향(base가 모듈을 부르는 것)은 두지 않습니다
 sys.path.insert(0, os.path.join(_HERE, "..", "..", "..", "base", "scripts"))
+# 셸(사이드바·상단 바)은 qa-site 모듈이 가집니다 — tc가 qa-site를 전제하는 이유입니다
+sys.path.insert(0, os.path.join(_HERE, "..", "..", "qa-site", "scripts"))
 import shell  # noqa: E402
 from parse_feature_tree import parse  # noqa: E402
 

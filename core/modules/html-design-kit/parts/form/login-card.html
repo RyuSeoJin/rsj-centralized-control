@@ -1,0 +1,39 @@
+<!--
+part: form
+variant: login-card
+source: ColorlibHQ/gentelella
+fits: any
+mood: dense, corporate
+slots: logo, title, body, fields, cta, meta
+requires: button.solid
+added: 2026-08-25
+spec: 0.5
+notes: 중앙 카드형 로그인. 이메일·비밀번호·기억하기. 페이지 중앙 배치는 조립 단계(frame 없이 body flex)
+-->
+<section data-part="form" data-variant="login-card" class="hdk-form hdk-form--login-card">
+<style>
+.hdk-form--login-card { max-width: 400px; /* 구조 치수 */ margin: 0 auto; padding: var(--hdk-sp-6); background: var(--hdk-bg-elev); border: 1px solid var(--hdk-line); border-radius: var(--hdk-radius-lg); box-shadow: var(--hdk-shadow-md); }
+.hdk-form--login-card .hdk-form__logo { width: 40px; height: 40px; border-radius: var(--hdk-radius-md); background: var(--hdk-accent); margin-bottom: var(--hdk-sp-4); }
+.hdk-form--login-card .hdk-form__title { margin: 0 0 var(--hdk-sp-1); font-family: var(--hdk-font-display); font-size: var(--hdk-fs-xl); font-weight: var(--hdk-fw-bold); }
+.hdk-form--login-card .hdk-form__body { margin: 0 0 var(--hdk-sp-5); color: var(--hdk-fg-muted); font-size: var(--hdk-fs-sm); }
+.hdk-form--login-card .hdk-form__field { display: grid; gap: var(--hdk-sp-1); margin-bottom: var(--hdk-sp-4); font-size: var(--hdk-fs-sm); }
+.hdk-form--login-card .hdk-form__field > label { display: grid; gap: var(--hdk-sp-1); }
+.hdk-form--login-card .hdk-form__field > label > span { font-weight: var(--hdk-fw-medium); }
+.hdk-form--login-card input[type="email"], .hdk-form--login-card input[type="password"] { width: 100%; padding: var(--hdk-sp-2) var(--hdk-sp-3); background: var(--hdk-bg); border: 1px solid var(--hdk-line-strong); border-radius: var(--hdk-radius-md); }
+.hdk-form--login-card input:focus { outline: none; border-color: var(--hdk-accent); box-shadow: var(--hdk-focus-ring); }
+.hdk-form--login-card .hdk-form__row { display: flex; justify-content: space-between; align-items: center; font-size: var(--hdk-fs-xs); color: var(--hdk-fg-muted); margin-bottom: var(--hdk-sp-4); }
+.hdk-form--login-card .hdk-form__row a { color: var(--hdk-accent); text-decoration: none; }
+.hdk-form--login-card .hdk-form__cta [data-part="button"], .hdk-form--login-card .hdk-form__cta .hdk-button__btn { width: 100%; justify-content: center; }
+.hdk-form--login-card .hdk-form__meta { margin: var(--hdk-sp-4) 0 0; text-align: center; font-size: var(--hdk-fs-xs); color: var(--hdk-fg-faint); }
+</style>
+  <i class="hdk-form__logo" data-slot="logo" aria-hidden="true"></i>
+  <h2 class="hdk-form__title" data-slot="title">제목 자리</h2>
+  <p class="hdk-form__body" data-slot="body">안내 문구 자리</p>
+  <div data-slot="fields">
+    <div class="hdk-form__field"><label><span>이메일</span><input type="email" placeholder="you@example.com"></label></div>
+    <div class="hdk-form__field"><label><span>비밀번호</span><input type="password" placeholder="••••••••"></label></div>
+    <div class="hdk-form__row"><label><input type="checkbox"> 로그인 유지</label><a href="#">비밀번호 찾기</a></div>
+  </div>
+  <div class="hdk-form__cta" data-slot="cta"><!-- button.solid --></div>
+  <p class="hdk-form__meta" data-slot="meta">하단 안내 자리</p>
+</section>

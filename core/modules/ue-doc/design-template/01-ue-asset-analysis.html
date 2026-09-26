@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>01 · 에셋 분석 템플릿 — UE 문서 디자인 시스템 v1.3</title>
+<link rel="stylesheet" href="../../../base/design-guide/design-guide-ue-master.css">
+<!-- ============================================================
+     CHANGELOG — 01-ue-asset-analysis.html
+     에셋 분석 문서 템플릿. 작업 규약: core/base/rules/change-log-writing.md §4
+     이관 · 2026-09-27 (버전 변경 없음)
+       - (변경) 중앙 저장소 core/로 옮김 — 마스터 링크를 ../../../base/design-guide/로 고치고,
+         저장소마다 자리가 다른 문서 허브 링크를 뺌
+     · 2026-07-20 — (반응형) 마스터 v1.9 .tbl 모바일 가로 스크롤 반영. 템플릿은 <link>로 master.css를 참조하므로 자동 적용(파일 내용·자체 버전 무변경).
+     v1.3 · 2026-07-02
+       - (변경) 문서 허브 이동(ue-wiki/ue-architect/ → ue-wiki/) 반영: nav 허브 링크 갱신
+     v1.2 · 2026-07-02
+       - (변경) 폴더 재구조화: design-guide/ → design-template/ 로 이동
+       - (변경) 마스터 CSS·비주얼 링크를 ../design-guide/ 상대경로로 갱신
+       - (변경) 작업 규약 경로 design-guide/ → doc-process/DOC-GENERATION-PLAYBOOK.md
+     v1.1 · 2026-07-01
+       - 파일명 01-asset-analysis.html → 01-ue-asset-analysis.html
+       - 원본 v1.0의 에셋 전용 컴포넌트·7섹션 템플릿을 이관
+       - CSS·상호 링크를 새 파일명으로 갱신
+       - 라벨 톤 정리: ← 토대→← 마스터, → C++ 아키텍처→→ 아키텍처
+       - nav에 문서 허브(design-guide-ue-index.html) 링크 추가
+     v1.0
+       - 원본 design-guide-ue-asset-structure.html의 에셋 분석 부분 (원본 2026-07-01 삭제)
+     ============================================================ -->
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">UE DESIGN SYSTEM · 01 ASSET ANALYSIS</div>
+  <div class="nav-links">
+    <a href="../../../base/design-guide/design-guide-ue-master-visual.html">← 마스터</a>
+    <a href="#components">컴포넌트</a>
+    <a href="#template">문서 템플릿</a>
+    <a href="02-ue-architecture.html">→ 아키텍처</a>
+  </div>
+</nav>
+
+<div class="hero">
+  <div class="hero-eyebrow">Design System · v1.3 · Asset Analysis</div>
+  <h1>에셋 구조<br><span>분석 템플릿</span></h1>
+  <p class="hero-sub">
+    언리얼 MCP로 받은 에셋(위젯·머티리얼·블루프린트 등)의 구조를 "개념 → 구조 → 사용 → 응용 → 팁" 흐름으로 분석하는 문서의 전용 컴포넌트와 7섹션 표준 구성입니다. 공통 토대(컬러·타이포·레이아웃)는 <a href="../../../base/design-guide/design-guide-ue-master-visual.html" style="color:var(--accent)">디자인 마스터</a>를 따릅니다.
+  </p>
+  <div class="hero-meta">
+    <span class="badge badge-blue">에셋 타입 컬러 맵</span>
+    <span class="badge badge-green">7섹션 학습 흐름</span>
+  </div>
+</div>
+
+<div class="content">
+
+  <!-- 04 컴포넌트 -->
+  <div class="section" id="components">
+    <div class="section-label">04 — 에셋 전용 컴포넌트</div>
+    <h2>가져다 쓰는 블록들</h2>
+    <p>각 컴포넌트는 <strong>실제 렌더 + 복사용 마크업</strong>을 함께 둡니다. 클래스 이름을 그대로 유지하면 스타일이 자동 적용됩니다.</p>
+
+    <h3>에셋 카드 (위젯·응용)</h3>
+    <div class="demo"><div class="demo-head">Live</div><div class="demo-body">
+      <div class="grid-2">
+        <div class="a-card"><div class="ic">✏️</div><div class="a-title">한 줄 텍스트 입력</div><div class="a-id">WBP_InputDialogs_SingleLine</div><div class="a-desc">짧은 텍스트 입력 팝업.</div></div>
+        <div class="a-card" style="border-top-color:var(--ue-enum)"><div class="ic">❓</div><div class="a-title">예/아니오 질문</div><div class="a-id">WBP_InputDialogs_YesNoDialog</div><div class="a-desc">선택을 요청하는 팝업.</div></div>
+      </div>
+    </div></div>
+    <div class="callout tip"><span class="ic">💡</span><p>카드 상단 보더 색은 <strong>에셋 타입 컬러 맵</strong>을 따릅니다: <code>style="border-top-color:var(--ue-enum)"</code>. 기본은 <code>--ue-bp</code>(인디고).</p></div>
+
+    <h3>에셋 폴더 트리 + 범례 <span style="color:var(--text-dim);font-size:12px;font-weight:400">(시그니처)</span></h3>
+    <div class="demo"><div class="demo-head">Live</div><div class="demo-body">
+      <div class="tree"><span class="folder">Asset/</span>
+├── <span class="folder">DataTypes/</span>
+│   └── <span class="enum">E_Asset_Mode</span>      <span class="note">← 열거형</span>
+├── <span class="folder">Materials/</span>
+│   └── <span class="mat">M_Asset_Glow</span>       <span class="note">← 머티리얼</span>
+├── <span class="folder">Textures/</span>
+│   └── <span class="tex">T_Asset_Icon</span>       <span class="note">← 텍스처</span>
+└── <span class="bp">WBP_Asset_Main</span>          <span class="note">← 블루프린트</span></div>
+      <div class="legend">
+        <span><span class="dot" style="background:var(--ue-folder)"></span>폴더</span>
+        <span><span class="dot" style="background:var(--ue-bp)"></span>블루프린트</span>
+        <span><span class="dot" style="background:var(--ue-enum)"></span>Enum</span>
+        <span><span class="dot" style="background:var(--ue-mat)"></span>머티리얼</span>
+        <span><span class="dot" style="background:var(--ue-tex)"></span>텍스처</span>
+      </div>
+    </div></div>
+    <div class="snip"><div class="snip-head"><div class="code-dot" style="background:#F87171"></div><div class="code-dot" style="background:#FBBF24"></div><div class="code-dot" style="background:#34D399"></div><span>markup — 들여쓰기/괘선은 그대로, 이름만 span으로 감싼다</span></div>
+<pre><span class="tag">&lt;div</span> <span class="atr">class</span>=<span class="val">"tree"</span><span class="tag">&gt;</span><span class="tag">&lt;span</span> <span class="atr">class</span>=<span class="val">"folder"</span><span class="tag">&gt;</span>Asset/<span class="tag">&lt;/span&gt;</span>
+└── <span class="tag">&lt;span</span> <span class="atr">class</span>=<span class="val">"bp"</span><span class="tag">&gt;</span>WBP_Asset_Main<span class="tag">&lt;/span&gt;</span>  <span class="tag">&lt;span</span> <span class="atr">class</span>=<span class="val">"note"</span><span class="tag">&gt;</span>← 설명<span class="tag">&lt;/span&gt;</span>
+<span class="tag">&lt;/div&gt;</span></pre></div>
+
+    <h3>변수 표 + 타입 태그</h3>
+    <div class="demo"><div class="demo-head">Live</div><div class="demo-body">
+      <table class="tbl" style="margin:0">
+        <tr><th>변수</th><th>타입</th><th>설명</th></tr>
+        <tr><td><code>Background Blur</code></td><td><span class="tt tt-bool">bool</span></td><td>배경 블러 처리</td></tr>
+        <tr><td><code>Input Mask</code></td><td><span class="tt tt-enum">Enum</span></td><td>입력 문자 제한</td></tr>
+        <tr><td><code>Get Dialog Result</code></td><td><span class="tt tt-del">Delegate</span></td><td>결과 콜백</td></tr>
+      </table>
+    </div></div>
+
+    <h3>Enum 필 (Pills)</h3>
+    <div class="demo"><div class="demo-head">Live</div><div class="demo-body">
+      <div class="pills"><span class="pill blue">Yes</span><span class="pill blue">No</span><span class="pill purple">Default</span><span class="pill purple">Round</span><span class="pill green">NumbersOnly</span></div>
+    </div></div>
+
+    <h3>생명주기 다이어그램 (Arch)</h3>
+    <div class="demo"><div class="demo-head">Live</div><div class="demo-body">
+      <div class="arch">
+        <div class="arch-layer"><div class="arch-tag">Step 1</div><div class="arch-title">생성</div><div class="arch-desc">Create Widget</div></div>
+        <div class="arch-arrow">→</div>
+        <div class="arch-layer"><div class="arch-tag">Step 2</div><div class="arch-title">설정</div><div class="arch-desc">Set 변수</div></div>
+        <div class="arch-arrow">→</div>
+        <div class="arch-layer"><div class="arch-tag">Step 3</div><div class="arch-title">표시</div><div class="arch-desc">Add to Viewport</div></div>
+      </div>
+    </div></div>
+
+    <h3>번호 파이프라인 (단계별 사용법)</h3>
+    <div class="demo"><div class="demo-head">Live</div><div class="demo-body">
+      <div class="pipe-step"><div class="pipe-num">1</div><div class="pipe-body"><div class="pipe-title">이벤트 그래프 열기</div><div class="pipe-desc">팝업을 띄울 블루프린트로 이동.</div></div></div>
+      <div class="pipe-step"><div class="pipe-num">2</div><div class="pipe-body"><div class="pipe-title">Create Widget 추가</div><div class="pipe-desc">Class에 분석 대상 위젯을 지정.</div></div></div>
+    </div></div>
+
+    <h3>코드 블록 (의사 코드)</h3>
+    <div class="demo"><div class="demo-head">Live</div><div class="demo-body">
+      <div class="snip" style="margin:0">
+        <div class="snip-head"><div class="code-dot" style="background:#F87171"></div><div class="code-dot" style="background:#FBBF24"></div><div class="code-dot" style="background:#34D399"></div><span>제목</span></div>
+<pre><span class="cm">// 트래픽 라이트 헤더 + 모노 본문</span>
+<span class="val">Event</span> BeginPlay
+  └→ Create Widget …</pre>
+      </div>
+    </div></div>
+    <div class="callout info"><span class="ic">🧩</span><p>블루프린트 노드 흐름은 위 <strong>의사 코드(.snip)</strong>로 표현합니다. 실제 복붙 가능한 C++ 코드가 필요한 문서라면 <a href="02-ue-architecture.html" style="color:var(--accent)">02 아키텍처</a>의 코드 탭 컴포넌트를 쓰세요.</p></div>
+
+    <h3>팁 / 주의 (Pitfall)</h3>
+    <div class="demo"><div class="demo-head">Live</div><div class="demo-body">
+      <div class="pitfall"><span class="ic">⚠️</span><div class="pitfall-text"><strong>콜백 바인딩 필수</strong> — 바인딩하지 않으면 버튼이 반응하지 않습니다.</div></div>
+    </div></div>
+  </div>
+
+  <!-- 05 문서 템플릿 -->
+  <div class="section" id="template">
+    <div class="section-label">05 — 에셋 분석 문서 템플릿</div>
+    <h2>새 에셋을 분석할 때의 표준 구성</h2>
+    <p>언리얼 MCP로 에셋을 받으면 구조를 파악한 뒤, 아래 <strong>7개 섹션 순서</strong>를 그대로 따릅니다. 이 순서가 "개념 → 구조 → 사용 → 응용 → 팁"이라는 학습 흐름을 보장합니다.</p>
+
+    <div class="pipe-step"><div class="pipe-num">01</div><div class="pipe-body"><div class="pipe-title">개념 이해</div><div class="pipe-desc">이 에셋이 무엇이고 왜 쓰는지. 한 문장 정의 + 핵심 용어 callout + 구성요소 스탯 + 종류 카드 그리드.</div></div></div>
+    <div class="pipe-step"><div class="pipe-num">02</div><div class="pipe-body"><div class="pipe-title">구조 이해</div><div class="pipe-desc">에셋 타입 컬러 트리 + 범례. 폴더를 3~4개 레이어로 요약하는 표. "어디만 만지면 되는지"를 분명히.</div></div></div>
+    <div class="pipe-step"><div class="pipe-num">03</div><div class="pipe-body"><div class="pipe-title">핵심 구성요소</div><div class="pipe-desc">주요 오브젝트의 변수/속성 표(타입 태그 포함). 대표 1개는 전부, 나머지는 차이만. 내부 컴포넌트 표.</div></div></div>
+    <div class="pipe-step"><div class="pipe-num">04</div><div class="pipe-body"><div class="pipe-title">데이터 타입 & 공통 요소</div><div class="pipe-desc">Enum은 필(pill)로, 동작 흐름은 Arch 다이어그램으로. 공통 변수의 의미를 짧게.</div></div></div>
+    <div class="pipe-step"><div class="pipe-num">05</div><div class="pipe-body"><div class="pipe-title">사용 방법</div><div class="pipe-desc">번호 파이프라인으로 단계별. 블루프린트 노드 흐름은 코드 블록(의사 코드)으로. 전제 조건 callout.</div></div></div>
+    <div class="pipe-step"><div class="pipe-num">06</div><div class="pipe-body"><div class="pipe-title">응용 방법</div><div class="pipe-desc">기본을 넘어선 확장 아이디어 카드 그리드. 커스터마이징·조합·재사용·검증 등 에셋에 근거한 실전 시나리오.</div></div></div>
+    <div class="pipe-step"><div class="pipe-num">07</div><div class="pipe-body"><div class="pipe-title">팁 & 주의사항</div><div class="pipe-desc">Pitfall 리스트(⚠️ 주의 / 💡 팁) + FAQ 표(증상 → 해결).</div></div></div>
+
+    <div class="callout info"><span class="ic">🧭</span><p>섹션 수는 에셋 복잡도에 따라 줄여도 됩니다 — 단 <strong>개념 · 구조 · 사용 · 응용 · 팁</strong> 다섯 기둥은 항상 포함합니다. 데이터 타입이 없는 단순 에셋이면 04를 03에 흡수해도 좋습니다.</p></div>
+  </div>
+
+</div>
+
+<footer>
+  <span>UE 문서 디자인 시스템 · Asset Analysis v1.3</span>
+  <span>기준 디자인: Dark · Indigo Minimal · Editorial</span>
+</footer>
+
+</body>
+</html>

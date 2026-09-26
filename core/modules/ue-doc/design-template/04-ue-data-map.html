@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>04 · 데이터 설계 지도 템플릿 — UE 문서 디자인 시스템 v1.1</title>
+<link rel="stylesheet" href="../../../base/design-guide/design-guide-ue-master.css">
+<!-- ============================================================
+     CHANGELOG — 04-ue-data-map.html
+     데이터 설계 지도 템플릿. 작업 규약: core/base/rules/change-log-writing.md §4
+     이관 · 2026-09-27 (버전 변경 없음)
+       - (변경) 중앙 저장소 core/로 옮김 — 마스터 링크를 ../../../base/design-guide/로 고치고,
+         저장소마다 자리가 다른 문서 허브 링크를 뺌
+       - (변경) 데모의 저장 파일 이름을 특정 프로젝트 이름에서 GameSave.sav로 바꿈(중앙 규칙에 프로젝트 이름을 두지 않음)
+     · 2026-07-27 — (문서화) 마스터 v1.10 다이어그램 DB 노드 정식 등록(.dg-node.k-db/.gn-node.k-db, --ue-mat 주황) 반영. 이 템플릿의 04 다이어그램 확장(선택)에서 사용 가능. <link> 참조라 자동 적용(파일 내용·자체 버전 무변경).
+     · 2026-07-20 — (반응형) 마스터 v1.9 .tbl 모바일 가로 스크롤 반영. 템플릿은 <link>로 master.css를 참조하므로 자동 적용(파일 내용·자체 버전 무변경).
+     v1.1 · 2026-07-07
+       - (추가) 04 섹션: 다이어그램 확장(선택) — .graph-net(옵시디언 그래프 뷰 스타일 관계망),
+         .diagram(Mermaid 스타일 구워넣은 SVG 플로차트), Mermaid 소스 병기 규칙(*.mmd 단일 탭).
+         master.css v1.5 신규 컴포넌트 사용 안내. 사용 위치: 연결 지도(전체 조감)·확장 규칙(결정 플로차트)
+       - (변경) 섹션 번호 재정렬(구 04 사용 규칙 → 05), nav에 다이어그램 링크 추가
+     v1.0 · 2026-07-07
+       - 신규 생성. Case C: "변수가 어느 .h/.cpp 파일에 살고(정적 배치),
+         시스템 사이를 어떻게 흘러 하나의 프로젝트로 연결되는지(동적 연결)"를
+         시각화하는 데이터 설계 문서 템플릿.
+       - 전용 컴포넌트(master.css v1.4): .var-card + .vbadge(파일-변수 카드),
+         .flow-hub + .flow-legend(변수 흐름 연결 전도), .lane-seq(변수 여정 시퀀스)
+       - 재사용 컴포넌트: .tree(폴더 지도), .tbl .owner(소유 결정표), .dd-grid(확장 규칙)
+       - 6섹션 구조: 지도 읽는 법 → 파일 지도 → 소유 결정 → 연결 지도 → 흐름 추적 → 확장 규칙
+     ============================================================ -->
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">UE DESIGN SYSTEM · 04 DATA MAP</div>
+  <div class="nav-links">
+    <a href="../../../base/design-guide/design-guide-ue-master-visual.html">&larr; 마스터</a>
+    <a href="02-ue-architecture.html">&larr; 아키텍처</a>
+    <a href="03-ue-dev-flow.html">&larr; 개발 플로우</a>
+    <a href="#overview">구성 개요</a>
+    <a href="#var-card">파일-변수 카드</a>
+    <a href="#flow-hub">연결 전도</a>
+    <a href="#lane-seq">변수 여정</a>
+    <a href="#diagram">다이어그램</a>
+    <a href="#rules">사용 규칙</a>
+  </div>
+</nav>
+
+<div class="hero">
+  <div class="hero-eyebrow">Design System · v1.1 · Data Map</div>
+  <h1>UE 데이터 설계<br><span>지도 템플릿</span></h1>
+  <p class="hero-sub">
+    프로젝트의 <strong>변수가 어느 <code>.h</code>/<code>.cpp</code> 파일에 살고, 시스템 사이를 어떻게 흘러 하나로 연결되는지</strong>를 시각화하는 문서용 템플릿입니다. 정적 배치(파일 지도)와 동적 연결(흐름 지도)을 겹쳐 읽으면 프로젝트 전체가 유기적으로 보입니다.
+  </p>
+  <div class="hero-meta">
+    <span class="badge badge-blue">Track A·B 공용</span>
+    <span class="badge badge-green">Master v1.4 기반</span>
+    <span class="badge badge-purple">6섹션 구조</span>
+  </div>
+</div>
+
+<div class="content">
+
+  <!-- 00 구성 개요 -->
+  <div class="section" id="overview">
+    <div class="section-label">00 — 구성 개요</div>
+    <h2>섹션 구조 (독자 이해 순서)</h2>
+    <p>독자는 <strong>정적 배치를 먼저 눈에 익히고 → 배치의 근거를 이해하고 → 동적 연결을 읽고 → 실제 시나리오로 검증한 뒤 → 스스로 적용</strong>하는 순서로 이해에 도달합니다. 요청 내용에 맞게 섹션을 추가·흡수·축약할 수 있습니다.</p>
+    <table class="tbl">
+      <tr><th>#</th><th>섹션</th><th>답하는 질문</th><th>핵심 컴포넌트</th></tr>
+      <tr><td>01</td><td>지도를 읽는 법</td><td>이 문서의 기호·색·용어는 무엇을 뜻하나</td><td><code>.callout</code>(핵심 용어) · <code>.flow-legend</code> · <code>.vbadge</code></td></tr>
+      <tr><td>02</td><td>파일 지도</td><td>어떤 변수가 <strong>어느 파일에 사는가</strong></td><td><code>.tree</code>(폴더 지도) · <code>.var-card</code>(파일-변수 카드)</td></tr>
+      <tr><td>03</td><td>소유 결정</td><td><strong>왜 그 파일</strong>에 두는가</td><td><code>.tbl .owner</code>(소유 결정표)</td></tr>
+      <tr><td>04</td><td>연결 지도</td><td>변수가 시스템 사이를 <strong>어떻게 흘러가는가</strong></td><td><code>.flow-hub</code>(연결 전도) + <code>.flow-legend</code></td></tr>
+      <tr><td>05</td><td>흐름 추적</td><td>실제 시나리오에서 <strong>정말 그렇게 흐르는가</strong></td><td><code>.lane-seq</code>(변수 여정) · <code>.codeblock</code>(근거 코드)</td></tr>
+      <tr><td>06</td><td>확장 규칙</td><td><strong>새 변수</strong>가 생기면 어디에 두는가</td><td><code>.pipe-step</code>(결정 절차) · <code>.dd-grid</code>(Do/Don't)</td></tr>
+    </table>
+    <div class="callout info"><span class="ic">🗺️</span><p><strong>이 템플릿의 핵심 아이디어</strong> — 같은 변수를 세 지도에서 세 번 만나게 합니다. 파일 지도에서 "여기 산다"를, 연결 지도에서 "이렇게 이어진다"를, 흐름 추적에서 "실제로 이렇게 움직인다"를 확인하면, 독자는 변수 하나를 축으로 프로젝트 전체 구조를 입체적으로 기억하게 됩니다.</p></div>
+  </div>
+
+  <!-- 01 파일-변수 카드 -->
+  <div class="section" id="var-card">
+    <div class="section-label">01 — 전용 컴포넌트 · 파일-변수 카드</div>
+    <h2>.var-card — 어떤 변수가 어느 파일에 사는가</h2>
+    <p>헤더/소스 파일 쌍 하나당 카드 하나. 그 파일이 <strong>소유(선언·갱신 책임)</strong>하는 변수를 전수 나열합니다. 각 행은 <strong>변수명 · 타입 · 수명 배지 · 한 줄 설명</strong>으로 구성합니다.</p>
+    <div class="demo"><div class="demo-head">Live</div><div class="demo-body">
+      <div class="var-card" style="margin:0">
+        <div class="vc-head">
+          <span class="vc-domain">Focus</span>
+          <span class="vc-file">FocusSubsystem<span style="color:var(--ue-header)">.h</span> / <span style="color:var(--ue-source)">.cpp</span></span>
+          <span class="vc-role">타이머 상태 머신의 주인</span>
+        </div>
+        <div class="vc-var">
+          <span class="vv-name">CurrentState</span><span class="vv-type">EFocusState</span><span class="vbadge run">RUNTIME</span>
+          <span class="vv-note">지금 어느 단계인지 — 껐다 켜면 Idle에서 다시 시작</span>
+        </div>
+        <div class="vc-var">
+          <span class="vv-name">FocusMinutes</span><span class="vv-type">int32</span><span class="vbadge save">SAVE</span>
+          <span class="vv-note">사용자가 조절한 집중 시간 — SaveGame에 영속</span>
+        </div>
+        <div class="vc-var">
+          <span class="vv-name">DefaultFocusMinutes</span><span class="vv-type">int32</span><span class="vbadge cfg">CONFIG</span>
+          <span class="vv-note">새 유저의 초기값 — DeveloperSettings 상수</span>
+        </div>
+      </div>
+    </div></div>
+    <h3>수명 배지 (.vbadge) — 변수가 어디까지 살아남는가</h3>
+    <table class="tbl">
+      <tr><th>배지</th><th>의미</th><th>판별 질문</th></tr>
+      <tr><td><span class="vbadge save">SAVE</span></td><td>SaveGame으로 디스크에 저장</td><td>앱을 껐다 켜도 남아야 하나?</td></tr>
+      <tr><td><span class="vbadge run">RUNTIME</span></td><td>런타임 휘발 — 세션이 끝나면 소멸</td><td>다시 계산하거나 초기화해도 되나?</td></tr>
+      <tr><td><span class="vbadge cfg">CONFIG</span></td><td>DeveloperSettings/Config 상수</td><td>기획자가 에디터에서 조정하는 값인가?</td></tr>
+      <tr><td><span class="vbadge row">ROW</span></td><td>DataTable 행 — 에디터에서 편집하는 마스터 데이터</td><td>표로 관리되는 콘텐츠 데이터인가?</td></tr>
+    </table>
+  </div>
+
+  <!-- 02 연결 전도 -->
+  <div class="section" id="flow-hub">
+    <div class="section-label">02 — 전용 컴포넌트 · 변수 흐름 연결 전도</div>
+    <h2>.flow-hub — 변수는 시스템 사이를 어떻게 흘러가는가</h2>
+    <p>허브(중앙) 노드를 사이에 두고 <strong>좌 → 중 → 우</strong>로 데이터가 흐릅니다. 각 노드의 연결은 색 칩(<code>.fh-link</code>)으로 표기하고, 색의 의미는 반드시 범례(<code>.flow-legend</code>)로 문서 안에서 고정합니다. 화살표 방향(<code>→</code>/<code>←</code>)을 칩 텍스트에 포함해 흐름의 방향을 명시합니다.</p>
+    <div class="demo"><div class="demo-head">Live</div><div class="demo-body">
+      <div class="flow-legend" style="margin-top:0">
+        <span><span class="lk lk-call"></span>함수 호출</span>
+        <span><span class="lk lk-event"></span>델리게이트 브로드캐스트</span>
+        <span><span class="lk lk-save"></span>SaveGame 직렬화</span>
+        <span><span class="lk lk-table"></span>DataTable 조회</span>
+      </div>
+      <div class="flow-hub">
+        <div class="fh-col">
+          <div class="fh-node n-subsystem">
+            <div class="fn-name">UEconomySubsystem</div>
+            <div class="fn-role">재화·경험치의 유일한 주인</div>
+            <div class="fh-links"><span class="fh-link lk-save">Gold →</span><span class="fh-link lk-event">OnGoldChanged →</span></div>
+          </div>
+          <div class="fh-node n-table">
+            <div class="fn-name">DT_GuildLevels</div>
+            <div class="fn-role">레벨업 요구치 마스터</div>
+            <div class="fh-links"><span class="fh-link lk-table">FindRow() →</span></div>
+          </div>
+        </div>
+        <div class="fh-hub">
+          <div class="fn-name">USaveGame 파생</div>
+          <div class="fn-role">디스크에 저장되는<br>유일한 지점</div>
+        </div>
+        <div class="fh-col">
+          <div class="fh-node n-ui">
+            <div class="fn-name">WBP_TopBar</div>
+            <div class="fn-role">Gold 표시 위젯</div>
+            <div class="fh-links"><span class="fh-link lk-event">← OnGoldChanged</span></div>
+          </div>
+        </div>
+      </div>
+    </div></div>
+    <div class="callout tip"><span class="ic">💡</span><p><strong>허브는 문서의 주제에 따라 바꿉니다</strong> — 저장 구조가 주제면 SaveGame을, 시스템 간 호출이 주제면 중심 Subsystem을 허브에 둡니다. 전도가 한 장에 안 담기면 연결 유형별로(저장 전도 / 호출 전도) 나눠 그립니다.</p></div>
+  </div>
+
+  <!-- 03 변수 여정 -->
+  <div class="section" id="lane-seq">
+    <div class="section-label">03 — 전용 컴포넌트 · 변수 여정 시퀀스</div>
+    <h2>.lane-seq — 변수 하나를 끝까지 따라가기</h2>
+    <p>대표 시나리오에서 <strong>변수 하나가 어느 파일의 어느 함수를 거쳐 어떻게 변하는지</strong>를 단계로 추적합니다. 각 단계는 <strong>파일 칩(어디서) · 사건 제목(무엇이) · 함수(어떻게) · 변수 변화(결과)</strong>로 구성합니다.</p>
+    <div class="demo"><div class="demo-head">Live</div><div class="demo-body">
+      <div class="lane-seq" style="margin:0">
+        <div class="ls-step">
+          <div class="ls-head"><span class="ls-file cpp">FocusSubsystem.cpp</span><span class="ls-title">집중 1사이클 완주</span><span class="ls-fn">OnTimerExpired()</span></div>
+          <div class="ls-var">OnFocusCycleCompleted.Broadcast(1500, "공부")</div>
+          <div class="ls-desc">타이머 만료가 사이클 완료 델리게이트를 쏩니다. Focus는 보상 규칙을 모릅니다.</div>
+        </div>
+        <div class="ls-step">
+          <div class="ls-head"><span class="ls-file cpp">EconomySubsystem.cpp</span><span class="ls-title">보상 지급</span><span class="ls-fn">AddXP(15)</span></div>
+          <div class="ls-var">GuildXp: 40 → 55</div>
+          <div class="ls-desc">델리게이트를 구독한 Economy가 XP를 더합니다. 보상 수치의 주인은 Economy입니다.</div>
+        </div>
+        <div class="ls-step">
+          <div class="ls-head"><span class="ls-file save">GameSave.sav</span><span class="ls-title">즉시 저장</span><span class="ls-fn">SaveGameToSlot()</span></div>
+          <div class="ls-var">SaveGame.GuildXp = 55</div>
+          <div class="ls-desc">변경 직후 디스크에 직렬화합니다. 앱이 꺼져도 값이 살아남습니다.</div>
+        </div>
+      </div>
+    </div></div>
+    <div class="callout info"><span class="ic">🎬</span><p><strong>시나리오는 2~4편이 적당합니다</strong> — ① 값이 만들어지는 경로(입력 → 보상), ② 값이 복원되는 경로(앱 시작 → 로드), ③ 값이 표시되는 경로(변경 → UI). 이 세 편이면 생성·영속·표시의 전체 순환이 덮입니다.</p></div>
+  </div>
+
+  <!-- 04 다이어그램 확장 (선택) -->
+  <div class="section" id="diagram">
+    <div class="section-label">04 — 다이어그램 확장 (선택)</div>
+    <h2>.graph-net · .diagram — 옵시디언/Mermaid 시각 언어</h2>
+    <p>연결을 <strong>한눈에 조감</strong>하고 싶을 때는 옵시디언 그래프 뷰 스타일 관계망(<code>.graph-net</code>)을, <strong>분기·절차</strong>를 그리고 싶을 때는 Mermaid 스타일 플로차트(<code>.diagram</code>)를 씁니다. 데모와 내부 클래스 규칙은 <a href="../../../base/design-guide/design-guide-ue-master-visual.html#v15" style="color:var(--accent)">마스터 비주얼 08 섹션</a>을 따릅니다.</p>
+    <table class="tbl">
+      <tr><th>컴포넌트</th><th>어울리는 자리</th><th>필수 동반</th></tr>
+      <tr><td><code>.graph-net</code> 관계망</td><td>연결 지도 섹션 도입부 — 전체 조감 후 주제별 전도(<code>.flow-hub</code>)로 확대</td><td>연결 색 범례(<code>.flow-legend</code>) + Mermaid 소스</td></tr>
+      <tr><td><code>.diagram</code> 플로차트</td><td>확장 규칙 섹션 — 결정 절차(<code>.pipe-step</code>)의 시각 요약</td><td>Mermaid 소스</td></tr>
+    </table>
+    <div class="callout tip"><span class="ic">🧩</span><p><strong>3원칙</strong> — ① SVG는 생성 시점에 구워넣기(mermaid.js 등 런타임 렌더링 금지 — 오프라인 단일 파일 유지), ② Mermaid 소스를 <code>.codeblock</code> 단일 탭(<code>*.mmd</code>)으로 병기해 복사 → 옵시디언에 붙여넣기 가능하게, ③ 관계망·전도·전수 표는 역할이 다를 때만 병행(조감 / 주제별 상세 / 레퍼런스) — 같은 정보의 삼중 반복 금지.</p></div>
+  </div>
+
+  <!-- 05 사용 규칙 -->
+  <div class="section" id="rules">
+    <div class="section-label">05 — 사용 규칙</div>
+    <h2>이 템플릿의 Do &amp; Don't</h2>
+    <div class="dd-grid">
+      <div class="dd do">
+        <h4>✓ 이렇게</h4>
+        <ul>
+          <li>변수 하나의 주인(소유 파일)은 반드시 하나로 지정</li>
+          <li>파일 지도(02)와 소유 결정표(03)의 변수 목록을 1:1로 일치시키기</li>
+          <li>연결 전도의 색은 문서 안 범례(.flow-legend)로 항상 고정</li>
+          <li>흐름 추적의 각 단계에 실제 함수 이름·값 변화를 명시</li>
+          <li>수명 배지(.vbadge)는 카드·표 어디서든 같은 의미로 재사용</li>
+        </ul>
+      </div>
+      <div class="dd dont">
+        <h4>✗ 이건 피하기</h4>
+        <ul>
+          <li>같은 변수를 두 파일의 소유로 표기 (참조와 소유 혼동)</li>
+          <li>범례 없이 색 칩만 나열하기</li>
+          <li>연결 전도에 모든 시스템을 한 장으로 욱여넣기 — 유형별 분할</li>
+          <li>파일 지도에 없는 변수를 흐름 추적에 등장시키기</li>
+          <li>rel-map(1:1 관계도)이 맞는 자리에 flow-hub를 쓰기</li>
+        </ul>
+      </div>
+    </div>
+    <div class="callout warn"><span class="ic">⚠️</span><p><strong>02-A(아키텍처 패턴)와의 구분</strong> — 클래스의 <strong>역할·책임 관계</strong>가 주제면 02-A, <strong>변수(데이터)의 배치·흐름</strong>이 주제면 04입니다. "누가 무엇을 하나"는 02-A, "무엇이 어디 살고 어디로 가나"는 04.</p></div>
+  </div>
+
+</div>
+
+<footer>
+  <span>UE 문서 디자인 시스템 · 04 데이터 설계 지도 템플릿 v1.1</span>
+  <span>기반: Master v1.5</span>
+</footer>
+
+</body>
+</html>

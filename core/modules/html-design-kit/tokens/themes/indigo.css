@@ -1,0 +1,28 @@
+/* theme: indigo / mood: corporate, tech / source: original
+   기존 문서 도구에서 쓰던 다크+인디고 계열. 범용 기본 테마. */
+.hdk-root[data-theme="light"] {
+  --hdk-bg: #f7f7fb;  --hdk-bg-elev: #ffffff;  --hdk-bg-elev-2: #ffffff;
+  --hdk-fg: #16161f;  --hdk-fg-muted: #5c5c70; --hdk-fg-faint: #9a9ab0;
+  --hdk-line: #e3e3ee; --hdk-line-strong: #c5c5d8;
+  --hdk-accent: #4f46e5; --hdk-accent-fg: #ffffff; --hdk-accent-soft: #ecebff; --hdk-accent-hover: #4338ca;
+  --hdk-success: #15803d; --hdk-success-soft: #dcfce7;
+  --hdk-warning: #b45309; --hdk-warning-soft: #fef3c7;
+  --hdk-danger:  #b91c1c; --hdk-danger-soft:  #fee2e2;
+  --hdk-info:    #1d4ed8; --hdk-info-soft:    #dbeafe;
+  --hdk-shadow-sm: 0 1px 2px rgba(22,22,50,.06);
+  --hdk-shadow-md: 0 4px 16px rgba(22,22,50,.10);
+  --hdk-shadow-lg: 0 12px 40px rgba(22,22,50,.16);
+}
+.hdk-root[data-theme="dark"] {
+  --hdk-bg: #0f1017;  --hdk-bg-elev: #171923;  --hdk-bg-elev-2: #20232f;
+  --hdk-fg: #ececf4;  --hdk-fg-muted: #9b9db3; --hdk-fg-faint: #62647a;
+  --hdk-line: #272a38; --hdk-line-strong: #3a3e52;
+  --hdk-accent: #8b83ff; --hdk-accent-fg: #0f1017; --hdk-accent-soft: #23234a; --hdk-accent-hover: #a29bff;
+  --hdk-success: #4ade80; --hdk-success-soft: #14321f;
+  --hdk-warning: #fbbf24; --hdk-warning-soft: #3a2a0a;
+  --hdk-danger:  #f87171; --hdk-danger-soft:  #3b1616;
+  --hdk-info:    #60a5fa; --hdk-info-soft:    #142a4a;
+  --hdk-shadow-sm: 0 1px 2px rgba(0,0,0,.4);
+  --hdk-shadow-md: 0 4px 16px rgba(0,0,0,.45);
+  --hdk-shadow-lg: 0 12px 40px rgba(0,0,0,.6);
+}

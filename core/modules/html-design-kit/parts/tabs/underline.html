@@ -1,0 +1,63 @@
+<!--
+part: tabs
+variant: underline
+source: ColorlibHQ/gentelella
+fits: frame.sidebar-shell, frame.scroll-stack, section
+mood: dense, corporate
+slots: items, item, label, panels, panel
+requires: none
+added: 2026-08-25
+spec: 0.5
+notes: 하단 밑줄로 활성 표시. 페이지·카드 상단 뷰 전환용. 활성 탭은 aria-selected="true". 슬라이딩 인디케이터는 JS로 계산
+-->
+<section data-part="tabs" data-variant="underline" data-init="tabs.underline" class="hdk-tabs hdk-tabs--underline">
+<style>
+.hdk-tabs--underline .hdk-tabs__list {
+  position: relative; display: flex; gap: var(--hdk-sp-5);
+  border-bottom: 1px solid var(--hdk-line); margin: 0; padding: 0; list-style: none;
+  overflow-x: auto; scrollbar-width: none;
+}
+.hdk-tabs--underline .hdk-tabs__list::-webkit-scrollbar { display: none; }
+.hdk-tabs--underline .hdk-tabs__tab {
+  padding: var(--hdk-sp-3) 0; background: none; border: 0; cursor: pointer;
+  color: var(--hdk-fg-muted); font-size: var(--hdk-fs-sm); font-weight: var(--hdk-fw-medium);
+  white-space: nowrap; transition: color var(--hdk-dur-fast) var(--hdk-ease);
+}
+.hdk-tabs--underline .hdk-tabs__tab:hover { color: var(--hdk-fg); }
+.hdk-tabs--underline .hdk-tabs__tab[aria-selected="true"] { color: var(--hdk-accent); }
+.hdk-tabs--underline .hdk-tabs__indicator {
+  position: absolute; bottom: -1px; height: 2px; /* 구조 치수 */
+  background: var(--hdk-accent);
+  transition: left var(--hdk-dur-base) var(--hdk-ease), width var(--hdk-dur-base) var(--hdk-ease);
+}
+.hdk-tabs--underline .hdk-tabs__panel { padding: var(--hdk-sp-4) 0; color: var(--hdk-fg-muted); font-size: var(--hdk-fs-sm); }
+.hdk-tabs--underline .hdk-tabs__panel[hidden] { display: none; }
+</style>
+  <div class="hdk-tabs__list" role="tablist" data-slot="items">
+    <button class="hdk-tabs__tab" role="tab" aria-selected="true" data-slot="item"><span data-slot="label">탭 1</span></button>
+    <button class="hdk-tabs__tab" role="tab" aria-selected="false"><span data-slot="label">탭 2</span></button>
+    <button class="hdk-tabs__tab" role="tab" aria-selected="false"><span data-slot="label">탭 3</span></button>
+    <span class="hdk-tabs__indicator" aria-hidden="true"></span>
+  </div>
+  <div data-slot="panels">
+    <div class="hdk-tabs__panel" role="tabpanel" data-slot="panel">패널 1 내용 자리</div>
+    <div class="hdk-tabs__panel" role="tabpanel" hidden>패널 2 내용 자리</div>
+    <div class="hdk-tabs__panel" role="tabpanel" hidden>패널 3 내용 자리</div>
+  </div>
+<script>
+hdk.register('tabs.underline', function (root) {
+  const tabs = [...root.querySelectorAll('.hdk-tabs__tab')];
+  const panels = [...root.querySelectorAll('.hdk-tabs__panel')];
+  const ind = root.querySelector('.hdk-tabs__indicator');
+  function activate(i) {
+    tabs.forEach((t, k) => t.setAttribute('aria-selected', String(k === i)));
+    panels.forEach((p, k) => { p.hidden = k !== i; });
+    const t = tabs[i];
+    ind.style.left = t.offsetLeft + 'px'; ind.style.width = t.offsetWidth + 'px';
+  }
+  tabs.forEach((t, i) => t.addEventListener('click', () => activate(i)));
+  activate(tabs.findIndex(t => t.getAttribute('aria-selected') === 'true') || 0);
+  window.addEventListener('resize', () => activate(tabs.findIndex(t => t.getAttribute('aria-selected') === 'true')));
+});
+</script>
+</section>

@@ -1,0 +1,28 @@
+<!--
+part: timeline
+variant: compact-log
+source: original
+fits: card, modal.drawer, table
+mood: dense, tech
+slots: items, item, meta, label, body
+requires: badge.outline
+added: 2026-08-25
+spec: 0.5
+notes: 시각·태그·한 줄 메시지만. 배포 로그·감사 로그용. 모노 폰트, 점·선 없음
+-->
+<section data-part="timeline" data-variant="compact-log" class="hdk-timeline hdk-timeline--compact-log">
+<style>
+.hdk-timeline--compact-log .hdk-timeline__list { list-style: none; margin: 0; padding: 0; font-family: var(--hdk-font-mono); font-size: var(--hdk-fs-xs); }
+.hdk-timeline--compact-log .hdk-timeline__item { display: grid; grid-template-columns: 64px auto 1fr; gap: var(--hdk-sp-3); align-items: baseline; padding: var(--hdk-sp-2) 0; border-bottom: 1px solid var(--hdk-line); }
+.hdk-timeline--compact-log .hdk-timeline__meta { color: var(--hdk-fg-faint); font-variant-numeric: tabular-nums; }
+.hdk-timeline--compact-log .hdk-timeline__label { padding: 0 var(--hdk-sp-2); border-radius: var(--hdk-radius-sm); background: var(--hdk-bg-elev-2); color: var(--hdk-fg-muted); }
+.hdk-timeline--compact-log .hdk-timeline__item[data-tone="danger"] .hdk-timeline__label { background: var(--hdk-danger-soft); color: var(--hdk-danger); }
+.hdk-timeline--compact-log .hdk-timeline__item[data-tone="success"] .hdk-timeline__label { background: var(--hdk-success-soft); color: var(--hdk-success); }
+.hdk-timeline--compact-log .hdk-timeline__body { margin: 0; color: var(--hdk-fg); font-family: var(--hdk-font-sans); font-size: var(--hdk-fs-sm); }
+</style>
+  <ul class="hdk-timeline__list" data-slot="items">
+    <li class="hdk-timeline__item" data-tone="success" data-slot="item"><span class="hdk-timeline__meta" data-slot="meta">14:32:07</span><span class="hdk-timeline__label" data-slot="label">DEPLOY</span><p class="hdk-timeline__body" data-slot="body">메시지 자리</p></li>
+    <li class="hdk-timeline__item"><span class="hdk-timeline__meta">14:30:11</span><span class="hdk-timeline__label">BUILD</span><p class="hdk-timeline__body">메시지 자리</p></li>
+    <li class="hdk-timeline__item" data-tone="danger"><span class="hdk-timeline__meta">14:28:55</span><span class="hdk-timeline__label">ERROR</span><p class="hdk-timeline__body">메시지 자리</p></li>
+  </ul>
+</section>

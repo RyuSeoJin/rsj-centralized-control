@@ -1,6 +1,6 @@
 # tc-template-catalog — tc 모듈이 더하는 템플릿
 
-`base/design-template/template-catalog.md`가 **고르는 법**의 정본이고, 이 문서는 **tc를 켠
+`core/base/design-template/template-catalog.md`가 **고르는 법**의 정본이고, 이 문서는 **tc를 켠
 프로젝트에만 있는 것**의 목록입니다. 두 카탈로그를 함께 보고 고릅니다.
 
 **tc를 켜지 않았으면 이 문서를 읽지 않습니다.** 무엇이 켜져 있는지는 프로젝트의

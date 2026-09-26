@@ -1,0 +1,35 @@
+<!--
+part: button
+variant: outline
+source: original
+fits: any
+mood: airy, corporate
+slots: label, icon
+requires: none
+added: 2026-08-25
+spec: 0.5
+notes: 보조 행동(secondary). solid 옆에 나란히 배치. data-size="sm|md|lg"
+-->
+<section data-part="button" data-variant="outline" class="hdk-button hdk-button--outline">
+<style>
+.hdk-button--outline { display: inline-flex; }
+.hdk-button--outline .hdk-button__btn {
+  display: inline-flex; align-items: center; gap: var(--hdk-sp-2);
+  padding: var(--hdk-sp-2) var(--hdk-sp-4);
+  background: transparent; color: var(--hdk-fg);
+  border: 1px solid var(--hdk-line-strong); border-radius: var(--hdk-radius-md);
+  font-size: var(--hdk-fs-sm); font-weight: var(--hdk-fw-medium); line-height: var(--hdk-lh-tight);
+  cursor: pointer; white-space: nowrap;
+  transition: border-color var(--hdk-dur-fast) var(--hdk-ease), background var(--hdk-dur-fast) var(--hdk-ease);
+}
+.hdk-button--outline .hdk-button__btn:hover { border-color: var(--hdk-accent); color: var(--hdk-accent); background: var(--hdk-accent-soft); }
+.hdk-button--outline .hdk-button__btn:disabled { opacity: .45; cursor: not-allowed; }
+.hdk-button--outline .hdk-button__icon { width: 16px; height: 16px; flex: none; }
+.hdk-button--outline[data-size="sm"] .hdk-button__btn { padding: var(--hdk-sp-1) var(--hdk-sp-3); font-size: var(--hdk-fs-xs); }
+.hdk-button--outline[data-size="lg"] .hdk-button__btn { padding: var(--hdk-sp-3) var(--hdk-sp-5); font-size: var(--hdk-fs-md); }
+</style>
+  <button type="button" class="hdk-button__btn">
+    <svg class="hdk-button__icon" data-slot="icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
+    <span data-slot="label">버튼 라벨</span>
+  </button>
+</section>

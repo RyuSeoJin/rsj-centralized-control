@@ -1,0 +1,51 @@
+<!--
+part: tabs
+variant: pill
+source: original
+fits: any
+mood: dense, tech
+slots: items, item, label, panels, panel
+requires: none
+added: 2026-08-25
+spec: 0.5
+notes: 트랙 안에서 활성 탭이 채워진 알약 형태. 세그먼트 컨트롤(뷰 전환·기간 선택)용. 탭 3~5개 권장
+-->
+<section data-part="tabs" data-variant="pill" data-init="tabs.pill" class="hdk-tabs hdk-tabs--pill">
+<style>
+.hdk-tabs--pill .hdk-tabs__list {
+  display: inline-flex; gap: var(--hdk-sp-1); padding: var(--hdk-sp-1);
+  background: var(--hdk-bg-elev-2); border: 1px solid var(--hdk-line);
+  border-radius: var(--hdk-radius-md); margin: 0; list-style: none;
+}
+.hdk-tabs--pill .hdk-tabs__tab {
+  padding: var(--hdk-sp-1) var(--hdk-sp-3); background: none; border: 0; cursor: pointer;
+  border-radius: var(--hdk-radius-sm);
+  color: var(--hdk-fg-muted); font-size: var(--hdk-fs-sm); font-weight: var(--hdk-fw-medium);
+  white-space: nowrap; transition: background var(--hdk-dur-fast) var(--hdk-ease), color var(--hdk-dur-fast) var(--hdk-ease);
+}
+.hdk-tabs--pill .hdk-tabs__tab:hover { color: var(--hdk-fg); }
+.hdk-tabs--pill .hdk-tabs__tab[aria-selected="true"] { background: var(--hdk-bg-elev); color: var(--hdk-fg); box-shadow: var(--hdk-shadow-sm); }
+.hdk-tabs--pill .hdk-tabs__panel { padding: var(--hdk-sp-4) 0; color: var(--hdk-fg-muted); font-size: var(--hdk-fs-sm); }
+.hdk-tabs--pill .hdk-tabs__panel[hidden] { display: none; }
+</style>
+  <div class="hdk-tabs__list" role="tablist" data-slot="items">
+    <button class="hdk-tabs__tab" role="tab" aria-selected="true" data-slot="item"><span data-slot="label">탭 1</span></button>
+    <button class="hdk-tabs__tab" role="tab" aria-selected="false"><span data-slot="label">탭 2</span></button>
+    <button class="hdk-tabs__tab" role="tab" aria-selected="false"><span data-slot="label">탭 3</span></button>
+  </div>
+  <div data-slot="panels">
+    <div class="hdk-tabs__panel" role="tabpanel" data-slot="panel">패널 1 내용 자리</div>
+    <div class="hdk-tabs__panel" role="tabpanel" hidden>패널 2 내용 자리</div>
+    <div class="hdk-tabs__panel" role="tabpanel" hidden>패널 3 내용 자리</div>
+  </div>
+<script>
+hdk.register('tabs.pill', function (root) {
+  const tabs = [...root.querySelectorAll('.hdk-tabs__tab')];
+  const panels = [...root.querySelectorAll('.hdk-tabs__panel')];
+  tabs.forEach((t, i) => t.addEventListener('click', () => {
+    tabs.forEach((x, k) => x.setAttribute('aria-selected', String(k === i)));
+    panels.forEach((p, k) => { p.hidden = k !== i; });
+  }));
+});
+</script>
+</section>

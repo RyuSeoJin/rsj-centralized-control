@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
-"""모듈 확인과 켜기 — 무엇이 있고 무엇이 켜져 있는지 보고, 동의를 받은 뒤 켭니다
+"""프로젝트 모듈 확인과 켜기 — 무엇이 있고 무엇이 켜져 있는지 보고, 동의를 받은 뒤 켭니다
 
 왜 도구인가
 ----------
   「이 기능은 어느 모듈에 있나」를 폴더를 뒤져 찾으면 매번 답이 달라집니다. 모듈마다
-  `module.md`가 자기소개(언제 켜나·켜면 따라오는 것·전제)를 갖고 있고, 이 도구가 그것을
+  `module.md`가 자기소개(적용 범위·제공하는 것·전제)를 갖고 있고, 이 도구가 그것을
   모아 보여 줍니다. 판별 흐름의 정본은 rules/feature-request.md입니다.
 
 켜는 것은 되돌리기 쉽지 않다
@@ -25,27 +25,34 @@ import os
 import re
 import sys
 
-#: 모듈을 켜면 프로젝트에 생기는 폴더. 없으면 만들 것이 없다는 뜻이다.
-#: 정본은 각 모듈의 module.md이며, 여기 목록과 어긋나면 문서 쪽이 정본이다
-MODULE_DIRS = {
-    "automation": ("automation/tests", "automation/result"),
-    "sut": ("sut", "spec/sut-design"),
-}
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import workspace  # noqa: E402
 
 
 def core_root():
-    return os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    return workspace.core_root()
 
 
 def repo_root():
-    d = os.path.dirname(os.path.abspath(__file__))
-    while True:
-        if os.path.exists(os.path.join(d, "workspace.json")):
-            return d
-        p = os.path.dirname(d)
-        if p == d:
-            return os.path.dirname(core_root())
-        d = p
+    return workspace.repo_root()
+
+
+def module_json(name):
+    """module.json — 적용 범위(scope)와 켜면 만들 폴더(creates). 없으면 빈 dict입니다."""
+    path = os.path.join(core_root(), "modules", name, "module.json")
+    try:
+        with io.open(path, encoding="utf-8") as f:
+            return json.load(f)
+    except (OSError, ValueError):
+        return {}
+
+
+def creates(name):
+    """모듈을 켜면 프로젝트에 생기는 폴더. 정본은 각 모듈의 module.json · module.md입니다.
+
+    base가 모듈 이름을 적지 않도록, 목록을 여기 두지 않고 모듈이 스스로 알립니다.
+    """
+    return tuple(module_json(name).get("creates", ()))
 
 
 def modules():
@@ -84,6 +91,12 @@ def modules():
     return out
 
 
+def module_scope(name):
+    """모듈 적용 범위 — project(기본) · workspace · host."""
+    scope = module_json(name).get("scope", "project")
+    return scope if scope in ("project", "workspace", "host") else "project"
+
+
 def prereq_chain(name):
     """켜야 하는 순서대로 전제를 늘어놓는다 — 맨 아래 것이 먼저다.
 
@@ -102,7 +115,9 @@ def prereq_chain(name):
 
 
 def state_path(root, slug):
-    return os.path.join(root, "projects", slug, "%s-modules.json" % slug)
+    from project_paths import resolve
+    folder = resolve(root, slug)
+    return str(folder / (folder.name + '-modules.json'))
 
 
 def read_state(root, slug):
@@ -121,11 +136,20 @@ def write_state(root, slug, st):
 
 def cmd_list(root, slug):
     on = set(read_state(root, slug)["on"]) if slug else set()
+    ws = set(workspace.workspace_modules(root))
     for name, title, when, needs, why in modules():
-        mark = "●" if name in on else "○"
-        if not slug:
-            mark = " "
-        print("%s %-6s %s" % (mark, name, title))
+        scope = module_scope(name)
+        if scope == "host":
+            mark = "◆"
+        elif scope == "workspace":
+            mark = "■" if name in ws else "□"
+        else:
+            mark = ("●" if name in on else "○") if slug else " "
+        print("%s %-16s %s" % (mark, name, title))
+        if scope == "host":
+            print("       적용 범위 — 컴퓨터 공통 환경. 프로젝트 활성화 대상이 아닙니다")
+        if scope == "workspace":
+            print("       적용 범위 — 저장소 전체. workspace.json의 modules에서 켭니다")
         if when:
             print("       언제 켜나 — %s" % when)
         if needs:
@@ -139,7 +163,12 @@ def cmd_on(root, slug, name):
     names = [m[0] for m in modules()]
     if name not in names:
         sys.exit("그런 모듈이 없습니다: %s (있는 것: %s)" % (name, ", ".join(names)))
-    proj = os.path.join(root, "projects", slug)
+    if module_scope(name) == "host":
+        sys.exit("호스트 환경 모듈은 프로젝트에 활성화하지 않습니다: %s" % name)
+    if module_scope(name) == "workspace":
+        sys.exit("워크스페이스 모듈은 workspace.json의 modules에 적어 저장소 전체에 켭니다: %s" % name)
+    from project_paths import resolve
+    proj = str(resolve(root, slug))
     if not os.path.isdir(proj):
         sys.exit("그런 프로젝트가 없습니다: projects/%s" % slug)
 
@@ -152,7 +181,8 @@ def cmd_on(root, slug, name):
     # 유저가 알고 동의해야 하기 때문입니다(rules/feature-request.md §3). 대신 사슬 전체를
     # 한 번에 보여 줍니다 — 한 단씩 알려 주면 몇 번을 더 쳐야 하는지 모른 채 막힙니다
     chain = prereq_chain(name)
-    missing = [m for m in chain if m not in st["on"]]
+    have = set(st["on"]) | set(workspace.workspace_modules(root))
+    missing = [m for m in chain if m not in have]
     if missing:
         info = dict((m[0], (m[1], m[4])) for m in modules())
         # 사슬 전체를 보입니다 — 이미 켠 것까지 함께 보여야 어디까지 왔는지 압니다
@@ -163,7 +193,7 @@ def cmd_on(root, slug, name):
             # 「왜 필요한가」는 그 모듈을 전제로 삼는 쪽이 압니다 — 사슬에서 한 칸 위입니다
             requirer = chain[i] if i < len(chain) else name
             why = info.get(requirer, ("", ""))[1]
-            mark = "● 활성" if m in st["on"] else "○ 비활성"
+            mark = "● 활성" if m in have else "○ 비활성"
             print("  %d. %-12s %s" % (i, m, mark))
             if title:
                 print("     %s" % title)
@@ -173,11 +203,14 @@ def cmd_on(root, slug, name):
         print("모듈은 저절로 활성화되지 않습니다. 필요한 모듈은 직접 활성화해주세요.")
         print("")
         for m in missing + [name]:
-            print("  python core/base/scripts/module.py on %s %s" % (slug, m))
+            if module_scope(m) == "workspace":
+                print("  workspace.json의 modules에 `%s`를 더합니다" % m)
+            else:
+                print("  python core/base/scripts/module.py on %s %s" % (slug, m))
         return 1
 
     made = []
-    for d in MODULE_DIRS.get(name, ()):
+    for d in creates(name):
         p = os.path.join(proj, *d.split("/"))
         if not os.path.isdir(p):
             os.makedirs(p)

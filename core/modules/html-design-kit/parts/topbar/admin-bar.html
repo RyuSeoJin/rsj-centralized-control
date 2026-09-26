@@ -1,0 +1,34 @@
+<!--
+part: topbar
+variant: admin-bar
+source: ColorlibHQ/gentelella
+fits: frame.sidebar-shell
+mood: dense, corporate
+slots: title, search, actions, user
+requires: button.ghost, avatar
+added: 2026-08-25
+spec: 0.5
+notes: 좌측 사이드바 토글 + 페이지 제목, 중앙 검색, 우측 액션·사용자. 토글 버튼은 data-action="toggle-sidebar" 로 frame 이 받음
+-->
+<section data-part="topbar" data-variant="admin-bar" class="hdk-topbar hdk-topbar--admin-bar">
+<style>
+.hdk-topbar--admin-bar { display: flex; align-items: center; gap: var(--hdk-sp-3); height: 100%; padding: 0 var(--hdk-sp-4); }
+.hdk-topbar--admin-bar .hdk-topbar__toggle { display: inline-grid; place-items: center; width: 36px; height: 36px; /* 구조 치수 */ border: 0; background: none; border-radius: var(--hdk-radius-md); color: var(--hdk-fg-muted); cursor: pointer; }
+.hdk-topbar--admin-bar .hdk-topbar__toggle:hover { background: var(--hdk-bg-elev-2); color: var(--hdk-fg); }
+.hdk-topbar--admin-bar .hdk-topbar__title { margin: 0; font-size: var(--hdk-fs-md); font-weight: var(--hdk-fw-medium); white-space: nowrap; }
+.hdk-topbar--admin-bar .hdk-topbar__search { display: none; flex: 1; max-width: 420px; margin: 0 auto; }
+.hdk-topbar--admin-bar .hdk-topbar__input { width: 100%; padding: var(--hdk-sp-2) var(--hdk-sp-3); background: var(--hdk-bg); border: 1px solid var(--hdk-line); border-radius: var(--hdk-radius-md); font-size: var(--hdk-fs-sm); }
+.hdk-topbar--admin-bar .hdk-topbar__input:focus { border-color: var(--hdk-accent); outline: none; }
+.hdk-topbar--admin-bar .hdk-topbar__actions { display: flex; align-items: center; gap: var(--hdk-sp-1); margin-left: auto; }
+.hdk-topbar--admin-bar .hdk-topbar__user { display: flex; align-items: center; gap: var(--hdk-sp-2); padding-left: var(--hdk-sp-3); border-left: 1px solid var(--hdk-line); font-size: var(--hdk-fs-sm); }
+.hdk-topbar--admin-bar .hdk-topbar__avatar { width: 28px; height: 28px; border-radius: var(--hdk-radius-full); background: var(--hdk-accent-soft); }
+@media (min-width: 640px) { .hdk-topbar--admin-bar .hdk-topbar__search { display: block; } } /* sm */
+</style>
+  <button class="hdk-topbar__toggle" type="button" data-action="toggle-sidebar" aria-label="메뉴 열기/닫기">
+    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M2 4h14M2 9h14M2 14h14"/></svg>
+  </button>
+  <h1 class="hdk-topbar__title" data-slot="title">페이지 제목 자리</h1>
+  <div class="hdk-topbar__search" data-slot="search"><input class="hdk-topbar__input" type="search" placeholder="검색어 입력 자리"></div>
+  <div class="hdk-topbar__actions" data-slot="actions"><!-- button.ghost × n --></div>
+  <div class="hdk-topbar__user" data-slot="user"><i class="hdk-topbar__avatar" aria-hidden="true"></i><span>사용자명 자리</span></div>
+</section>

@@ -24,7 +24,7 @@
 
 차트 라이브러리를 왜 안 쓰나
 ---------------------------
-  가이드(`rules/html-report-guide.md`)는 Chart.js 인라인을 권하지만, 이 리포트의 데이터는
+  가이드(`modules/qa-site/rules/qa-report-design.md`)는 Chart.js 인라인을 권하지만, 이 리포트의 데이터는
   검증유형 4종·영역 10개·매트릭스 5×10으로 작다. 이 규모에서는 표와 CSS 막대가 더 정확히
   읽히고, 외부 라이브러리를 저장소에 들이지 않아도 자기완결이 성립한다. 계열이 늘어 표로
   읽기 어려워지면 그때 인라인한다.
@@ -49,6 +49,8 @@ sys.path.insert(0, _HERE)
 # sut 모듈은 base와 tc 모듈 위에서 돕니다 — 검증 대상을 직접 만드는 프로젝트는
 # TC도 함께 만들기 때문입니다
 sys.path.insert(0, os.path.join(_HERE, "..", "..", "..", "base", "scripts"))
+# 셸(사이드바·상단 바)은 qa-site 모듈이 가집니다 — tc가 qa-site를 전제하는 이유입니다
+sys.path.insert(0, os.path.join(_HERE, "..", "..", "qa-site", "scripts"))
 sys.path.insert(0, os.path.join(_HERE, "..", "..", "tc", "scripts"))
 import shell  # noqa: E402
 from check_tc_coverage import tree_leaves, blueprint_testids  # noqa: E402

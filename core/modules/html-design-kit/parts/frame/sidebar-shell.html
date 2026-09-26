@@ -1,0 +1,51 @@
+<!--
+part: frame
+variant: sidebar-shell
+source: ColorlibHQ/gentelella
+fits: any
+mood: dense, corporate
+slots: sidebar, topbar, content, footer
+requires: none
+added: 2026-08-25
+spec: 0.5
+notes: 어드민 골격. 좌 사이드바 고정 + 상단 바 + 스크롤 콘텐츠. md 미만: 사이드바 오프캔버스(data-open="true" 로 열림). data-collapsed="true" 면 아이콘 폭
+-->
+<section data-part="frame" data-variant="sidebar-shell" data-init="frame.sidebar-shell" class="hdk-frame hdk-frame--sidebar-shell">
+<style>
+.hdk-frame--sidebar-shell { display: grid; min-height: 100vh; grid-template-rows: var(--hdk-topbar-h) 1fr auto; grid-template-columns: 1fr; background: var(--hdk-bg); }
+.hdk-frame--sidebar-shell .hdk-frame__sidebar { position: fixed; inset: 0 auto 0 0; width: var(--hdk-sidebar-w); z-index: 20;
+  background: var(--hdk-bg-elev); border-right: 1px solid var(--hdk-line); transform: translateX(-100%);
+  transition: transform var(--hdk-dur-base) var(--hdk-ease), width var(--hdk-dur-base) var(--hdk-ease); overflow-y: auto; }
+.hdk-frame--sidebar-shell[data-open="true"] .hdk-frame__sidebar { transform: none; }
+.hdk-frame--sidebar-shell .hdk-frame__scrim { position: fixed; inset: 0; z-index: 19; background: var(--hdk-fg); opacity: 0; pointer-events: none; transition: opacity var(--hdk-dur-base); }
+.hdk-frame--sidebar-shell[data-open="true"] .hdk-frame__scrim { opacity: .4; pointer-events: auto; }
+.hdk-frame--sidebar-shell .hdk-frame__topbar { position: sticky; top: 0; z-index: 10; height: var(--hdk-topbar-h); background: var(--hdk-bg-elev); border-bottom: 1px solid var(--hdk-line); }
+.hdk-frame--sidebar-shell .hdk-frame__content { padding: var(--hdk-sp-5) var(--hdk-sp-4); }
+.hdk-frame--sidebar-shell .hdk-frame__footer { padding: var(--hdk-sp-3) var(--hdk-sp-4); border-top: 1px solid var(--hdk-line); color: var(--hdk-fg-faint); font-size: var(--hdk-fs-xs); }
+@media (min-width: 1024px) { /* md */
+  .hdk-frame--sidebar-shell { grid-template-columns: var(--hdk-sidebar-w) 1fr; }
+  .hdk-frame--sidebar-shell[data-collapsed="true"] { grid-template-columns: var(--hdk-sidebar-w-min) 1fr; }
+  .hdk-frame--sidebar-shell .hdk-frame__sidebar { position: sticky; top: 0; height: 100vh; transform: none; grid-row: 1 / -1; }
+  .hdk-frame--sidebar-shell[data-collapsed="true"] .hdk-frame__sidebar { width: var(--hdk-sidebar-w-min); }
+  .hdk-frame--sidebar-shell .hdk-frame__scrim { display: none; }
+  .hdk-frame--sidebar-shell .hdk-frame__content { padding: var(--hdk-sp-6); }
+}
+</style>
+  <aside class="hdk-frame__sidebar" data-region="sidebar"><!-- sidebar.* --></aside>
+  <div class="hdk-frame__scrim" aria-hidden="true"></div>
+  <header class="hdk-frame__topbar" data-region="topbar"><!-- topbar.* --></header>
+  <main class="hdk-frame__content" data-region="content"><!-- section / card / table … --></main>
+  <footer class="hdk-frame__footer" data-region="footer"><!-- footer.* 또는 한 줄 --></footer>
+<script>
+hdk.register('frame.sidebar-shell', function (root) {
+  root.querySelector('.hdk-frame__scrim').addEventListener('click', () => root.dataset.open = 'false');
+  // topbar 안의 [data-action="toggle-sidebar"] 가 있으면 연결
+  root.addEventListener('click', e => {
+    const b = e.target.closest('[data-action="toggle-sidebar"]'); if (!b) return;
+    const desktop = window.matchMedia('(min-width: 1024px)').matches;
+    if (desktop) root.dataset.collapsed = root.dataset.collapsed === 'true' ? 'false' : 'true';
+    else root.dataset.open = root.dataset.open === 'true' ? 'false' : 'true';
+  });
+});
+</script>
+</section>

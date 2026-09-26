@@ -1,0 +1,31 @@
+<!--
+part: timeline
+variant: horizontal-steps
+source: tabler/tabler
+fits: card, modal, form
+mood: dense, corporate
+slots: items, item, label
+requires: none
+added: 2026-08-25
+spec: 0.5
+notes: 가로 진행 단계(스테퍼). 완료 data-state="done", 현재 "current", 대기 없음. 주문 추적·마법사 폼용
+-->
+<section data-part="timeline" data-variant="horizontal-steps" class="hdk-timeline hdk-timeline--horizontal-steps">
+<style>
+.hdk-timeline--horizontal-steps .hdk-timeline__list { display: flex; list-style: none; margin: 0; padding: 0; }
+.hdk-timeline--horizontal-steps .hdk-timeline__item { flex: 1; position: relative; display: flex; flex-direction: column; align-items: center; gap: var(--hdk-sp-2); font-size: var(--hdk-fs-xs); color: var(--hdk-fg-faint); text-align: center; }
+.hdk-timeline--horizontal-steps .hdk-timeline__item:not(:last-child)::after { content: ""; position: absolute; top: 12px; left: 50%; width: 100%; height: 2px; background: var(--hdk-line); }
+.hdk-timeline--horizontal-steps .hdk-timeline__item[data-state="done"]:not(:last-child)::after { background: var(--hdk-accent); }
+.hdk-timeline--horizontal-steps .hdk-timeline__dot { position: relative; z-index: 1; width: 26px; height: 26px; border-radius: var(--hdk-radius-full); display: grid; place-items: center; background: var(--hdk-bg-elev); border: 2px solid var(--hdk-line-strong); font-family: var(--hdk-font-mono); font-weight: var(--hdk-fw-bold); }
+.hdk-timeline--horizontal-steps [data-state="done"] .hdk-timeline__dot { background: var(--hdk-accent); border-color: var(--hdk-accent); color: var(--hdk-accent-fg); }
+.hdk-timeline--horizontal-steps [data-state="current"] .hdk-timeline__dot { border-color: var(--hdk-accent); color: var(--hdk-accent); }
+.hdk-timeline--horizontal-steps [data-state] .hdk-timeline__label { color: var(--hdk-fg); }
+.hdk-timeline--horizontal-steps [data-state="current"] .hdk-timeline__label { font-weight: var(--hdk-fw-medium); }
+</style>
+  <ol class="hdk-timeline__list" data-slot="items">
+    <li class="hdk-timeline__item" data-state="done" data-slot="item"><span class="hdk-timeline__dot">✓</span><span class="hdk-timeline__label" data-slot="label">단계 자리</span></li>
+    <li class="hdk-timeline__item" data-state="done"><span class="hdk-timeline__dot">✓</span><span class="hdk-timeline__label">단계 자리</span></li>
+    <li class="hdk-timeline__item" data-state="current"><span class="hdk-timeline__dot">3</span><span class="hdk-timeline__label">단계 자리</span></li>
+    <li class="hdk-timeline__item"><span class="hdk-timeline__dot">4</span><span class="hdk-timeline__label">단계 자리</span></li>
+  </ol>
+</section>

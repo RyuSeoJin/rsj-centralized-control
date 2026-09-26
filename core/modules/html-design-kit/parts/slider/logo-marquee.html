@@ -1,0 +1,31 @@
+<!--
+part: slider
+variant: logo-marquee
+source: thedevdojo/tails
+fits: frame.scroll-stack, section
+mood: airy, corporate
+slots: title, items, item, logo
+requires: none
+added: 2026-08-25
+spec: 0.5
+notes: 고객사 로고가 가로로 흐르는 띠. 조작 없음, hover 정지. 로고는 회색조(opacity) → hover 원색
+-->
+<section data-part="slider" data-variant="logo-marquee" data-init="slider.logo-marquee" class="hdk-slider hdk-slider--logo-marquee">
+<style>
+.hdk-slider--logo-marquee { padding: var(--hdk-sp-6) 0; overflow: hidden; }
+.hdk-slider--logo-marquee .hdk-slider__title { margin: 0 0 var(--hdk-sp-4); text-align: center; font-size: var(--hdk-fs-xs); color: var(--hdk-fg-faint); letter-spacing: var(--hdk-tracking-caps); text-transform: uppercase; }
+.hdk-slider--logo-marquee .hdk-slider__track { display: flex; width: max-content; animation: hdk-marquee var(--slider-speed, 30s) linear infinite; }
+.hdk-slider--logo-marquee:hover .hdk-slider__track { animation-play-state: paused; }
+@keyframes hdk-marquee { to { transform: translateX(-50%); } }
+.hdk-slider--logo-marquee .hdk-slider__list { display: flex; gap: var(--hdk-sp-8); padding: 0 var(--hdk-sp-4); list-style: none; margin: 0; }
+.hdk-slider--logo-marquee .hdk-slider__logo { width: 120px; height: 36px; display: grid; place-items: center; border-radius: var(--hdk-radius-sm); background: var(--hdk-bg-elev-2); color: var(--hdk-fg-faint); font-family: var(--hdk-font-display); font-weight: var(--hdk-fw-bold); opacity: .7; transition: opacity var(--hdk-dur-fast); }
+.hdk-slider--logo-marquee .hdk-slider__logo:hover { opacity: 1; color: var(--hdk-fg); }
+</style>
+  <p class="hdk-slider__title" data-slot="title">함께하는 곳 자리</p>
+  <div class="hdk-slider__track">
+    <ul class="hdk-slider__list" data-slot="items"><li data-slot="item"><span class="hdk-slider__logo" data-slot="logo">LOGO</span></li><li><span class="hdk-slider__logo">LOGO</span></li><li><span class="hdk-slider__logo">LOGO</span></li><li><span class="hdk-slider__logo">LOGO</span></li><li><span class="hdk-slider__logo">LOGO</span></li></ul>
+  </div>
+<script>
+hdk.register('slider.logo-marquee', function (root) {const r=root,t=r.querySelector('.hdk-slider__track');t.appendChild(t.querySelector('.hdk-slider__list').cloneNode(true));});
+</script>
+</section>

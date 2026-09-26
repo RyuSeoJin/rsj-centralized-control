@@ -1,0 +1,1763 @@
+{
+  "parts": [
+    {
+      "part": "avatar",
+      "variant": "circle",
+      "source": "tabler/tabler",
+      "fits": [
+        "any"
+      ],
+      "mood": [
+        "dense",
+        "corporate"
+      ],
+      "slots": [
+        "image",
+        "label"
+      ],
+      "requires": "none",
+      "added": "2026-08-25",
+      "spec": "0.5",
+      "notes": "원형 이미지. 이미지 없으면 이니셜(label) 표시. data-size=\"sm|md|lg\"",
+      "path": "parts/avatar/circle.html"
+    },
+    {
+      "part": "avatar",
+      "variant": "stacked-group",
+      "source": "thedevdojo/tails",
+      "fits": [
+        "card",
+        "table",
+        "feed"
+      ],
+      "mood": [
+        "airy",
+        "corporate"
+      ],
+      "slots": [
+        "items",
+        "item",
+        "label",
+        "meta"
+      ],
+      "requires": "none",
+      "added": "2026-08-25",
+      "spec": "0.5",
+      "notes": "겹쳐진 아바타 묶음 + \"+N\". 참여자·담당자 표시. 최대 4개 노출 후 나머지는 meta",
+      "path": "parts/avatar/stacked-group.html"
+    },
+    {
+      "part": "avatar",
+      "variant": "status-dot",
+      "source": "satnaing/shadcn-admin",
+      "fits": [
+        "topbar",
+        "feed",
+        "sidebar"
+      ],
+      "mood": [
+        "dense",
+        "tech"
+      ],
+      "slots": [
+        "image",
+        "label"
+      ],
+      "requires": "none",
+      "added": "2026-08-25",
+      "spec": "0.5",
+      "notes": "우하단 상태 점. data-status=\"online|away|offline|busy\". 채팅·멤버 목록용",
+      "path": "parts/avatar/status-dot.html"
+    },
+    {
+      "part": "avatar",
+      "variant": "with-name",
+      "source": "ColorlibHQ/gentelella",
+      "fits": [
+        "topbar",
+        "table",
+        "feed",
+        "card"
+      ],
+      "mood": [
+        "dense",
+        "corporate"
+      ],
+      "slots": [
+        "image",
+        "label",
+        "title",
+        "meta"
+      ],
+      "requires": "none",
+      "added": "2026-08-25",
+      "spec": "0.5",
+      "notes": "아바타 + 이름 + 부가정보(직함·이메일) 가로 배치. 표 셀·댓글 헤더·탑바 사용자 메뉴용",
+      "path": "parts/avatar/with-name.html"
+    },
+    {
+      "part": "badge",
+      "variant": "count",
+      "source": "original",
+      "fits": [
+        "any"
+      ],
+      "mood": [
+        "dense",
+        "tech"
+      ],
+      "slots": [
+        "value"
+      ],
+      "requires": "none",
+      "added": "2026-08-25",
+      "spec": "0.5",
+      "notes": "숫자 카운터. 사이드바 메뉴·탭·아이콘 버튼 우상단. data-tone=\"neutral|accent|danger\". 99 초과는 조립 단계에서 \"99+\"로",
+      "path": "parts/badge/count.html"
+    },
+    {
+      "part": "badge",
+      "variant": "dot",
+      "source": "original",
+      "fits": [
+        "any"
+      ],
+      "mood": [
+        "airy",
+        "editorial"
+      ],
+      "slots": [
+        "label"
+      ],
+      "requires": "none",
+      "added": "2026-08-25",
+      "spec": "0.5",
+      "notes": "색 점 + 텍스트. 배경 없이 가벼움. 목록·타임라인·범례용. data-tone 은 pill 과 동일",
+      "path": "parts/badge/dot.html"
+    },
+    {
+      "part": "badge",
+      "variant": "outline",
+      "source": "satnaing/shadcn-admin",
+      "fits": [
+        "any"
+      ],
+      "mood": [
+        "airy",
+        "tech"
+      ],
+      "slots": [
+        "label"
+      ],
+      "requires": "none",
+      "added": "2026-08-25",
+      "spec": "0.5",
+      "notes": "배경 없이 테두리만. 태그·카테고리 라벨용(상태보다 분류). data-tone 은 pill 과 동일",
+      "path": "parts/badge/outline.html"
+    },
+    {
+      "part": "badge",
+      "variant": "pill",
+      "source": "ColorlibHQ/gentelella",
+      "fits": [
+        "any"
+      ],
+      "mood": [
+        "dense",
+        "corporate"
+      ],
+      "slots": [
+        "label"
+      ],
+      "requires": "none",
+      "added": "2026-08-25",
+      "spec": "0.5",
+      "notes": "상태 텍스트 표시. data-tone=\"neutral|accent|success|warning|danger|info\". 표 셀·카드 헤더용",
+      "path": "parts/badge/pill.html"
+    },
+    {
+      "part": "breadcrumb",
+      "variant": "back-link",
+      "source": "satnaing/shadcn-admin",
+      "fits": [
+        "any"
+      ],
+      "mood": [
+        "airy",
+        "editorial"
+      ],
+      "slots": [
+        "label"
+      ],
+      "requires": "none",
+      "added": "2026-08-25",
+      "spec": "0.5",
+      "notes": "경로 전체 대신 \"← 상위로\" 한 줄. 상세 페이지·모바일에서 경로가 길 때",
+      "path": "parts/breadcrumb/back-link.html"
+    },
+    {
+      "part": "breadcrumb",
+      "variant": "chevron",
+      "source": "ColorlibHQ/AdminLTE",
+      "fits": [
+        "frame.sidebar-shell",
+        "topbar"
+      ],
+      "mood": [
+        "dense",
+        "corporate"
+      ],
+      "slots": [
+        "items",
+        "item",
+        "label"
+      ],
+      "requires": "none",
+      "added": "2026-08-25",
+      "spec": "0.5",
+      "notes": "화살표(>) 구분 + 첫 항목에 홈 아이콘",
+      "path": "parts/breadcrumb/chevron.html"
+    },
+    {
+      "part": "breadcrumb",
+      "variant": "contained",
+      "source": "original",
+      "fits": [
+        "frame.sidebar-shell"
+      ],
+      "mood": [
+        "dense",
+        "tech"
+      ],
+      "slots": [
+        "items",
+        "item",
+        "label"
+      ],
+      "requires": "none",
+      "added": "2026-08-25",
+      "spec": "0.5",
+      "notes": "각 항목이 알약 칩. 현재 항목은 accent-soft 배경. 깊은 경로(파일 경로 등)에 가독성 좋음",
+      "path": "parts/breadcrumb/contained.html"
+    },
+    {
+      "part": "breadcrumb",
+      "variant": "slash",
+      "source": "tabler/tabler",
+      "fits": [
+        "frame.sidebar-shell",
+        "topbar"
+      ],
+      "mood": [
+        "dense",
+        "corporate"
+      ],
+      "slots": [
+        "items",
+        "item",
+        "label"
+      ],
+      "requires": "none",
+      "added": "2026-08-25",
+      "spec": "0.5",
+      "notes": "슬래시 구분 텍스트. 가장 가벼움. 마지막 항목은 aria-current=\"page\" 로 진하게",
+      "path": "parts/breadcrumb/slash.html"
+    },
+    {
+      "part": "button",
+      "variant": "ghost",
+      "source": "original",
+      "fits": [
+        "any"
+      ],
+      "mood": [
+        "dense",
+        "tech"
+      ],
+      "slots": [
+        "label",
+        "icon"
+      ],
+      "requires": "none",
+      "added": "2026-08-25",
+      "spec": "0.5",
+      "notes": "배경 없는 3차 행동. 표 행·툴바·카드 헤더 안에서 사용. data-icon-only=\"true\"면 라벨 숨김(정사각형)",
+      "path": "parts/button/ghost.html"
+    },
+    {
+      "part": "button",
+      "variant": "link",
+      "source": "satnaing/shadcn-admin",
+      "fits": [
+        "any"
+      ],
+      "mood": [
+        "airy",
+        "editorial"
+      ],
+      "slots": [
+        "label",
+        "icon"
+      ],
+      "requires": "none",
+      "added": "2026-08-25",
+      "spec": "0.5",
+      "notes": "텍스트 링크처럼 보이는 버튼. 화살표 아이콘이 hover 시 이동. \"자세히 보기 →\" 용",
+      "path": "parts/button/link.html"
+    },
+    {
+      "part": "button",
+      "variant": "outline",
+      "source": "original",
+      "fits": [
+        "any"
+      ],
+      "mood": [
+        "airy",
+        "corporate"
+      ],
+      "slots": [
+        "label",
+        "icon"
+      ],
+      "requires": "none",
+      "added": "2026-08-25",
+      "spec": "0.5",
+      "notes": "보조 행동(secondary). solid 옆에 나란히 배치. data-size=\"sm|md|lg\"",
+      "path": "parts/button/outline.html"
+    },
+    {
+      "part": "button",
+      "variant": "solid",
+      "source": "original",
+      "fits": [
+        "any"
+      ],
+      "mood": [
+        "dense",
+        "corporate"
+      ],
+      "slots": [
+        "label",
+        "icon"
+      ],
+      "requires": "none",
+      "added": "2026-08-25",
+      "spec": "0.5",
+      "notes": "주 행동(primary). 한 화면에 1개가 원칙. data-size=\"sm|md|lg\", data-tone=\"accent|danger\"",
+      "path": "parts/button/solid.html"
+    },
+    {
+      "part": "card",
+      "variant": "image-top",
+      "source": "startbootstrap/startbootstrap-agency",
+      "fits": [
+        "frame.scroll-stack",
+        "section",
+        "slider"
+      ],
+      "mood": [
+        "airy",
+        "editorial"
+      ],
+      "slots": [
+        "image",
+        "eyebrow",
+        "title",
+        "body",
+        "meta"
+      ],
+      "requires": "badge.dot",
+      "added": "2026-08-25",
+      "spec": "0.5",
+      "notes": "이미지 상단 + 텍스트. 블로그·포트폴리오·상품 카드. 전체가 링크면 <a> 로 감싸 조립",
+      "path": "parts/card/image-top.html"
+    },
+    {
+      "part": "card",
+      "variant": "stat-compact",
+      "source": "ColorlibHQ/gentelella",
+      "fits": [
+        "frame.sidebar-shell",
+        "section"
+      ],
+      "mood": [
+        "dense",
+        "corporate"
+      ],
+      "slots": [
+        "label",
+        "value",
+        "delta",
+        "icon"
+      ],
+      "requires": "none",
+      "added": "2026-08-25",
+      "spec": "0.5",
+      "notes": "KPI 한 개. 4열 그리드로 나란히 놓는 용도. delta 는 data-trend=\"up|down|flat\"",
+      "path": "parts/card/stat-compact.html"
+    },
+    {
+      "part": "chart-frame",
+      "variant": "legend-side",
+      "source": "ColorlibHQ/AdminLTE",
+      "fits": [
+        "card",
+        "section"
+      ],
+      "mood": [
+        "dense",
+        "corporate"
+      ],
+      "slots": [
+        "title",
+        "canvas",
+        "items",
+        "item",
+        "label",
+        "value"
+      ],
+      "requires": "badge.dot",
+      "added": "2026-08-25",
+      "spec": "0.5",
+      "notes": "좌 차트(도넛·파이) + 우 범례 목록(라벨·값). 구성비 표시용",
+      "path": "parts/chart-frame/legend-side.html"
+    },
+    {
+      "part": "chart-frame",
+      "variant": "sparkline-cell",
+      "source": "tabler/tabler",
+      "fits": [
+        "card.stat-compact",
+        "table"
+      ],
+      "mood": [
+        "dense",
+        "tech"
+      ],
+      "slots": [
+        "canvas"
+      ],
+      "requires": "none",
+      "added": "2026-08-25",
+      "spec": "0.5",
+      "notes": "텍스트 옆에 붙는 소형 추세선 틀(폭 80·높이 24). 축·제목 없음. 인라인 SVG 또는 canvas 삽입",
+      "path": "parts/chart-frame/sparkline-cell.html"
+    },
+    {
+      "part": "code-block",
+      "variant": "line-numbers",
+      "source": "original",
+      "fits": [
+        "section",
+        "card"
+      ],
+      "mood": [
+        "dense",
+        "tech"
+      ],
+      "slots": [
+        "body"
+      ],
+      "requires": "none",
+      "added": "2026-08-25",
+      "spec": "0.5",
+      "notes": "줄 번호 열 + 강조 줄(data-hl=\"3,5\"). 긴 코드 설명용. 줄 번호는 스크립트가 줄 수 세어 생성",
+      "path": "parts/code-block/line-numbers.html"
+    },
+    {
+      "part": "code-block",
+      "variant": "terminal",
+      "source": "original",
+      "fits": [
+        "section",
+        "hero",
+        "card"
+      ],
+      "mood": [
+        "dense",
+        "tech"
+      ],
+      "slots": [
+        "title",
+        "body"
+      ],
+      "requires": "none",
+      "added": "2026-08-25",
+      "spec": "0.5",
+      "notes": "터미널 창 모양(신호등 점 + 프롬프트). 설치 명령·CLI 데모용. $ 로 시작하는 줄이 명령, 나머지는 출력색",
+      "path": "parts/code-block/terminal.html"
+    },
+    {
+      "part": "code-block",
+      "variant": "titled-copy",
+      "source": "satnaing/shadcn-admin",
+      "fits": [
+        "section",
+        "card",
+        "modal"
+      ],
+      "mood": [
+        "dense",
+        "tech"
+      ],
+      "slots": [
+        "title",
+        "body"
+      ],
+      "requires": "none",
+      "added": "2026-08-25",
+      "spec": "0.5",
+      "notes": "상단 바에 파일명/언어 + 복사 버튼. 복사 성공 시 버튼 텍스트 2초 교체",
+      "path": "parts/code-block/titled-copy.html"
+    },
+    {
+      "part": "empty-state",
+      "variant": "error",
+      "source": "satnaing/shadcn-admin",
+      "fits": [
+        "any"
+      ],
+      "mood": [
+        "airy",
+        "tech"
+      ],
+      "slots": [
+        "value",
+        "title",
+        "body",
+        "cta"
+      ],
+      "requires": "button.solid",
+      "added": "2026-08-25",
+      "spec": "0.5",
+      "notes": "404·500·권한 없음 전체 페이지. 큰 코드 숫자 + 설명 + 돌아가기. data-code 로 숫자",
+      "path": "parts/empty-state/error.html"
+    },
+    {
+      "part": "empty-state",
+      "variant": "illustration",
+      "source": "original",
+      "fits": [
+        "frame.scroll-stack",
+        "frame.sidebar-shell"
+      ],
+      "mood": [
+        "airy",
+        "playful"
+      ],
+      "slots": [
+        "illustration",
+        "title",
+        "body",
+        "cta",
+        "cta-secondary"
+      ],
+      "requires": "button.solid, button.outline",
+      "added": "2026-08-25",
+      "spec": "0.5",
+      "notes": "페이지 전체가 비었을 때(첫 방문·검색 결과 없음). 일러스트는 accent-soft 위에 accent 선화. 행동 버튼 두 개까지",
+      "path": "parts/empty-state/illustration.html"
+    },
+    {
+      "part": "empty-state",
+      "variant": "inline-row",
+      "source": "tabler/tabler",
+      "fits": [
+        "table",
+        "feed",
+        "sidebar"
+      ],
+      "mood": [
+        "dense",
+        "corporate"
+      ],
+      "slots": [
+        "icon",
+        "body",
+        "cta"
+      ],
+      "requires": "button.ghost",
+      "added": "2026-08-25",
+      "spec": "0.5",
+      "notes": "한 줄짜리. 표 tbody 안이나 목록 끝에 끼워 넣는 용도. 높이가 행 하나 수준",
+      "path": "parts/empty-state/inline-row.html"
+    },
+    {
+      "part": "empty-state",
+      "variant": "minimal",
+      "source": "original",
+      "fits": [
+        "any"
+      ],
+      "mood": [
+        "dense",
+        "corporate"
+      ],
+      "slots": [
+        "icon",
+        "title",
+        "body",
+        "cta"
+      ],
+      "requires": "button.solid",
+      "added": "2026-08-25",
+      "spec": "0.5",
+      "notes": "표·목록·카드 안 인라인용. 점선 테두리로 \"비어 있는 영역\"임을 표시. 본문은 다음 행동을 안내하는 한 문장",
+      "path": "parts/empty-state/minimal.html"
+    },
+    {
+      "part": "faq",
+      "variant": "grouped-tabs",
+      "source": "original",
+      "fits": [
+        "frame.scroll-stack",
+        "frame.sidebar-shell"
+      ],
+      "mood": [
+        "dense",
+        "corporate"
+      ],
+      "slots": [
+        "title",
+        "items",
+        "item",
+        "label",
+        "body"
+      ],
+      "requires": "tabs.pill",
+      "added": "2026-08-25",
+      "spec": "0.5",
+      "notes": "카테고리별 그룹. 상단 카테고리 칩(data-group)으로 필터링. 질문 15개 이상인 헬프센터용",
+      "path": "parts/faq/grouped-tabs.html"
+    },
+    {
+      "part": "faq",
+      "variant": "inline-list",
+      "source": "original",
+      "fits": [
+        "card",
+        "section",
+        "modal"
+      ],
+      "mood": [
+        "dense",
+        "tech"
+      ],
+      "slots": [
+        "items",
+        "item",
+        "label",
+        "body"
+      ],
+      "requires": "none",
+      "added": "2026-08-25",
+      "spec": "0.5",
+      "notes": "제목 없이 Q/A 마커만 붙는 컴팩트 목록. 카드·사이드 패널 안 \"이 항목에 대한 도움말\"용",
+      "path": "parts/faq/inline-list.html"
+    },
+    {
+      "part": "faq",
+      "variant": "two-column",
+      "source": "thedevdojo/tails",
+      "fits": [
+        "frame.scroll-stack",
+        "section"
+      ],
+      "mood": [
+        "airy",
+        "editorial"
+      ],
+      "slots": [
+        "title",
+        "subtitle",
+        "items",
+        "item",
+        "label",
+        "body"
+      ],
+      "requires": "none",
+      "added": "2026-08-25",
+      "spec": "0.5",
+      "notes": "접지 않고 전부 펼친 2열 그리드. 질문 6~8개일 때. 좌측에 제목 블록 고정도 가능(data-layout=\"side\")",
+      "path": "parts/faq/two-column.html"
+    },
+    {
+      "part": "feed",
+      "variant": "activity",
+      "source": "ColorlibHQ/gentelella",
+      "fits": [
+        "card",
+        "frame.sidebar-shell"
+      ],
+      "mood": [
+        "dense",
+        "corporate"
+      ],
+      "slots": [
+        "items",
+        "item",
+        "image",
+        "title",
+        "body",
+        "meta"
+      ],
+      "requires": "avatar.circle",
+      "added": "2026-08-25",
+      "spec": "0.5",
+      "notes": "아바타 + \"누가 무엇을\" 한 줄 + 시각. 대시보드 최근 활동용",
+      "path": "parts/feed/activity.html"
+    },
+    {
+      "part": "feed",
+      "variant": "comments",
+      "source": "tabler/tabler",
+      "fits": [
+        "section",
+        "modal",
+        "card"
+      ],
+      "mood": [
+        "airy",
+        "editorial"
+      ],
+      "slots": [
+        "items",
+        "item",
+        "image",
+        "title",
+        "meta",
+        "body",
+        "cta"
+      ],
+      "requires": "avatar.with-name, form.stacked-fields",
+      "added": "2026-08-25",
+      "spec": "0.5",
+      "notes": "댓글 스레드. 답글은 data-depth=\"2\" 로 들여쓰기. 하단에 입력 폼 슬롯",
+      "path": "parts/feed/comments.html"
+    },
+    {
+      "part": "feed",
+      "variant": "notifications",
+      "source": "satnaing/shadcn-admin",
+      "fits": [
+        "modal.drawer",
+        "topbar",
+        "card"
+      ],
+      "mood": [
+        "dense",
+        "tech"
+      ],
+      "slots": [
+        "items",
+        "item",
+        "icon",
+        "title",
+        "body",
+        "meta"
+      ],
+      "requires": "badge.count",
+      "added": "2026-08-25",
+      "spec": "0.5",
+      "notes": "알림 센터 목록. 읽지 않음은 data-unread=\"true\"(좌측 점 + 배경). 드롭다운·드로어 안에서 사용",
+      "path": "parts/feed/notifications.html"
+    },
+    {
+      "part": "footer",
+      "variant": "centered-social",
+      "source": "startbootstrap/startbootstrap-agency",
+      "fits": [
+        "frame.scroll-stack"
+      ],
+      "mood": [
+        "airy",
+        "editorial"
+      ],
+      "slots": [
+        "logo",
+        "nav",
+        "items",
+        "meta"
+      ],
+      "requires": "none",
+      "added": "2026-08-25",
+      "spec": "0.5",
+      "notes": "로고·링크·소셜 아이콘·저작권이 세로 중앙 정렬. 포트폴리오·개인 사이트용",
+      "path": "parts/footer/centered-social.html"
+    },
+    {
+      "part": "footer",
+      "variant": "minimal-line",
+      "source": "tabler/tabler",
+      "fits": [
+        "frame.sidebar-shell",
+        "frame.paper-a4"
+      ],
+      "mood": [
+        "dense",
+        "corporate"
+      ],
+      "slots": [
+        "meta",
+        "nav"
+      ],
+      "requires": "none",
+      "added": "2026-08-25",
+      "spec": "0.5",
+      "notes": "한 줄. 좌 저작권, 우 링크 2~3개. 어드민·문서용",
+      "path": "parts/footer/minimal-line.html"
+    },
+    {
+      "part": "form",
+      "variant": "filter-bar",
+      "source": "ColorlibHQ/AdminLTE",
+      "fits": [
+        "table",
+        "section"
+      ],
+      "mood": [
+        "dense",
+        "corporate"
+      ],
+      "slots": [
+        "fields",
+        "cta"
+      ],
+      "requires": "button.outline, button.ghost",
+      "added": "2026-08-25",
+      "spec": "0.5",
+      "notes": "표 위 가로 필터 줄. 검색·셀렉트·기간·버튼이 한 줄, 좁으면 줄바꿈. 적용된 필터 수는 badge.count 로",
+      "path": "parts/form/filter-bar.html"
+    },
+    {
+      "part": "form",
+      "variant": "login-card",
+      "source": "ColorlibHQ/gentelella",
+      "fits": [
+        "any"
+      ],
+      "mood": [
+        "dense",
+        "corporate"
+      ],
+      "slots": [
+        "logo",
+        "title",
+        "body",
+        "fields",
+        "cta",
+        "meta"
+      ],
+      "requires": "button.solid",
+      "added": "2026-08-25",
+      "spec": "0.5",
+      "notes": "중앙 카드형 로그인. 이메일·비밀번호·기억하기. 페이지 중앙 배치는 조립 단계(frame 없이 body flex)",
+      "path": "parts/form/login-card.html"
+    },
+    {
+      "part": "form",
+      "variant": "search-bar",
+      "source": "tabler/tabler",
+      "fits": [
+        "topbar",
+        "section",
+        "hero"
+      ],
+      "mood": [
+        "airy",
+        "tech"
+      ],
+      "slots": [
+        "cta"
+      ],
+      "requires": "none",
+      "added": "2026-08-25",
+      "spec": "0.5",
+      "notes": "큰 검색창 + 단축키 힌트(⌘K). 문서 사이트·히어로 아래용. data-size=\"lg\" 로 히어로 크기",
+      "path": "parts/form/search-bar.html"
+    },
+    {
+      "part": "form",
+      "variant": "stacked-fields",
+      "source": "original",
+      "fits": [
+        "modal",
+        "section",
+        "card"
+      ],
+      "mood": [
+        "airy",
+        "corporate"
+      ],
+      "slots": [
+        "title",
+        "fields",
+        "cta"
+      ],
+      "requires": "button.solid, button.outline",
+      "added": "2026-08-25",
+      "spec": "0.5",
+      "notes": "일반 입력 폼. 라벨 위·입력 아래, 도움말·오류 줄 포함. 오류는 .hdk-form__field[data-invalid=\"true\"]",
+      "path": "parts/form/stacked-fields.html"
+    },
+    {
+      "part": "frame",
+      "variant": "paper-a4",
+      "source": "sparksuite/simple-html-invoice-template",
+      "fits": [
+        "any"
+      ],
+      "mood": [
+        "airy",
+        "corporate"
+      ],
+      "slots": [
+        "content"
+      ],
+      "requires": "none",
+      "added": "2026-08-25",
+      "spec": "0.5",
+      "notes": "문서 골격. 화면에서는 종이 한 장이 회색 배경 위에 떠 있고, 인쇄 시 배경·그림자 제거 + A4 여백. 인보이스·보고서·명세서용",
+      "path": "parts/frame/paper-a4.html"
+    },
+    {
+      "part": "frame",
+      "variant": "sidebar-shell",
+      "source": "ColorlibHQ/gentelella",
+      "fits": [
+        "any"
+      ],
+      "mood": [
+        "dense",
+        "corporate"
+      ],
+      "slots": [
+        "sidebar",
+        "topbar",
+        "content",
+        "footer"
+      ],
+      "requires": "none",
+      "added": "2026-08-25",
+      "spec": "0.5",
+      "notes": "어드민 골격. 좌 사이드바 고정 + 상단 바 + 스크롤 콘텐츠. md 미만: 사이드바 오프캔버스(data-open=\"true\" 로 열림). data-collapsed=\"true\" 면 아이콘 폭",
+      "path": "parts/frame/sidebar-shell.html"
+    },
+    {
+      "part": "hero",
+      "variant": "fullbleed-image",
+      "source": "startbootstrap/startbootstrap-agency",
+      "fits": [
+        "frame.scroll-stack"
+      ],
+      "mood": [
+        "airy",
+        "editorial"
+      ],
+      "slots": [
+        "image",
+        "eyebrow",
+        "title",
+        "subtitle",
+        "cta"
+      ],
+      "requires": "button.solid",
+      "added": "2026-08-25",
+      "spec": "0.5",
+      "notes": "배경 이미지 풀폭 + 어두운 오버레이 + 흰 텍스트. 글자색은 테마와 무관하게 이미지 위 대비용으로 accent-fg 대신 --hero-fg 보조 변수 사용",
+      "path": "parts/hero/fullbleed-image.html"
+    },
+    {
+      "part": "hero",
+      "variant": "stat-band",
+      "source": "thedevdojo/tails",
+      "fits": [
+        "frame.scroll-stack"
+      ],
+      "mood": [
+        "dense",
+        "corporate"
+      ],
+      "slots": [
+        "title",
+        "subtitle",
+        "cta",
+        "items",
+        "item",
+        "value",
+        "label"
+      ],
+      "requires": "button.solid",
+      "added": "2026-08-25",
+      "spec": "0.5",
+      "notes": "좌 제목/CTA, 우 큰 숫자 3~4개. 성과·규모를 앞세우는 B2B 랜딩용",
+      "path": "parts/hero/stat-band.html"
+    },
+    {
+      "part": "modal",
+      "variant": "confirm",
+      "source": "original",
+      "fits": [
+        "any"
+      ],
+      "mood": [
+        "airy",
+        "corporate"
+      ],
+      "slots": [
+        "icon",
+        "title",
+        "body",
+        "cta"
+      ],
+      "requires": "button.solid, button.outline",
+      "added": "2026-08-25",
+      "spec": "0.5",
+      "notes": "파괴적 행동 확인용 소형 대화상자. 아이콘 원 + 중앙 정렬 + 버튼 2개 가로 꽉. data-tone=\"danger|warning\"",
+      "path": "parts/modal/confirm.html"
+    },
+    {
+      "part": "modal",
+      "variant": "dialog",
+      "source": "ColorlibHQ/gentelella",
+      "fits": [
+        "any"
+      ],
+      "mood": [
+        "dense",
+        "corporate"
+      ],
+      "slots": [
+        "title",
+        "body",
+        "cta"
+      ],
+      "requires": "button.solid, button.outline, button.ghost",
+      "added": "2026-08-25",
+      "spec": "0.5",
+      "notes": "중앙 대화상자. <dialog> 기반. 열기: root.querySelector('dialog').showModal(). 프리뷰용으로 data-inline=\"true\" 면 정적 렌더",
+      "path": "parts/modal/dialog.html"
+    },
+    {
+      "part": "modal",
+      "variant": "drawer",
+      "source": "satnaing/shadcn-admin",
+      "fits": [
+        "frame.sidebar-shell",
+        "frame.scroll-stack"
+      ],
+      "mood": [
+        "dense",
+        "tech"
+      ],
+      "slots": [
+        "title",
+        "body",
+        "cta"
+      ],
+      "requires": "button.solid",
+      "added": "2026-08-25",
+      "spec": "0.5",
+      "notes": "우측에서 슬라이드되는 패널. 상세 보기·편집 폼용. data-open=\"true\" 로 열림, data-side=\"left\" 가능",
+      "path": "parts/modal/drawer.html"
+    },
+    {
+      "part": "modal",
+      "variant": "toast",
+      "source": "tabler/tabler",
+      "fits": [
+        "any"
+      ],
+      "mood": [
+        "dense",
+        "tech"
+      ],
+      "slots": [
+        "title",
+        "body"
+      ],
+      "requires": "none",
+      "added": "2026-08-25",
+      "spec": "0.5",
+      "notes": "우하단 알림. data-tone=\"success|warning|danger|info\". 조립 단계에서 position:fixed 컨테이너에 append. 프리뷰는 data-inline",
+      "path": "parts/modal/toast.html"
+    },
+    {
+      "part": "pagination",
+      "variant": "compact",
+      "source": "tabler/tabler",
+      "fits": [
+        "table",
+        "card"
+      ],
+      "mood": [
+        "dense",
+        "tech"
+      ],
+      "slots": [
+        "meta"
+      ],
+      "requires": "button.outline",
+      "added": "2026-08-25",
+      "spec": "0.5",
+      "notes": "\"1–20 / 1,284\" 텍스트 + 이전/다음 두 버튼. 표 푸터 우측용",
+      "path": "parts/pagination/compact.html"
+    },
+    {
+      "part": "pagination",
+      "variant": "dots",
+      "source": "original",
+      "fits": [
+        "slider",
+        "hero"
+      ],
+      "mood": [
+        "airy",
+        "playful"
+      ],
+      "slots": [
+        "items",
+        "item"
+      ],
+      "requires": "none",
+      "added": "2026-08-25",
+      "spec": "0.5",
+      "notes": "슬라이더 하단 점 인디케이터. 현재는 길쭉한 알약. 클릭 시 data-index 이벤트는 조립 단계에서 슬라이더와 연결",
+      "path": "parts/pagination/dots.html"
+    },
+    {
+      "part": "pagination",
+      "variant": "load-more",
+      "source": "original",
+      "fits": [
+        "feed",
+        "section"
+      ],
+      "mood": [
+        "airy",
+        "editorial"
+      ],
+      "slots": [
+        "meta",
+        "cta"
+      ],
+      "requires": "button.outline",
+      "added": "2026-08-25",
+      "spec": "0.5",
+      "notes": "페이지 번호 대신 \"더 보기\" 버튼 + 남은 개수. 피드·갤러리용",
+      "path": "parts/pagination/load-more.html"
+    },
+    {
+      "part": "pagination",
+      "variant": "numbered",
+      "source": "ColorlibHQ/gentelella",
+      "fits": [
+        "table",
+        "feed"
+      ],
+      "mood": [
+        "dense",
+        "corporate"
+      ],
+      "slots": [
+        "items",
+        "item"
+      ],
+      "requires": "none",
+      "added": "2026-08-25",
+      "spec": "0.5",
+      "notes": "이전/번호/다음. 현재 페이지 aria-current=\"page\". 생략은 <span>…</span>",
+      "path": "parts/pagination/numbered.html"
+    },
+    {
+      "part": "pricing",
+      "variant": "compact-cards",
+      "source": "satnaing/shadcn-admin",
+      "fits": [
+        "modal",
+        "frame.sidebar-shell",
+        "section"
+      ],
+      "mood": [
+        "dense",
+        "corporate"
+      ],
+      "slots": [
+        "items",
+        "item",
+        "label",
+        "value",
+        "body",
+        "cta"
+      ],
+      "requires": "button.outline",
+      "added": "2026-08-25",
+      "spec": "0.5",
+      "notes": "앱 내부(설정·업그레이드 모달)용 작은 가로 카드. 현재 플랜은 data-current=\"true\"",
+      "path": "parts/pricing/compact-cards.html"
+    },
+    {
+      "part": "pricing",
+      "variant": "single-plan",
+      "source": "thedevdojo/tails",
+      "fits": [
+        "frame.scroll-stack",
+        "section"
+      ],
+      "mood": [
+        "airy",
+        "editorial"
+      ],
+      "slots": [
+        "title",
+        "body",
+        "items",
+        "value",
+        "meta",
+        "cta"
+      ],
+      "requires": "button.solid",
+      "added": "2026-08-25",
+      "spec": "0.5",
+      "notes": "요금제가 하나일 때. 좌 설명+기능 목록, 우 큰 가격 박스",
+      "path": "parts/pricing/single-plan.html"
+    },
+    {
+      "part": "pricing",
+      "variant": "toggle-period",
+      "source": "thedevdojo/tails",
+      "fits": [
+        "frame.scroll-stack"
+      ],
+      "mood": [
+        "airy",
+        "corporate"
+      ],
+      "slots": [
+        "title",
+        "items",
+        "item",
+        "label",
+        "value",
+        "body",
+        "cta"
+      ],
+      "requires": "tabs.pill, button.solid",
+      "added": "2026-08-25",
+      "spec": "0.5",
+      "notes": "월/연 토글로 가격이 바뀌는 2열. 값은 data-monthly / data-yearly 속성에 두고 스크립트가 교체",
+      "path": "parts/pricing/toggle-period.html"
+    },
+    {
+      "part": "section",
+      "variant": "cta-band",
+      "source": "thedevdojo/tails",
+      "fits": [
+        "frame.scroll-stack"
+      ],
+      "mood": [
+        "airy",
+        "corporate"
+      ],
+      "slots": [
+        "title",
+        "body",
+        "cta",
+        "cta-secondary"
+      ],
+      "requires": "button.solid, button.outline",
+      "added": "2026-08-25",
+      "spec": "0.5",
+      "notes": "accent 배경의 풀폭 행동 유도 띠. 랜딩 끝·요금제 뒤. 글자는 accent-fg",
+      "path": "parts/section/cta-band.html"
+    },
+    {
+      "part": "sidebar",
+      "variant": "accordion-groups",
+      "source": "ColorlibHQ/AdminLTE",
+      "fits": [
+        "frame.sidebar-shell"
+      ],
+      "mood": [
+        "dense",
+        "corporate"
+      ],
+      "slots": [
+        "logo",
+        "items",
+        "item",
+        "label",
+        "children"
+      ],
+      "requires": "none",
+      "added": "2026-08-25",
+      "spec": "0.5",
+      "notes": "상위 메뉴를 펼치면 하위 메뉴가 나오는 트리형. 메뉴가 20개 이상일 때. <details> 기반이라 JS 없음",
+      "path": "parts/sidebar/accordion-groups.html"
+    },
+    {
+      "part": "sidebar",
+      "variant": "collapsible-icon",
+      "source": "ColorlibHQ/gentelella",
+      "fits": [
+        "frame.sidebar-shell"
+      ],
+      "mood": [
+        "dense",
+        "corporate"
+      ],
+      "slots": [
+        "logo",
+        "items",
+        "item",
+        "icon",
+        "label",
+        "meta"
+      ],
+      "requires": "badge.count",
+      "added": "2026-08-25",
+      "spec": "0.5",
+      "notes": "그룹 라벨 + 아이콘/텍스트 메뉴. 부모 frame 이 data-collapsed=\"true\" 면 라벨 숨김(아이콘만). 활성 항목은 aria-current=\"page\"",
+      "path": "parts/sidebar/collapsible-icon.html"
+    },
+    {
+      "part": "sidebar",
+      "variant": "rail-icons",
+      "source": "satnaing/shadcn-admin",
+      "fits": [
+        "frame.sidebar-shell"
+      ],
+      "mood": [
+        "dense",
+        "tech"
+      ],
+      "slots": [
+        "logo",
+        "items",
+        "item",
+        "icon",
+        "label"
+      ],
+      "requires": "none",
+      "added": "2026-08-25",
+      "spec": "0.5",
+      "notes": "항상 아이콘만 보이는 좁은 레일(64px). 라벨은 hover 툴팁. frame 의 --hdk-sidebar-w 를 --hdk-sidebar-w-min 으로 두고 쓴다",
+      "path": "parts/sidebar/rail-icons.html"
+    },
+    {
+      "part": "slider",
+      "variant": "logo-marquee",
+      "source": "thedevdojo/tails",
+      "fits": [
+        "frame.scroll-stack",
+        "section"
+      ],
+      "mood": [
+        "airy",
+        "corporate"
+      ],
+      "slots": [
+        "title",
+        "items",
+        "item",
+        "logo"
+      ],
+      "requires": "none",
+      "added": "2026-08-25",
+      "spec": "0.5",
+      "notes": "고객사 로고가 가로로 흐르는 띠. 조작 없음, hover 정지. 로고는 회색조(opacity) → hover 원색",
+      "path": "parts/slider/logo-marquee.html"
+    },
+    {
+      "part": "slider",
+      "variant": "thumbnail-strip",
+      "source": "original",
+      "fits": [
+        "section",
+        "modal"
+      ],
+      "mood": [
+        "dense",
+        "tech"
+      ],
+      "slots": [
+        "items",
+        "item",
+        "image"
+      ],
+      "requires": "none",
+      "added": "2026-08-25",
+      "spec": "0.5",
+      "notes": "큰 이미지 + 아래 썸네일 줄. 상품·스크린샷 갤러리. 썸네일 클릭이 data-dot 역할",
+      "path": "parts/slider/thumbnail-strip.html"
+    },
+    {
+      "part": "table",
+      "variant": "comparison-matrix",
+      "source": "thedevdojo/tails",
+      "fits": [
+        "frame.scroll-stack",
+        "pricing"
+      ],
+      "mood": [
+        "airy",
+        "corporate"
+      ],
+      "slots": [
+        "items",
+        "item"
+      ],
+      "requires": "none",
+      "added": "2026-08-25",
+      "spec": "0.5",
+      "notes": "기능 × 요금제 비교표. 첫 열 고정, 체크/대시 셀은 data-yes=\"true|false\". 강조 열은 <col data-featured>",
+      "path": "parts/table/comparison-matrix.html"
+    },
+    {
+      "part": "table",
+      "variant": "data-grid",
+      "source": "ColorlibHQ/gentelella",
+      "fits": [
+        "frame.sidebar-shell",
+        "section",
+        "card"
+      ],
+      "mood": [
+        "dense",
+        "corporate"
+      ],
+      "slots": [
+        "title",
+        "actions",
+        "items",
+        "item",
+        "meta"
+      ],
+      "requires": "badge.pill, button.ghost, pagination",
+      "added": "2026-08-25",
+      "spec": "0.5",
+      "notes": "어드민 데이터 표. 헤더 행 고정(sticky), 행 hover, 숫자 열은 data-align=\"num\". 작은 화면에서는 가로 스크롤",
+      "path": "parts/table/data-grid.html"
+    },
+    {
+      "part": "table",
+      "variant": "document",
+      "source": "sparksuite/simple-html-invoice-template",
+      "fits": [
+        "frame.paper-a4"
+      ],
+      "mood": [
+        "airy",
+        "corporate"
+      ],
+      "slots": [
+        "title",
+        "items",
+        "item",
+        "total"
+      ],
+      "requires": "none",
+      "added": "2026-08-25",
+      "spec": "0.5",
+      "notes": "인보이스·명세서 항목 표. 얇은 밑줄, 합계 행 강조, 인쇄 시 색 유지. 금액 열은 data-align=\"num\"",
+      "path": "parts/table/document.html"
+    },
+    {
+      "part": "table",
+      "variant": "striped-compact",
+      "source": "ColorlibHQ/AdminLTE",
+      "fits": [
+        "card",
+        "section",
+        "modal"
+      ],
+      "mood": [
+        "dense",
+        "corporate"
+      ],
+      "slots": [
+        "items",
+        "item"
+      ],
+      "requires": "none",
+      "added": "2026-08-25",
+      "spec": "0.5",
+      "notes": "헤더·액션 없는 순수 표. 줄무늬, 촘촘한 행. 카드 안 요약 표나 모달 내 목록용",
+      "path": "parts/table/striped-compact.html"
+    },
+    {
+      "part": "tabs",
+      "variant": "card-attached",
+      "source": "ColorlibHQ/gentelella",
+      "fits": [
+        "section",
+        "card"
+      ],
+      "mood": [
+        "dense",
+        "corporate"
+      ],
+      "slots": [
+        "items",
+        "item",
+        "label",
+        "panels",
+        "panel"
+      ],
+      "requires": "none",
+      "added": "2026-08-25",
+      "spec": "0.5",
+      "notes": "활성 탭이 아래 카드와 이어지는 폴더 탭 형태. 탭 내용이 카드 안에서 보여야 할 때",
+      "path": "parts/tabs/card-attached.html"
+    },
+    {
+      "part": "tabs",
+      "variant": "pill",
+      "source": "original",
+      "fits": [
+        "any"
+      ],
+      "mood": [
+        "dense",
+        "tech"
+      ],
+      "slots": [
+        "items",
+        "item",
+        "label",
+        "panels",
+        "panel"
+      ],
+      "requires": "none",
+      "added": "2026-08-25",
+      "spec": "0.5",
+      "notes": "트랙 안에서 활성 탭이 채워진 알약 형태. 세그먼트 컨트롤(뷰 전환·기간 선택)용. 탭 3~5개 권장",
+      "path": "parts/tabs/pill.html"
+    },
+    {
+      "part": "tabs",
+      "variant": "underline",
+      "source": "ColorlibHQ/gentelella",
+      "fits": [
+        "frame.sidebar-shell",
+        "frame.scroll-stack",
+        "section"
+      ],
+      "mood": [
+        "dense",
+        "corporate"
+      ],
+      "slots": [
+        "items",
+        "item",
+        "label",
+        "panels",
+        "panel"
+      ],
+      "requires": "none",
+      "added": "2026-08-25",
+      "spec": "0.5",
+      "notes": "하단 밑줄로 활성 표시. 페이지·카드 상단 뷰 전환용. 활성 탭은 aria-selected=\"true\". 슬라이딩 인디케이터는 JS로 계산",
+      "path": "parts/tabs/underline.html"
+    },
+    {
+      "part": "tabs",
+      "variant": "vertical",
+      "source": "tabler/tabler",
+      "fits": [
+        "frame.sidebar-shell",
+        "section"
+      ],
+      "mood": [
+        "dense",
+        "corporate"
+      ],
+      "slots": [
+        "items",
+        "item",
+        "label",
+        "panels",
+        "panel"
+      ],
+      "requires": "none",
+      "added": "2026-08-25",
+      "spec": "0.5",
+      "notes": "좌측 세로 탭 + 우측 패널. 설정 페이지(계정/알림/보안 …)용. md 미만: 탭이 가로 스크롤로 전환",
+      "path": "parts/tabs/vertical.html"
+    },
+    {
+      "part": "timeline",
+      "variant": "alternating",
+      "source": "startbootstrap/startbootstrap-agency",
+      "fits": [
+        "frame.scroll-stack",
+        "section"
+      ],
+      "mood": [
+        "airy",
+        "editorial"
+      ],
+      "slots": [
+        "title",
+        "items",
+        "item",
+        "meta",
+        "title",
+        "body"
+      ],
+      "requires": "none",
+      "added": "2026-08-25",
+      "spec": "0.5",
+      "notes": "중앙선 기준 좌우 번갈아. 회사 연혁·프로젝트 여정용. md 미만: vertical 과 같은 한 줄",
+      "path": "parts/timeline/alternating.html"
+    },
+    {
+      "part": "timeline",
+      "variant": "compact-log",
+      "source": "original",
+      "fits": [
+        "card",
+        "modal.drawer",
+        "table"
+      ],
+      "mood": [
+        "dense",
+        "tech"
+      ],
+      "slots": [
+        "items",
+        "item",
+        "meta",
+        "label",
+        "body"
+      ],
+      "requires": "badge.outline",
+      "added": "2026-08-25",
+      "spec": "0.5",
+      "notes": "시각·태그·한 줄 메시지만. 배포 로그·감사 로그용. 모노 폰트, 점·선 없음",
+      "path": "parts/timeline/compact-log.html"
+    },
+    {
+      "part": "timeline",
+      "variant": "horizontal-steps",
+      "source": "tabler/tabler",
+      "fits": [
+        "card",
+        "modal",
+        "form"
+      ],
+      "mood": [
+        "dense",
+        "corporate"
+      ],
+      "slots": [
+        "items",
+        "item",
+        "label"
+      ],
+      "requires": "none",
+      "added": "2026-08-25",
+      "spec": "0.5",
+      "notes": "가로 진행 단계(스테퍼). 완료 data-state=\"done\", 현재 \"current\", 대기 없음. 주문 추적·마법사 폼용",
+      "path": "parts/timeline/horizontal-steps.html"
+    },
+    {
+      "part": "timeline",
+      "variant": "vertical",
+      "source": "ColorlibHQ/AdminLTE",
+      "fits": [
+        "card",
+        "section",
+        "modal.drawer"
+      ],
+      "mood": [
+        "dense",
+        "corporate"
+      ],
+      "slots": [
+        "items",
+        "item",
+        "meta",
+        "title",
+        "body"
+      ],
+      "requires": "none",
+      "added": "2026-08-25",
+      "spec": "0.5",
+      "notes": "좌측 세로선 + 점. 이력·변경 로그. 점 색은 data-tone",
+      "path": "parts/timeline/vertical.html"
+    },
+    {
+      "part": "topbar",
+      "variant": "admin-bar",
+      "source": "ColorlibHQ/gentelella",
+      "fits": [
+        "frame.sidebar-shell"
+      ],
+      "mood": [
+        "dense",
+        "corporate"
+      ],
+      "slots": [
+        "title",
+        "search",
+        "actions",
+        "user"
+      ],
+      "requires": "button.ghost, avatar",
+      "added": "2026-08-25",
+      "spec": "0.5",
+      "notes": "좌측 사이드바 토글 + 페이지 제목, 중앙 검색, 우측 액션·사용자. 토글 버튼은 data-action=\"toggle-sidebar\" 로 frame 이 받음",
+      "path": "parts/topbar/admin-bar.html"
+    },
+    {
+      "part": "topbar",
+      "variant": "centered-logo",
+      "source": "startbootstrap/startbootstrap-agency",
+      "fits": [
+        "frame.scroll-stack"
+      ],
+      "mood": [
+        "airy",
+        "editorial"
+      ],
+      "slots": [
+        "logo",
+        "nav"
+      ],
+      "requires": "none",
+      "added": "2026-08-25",
+      "spec": "0.5",
+      "notes": "로고 중앙, 링크가 양쪽으로 갈라짐. 브랜드·포트폴리오용. md 미만: 로고만 + 햄버거",
+      "path": "parts/topbar/centered-logo.html"
+    },
+    {
+      "part": "topbar",
+      "variant": "tab-strip",
+      "source": "tabler/tabler",
+      "fits": [
+        "frame.sidebar-shell"
+      ],
+      "mood": [
+        "dense",
+        "tech"
+      ],
+      "slots": [
+        "title",
+        "items",
+        "item",
+        "actions"
+      ],
+      "requires": "button.solid",
+      "added": "2026-08-25",
+      "spec": "0.5",
+      "notes": "상단 바 아래에 페이지 내 섹션 탭이 붙은 2단 헤더. 설정·상세 페이지용. 높이가 topbar-h 의 2배이므로 frame 의 --hdk-topbar-h 를 조립 시 조정",
+      "path": "parts/topbar/tab-strip.html"
+    }
+  ],
+  "themes": [
+    "corporate",
+    "indigo"
+  ]
+}

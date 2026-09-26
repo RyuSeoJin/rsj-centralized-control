@@ -1,0 +1,31 @@
+<!--
+part: code-block
+variant: line-numbers
+source: original
+fits: section, card
+mood: dense, tech
+slots: body
+requires: none
+added: 2026-08-25
+spec: 0.5
+notes: 줄 번호 열 + 강조 줄(data-hl="3,5"). 긴 코드 설명용. 줄 번호는 스크립트가 줄 수 세어 생성
+-->
+<section data-part="code-block" data-variant="line-numbers" data-init="code-block.line-numbers" class="hdk-code-block hdk-code-block--line-numbers" data-hl="2">
+<style>
+.hdk-code-block--line-numbers { display: grid; grid-template-columns: auto 1fr; background: var(--hdk-bg-elev); border: 1px solid var(--hdk-line); border-radius: var(--hdk-radius-md); overflow: hidden; font-family: var(--hdk-font-mono); font-size: var(--hdk-fs-sm); line-height: var(--hdk-lh-loose); }
+.hdk-code-block--line-numbers .hdk-code-block__nums { margin: 0; padding: var(--hdk-sp-4) var(--hdk-sp-3); text-align: right; color: var(--hdk-fg-faint); background: var(--hdk-bg-elev-2); border-right: 1px solid var(--hdk-line); user-select: none; }
+.hdk-code-block--line-numbers pre { margin: 0; padding: var(--hdk-sp-4); overflow-x: auto; }
+.hdk-code-block--line-numbers .hdk-code-block__line { display: block; margin: 0 calc(-1 * var(--hdk-sp-4)); padding: 0 var(--hdk-sp-4); }
+.hdk-code-block--line-numbers .hdk-code-block__line[data-hl="true"] { background: var(--hdk-accent-soft); box-shadow: inset 2px 0 0 var(--hdk-accent); }
+</style>
+  <pre class="hdk-code-block__nums" aria-hidden="true"></pre>
+  <pre><code data-slot="body">function assemble(parts) {
+  return parts.map(load).join("");
+}
+assemble(catalog);</code></pre>
+<script>
+hdk.register('code-block.line-numbers', function (root) {const r=root,c=r.querySelector('code'),hl=(r.dataset.hl||'').split(',').map(Number);
+const lines=c.textContent.split('\n');c.innerHTML=lines.map((l,i)=>`<span class="hdk-code-block__line" ${hl.includes(i+1)?'data-hl="true"':''}>${l.replace(/</g,'&lt;')||' '}</span>`).join('\n');
+r.querySelector('.hdk-code-block__nums').textContent=lines.map((_,i)=>i+1).join('\n');});
+</script>
+</section>

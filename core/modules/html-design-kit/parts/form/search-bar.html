@@ -1,0 +1,25 @@
+<!--
+part: form
+variant: search-bar
+source: tabler/tabler
+fits: topbar, section, hero
+mood: airy, tech
+slots: cta
+requires: none
+added: 2026-08-25
+spec: 0.5
+notes: 큰 검색창 + 단축키 힌트(⌘K). 문서 사이트·히어로 아래용. data-size="lg" 로 히어로 크기
+-->
+<section data-part="form" data-variant="search-bar" class="hdk-form hdk-form--search-bar">
+<style>
+.hdk-form--search-bar { position: relative; display: flex; align-items: center; max-width: 560px; }
+.hdk-form--search-bar .hdk-form__icon { position: absolute; left: var(--hdk-sp-3); width: 18px; height: 18px; color: var(--hdk-fg-faint); pointer-events: none; }
+.hdk-form--search-bar input { width: 100%; padding: var(--hdk-sp-3) var(--hdk-sp-8) var(--hdk-sp-3) var(--hdk-sp-7); background: var(--hdk-bg-elev); border: 1px solid var(--hdk-line); border-radius: var(--hdk-radius-full); font-size: var(--hdk-fs-md); box-shadow: var(--hdk-shadow-sm); }
+.hdk-form--search-bar input:focus { outline: none; border-color: var(--hdk-accent); box-shadow: var(--hdk-focus-ring); }
+.hdk-form--search-bar .hdk-form__kbd { position: absolute; right: var(--hdk-sp-3); padding: 2px var(--hdk-sp-2); font-family: var(--hdk-font-mono); font-size: var(--hdk-fs-xs); color: var(--hdk-fg-faint); background: var(--hdk-bg-elev-2); border: 1px solid var(--hdk-line); border-radius: var(--hdk-radius-sm); }
+.hdk-form--search-bar[data-size="lg"] input { padding-top: var(--hdk-sp-4); padding-bottom: var(--hdk-sp-4); font-size: var(--hdk-fs-lg); }
+</style>
+  <svg class="hdk-form__icon" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="8" cy="8" r="5.5"/><path d="M12 12l4 4"/></svg>
+  <input type="search" placeholder="검색어 입력 자리" aria-label="검색">
+  <kbd class="hdk-form__kbd">⌘K</kbd>
+</section>

@@ -1,0 +1,33 @@
+<!--
+part: hero
+variant: stat-band
+source: thedevdojo/tails
+fits: frame.scroll-stack
+mood: dense, corporate
+slots: title, subtitle, cta, items, item, value, label
+requires: button.solid
+added: 2026-08-25
+spec: 0.5
+notes: 좌 제목/CTA, 우 큰 숫자 3~4개. 성과·규모를 앞세우는 B2B 랜딩용
+-->
+<section data-part="hero" data-variant="stat-band" class="hdk-hero hdk-hero--stat-band">
+<style>
+.hdk-hero--stat-band { padding: var(--hdk-sp-8) var(--hdk-sp-4); background: var(--hdk-bg-elev); border-bottom: 1px solid var(--hdk-line); }
+.hdk-hero--stat-band .hdk-hero__inner { max-width: var(--hdk-container); margin: 0 auto; display: grid; gap: var(--hdk-sp-6); }
+.hdk-hero--stat-band .hdk-hero__title { margin: 0 0 var(--hdk-sp-3); font-family: var(--hdk-font-display); font-size: var(--hdk-fs-2xl); font-weight: var(--hdk-fw-bold); line-height: var(--hdk-lh-tight); letter-spacing: -0.02em; }
+.hdk-hero--stat-band .hdk-hero__subtitle { margin: 0 0 var(--hdk-sp-4); color: var(--hdk-fg-muted); max-width: 48ch; }
+.hdk-hero--stat-band .hdk-hero__stats { display: grid; grid-template-columns: 1fr 1fr; gap: var(--hdk-sp-4); align-content: center; }
+.hdk-hero--stat-band .hdk-hero__value { margin: 0; font-family: var(--hdk-font-display); font-size: var(--hdk-fs-2xl); font-weight: var(--hdk-fw-bold); line-height: 1; color: var(--hdk-accent); font-variant-numeric: tabular-nums; }
+.hdk-hero--stat-band .hdk-hero__label { margin: var(--hdk-sp-1) 0 0; font-size: var(--hdk-fs-xs); color: var(--hdk-fg-muted); letter-spacing: var(--hdk-tracking-caps); text-transform: uppercase; }
+@media (min-width: 1024px) { .hdk-hero--stat-band .hdk-hero__inner { grid-template-columns: 3fr 2fr; } .hdk-hero--stat-band .hdk-hero__title { font-size: var(--hdk-fs-3xl); } } /* md */
+</style>
+  <div class="hdk-hero__inner">
+    <div><h1 class="hdk-hero__title" data-slot="title">제목 자리</h1><p class="hdk-hero__subtitle" data-slot="subtitle">부제 자리</p><div data-slot="cta"><!-- button.solid lg --></div></div>
+    <div class="hdk-hero__stats" data-slot="items">
+      <div data-slot="item"><p class="hdk-hero__value" data-slot="value">0</p><p class="hdk-hero__label" data-slot="label">지표 라벨</p></div>
+      <div><p class="hdk-hero__value">0</p><p class="hdk-hero__label">지표 라벨</p></div>
+      <div><p class="hdk-hero__value">0</p><p class="hdk-hero__label">지표 라벨</p></div>
+      <div><p class="hdk-hero__value">0</p><p class="hdk-hero__label">지표 라벨</p></div>
+    </div>
+  </div>
+</section>

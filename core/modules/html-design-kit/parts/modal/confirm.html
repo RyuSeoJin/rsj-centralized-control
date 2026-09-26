@@ -1,0 +1,32 @@
+<!--
+part: modal
+variant: confirm
+source: original
+fits: any
+mood: airy, corporate
+slots: icon, title, body, cta
+requires: button.solid, button.outline
+added: 2026-08-25
+spec: 0.5
+notes: 파괴적 행동 확인용 소형 대화상자. 아이콘 원 + 중앙 정렬 + 버튼 2개 가로 꽉. data-tone="danger|warning"
+-->
+<section data-part="modal" data-variant="confirm" class="hdk-modal hdk-modal--confirm" data-tone="danger">
+<style>
+.hdk-modal--confirm dialog { width: min(380px, calc(100vw - var(--hdk-sp-6))); padding: var(--hdk-sp-6) var(--hdk-sp-5) var(--hdk-sp-5); border: 1px solid var(--hdk-line); border-radius: var(--hdk-radius-lg); background: var(--hdk-bg-elev-2); color: var(--hdk-fg); box-shadow: var(--hdk-shadow-lg); text-align: center; }
+.hdk-modal--confirm dialog::backdrop { background: var(--hdk-fg); opacity: .4; }
+.hdk-modal--confirm[data-inline="true"] dialog { display: block; position: static; margin: 0; }
+.hdk-modal--confirm .hdk-modal__icon { width: 48px; height: 48px; margin: 0 auto var(--hdk-sp-4); display: grid; place-items: center; border-radius: var(--hdk-radius-full); background: var(--hdk-danger-soft); color: var(--hdk-danger); }
+.hdk-modal--confirm[data-tone="warning"] .hdk-modal__icon { background: var(--hdk-warning-soft); color: var(--hdk-warning); }
+.hdk-modal--confirm .hdk-modal__icon svg { width: 22px; height: 22px; }
+.hdk-modal--confirm .hdk-modal__title { margin: 0 0 var(--hdk-sp-2); font-size: var(--hdk-fs-lg); font-weight: var(--hdk-fw-bold); }
+.hdk-modal--confirm .hdk-modal__body { margin: 0 0 var(--hdk-sp-5); color: var(--hdk-fg-muted); font-size: var(--hdk-fs-sm); }
+.hdk-modal--confirm .hdk-modal__cta { display: grid; grid-template-columns: 1fr 1fr; gap: var(--hdk-sp-2); }
+.hdk-modal--confirm .hdk-modal__cta [data-part="button"], .hdk-modal--confirm .hdk-modal__cta .hdk-button__btn { width: 100%; justify-content: center; }
+</style>
+  <dialog>
+    <div class="hdk-modal__icon" data-slot="icon"><svg viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M11 7v5M11 15h.01"/><circle cx="11" cy="11" r="8"/></svg></div>
+    <h3 class="hdk-modal__title" data-slot="title">정말 삭제할까요?</h3>
+    <p class="hdk-modal__body" data-slot="body">되돌릴 수 없는 작업이라는 설명 자리</p>
+    <div class="hdk-modal__cta" data-slot="cta"><!-- button.outline "취소" · button.solid danger "삭제" --></div>
+  </dialog>
+</section>

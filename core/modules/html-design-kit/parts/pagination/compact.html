@@ -1,0 +1,25 @@
+<!--
+part: pagination
+variant: compact
+source: tabler/tabler
+fits: table, card
+mood: dense, tech
+slots: meta
+requires: button.outline
+added: 2026-08-25
+spec: 0.5
+notes: "1–20 / 1,284" 텍스트 + 이전/다음 두 버튼. 표 푸터 우측용
+-->
+<section data-part="pagination" data-variant="compact" class="hdk-pagination hdk-pagination--compact">
+<style>
+.hdk-pagination--compact { display: inline-flex; align-items: center; gap: var(--hdk-sp-3); font-size: var(--hdk-fs-xs); color: var(--hdk-fg-muted); }
+.hdk-pagination--compact .hdk-pagination__meta { font-family: var(--hdk-font-mono); font-variant-numeric: tabular-nums; }
+.hdk-pagination--compact .hdk-pagination__nav { display: inline-flex; border: 1px solid var(--hdk-line-strong); border-radius: var(--hdk-radius-md); overflow: hidden; }
+.hdk-pagination--compact button { width: 30px; height: 28px; border: 0; background: var(--hdk-bg-elev); color: var(--hdk-fg-muted); cursor: pointer; }
+.hdk-pagination--compact button + button { border-left: 1px solid var(--hdk-line-strong); }
+.hdk-pagination--compact button:hover { background: var(--hdk-bg-elev-2); color: var(--hdk-fg); }
+.hdk-pagination--compact button:disabled { opacity: .4; cursor: not-allowed; }
+</style>
+  <span class="hdk-pagination__meta" data-slot="meta">1–20 / 0</span>
+  <span class="hdk-pagination__nav"><button type="button" disabled aria-label="이전">‹</button><button type="button" aria-label="다음">›</button></span>
+</section>

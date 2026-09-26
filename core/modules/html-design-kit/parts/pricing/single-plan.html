@@ -1,0 +1,31 @@
+<!--
+part: pricing
+variant: single-plan
+source: thedevdojo/tails
+fits: frame.scroll-stack, section
+mood: airy, editorial
+slots: title, body, items, value, meta, cta
+requires: button.solid
+added: 2026-08-25
+spec: 0.5
+notes: 요금제가 하나일 때. 좌 설명+기능 목록, 우 큰 가격 박스
+-->
+<section data-part="pricing" data-variant="single-plan" class="hdk-pricing hdk-pricing--single-plan">
+<style>
+.hdk-pricing--single-plan { padding: var(--hdk-sp-8) var(--hdk-sp-4); }
+.hdk-pricing--single-plan .hdk-pricing__inner { max-width: 900px; margin: 0 auto; display: grid; background: var(--hdk-bg-elev); border: 1px solid var(--hdk-line); border-radius: var(--hdk-radius-lg); overflow: hidden; }
+.hdk-pricing--single-plan .hdk-pricing__left { padding: var(--hdk-sp-6); }
+.hdk-pricing--single-plan .hdk-pricing__title { margin: 0 0 var(--hdk-sp-2); font-family: var(--hdk-font-display); font-size: var(--hdk-fs-xl); font-weight: var(--hdk-fw-bold); }
+.hdk-pricing--single-plan .hdk-pricing__body { margin: 0 0 var(--hdk-sp-4); color: var(--hdk-fg-muted); }
+.hdk-pricing--single-plan .hdk-pricing__list { margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: 1fr 1fr; gap: var(--hdk-sp-2); font-size: var(--hdk-fs-sm); }
+.hdk-pricing--single-plan .hdk-pricing__list li::before { content: "✓ "; color: var(--hdk-success); }
+.hdk-pricing--single-plan .hdk-pricing__right { padding: var(--hdk-sp-6); background: var(--hdk-bg-elev-2); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: var(--hdk-sp-2); }
+.hdk-pricing--single-plan .hdk-pricing__value { margin: 0; font-family: var(--hdk-font-display); font-size: var(--hdk-fs-3xl); font-weight: var(--hdk-fw-bold); line-height: 1; }
+.hdk-pricing--single-plan .hdk-pricing__meta { margin: 0 0 var(--hdk-sp-3); font-size: var(--hdk-fs-xs); color: var(--hdk-fg-faint); }
+@media (min-width: 1024px) { .hdk-pricing--single-plan .hdk-pricing__inner { grid-template-columns: 2fr 1fr; } } /* md */
+</style>
+  <div class="hdk-pricing__inner">
+    <div class="hdk-pricing__left"><h2 class="hdk-pricing__title" data-slot="title">요금제 이름 자리</h2><p class="hdk-pricing__body" data-slot="body">설명 자리</p><ul class="hdk-pricing__list" data-slot="items"><li>기능 자리</li><li>기능 자리</li><li>기능 자리</li><li>기능 자리</li></ul></div>
+    <div class="hdk-pricing__right"><p class="hdk-pricing__value" data-slot="value">₩0</p><p class="hdk-pricing__meta" data-slot="meta">청구 단위 자리</p><div data-slot="cta"><!-- button.solid lg --></div></div>
+  </div>
+</section>

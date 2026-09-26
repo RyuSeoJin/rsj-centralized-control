@@ -9,11 +9,11 @@
 
 무엇을 만드나
 ------------
-  projects/{슬러그}/
+  {프로젝트 자리}/{제품}/{슬러그}/        프로젝트 자리 = workspace.json project_roots의 첫 항목
       {슬러그}-change-log.md · {슬러그}-remaining-work.md · {슬러그}-dictionary.md
       {슬러그}-modules.json          어느 모듈을 켰는가 (처음에는 비어 있습니다)
       spec/design/ · spec/rationale/ · spec/archive/
-      test-case/ · analysis/ · reference/
+      analysis/ · reference/
       rules/                         이 프로젝트에서만 통하는 규칙이 자라는 자리
       docs/                          읽는 HTML이 놓이는 자리 (regen.py가 채웁니다)
 
@@ -28,7 +28,7 @@
 
 사용법
 ------
-    python core/base/scripts/new_project.py {슬러그}
+    python core/base/scripts/new_project.py {제품}/{슬러그}
 """
 import argparse
 import datetime
@@ -36,11 +36,16 @@ import io
 import json
 import os
 import sys
+import tempfile
+from pathlib import Path
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from project_structure import load_structure, local_path  # noqa: E402
+from project_paths import validate_key, new_project_base  # noqa: E402
 
 #: 프로젝트면 반드시 갖는 폴더. 규칙 정본은 rules/project-scaffold.md이며,
 #: 여기 목록과 그 문서가 어긋나면 문서 쪽이 정본입니다
 DIRS = ("spec/design", "spec/rationale", "spec/archive",
-        "test-case", "analysis", "reference", "rules", "docs")
+        "analysis", "reference", "rules", "docs")
 
 #: (서식 파일, 만들 파일의 꼬리)
 DOCS = (("change-log.md", "-change-log.md"),
@@ -69,6 +74,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("slug", help="프로젝트 슬러그 (kebab-case). 폴더 이름이자 파일 접두입니다")
     ap.add_argument("--repo-root", default=None)
+    ap.add_argument("--structure", help="폴더 역할을 정의한 구조 JSON. 생략하면 기존 기본 구조를 만듭니다")
     args = ap.parse_args()
     # 한글 출력이 콘솔 기본 인코딩으로 나가면, 다른 도구가 받아 읽을 때 깨집니다.
     # 오류는 stderr로 나가므로 둘 다 맞춥니다
@@ -79,21 +85,40 @@ def main():
             pass
 
     slug = args.slug.strip()
-    if not slug or slug != slug.lower() or " " in slug or "_" in slug:
-        sys.exit("슬러그는 소문자 kebab-case여야 합니다 (예: my-app)")
+    try:
+        parts = validate_key(slug)
+    except ValueError as error:
+        sys.exit(str(error))
 
     root = args.repo_root or repo_root()
-    proj = os.path.join(root, "projects", slug)
+    base = str(new_project_base(root))
+    if len(parts) == 2 and os.path.isfile(os.path.join(base, parts[0], parts[0] + '-modules.json')):
+        sys.exit('업무 프로젝트 안에는 다른 업무 프로젝트를 만들 수 없습니다')
+    proj = os.path.join(base, slug)
     if os.path.exists(proj):
         sys.exit("이미 있습니다: %s" % proj)
+    project_key = slug
+    slug = parts[-1]
+    structure = None
+    directories = DIRS
+    if args.structure:
+        structure = json.loads(Path(args.structure).read_text(encoding='utf-8'))
+        with tempfile.TemporaryDirectory() as tmp:
+            candidate = Path(tmp) / slug
+            candidate.mkdir()
+            (candidate / (slug + '-structure.json')).write_text(json.dumps(structure), encoding='utf-8')
+            load_structure(candidate, require_files=False)
+        if structure.get('jobs') or any(r['kind'] != 'directory' for r in structure['resources']):
+            sys.exit('새 프로젝트 구조에는 폴더만 등록합니다. 내용과 생성기는 작성 후 등록합니다')
+        directories = tuple(dict.fromkeys(['rules', 'docs'] + [r['path'] for r in structure['resources']]))
 
     tpl_dir = os.path.join(core_root(), "base", "design-template", "project")
     today = datetime.date.today().isoformat()
 
     made = []
-    for d in DIRS:
+    for d in directories:
         p = os.path.join(proj, *d.split("/"))
-        os.makedirs(p)
+        os.makedirs(p, exist_ok=True)
         # 빈 폴더는 git이 버리므로 자리를 지킬 파일을 하나 둔다
         io.open(os.path.join(p, ".gitkeep"), "w", encoding="utf-8").close()
         made.append(d + "/")
@@ -113,13 +138,16 @@ def main():
                  encoding="utf-8", newline="") as f:
         json.dump({"on": []}, f, ensure_ascii=False, indent=2)
     made.append(slug + "-modules.json")
+    if structure:
+        Path(proj, slug + '-structure.json').write_text(json.dumps(structure, ensure_ascii=False, indent=2)+'\n', encoding='utf-8')
+        made.append(slug + '-structure.json')
 
-    print("만듦: projects/%s" % slug)
+    print("만듦: %s" % os.path.relpath(proj, root).replace(os.sep, "/"))
     for m in made:
         print("   " + m)
     print("")
     print("다음 - change-log의 프로젝트 정의를 채우고, 필요한 모듈을 켭니다.")
-    print("  python core/base/scripts/module.py list " + slug)
+    print("  python core/base/scripts/module.py list " + project_key)
     return 0
 
 

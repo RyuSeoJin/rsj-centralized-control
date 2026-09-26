@@ -1,0 +1,32 @@
+<!--
+part: badge
+variant: dot
+source: original
+fits: any
+mood: airy, editorial
+slots: label
+requires: none
+added: 2026-08-25
+spec: 0.5
+notes: 색 점 + 텍스트. 배경 없이 가벼움. 목록·타임라인·범례용. data-tone 은 pill 과 동일
+-->
+<section data-part="badge" data-variant="dot" class="hdk-badge hdk-badge--dot" data-tone="neutral">
+<style>
+.hdk-badge--dot { display: inline-flex; }
+.hdk-badge--dot .hdk-badge__chip {
+  display: inline-flex; align-items: center; gap: var(--hdk-sp-2);
+  font-size: var(--hdk-fs-sm); color: var(--hdk-fg-muted); line-height: var(--hdk-lh-tight);
+  white-space: nowrap;
+}
+.hdk-badge--dot .hdk-badge__chip::before {
+  content: ""; width: 8px; height: 8px; border-radius: var(--hdk-radius-full); /* 구조 치수 */
+  background: var(--hdk-fg-faint); flex: none;
+}
+.hdk-badge--dot[data-tone="accent"]  .hdk-badge__chip::before { background: var(--hdk-accent); }
+.hdk-badge--dot[data-tone="success"] .hdk-badge__chip::before { background: var(--hdk-success); }
+.hdk-badge--dot[data-tone="warning"] .hdk-badge__chip::before { background: var(--hdk-warning); }
+.hdk-badge--dot[data-tone="danger"]  .hdk-badge__chip::before { background: var(--hdk-danger); }
+.hdk-badge--dot[data-tone="info"]    .hdk-badge__chip::before { background: var(--hdk-info); }
+</style>
+  <span class="hdk-badge__chip" data-slot="label">상태 라벨</span>
+</section>

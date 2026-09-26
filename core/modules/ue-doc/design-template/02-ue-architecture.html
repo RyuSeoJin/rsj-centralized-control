@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>02 · 아키텍처 설계 템플릿 — UE 문서 디자인 시스템 v1.3</title>
+<link rel="stylesheet" href="../../../base/design-guide/design-guide-ue-master.css">
+<!-- ============================================================
+     CHANGELOG — 02-ue-architecture.html
+     아키텍처/기능 구현 문서 템플릿. 작업 규약: core/base/rules/change-log-writing.md §4
+     이관 · 2026-09-27 (버전 변경 없음)
+       - (변경) 중앙 저장소 core/로 옮김 — 마스터 링크를 ../../../base/design-guide/로 고치고,
+         저장소마다 자리가 다른 문서 허브 링크를 뺌
+     · 2026-07-20 — (반응형) 마스터 v1.9 .tbl 모바일 가로 스크롤 반영. 템플릿은 <link>로 master.css를 참조하므로 자동 적용(파일 내용·자체 버전 무변경).
+     v1.3 · 2026-07-02
+       - (변경) 문서 허브 이동(ue-wiki/ue-architect/ → ue-wiki/) 반영: nav 허브 링크 갱신
+     v1.2 · 2026-07-02
+       - (변경) 폴더 재구조화: design-guide/ → design-template/ 로 이동
+       - (변경) 마스터 CSS·비주얼 링크를 ../design-guide/ 상대경로로 갱신
+       - (변경) 작업 규약 경로 design-guide/ → doc-process/DOC-GENERATION-PLAYBOOK.md
+     v1.1 · 2026-07-01
+       - 신규 생성. C++/아키텍처 설계 문서 템플릿.
+       - 컴포넌트: 클래스 계층 트리, 클래스 관계도(.rel-map),
+         책임 배치 결정표(.tbl .owner), .h/.cpp 코드 탭(.codeblock, 복사+오프라인 JS)
+       - 문서 템플릿 A(아키텍처 패턴)·B(기능 구현 명세)
+       - 파일명 02-cpp-architecture.html → 02-ue-architecture.html, 라벨 톤 정리
+       - nav에 문서 허브(design-guide-ue-index.html) 링크 추가
+     ============================================================ -->
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">UE DESIGN SYSTEM · 02 ARCHITECTURE</div>
+  <div class="nav-links">
+    <a href="../../../base/design-guide/design-guide-ue-master-visual.html">← 마스터</a>
+    <a href="01-ue-asset-analysis.html">← 에셋 분석</a>
+    <a href="#components">컴포넌트</a>
+    <a href="#code">코드 탭</a>
+    <a href="#template-a">템플릿 A</a>
+    <a href="#template-b">템플릿 B</a>
+  </div>
+</nav>
+
+<div class="hero">
+  <div class="hero-eyebrow">Design System · v1.3 · Architecture</div>
+  <h1>UE 아키텍처<br><span>설계 템플릿</span></h1>
+  <p class="hero-sub">
+    "이 기능을 어느 클래스에, 어떻게 나눠 설계할지"와 "그대로 복사할 수 있는 <code>.h</code>/<code>.cpp</code> 코드"를 담는 문서용 컴포넌트·템플릿입니다. GameMode·PlayerController·GameInstance·SaveGame 같은 프레임워크 클래스의 책임 분배를 시각화하고, 하이라이팅이 구워진 코드 탭으로 오프라인에서도 완결됩니다. 토대는 <a href="../../../base/design-guide/design-guide-ue-master-visual.html" style="color:var(--accent)">디자인 마스터</a>를 따릅니다.
+  </p>
+  <div class="hero-meta">
+    <span class="badge badge-blue">클래스 관계도</span>
+    <span class="badge badge-green">.h / .cpp 코드 탭</span>
+    <span class="badge badge-purple">책임 배치 결정표</span>
+  </div>
+</div>
+
+<div class="content">
+
+  <!-- 04 컴포넌트 -->
+  <div class="section" id="components">
+    <div class="section-label">04 — 아키텍처 전용 컴포넌트</div>
+    <h2>아키텍처를 그리는 블록들</h2>
+    <p>범용 블록(콜아웃·파이프라인·표 등)은 <a href="../../../base/design-guide/design-guide-ue-master-visual.html#base" style="color:var(--accent)">디자인 마스터</a>에 있습니다. 여기서는 <strong>클래스 관계·책임·코드</strong>를 표현하는 전용 컴포넌트만 다룹니다.</p>
+
+    <h3>프레임워크 클래스 컬러 범례</h3>
+    <div class="demo"><div class="demo-head">Live</div><div class="demo-body">
+      <div class="legend">
+        <span><span class="dot" style="background:var(--ue-gamemode)"></span>GameMode</span>
+        <span><span class="dot" style="background:var(--ue-gamestate)"></span>GameState</span>
+        <span><span class="dot" style="background:var(--ue-controller)"></span>PlayerController</span>
+        <span><span class="dot" style="background:var(--ue-pawn)"></span>Pawn/Character</span>
+        <span><span class="dot" style="background:var(--ue-instance)"></span>GameInstance</span>
+        <span><span class="dot" style="background:var(--ue-savegame)"></span>SaveGame</span>
+        <span><span class="dot" style="background:var(--ue-subsystem)"></span>Subsystem</span>
+      </div>
+    </div></div>
+
+    <h3>클래스 계층 트리 <span style="color:var(--text-dim);font-size:12px;font-weight:400">(엔진 → 프로젝트 상속)</span></h3>
+    <div class="demo"><div class="demo-head">Live</div><div class="demo-body">
+      <div class="tree"><span class="note">// 엔진 클래스 → 프로젝트 클래스</span>
+AGameModeBase
+└── <span class="c-gamemode">AMyGameMode</span>          <span class="note">← 매치 규칙·스폰</span>
+APlayerController
+└── <span class="c-controller">AMyPlayerController</span>  <span class="note">← 입력·카메라</span>
+ACharacter
+└── <span class="c-pawn">AMyCharacter</span>          <span class="note">← 조종 대상</span>
+UGameInstance
+└── <span class="c-instance">UMyGameInstance</span>      <span class="note">← 세션 영속</span>
+USaveGame
+└── <span class="c-savegame">UMySaveGame</span>          <span class="note">← 저장 데이터</span></div>
+    </div></div>
+
+    <h3>클래스 관계도 <span style="color:var(--text-dim);font-size:12px;font-weight:400">(소유 · possess · 참조, 시그니처)</span></h3>
+    <div class="demo"><div class="demo-head">Live</div><div class="demo-body">
+      <div class="rel-map">
+        <div class="rel-row">
+          <div class="rel-node n-gamemode"><div class="rn-name">AMyGameMode</div><div class="rn-role">매치 규칙·스폰 권한 (서버)</div></div>
+          <div class="rel-arrow"><span class="ra-label">spawns</span><span class="ra-line">→</span></div>
+          <div class="rel-node n-controller"><div class="rn-name">AMyPlayerController</div><div class="rn-role">플레이어 입력·의도</div></div>
+        </div>
+        <div class="rel-row">
+          <div class="rel-node n-controller"><div class="rn-name">AMyPlayerController</div><div class="rn-role">입력을 폰에 전달</div></div>
+          <div class="rel-arrow"><span class="ra-label">possesses</span><span class="ra-line">→</span></div>
+          <div class="rel-node n-pawn"><div class="rn-name">AMyCharacter</div><div class="rn-role">물리적 표현·이동</div></div>
+        </div>
+        <div class="rel-row">
+          <div class="rel-node n-instance"><div class="rn-name">UMyGameInstance</div><div class="rn-role">세션 전역·영속</div></div>
+          <div class="rel-arrow"><span class="ra-label">writes</span><span class="ra-line">→</span></div>
+          <div class="rel-node n-savegame"><div class="rn-name">UMySaveGame</div><div class="rn-role">디스크 직렬화</div></div>
+        </div>
+      </div>
+    </div></div>
+
+    <h3>책임 배치 결정표 <span style="color:var(--text-dim);font-size:12px;font-weight:400">(무엇을 · 어디에 · 왜)</span></h3>
+    <div class="demo"><div class="demo-head">Live</div><div class="demo-body">
+      <table class="tbl" style="margin:0">
+        <tr><th>이 데이터 / 기능</th><th>둘 곳</th><th>근거</th></tr>
+        <tr><td>매치 규칙·승패 판정</td><td><span class="owner o-gamemode">GameMode</span></td><td>서버 권한이 필요한 규칙. 클라이언트엔 존재하지 않음.</td></tr>
+        <tr><td>모두가 봐야 할 점수판</td><td><span class="owner o-gamestate">GameState</span></td><td>전원에게 복제되는 공유 상태.</td></tr>
+        <tr><td>입력·카메라·UI 소유</td><td><span class="owner o-controller">PlayerController</span></td><td>플레이어별. 폰이 죽어도 유지됨.</td></tr>
+        <tr><td>체력·이동 등 물리 상태</td><td><span class="owner o-pawn">Pawn / Character</span></td><td>조종되는 몸에 붙는 상태.</td></tr>
+        <tr><td>레벨 전환에도 유지할 값</td><td><span class="owner o-instance">GameInstance</span></td><td>세션 내내 파괴되지 않음.</td></tr>
+        <tr><td>재실행 후에도 남을 값</td><td><span class="owner o-savegame">SaveGame</span></td><td>디스크에 직렬화되어 영속.</td></tr>
+      </table>
+    </div></div>
+    <div class="callout info"><span class="ic">🧭</span><p>이 표가 <strong>설계 로직의 핵심</strong>입니다. 기능 요청을 받으면 먼저 "데이터/기능을 이 표의 어느 행에 넣을지"를 정하고, 그 결정을 근거와 함께 문서에 남기세요.</p></div>
+
+    <h3>파일 태그 (인라인)</h3>
+    <div class="demo"><div class="demo-head">Live</div><div class="demo-body">
+      <p style="margin:0">헤더 <span class="filetag h">MyGameInstance.h</span> 에 선언하고, 구현은 <span class="filetag cpp">MyGameInstance.cpp</span> 에 둡니다.</p>
+    </div></div>
+  </div>
+
+  <!-- 코드 탭 -->
+  <div class="section" id="code">
+    <div class="section-label">04b — 코드 탭 (시그니처)</div>
+    <h2>.h / .cpp 복사 가능한 코드 블록</h2>
+    <p>탭으로 헤더와 소스를 전환하고, <strong>복사</strong> 버튼으로 현재 탭 전체를 그대로 가져갑니다. 하이라이팅은 <strong>생성 시점에 <code>&lt;span&gt;</code>으로 구워넣어</strong>, 인터넷·스크립트 없이도 색이 유지됩니다. (탭·복사만 오프라인 inline JS 사용)</p>
+
+    <div class="codeblock">
+      <div class="codeblock-bar">
+        <button class="codeblock-tab tab-h active" type="button">MyGameInstance.h</button>
+        <button class="codeblock-tab tab-cpp" type="button">MyGameInstance.cpp</button>
+        <button class="codeblock-copy" type="button">복사</button>
+      </div>
+      <div class="codeblock-panel active"><pre class="hljs"><span class="hljs-meta">#pragma once</span>
+
+<span class="hljs-meta">#include <span class="hljs-string">"CoreMinimal.h"</span></span>
+<span class="hljs-meta">#include <span class="hljs-string">"Engine/GameInstance.h"</span></span>
+<span class="hljs-meta">#include <span class="hljs-string">"MyGameInstance.generated.h"</span></span>
+
+<span class="hljs-meta">UCLASS()</span>
+<span class="hljs-keyword">class</span> MYGAME_API <span class="hljs-title class_">UMyGameInstance</span> : <span class="hljs-keyword">public</span> <span class="hljs-type">UGameInstance</span>
+{
+    <span class="hljs-meta">GENERATED_BODY()</span>
+
+<span class="hljs-keyword">public</span>:
+    <span class="hljs-comment">// 점수를 저장 슬롯에 기록한다.</span>
+    <span class="hljs-meta">UFUNCTION(BlueprintCallable, Category = "Save")</span>
+    <span class="hljs-keyword">void</span> <span class="hljs-title function_">SaveProgress</span>(<span class="hljs-type">int32</span> Score);
+
+    <span class="hljs-comment">// 저장된 점수를 읽어 반환한다. 없으면 0.</span>
+    <span class="hljs-meta">UFUNCTION(BlueprintCallable, Category = "Save")</span>
+    <span class="hljs-type">int32</span> <span class="hljs-title function_">LoadProgress</span>() <span class="hljs-keyword">const</span>;
+
+<span class="hljs-keyword">private</span>:
+    <span class="hljs-comment">// 저장 슬롯 이름 — 저장/로드가 같은 문자열을 쓰도록 한곳에서 관리</span>
+    <span class="hljs-keyword">static</span> <span class="hljs-keyword">const</span> <span class="hljs-type">FString</span> SlotName;
+};</pre></div>
+      <div class="codeblock-panel"><pre class="hljs"><span class="hljs-meta">#include <span class="hljs-string">"MyGameInstance.h"</span></span>
+<span class="hljs-meta">#include <span class="hljs-string">"MySaveGame.h"</span></span>
+<span class="hljs-meta">#include <span class="hljs-string">"Kismet/GameplayStatics.h"</span></span>
+
+<span class="hljs-comment">// 슬롯 이름의 실제 값 정의 — static 멤버는 .cpp에서 한 번만 정의한다</span>
+<span class="hljs-keyword">const</span> <span class="hljs-type">FString</span> <span class="hljs-title class_">UMyGameInstance</span>::SlotName = <span class="hljs-built_in">TEXT</span>(<span class="hljs-string">"PlayerSave"</span>);
+
+<span class="hljs-keyword">void</span> <span class="hljs-title class_">UMyGameInstance</span>::<span class="hljs-title function_">SaveProgress</span>(<span class="hljs-type">int32</span> Score)
+{
+    <span class="hljs-comment">// 1) 메모리에 빈 세이브 객체를 만든다 (아직 디스크에 안 씀)</span>
+    <span class="hljs-type">UMySaveGame</span>* Save = <span class="hljs-built_in">Cast</span>&lt;<span class="hljs-type">UMySaveGame</span>&gt;(
+        <span class="hljs-type">UGameplayStatics</span>::<span class="hljs-title function_">CreateSaveGameObject</span>(<span class="hljs-type">UMySaveGame</span>::<span class="hljs-title function_">StaticClass</span>()));
+
+    <span class="hljs-comment">// 2) 저장할 값을 채운 뒤 3) 슬롯 이름으로 디스크에 기록 (마지막 0은 유저 인덱스)</span>
+    Save-&gt;HighScore = Score;
+    <span class="hljs-type">UGameplayStatics</span>::<span class="hljs-title function_">SaveGameToSlot</span>(Save, SlotName, <span class="hljs-number">0</span>);
+}
+
+<span class="hljs-type">int32</span> <span class="hljs-title class_">UMyGameInstance</span>::<span class="hljs-title function_">LoadProgress</span>() <span class="hljs-keyword">const</span>
+{
+    <span class="hljs-comment">// 슬롯에서 읽기 — 저장 파일이 없으면 nullptr가 돌아온다</span>
+    <span class="hljs-type">UMySaveGame</span>* Save = <span class="hljs-built_in">Cast</span>&lt;<span class="hljs-type">UMySaveGame</span>&gt;(
+        <span class="hljs-type">UGameplayStatics</span>::<span class="hljs-title function_">LoadGameFromSlot</span>(SlotName, <span class="hljs-number">0</span>));
+
+    <span class="hljs-comment">// nullptr 체크 필수 — 첫 실행처럼 저장이 없을 때 크래시 방지</span>
+    <span class="hljs-keyword">return</span> Save ? Save-&gt;HighScore : <span class="hljs-number">0</span>;
+}</pre></div>
+    </div>
+
+    <div class="callout warn"><span class="ic">⚠️</span><p>탭·복사 <code>&lt;script&gt;</code>는 문서 맨 아래에 inline으로 둡니다(오프라인 동작). 복사 버튼은 현재 활성 탭의 <code>&lt;pre&gt;</code> 텍스트를 그대로 클립보드에 넣으므로, <strong>구워넣은 span은 복사 결과에 섞이지 않습니다.</strong></p></div>
+
+    <h3>토큰 색 매핑 (highlight.js 클래스)</h3>
+    <table class="tbl">
+      <tr><th>클래스</th><th>대상</th><th>색</th></tr>
+      <tr><td><code>.hljs-keyword</code></td><td>class · public · return · const · void</td><td>인디고 <code>--accent</code></td></tr>
+      <tr><td><code>.hljs-type</code> / <code>.hljs-built_in</code></td><td>FString · int32 · AActor · Cast · TEXT</td><td>틸 <code>--accent-3</code></td></tr>
+      <tr><td><code>.hljs-meta</code></td><td>#include · UCLASS · UPROPERTY · UFUNCTION</td><td>오렌지 <code>--ue-macro</code></td></tr>
+      <tr><td><code>.hljs-string</code></td><td>"..." 문자열·경로</td><td>그린 <code>--ue-demo</code></td></tr>
+      <tr><td><code>.hljs-number</code> / <code>.hljs-literal</code></td><td>0 · true · nullptr</td><td>퍼플 <code>--accent-2</code></td></tr>
+      <tr><td><code>.hljs-title.function_</code></td><td>함수 이름</td><td>밝은 텍스트 <code>--text</code></td></tr>
+      <tr><td><code>.hljs-comment</code></td><td>// 주석</td><td>흐림 <code>--text-dim</code> (이탤릭)</td></tr>
+    </table>
+    <div class="callout tip"><span class="ic">💡</span><p>실제 문서 생성 시: highlight.js로 코드를 한 번 하이라이팅한 결과 HTML을 <code>&lt;pre class="hljs"&gt;</code> 안에 붙여넣으면 됩니다. 위 클래스명이 그대로 이 팔레트에 매핑됩니다.</p></div>
+  </div>
+
+  <!-- 05 템플릿 A -->
+  <div class="section" id="template-a">
+    <div class="section-label">05 — 문서 템플릿 A</div>
+    <h2>아키텍처 패턴 레퍼런스</h2>
+    <p>"GameMode는 어떻게 설계하나", "SaveGame 저장 구조" 처럼 <strong>하나의 프레임워크 패턴/시스템을 설명</strong>하는 문서입니다. 요청 1·2(구조 설계 이해 + C++ 설계 요소)에 해당합니다.</p>
+
+    <div class="pipe-step"><div class="pipe-num">01</div><div class="pipe-body"><div class="pipe-title">개념 · 역할</div><div class="pipe-desc">이 클래스/시스템이 무엇이고 언제 쓰는지. 한 문장 정의 + 핵심 용어 callout + 구성 스탯.</div></div></div>
+    <div class="pipe-step"><div class="pipe-num">02</div><div class="pipe-body"><div class="pipe-title">클래스 관계도</div><div class="pipe-desc">클래스 계층 트리 + 관계도(소유·possess·참조) + 범례. 엔진 클래스와의 상속 관계를 명확히.</div></div></div>
+    <div class="pipe-step"><div class="pipe-num">03</div><div class="pipe-body"><div class="pipe-title">책임 분배</div><div class="pipe-desc">책임 배치 결정표로 "무엇을 어디에, 왜". 대표 클래스별 주요 멤버/함수 표.</div></div></div>
+    <div class="pipe-step"><div class="pipe-num">04</div><div class="pipe-body"><div class="pipe-title">데이터 흐름 · 생명주기</div><div class="pipe-desc">Arch 다이어그램으로 실행 순서(InitGame → Login → Possess 등). 서버/클라이언트 권한·복제 주의.</div></div></div>
+    <div class="pipe-step"><div class="pipe-num">05</div><div class="pipe-body"><div class="pipe-title">구현 스켈레톤</div><div class="pipe-desc">.h/.cpp 코드 탭으로 최소 동작 뼈대. 프로젝트/월드 세팅 등록 방법 파이프라인.</div></div></div>
+    <div class="pipe-step"><div class="pipe-num">06</div><div class="pipe-body"><div class="pipe-title">확장 & 주의</div><div class="pipe-desc">응용 아이디어 카드 그리드 + Pitfall 리스트(흔한 null 참조·권한 실수 등).</div></div></div>
+  </div>
+
+  <!-- 05 템플릿 B -->
+  <div class="section" id="template-b">
+    <div class="section-label">05 — 문서 템플릿 B</div>
+    <h2>기능 구현 명세</h2>
+    <p>"더블 점프를 넣어줘", "체크포인트 저장을 구현해줘" 처럼 <strong>구체 기능 요청을 받아 설계 + 복붙 코드로 답하는</strong> 문서입니다. 요청 3에 해당합니다.</p>
+
+    <div class="pipe-step"><div class="pipe-num">01</div><div class="pipe-body"><div class="pipe-title">요구사항</div><div class="pipe-desc">무엇을 만들지 한 문단 + 완료 기준 callout(체크리스트). 범위와 비범위를 분명히.</div></div></div>
+    <div class="pipe-step"><div class="pipe-num">02</div><div class="pipe-body"><div class="pipe-title">설계 결정</div><div class="pipe-desc">책임 배치 결정표로 "이 기능/데이터를 어느 클래스에, 왜". 후보 대안과 트레이드오프를 짧게.</div></div></div>
+    <div class="pipe-step"><div class="pipe-num">03</div><div class="pipe-body"><div class="pipe-title">클래스 구성</div><div class="pipe-desc">새로 만들/수정할 클래스 목록 카드 + 관계도. 변경 지점을 한눈에.</div></div></div>
+    <div class="pipe-step"><div class="pipe-num">04</div><div class="pipe-body"><div class="pipe-title">파일별 코드</div><div class="pipe-desc">파일마다 .h/.cpp 코드 탭(복사 가능, 하이라이팅 구워넣기). 그대로 붙여 컴파일되는 완결 코드.</div></div></div>
+    <div class="pipe-step"><div class="pipe-num">05</div><div class="pipe-body"><div class="pipe-title">등록 & 연결</div><div class="pipe-desc">프로젝트/월드 세팅 등록, 입력 매핑, 참조 연결을 번호 파이프라인으로.</div></div></div>
+    <div class="pipe-step"><div class="pipe-num">06</div><div class="pipe-body"><div class="pipe-title">검증 체크리스트</div><div class="pipe-desc">동작 확인 표(항목 → 기대 결과) + 컴파일/런타임 흔한 오류 Pitfall.</div></div></div>
+
+    <div class="callout info"><span class="ic">🧭</span><p>두 템플릿 모두 <strong>개념 → 관계 → 책임 → 코드 → 검증</strong>의 뼈대를 공유합니다. A는 "패턴을 이해"시키고, B는 "요청을 구현"합니다. 단순 기능이면 03을 02에 흡수해도 됩니다.</p></div>
+  </div>
+
+</div>
+
+<footer>
+  <span>UE 문서 디자인 시스템 · Architecture v1.3</span>
+  <span>기준 디자인: Dark · Indigo Minimal · Editorial</span>
+</footer>
+
+<!-- 코드 탭 전환 + 복사 (오프라인 inline · 실제 결과물에도 그대로 복사해 사용) -->
+<script>
+(function () {
+  document.querySelectorAll('.codeblock').forEach(function (block) {
+    var tabs = block.querySelectorAll('.codeblock-tab');
+    var panels = block.querySelectorAll('.codeblock-panel');
+    tabs.forEach(function (tab, i) {
+      tab.addEventListener('click', function () {
+        tabs.forEach(function (t) { t.classList.remove('active'); });
+        panels.forEach(function (p) { p.classList.remove('active'); });
+        tab.classList.add('active');
+        if (panels[i]) panels[i].classList.add('active');
+      });
+    });
+    var copyBtn = block.querySelector('.codeblock-copy');
+    if (copyBtn) {
+      copyBtn.addEventListener('click', function () {
+        var pre = block.querySelector('.codeblock-panel.active pre');
+        if (!pre) return;
+        var text = pre.innerText;
+        var done = function () {
+          copyBtn.textContent = '복사됨 ✓';
+          copyBtn.classList.add('copied');
+          setTimeout(function () {
+            copyBtn.textContent = '복사';
+            copyBtn.classList.remove('copied');
+          }, 1500);
+        };
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text).then(done).catch(function () { fallbackCopy(text, done); });
+        } else {
+          fallbackCopy(text, done);
+        }
+      });
+    }
+  });
+  function fallbackCopy(text, done) {
+    var ta = document.createElement('textarea');
+    ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); done(); } catch (e) {}
+    document.body.removeChild(ta);
+  }
+})();
+</script>
+
+</body>
+</html>

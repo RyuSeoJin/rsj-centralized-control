@@ -1,0 +1,37 @@
+<!--
+part: button
+variant: solid
+source: original
+fits: any
+mood: dense, corporate
+slots: label, icon
+requires: none
+added: 2026-08-25
+spec: 0.5
+notes: 주 행동(primary). 한 화면에 1개가 원칙. data-size="sm|md|lg", data-tone="accent|danger"
+-->
+<section data-part="button" data-variant="solid" class="hdk-button hdk-button--solid">
+<style>
+.hdk-button--solid { display: inline-flex; }
+.hdk-button--solid .hdk-button__btn {
+  display: inline-flex; align-items: center; gap: var(--hdk-sp-2);
+  padding: var(--hdk-sp-2) var(--hdk-sp-4);
+  background: var(--hdk-accent); color: var(--hdk-accent-fg);
+  border: 1px solid transparent; border-radius: var(--hdk-radius-md);
+  font-size: var(--hdk-fs-sm); font-weight: var(--hdk-fw-medium); line-height: var(--hdk-lh-tight);
+  cursor: pointer; white-space: nowrap;
+  transition: background var(--hdk-dur-fast) var(--hdk-ease), transform var(--hdk-dur-fast) var(--hdk-ease);
+}
+.hdk-button--solid .hdk-button__btn:hover { background: var(--hdk-accent-hover); }
+.hdk-button--solid .hdk-button__btn:active { transform: translateY(1px); }
+.hdk-button--solid .hdk-button__btn:disabled { opacity: .45; cursor: not-allowed; transform: none; }
+.hdk-button--solid .hdk-button__icon { width: 16px; height: 16px; flex: none; } /* 구조 치수 */
+.hdk-button--solid[data-size="sm"] .hdk-button__btn { padding: var(--hdk-sp-1) var(--hdk-sp-3); font-size: var(--hdk-fs-xs); }
+.hdk-button--solid[data-size="lg"] .hdk-button__btn { padding: var(--hdk-sp-3) var(--hdk-sp-5); font-size: var(--hdk-fs-md); }
+.hdk-button--solid[data-tone="danger"] .hdk-button__btn { background: var(--hdk-danger); color: var(--hdk-bg); }
+</style>
+  <button type="button" class="hdk-button__btn">
+    <svg class="hdk-button__icon" data-slot="icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 3v10M3 8h10"/></svg>
+    <span data-slot="label">버튼 라벨</span>
+  </button>
+</section>

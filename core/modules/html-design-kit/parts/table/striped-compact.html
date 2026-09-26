@@ -1,0 +1,25 @@
+<!--
+part: table
+variant: striped-compact
+source: ColorlibHQ/AdminLTE
+fits: card, section, modal
+mood: dense, corporate
+slots: items, item
+requires: none
+added: 2026-08-25
+spec: 0.5
+notes: 헤더·액션 없는 순수 표. 줄무늬, 촘촘한 행. 카드 안 요약 표나 모달 내 목록용
+-->
+<section data-part="table" data-variant="striped-compact" class="hdk-table hdk-table--striped-compact">
+<style>
+.hdk-table--striped-compact table { width: 100%; border-collapse: collapse; font-size: var(--hdk-fs-sm); }
+.hdk-table--striped-compact th { text-align: left; padding: var(--hdk-sp-2) var(--hdk-sp-3); font-size: var(--hdk-fs-xs); color: var(--hdk-fg-faint); font-weight: var(--hdk-fw-medium); border-bottom: 1px solid var(--hdk-line-strong); }
+.hdk-table--striped-compact td { padding: var(--hdk-sp-2) var(--hdk-sp-3); }
+.hdk-table--striped-compact tbody tr:nth-child(even) td { background: var(--hdk-bg-elev); }
+.hdk-table--striped-compact [data-align="num"] { text-align: right; font-variant-numeric: tabular-nums; font-family: var(--hdk-font-mono); }
+</style>
+  <table>
+    <thead><tr><th>열 라벨</th><th>열 라벨</th><th data-align="num">수치</th></tr></thead>
+    <tbody data-slot="items"><tr data-slot="item"><td>셀 값 자리</td><td>셀 값 자리</td><td data-align="num">0</td></tr><tr><td>셀 값 자리</td><td>셀 값 자리</td><td data-align="num">0</td></tr><tr><td>셀 값 자리</td><td>셀 값 자리</td><td data-align="num">0</td></tr></tbody>
+  </table>
+</section>

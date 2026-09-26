@@ -1,0 +1,54 @@
+/* tokens/base.css — 변수 이름의 단일 출처. 값은 기본값이며 테마가 덮어쓴다.
+   부품 파일은 이 변수를 사용만 하고 정의하지 않는다 (SPEC 4.1).
+   리셋은 reset.css 로 분리 — 이 파일은 변수만 정의하므로 어떤 페이지에 넣어도 부작용 없음. */
+:root, .hdk-root {
+  /* ── 색: 역할 이름. 실제 값은 themes/*.css 에서 라이트/다크 쌍으로 지정 ── */
+  --hdk-bg:            #ffffff;
+  --hdk-bg-elev:       #f6f6f8;
+  --hdk-bg-elev-2:     #ececf0;
+  --hdk-fg:            #1a1a1f;
+  --hdk-fg-muted:      #5f5f6c;
+  --hdk-fg-faint:      #9a9aa8;
+  --hdk-line:          #dedee5;
+  --hdk-line-strong:   #b8b8c4;
+  --hdk-accent:        #3b3bd6;
+  --hdk-accent-fg:     #ffffff;
+  --hdk-accent-soft:   #ebebfb;
+  --hdk-accent-hover:  #2f2fb4;
+  --hdk-success:       #1f8a4c;  --hdk-success-soft: #e3f5ea;
+  --hdk-warning:       #b4720a;  --hdk-warning-soft: #fbf0d9;
+  --hdk-danger:        #c2362f;  --hdk-danger-soft:  #fbe4e2;
+  --hdk-info:          #1c6fb5;  --hdk-info-soft:    #e0eefa;
+  --hdk-focus:         var(--hdk-accent);
+  --hdk-focus-ring:    0 0 0 3px var(--hdk-accent-soft);   /* 입력 포커스 링 */
+
+  /* ── 간격 (4px 스케일) ── */
+  --hdk-sp-1: 4px;  --hdk-sp-2: 8px;  --hdk-sp-3: 12px; --hdk-sp-4: 16px;
+  --hdk-sp-5: 24px; --hdk-sp-6: 32px; --hdk-sp-7: 48px; --hdk-sp-8: 64px; --hdk-sp-9: 96px;
+
+  /* ── 폰트 ── */
+  --hdk-font-sans:    system-ui, -apple-system, "Segoe UI", "Pretendard", "Noto Sans KR", sans-serif;
+  --hdk-font-mono:    ui-monospace, "SF Mono", "Cascadia Code", "JetBrains Mono", Consolas, monospace;
+  --hdk-font-display: var(--hdk-font-sans);
+  --hdk-fs-xs: 12px; --hdk-fs-sm: 14px; --hdk-fs-md: 16px; --hdk-fs-lg: 20px;
+  --hdk-fs-xl: 24px; --hdk-fs-2xl: 32px; --hdk-fs-3xl: 48px;
+  --hdk-lh-tight: 1.2; --hdk-lh-base: 1.5; --hdk-lh-loose: 1.7;
+  --hdk-fw-regular: 400; --hdk-fw-medium: 500; --hdk-fw-bold: 700;
+  --hdk-tracking-caps: 0.06em;
+
+  /* ── 형태 ── */
+  --hdk-radius-sm: 4px; --hdk-radius-md: 8px; --hdk-radius-lg: 16px; --hdk-radius-full: 999px;
+  --hdk-shadow-sm: 0 1px 2px rgba(0,0,0,.06);
+  --hdk-shadow-md: 0 4px 16px rgba(0,0,0,.10);
+  --hdk-shadow-lg: 0 12px 40px rgba(0,0,0,.16);
+  --hdk-border: 1px solid var(--hdk-line);
+
+  /* ── 레이아웃 ── */
+  --hdk-container: 1200px;
+  --hdk-sidebar-w: 260px; --hdk-sidebar-w-min: 64px;
+  --hdk-topbar-h: 56px;
+
+  /* ── 전환 ── */
+  --hdk-ease: cubic-bezier(.2,.8,.2,1);
+  --hdk-dur-fast: 120ms; --hdk-dur-base: 200ms; --hdk-dur-slow: 400ms;
+}

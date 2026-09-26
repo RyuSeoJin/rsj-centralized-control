@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>03 · 개발 플로우 로드맵 템플릿 — UE 문서 디자인 시스템 v1.0</title>
+<link rel="stylesheet" href="../../../base/design-guide/design-guide-ue-master.css">
+<!-- ============================================================
+     CHANGELOG — 03-ue-dev-flow.html
+     개발 플로우 로드맵 템플릿. 작업 규약: core/base/rules/change-log-writing.md §4
+     이관 · 2026-09-27 (버전 변경 없음)
+       - (변경) 중앙 저장소 core/로 옮김 — 마스터 링크를 ../../../base/design-guide/로 고치고,
+         저장소마다 자리가 다른 문서 허브 링크를 뺌
+     · 2026-07-20 — (반응형) 마스터 v1.9 .tbl 모바일 가로 스크롤 반영. 템플릿은 <link>로 master.css를 참조하므로 자동 적용(파일 내용·자체 버전 무변경).
+     v1.0 · 2026-07-05
+       - 신규 생성. Case C: 프로젝트 전체 개발 순서·의존성·페이즈별 구현·마일스톤 문서 템플릿.
+       - 컴포넌트: .pipe-step(페이즈 파이프라인), .rel-map(의존성 맵),
+         .tbl(마일스톤 체크리스트·리스크 표), .callout.tip(중간 검증), .pitfall(트러블슈팅)
+       - 4블록 17섹션 구조: 기반 지식 → 설계 이해 → 구현(Phase 1~6) → 마무리
+     ============================================================ -->
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">UE DESIGN SYSTEM · 03 DEV FLOW</div>
+  <div class="nav-links">
+    <a href="../../../base/design-guide/design-guide-ue-master-visual.html">&larr; 마스터</a>
+    <a href="01-ue-asset-analysis.html">&larr; 에셋 분석</a>
+    <a href="02-ue-architecture.html">&larr; 아키텍처</a>
+    <a href="#overview">구성 개요</a>
+    <a href="#pipeline">파이프라인</a>
+    <a href="#phase-block">Phase 블록</a>
+    <a href="#dep-map">의존성 맵</a>
+    <a href="#milestone">마일스톤</a>
+    <a href="#pitfall">트러블슈팅</a>
+  </div>
+</nav>
+
+<div class="hero">
+  <div class="hero-eyebrow">Design System · v1.0 · Dev Flow Roadmap</div>
+  <h1>UE 개발 플로우<br><span>로드맵 템플릿</span></h1>
+  <p class="hero-sub">
+    프로젝트 전체의 <strong>개발 순서·시스템 의존성·페이즈별 구현·마일스톤</strong>을 담는 문서용 컴포넌트·템플릿입니다.
+    "어떤 시스템을 먼저 만들어야 하는지", "각 Phase에서 무엇을 구현하고 어떻게 검증하는지"를 시각화합니다.
+    토대는 <a href="../../../base/design-guide/design-guide-ue-master-visual.html" style="color:var(--accent)">디자인 마스터</a>를 따릅니다.
+  </p>
+  <div class="hero-meta">
+    <span class="badge badge-blue">Phase 파이프라인</span>
+    <span class="badge badge-green">의존성 맵</span>
+    <span class="badge badge-purple">마일스톤 체크리스트</span>
+  </div>
+</div>
+
+<div class="content">
+
+  <!-- ====== 구성 개요 ====== -->
+  <div class="section" id="overview">
+    <div class="section-label">01 — 구성 개요</div>
+    <h2>4블록 · 17섹션 구조</h2>
+    <p>개발 플로우 로드맵 문서는 <strong>기반 지식 &rarr; 설계 이해 &rarr; 구현(Phase 1~6) &rarr; 마무리</strong> 순서로 독자를 안내합니다. Phase 진입 전에 컨벤션·빌드·Git 등 기반을 완료하고, 설계 맵으로 전체 그림을 잡은 뒤, 각 Phase를 <em>선행 조건 &rarr; 구현 &rarr; 중간 검증</em> 패턴으로 반복하며, 마무리 블록에서 리스크와 총괄 마일스톤을 점검합니다.</p>
+
+    <table class="tbl">
+      <tr><th style="width:22%">블록</th><th style="width:8%">#</th><th style="width:32%">섹션</th><th>주요 컴포넌트</th></tr>
+      <tr><td rowspan="6"><strong>기반 지식</strong><br><span style="color:var(--text-dim);font-size:12px">Phase 진입 전 완료</span></td>
+          <td>1</td><td>개발 전제 조건</td><td><code>.callout</code>, checklist</td></tr>
+      <tr><td>2</td><td>개발 컨벤션 &amp; 폴더 구조</td><td><code>.tree</code>, <code>.tbl</code></td></tr>
+      <tr><td>3</td><td>UE 빌드 시스템 기초</td><td><code>.callout</code>, <code>.codeblock</code>, <code>.pitfall</code></td></tr>
+      <tr><td>4</td><td>Git 워크플로우</td><td><code>.pipe-step</code>, <code>.callout</code></td></tr>
+      <tr><td>5</td><td>디버깅 &amp; 로깅 전략</td><td><code>.codeblock</code>, <code>.callout.warn</code></td></tr>
+      <tr><td>6</td><td>자주 발생하는 실수 &amp; 트러블슈팅</td><td><code>.pitfall</code>, <code>.tbl</code></td></tr>
+
+      <tr><td rowspan="2"><strong>설계 이해</strong></td>
+          <td>7</td><td>시스템 의존성 맵</td><td><code>.rel-map</code></td></tr>
+      <tr><td>8</td><td>개발 페이즈 총괄 로드맵</td><td><code>.pipe-step</code>, <code>.badge</code></td></tr>
+
+      <tr><td rowspan="6"><strong>구현</strong><br><span style="color:var(--text-dim);font-size:12px">각 Phase에 중간 검증 내장</span></td>
+          <td>9</td><td>Phase 1: 프로젝트 기반 &amp; 데이터 계층</td><td><code>.codeblock</code>, <code>.tbl</code>, <code>.callout.tip</code></td></tr>
+      <tr><td>10</td><td>Phase 2: 핵심 로직 서브시스템</td><td><code>.codeblock</code>, <code>.pipe-step</code>, <code>.callout.tip</code></td></tr>
+      <tr><td>11</td><td>Phase 3: 게임화 서브시스템</td><td><code>.codeblock</code>, <code>.tbl</code>, <code>.callout.tip</code></td></tr>
+      <tr><td>12</td><td>Phase 4: 비주얼 에셋 제작 &amp; 임포트</td><td><code>.tbl</code>, <code>.tree</code>, <code>.callout.tip</code></td></tr>
+      <tr><td>13</td><td>Phase 5: UI 프레임워크 &amp; 위젯</td><td><code>.pipe-step</code>, <code>.codeblock</code>, <code>.callout.tip</code></td></tr>
+      <tr><td>14</td><td>Phase 6: 통합·빌드·패키징·배포</td><td><code>.pipe-step</code>, <code>.callout</code>, <code>.callout.tip</code></td></tr>
+
+      <tr><td rowspan="3"><strong>마무리</strong></td>
+          <td>15</td><td>리스크 &amp; 기술 부채</td><td><code>.tbl</code>, <code>.pitfall</code></td></tr>
+      <tr><td>16</td><td>마일스톤 체크리스트</td><td><code>.tbl</code></td></tr>
+      <tr><td>17</td><td>보완 작업 목록</td><td><code>.tbl</code>, <code>.callout</code></td></tr>
+    </table>
+
+    <div class="callout info"><span class="ic">&#x1F9ED;</span><p>범용 블록(콜아웃·표·트리 등)은 <a href="../../../base/design-guide/design-guide-ue-master-visual.html" style="color:var(--accent)">디자인 마스터</a>에 있습니다. 여기서는 <strong>개발 플로우·Phase 로드맵에 특화된 패턴</strong>만 Live 데모로 보여줍니다.</p></div>
+  </div>
+
+  <!-- ====== Phase 파이프라인 ====== -->
+  <div class="section" id="pipeline">
+    <div class="section-label">02 — Phase 파이프라인</div>
+    <h2>개발 페이즈 총괄 로드맵 패턴</h2>
+    <p>섹션 8에서 사용하는 패턴입니다. 6개 Phase를 <code>.pipe-step</code>으로 나열하여 전체 개발 순서를 한눈에 보여줍니다. 각 Phase의 <code>.pipe-desc</code>에는 핵심 산출물과 의존 관계를 요약합니다.</p>
+
+    <div class="demo"><div class="demo-head">Live &mdash; 개발 페이즈 총괄</div><div class="demo-body">
+      <div class="pipe-step"><div class="pipe-num">P1</div><div class="pipe-body"><div class="pipe-title">프로젝트 기반 &amp; 데이터 계층</div><div class="pipe-desc">GameInstance, SaveGame, DataTable, 에셋 매니저 설정. <span class="badge badge-blue" style="font-size:11px">선행 없음</span></div></div></div>
+      <div class="pipe-step"><div class="pipe-num">P2</div><div class="pipe-body"><div class="pipe-title">핵심 로직 서브시스템</div><div class="pipe-desc">GameMode, PlayerController, Character, 입력 매핑. <span class="badge badge-blue" style="font-size:11px">P1 완료 후</span></div></div></div>
+      <div class="pipe-step"><div class="pipe-num">P3</div><div class="pipe-body"><div class="pipe-title">게임화 서브시스템</div><div class="pipe-desc">퀘스트, 인벤토리, 스탯, 레벨링 등 게임 고유 로직. <span class="badge badge-blue" style="font-size:11px">P2 완료 후</span></div></div></div>
+      <div class="pipe-step"><div class="pipe-num">P4</div><div class="pipe-body"><div class="pipe-title">비주얼 에셋 제작 &amp; 임포트</div><div class="pipe-desc">3D 모델, 머티리얼, 애니메이션, VFX 임포트·세팅. <span class="badge badge-green" style="font-size:11px">P1 이후 병렬 가능</span></div></div></div>
+      <div class="pipe-step"><div class="pipe-num">P5</div><div class="pipe-body"><div class="pipe-title">UI 프레임워크 &amp; 위젯</div><div class="pipe-desc">HUD, 메뉴, 인벤토리 UI 위젯 구현. <span class="badge badge-purple" style="font-size:11px">P3 + P4 완료 후</span></div></div></div>
+      <div class="pipe-step"><div class="pipe-num">P6</div><div class="pipe-body"><div class="pipe-title">통합·빌드·패키징·배포</div><div class="pipe-desc">전체 통합 테스트, 패키징 설정, 배포 파이프라인. <span class="badge badge-purple" style="font-size:11px">P5 완료 후</span></div></div></div>
+    </div></div>
+  </div>
+
+  <!-- ====== Phase 블록 패턴 ====== -->
+  <div class="section" id="phase-block">
+    <div class="section-label">03 — Phase 블록 패턴</div>
+    <h2>선행 조건 &rarr; 구현 내용 &rarr; 중간 검증</h2>
+    <p>섹션 9~14(구현 블록)에서 각 Phase는 동일한 <strong>3파트 구조</strong>를 반복합니다: 선행 조건 확인 &rarr; 구현 내용 상세 &rarr; 중간 검증 체크리스트. 아래는 Phase 2를 예시로 보여줍니다.</p>
+
+    <div class="demo"><div class="demo-head">Live &mdash; Phase 블록 예시 (Phase 2)</div><div class="demo-body">
+
+      <!-- 선행 조건 -->
+      <h3 style="margin-top:0">Phase 2: 핵심 로직 서브시스템</h3>
+      <div class="callout warn"><span class="ic">&#x26A0;&#xFE0F;</span><p><strong>선행 조건</strong> &mdash; Phase 1(프로젝트 기반 &amp; 데이터 계층)이 완료되어야 합니다. GameInstance·DataTable이 정상 작동하는지 확인하세요.</p></div>
+
+      <!-- 구현 내용 (파이프라인으로 세부 단계 표시) -->
+      <div class="pipe-step"><div class="pipe-num">2-1</div><div class="pipe-body"><div class="pipe-title">GameMode 생성</div><div class="pipe-desc"><code>AMyGameMode</code> 클래스를 만들고 Project Settings &rarr; Maps &amp; Modes에 등록한다.</div></div></div>
+      <div class="pipe-step"><div class="pipe-num">2-2</div><div class="pipe-body"><div class="pipe-title">PlayerController 생성</div><div class="pipe-desc"><code>AMyPlayerController</code>를 만들고 Enhanced Input으로 입력 매핑을 설정한다.</div></div></div>
+      <div class="pipe-step"><div class="pipe-num">2-3</div><div class="pipe-body"><div class="pipe-title">Character 생성</div><div class="pipe-desc"><code>AMyCharacter</code>를 만들고 이동·카메라를 구성한다. GameMode의 DefaultPawnClass에 지정한다.</div></div></div>
+
+      <!-- 중간 검증 -->
+      <div class="callout tip"><span class="ic">&#x2705;</span><p><strong>Phase 2 중간 검증</strong></p>
+        <ul style="margin:8px 0 0 0;padding-left:20px">
+          <li>PIE 실행 시 캐릭터가 스폰되고 WASD 이동이 동작하는가?</li>
+          <li>GameMode 로그(<code>UE_LOG</code>)에서 InitGame &rarr; Login &rarr; Possess 순서가 확인되는가?</li>
+          <li>PlayerController에서 Enhanced Input Action이 정상 바인딩되는가?</li>
+        </ul>
+      </div>
+
+    </div></div>
+
+    <div class="callout info"><span class="ic">&#x1F9ED;</span><p>모든 Phase는 이 <strong>선행 조건(<code>.callout.warn</code>) &rarr; 구현 단계(<code>.pipe-step</code>) &rarr; 중간 검증(<code>.callout.tip</code>)</strong> 패턴을 따릅니다. 검증을 통과해야 다음 Phase로 진행합니다.</p></div>
+  </div>
+
+  <!-- ====== 의존성 맵 ====== -->
+  <div class="section" id="dep-map">
+    <div class="section-label">04 — 시스템 의존성 맵</div>
+    <h2>의존성 맵 (<code>.rel-map</code>) 패턴</h2>
+    <p>섹션 7에서 사용하는 패턴입니다. 시스템 간 의존 방향을 <code>.rel-map</code>으로 표현하여, 어떤 시스템이 다른 시스템을 전제하는지 시각화합니다.</p>
+
+    <div class="demo"><div class="demo-head">Live &mdash; 시스템 의존성 맵</div><div class="demo-body">
+      <div class="rel-map">
+        <div class="rel-row">
+          <div class="rel-node n-instance"><div class="rn-name">GameInstance</div><div class="rn-role">세션 영속 데이터</div></div>
+          <div class="rel-arrow"><span class="ra-label">provides data</span><span class="ra-line">&rarr;</span></div>
+          <div class="rel-node n-gamemode"><div class="rn-name">GameMode</div><div class="rn-role">매치 규칙·스폰</div></div>
+        </div>
+        <div class="rel-row">
+          <div class="rel-node n-gamemode"><div class="rn-name">GameMode</div><div class="rn-role">매치 규칙·스폰</div></div>
+          <div class="rel-arrow"><span class="ra-label">spawns</span><span class="ra-line">&rarr;</span></div>
+          <div class="rel-node n-controller"><div class="rn-name">PlayerController</div><div class="rn-role">입력·의도 전달</div></div>
+        </div>
+        <div class="rel-row">
+          <div class="rel-node n-subsystem"><div class="rn-name">Quest Subsystem</div><div class="rn-role">게임화 로직</div></div>
+          <div class="rel-arrow"><span class="ra-label">depends on</span><span class="ra-line">&rarr;</span></div>
+          <div class="rel-node n-gamemode"><div class="rn-name">GameMode</div><div class="rn-role">매치 상태 참조</div></div>
+        </div>
+        <div class="rel-row">
+          <div class="rel-node n-pawn"><div class="rn-name">UI Framework</div><div class="rn-role">HUD·메뉴</div></div>
+          <div class="rel-arrow"><span class="ra-label">reads from</span><span class="ra-line">&rarr;</span></div>
+          <div class="rel-node n-subsystem"><div class="rn-name">Quest Subsystem</div><div class="rn-role">퀘스트 데이터</div></div>
+        </div>
+      </div>
+    </div></div>
+
+    <div class="callout info"><span class="ic">&#x1F9ED;</span><p>의존성 맵은 <strong>Phase 간 선후 관계의 근거</strong>가 됩니다. 화살표 방향은 "사용하는 쪽 &rarr; 제공하는 쪽"입니다. 실제 문서에서는 프로젝트의 모든 핵심 서브시스템을 빠짐없이 나열합니다.</p></div>
+  </div>
+
+  <!-- ====== 마일스톤 체크리스트 ====== -->
+  <div class="section" id="milestone">
+    <div class="section-label">05 — 마일스톤 체크리스트</div>
+    <h2>마일스톤 총괄 검증표 패턴</h2>
+    <p>섹션 16에서 사용하는 패턴입니다. 전체 Phase의 완료 기준을 하나의 표로 모아 프로젝트 진행률을 추적합니다.</p>
+
+    <div class="demo"><div class="demo-head">Live &mdash; 마일스톤 체크리스트</div><div class="demo-body">
+      <table class="tbl" style="margin:0">
+        <tr><th style="width:10%">Phase</th><th style="width:30%">마일스톤</th><th style="width:40%">완료 기준</th><th style="width:10%">상태</th><th style="width:10%">비고</th></tr>
+        <tr><td>P1</td><td>데이터 계층 구축</td><td>GameInstance·SaveGame 저장/로드가 PIE에서 동작</td><td><span class="badge badge-green" style="font-size:11px">완료</span></td><td></td></tr>
+        <tr><td>P2</td><td>핵심 로직 동작</td><td>캐릭터 스폰·이동·입력이 정상 작동</td><td><span class="badge badge-green" style="font-size:11px">완료</span></td><td></td></tr>
+        <tr><td>P3</td><td>게임화 시스템 구동</td><td>퀘스트 수락/완료 흐름이 동작</td><td><span class="badge badge-blue" style="font-size:11px">진행 중</span></td><td>인벤토리 미구현</td></tr>
+        <tr><td>P4</td><td>에셋 임포트 완료</td><td>주요 3D 모델·머티리얼이 레벨에 배치됨</td><td><span style="color:var(--text-dim);font-size:12px">대기</span></td><td></td></tr>
+        <tr><td>P5</td><td>UI 프레임워크 완성</td><td>HUD·메뉴·인벤토리 UI가 데이터와 연동</td><td><span style="color:var(--text-dim);font-size:12px">대기</span></td><td></td></tr>
+        <tr><td>P6</td><td>빌드·패키징 성공</td><td>Shipping 빌드가 타깃 플랫폼에서 실행됨</td><td><span style="color:var(--text-dim);font-size:12px">대기</span></td><td></td></tr>
+      </table>
+    </div></div>
+  </div>
+
+  <!-- ====== 트러블슈팅 / Pitfall ====== -->
+  <div class="section" id="pitfall">
+    <div class="section-label">06 — 트러블슈팅 패턴</div>
+    <h2>Pitfall &amp; 트러블슈팅 패턴</h2>
+    <p>섹션 6(자주 발생하는 실수)과 섹션 15(리스크 &amp; 기술 부채)에서 사용하는 패턴입니다. <code>.pitfall</code>로 흔한 실수를, <code>.tbl</code>로 리스크 매트릭스를 표현합니다.</p>
+
+    <h3>Pitfall 블록</h3>
+    <div class="demo"><div class="demo-head">Live &mdash; Pitfall</div><div class="demo-body">
+      <div class="pitfall">
+        <strong>PIE에서는 되는데 패키지 빌드에서 크래시</strong><br>
+        <code>AssetManager</code>에 등록하지 않은 에셋을 <code>LoadObject</code>로 직접 로드하면, 에디터에서는 이미 메모리에 있어 성공하지만 패키지 빌드에서는 <code>nullptr</code>을 반환합니다. &rarr; 반드시 <code>FStreamableManager</code> 또는 <code>AssetManager</code>의 비동기 로드를 사용하세요.
+      </div>
+      <div class="pitfall">
+        <strong>Enhanced Input Action이 무반응</strong><br>
+        <code>Input Mapping Context</code>를 <code>AddMappingContext</code>로 등록하지 않으면 액션이 바인딩되지 않습니다. PlayerController의 <code>BeginPlay</code>에서 등록을 확인하세요.
+      </div>
+    </div></div>
+
+    <h3>리스크 매트릭스</h3>
+    <div class="demo"><div class="demo-head">Live &mdash; 리스크 &amp; 기술 부채</div><div class="demo-body">
+      <table class="tbl" style="margin:0">
+        <tr><th style="width:8%">ID</th><th style="width:25%">리스크</th><th style="width:10%">영향도</th><th style="width:10%">발생 확률</th><th style="width:47%">완화 전략</th></tr>
+        <tr><td>R1</td><td>에셋 로딩 병목</td><td><span style="color:#f87171">높음</span></td><td>중간</td><td>AssetManager 비동기 로드 + 레벨 스트리밍으로 분산</td></tr>
+        <tr><td>R2</td><td>SaveGame 스키마 변경</td><td>중간</td><td><span style="color:#f87171">높음</span></td><td>버전 필드 도입, 마이그레이션 함수로 하위 호환 유지</td></tr>
+        <tr><td>R3</td><td>멀티플레이어 동기화 이슈</td><td><span style="color:#f87171">높음</span></td><td>낮음</td><td>초기부터 Authority/권한 분리 설계, Replicated 속성 명확화</td></tr>
+      </table>
+    </div></div>
+  </div>
+
+</div>
+
+<footer>
+  <span>UE 문서 디자인 시스템 · Dev Flow Roadmap v1.0</span>
+  <span>기준 디자인: Dark · Indigo Minimal · Editorial</span>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,32 @@
+<!--
+part: badge
+variant: pill
+source: ColorlibHQ/gentelella
+fits: any
+mood: dense, corporate
+slots: label
+requires: none
+added: 2026-08-25
+spec: 0.5
+notes: 상태 텍스트 표시. data-tone="neutral|accent|success|warning|danger|info". 표 셀·카드 헤더용
+-->
+<section data-part="badge" data-variant="pill" class="hdk-badge hdk-badge--pill" data-tone="neutral">
+<style>
+.hdk-badge--pill { display: inline-flex; }
+.hdk-badge--pill .hdk-badge__chip {
+  display: inline-flex; align-items: center;
+  padding: 0 var(--hdk-sp-2); height: 22px; /* 구조 치수: 표 행 높이에 맞춤 */
+  border-radius: var(--hdk-radius-full);
+  font-size: var(--hdk-fs-xs); font-weight: var(--hdk-fw-medium); line-height: 1;
+  background: var(--hdk-bg-elev-2); color: var(--hdk-fg-muted);
+  border: 1px solid var(--hdk-line);
+  white-space: nowrap;
+}
+.hdk-badge--pill[data-tone="accent"]  .hdk-badge__chip { background: var(--hdk-accent-soft);  color: var(--hdk-accent);  border-color: transparent; }
+.hdk-badge--pill[data-tone="success"] .hdk-badge__chip { background: var(--hdk-success-soft); color: var(--hdk-success); border-color: transparent; }
+.hdk-badge--pill[data-tone="warning"] .hdk-badge__chip { background: var(--hdk-warning-soft); color: var(--hdk-warning); border-color: transparent; }
+.hdk-badge--pill[data-tone="danger"]  .hdk-badge__chip { background: var(--hdk-danger-soft);  color: var(--hdk-danger);  border-color: transparent; }
+.hdk-badge--pill[data-tone="info"]    .hdk-badge__chip { background: var(--hdk-info-soft);    color: var(--hdk-info);    border-color: transparent; }
+</style>
+  <span class="hdk-badge__chip" data-slot="label">상태 라벨</span>
+</section>

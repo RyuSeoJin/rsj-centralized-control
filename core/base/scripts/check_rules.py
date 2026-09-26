@@ -15,17 +15,31 @@
   ② 본문의 비경어체  「~다.」로 끝나되 「~니다.」가 아닌 문장 (§1)
   ③ 독스트링 첫 줄   소개 페이지가 도구 설명으로 싣는 줄이라 본문과 같은 자리입니다 (§3-3)
 
+  **규칙 문서만 봅니다** (§4 적용 범위). core/ 아래 md·py와 루트의 진입점(CLAUDE.md ·
+  AGENTS.md · README.md · center-*.md)입니다. 프로젝트 산출물과 프로젝트 이력의 문체는
+  그 프로젝트나 켠 모듈이 정하므로 여기서 보지 않습니다.
+
 무엇을 보나 — 이름표 (rules/site-structure.md §프로젝트 관련된 내용은 …)
 ----------
   ④ workspace.json이 담는 항목  이름표는 저장소 이야기만 담습니다. 프로젝트 목록이나
                                 진행 중인 프로젝트 같은 항목이 들어오면 중앙 규칙에
                                 프로젝트가 드러나고, 목록은 폴더와 이중 정본이 됩니다.
+                                담을 수 있는 항목은 workspace.py의 WS_REQUIRED ·
+                                WS_OPTIONAL이 정합니다.
   ⑤ 모듈이 더한 서식의 목록     모듈에 design-template/이 있으면 그 안에 카탈로그가
                                 있어야 합니다. base 카탈로그가 모듈 이름을 적지 않으므로,
                                 모듈이 목록을 빠뜨리면 켜도 아무도 못 찾습니다.
   ⑥ 모듈의 자기 점검            도구(scripts/)를 가진 모듈은 check.py도 가져야 합니다.
                                 중앙 게이트가 모듈 이름을 모르고 폴더만 훑으므로, 점검을
                                 빠뜨린 모듈은 검사에 **아예 들어오지 않습니다**.
+
+무엇을 보나 — 경로 (rules/site-structure.md §base와 modules)
+----------
+  ⑦ 규칙 문서가 적은 경로   백틱 안의 `rules/…` · `scripts/…` · `core/…` 같은 경로가 실제로
+                            있는지 봅니다. 찾는 자리는 그 문서의 폴더 · 그 문서가 속한 모듈
+                            (또는 base) · core/base · core · 저장소 루트입니다. **base 문서가
+                            모듈 안의 파일을 가리키면 여기서 걸립니다** — base는 모듈을 모르는
+                            쪽이라, core/base/만 떼어내면 없는 파일을 가리키게 되기 때문입니다.
 
 무엇을 건너뛰나
 --------------
@@ -41,6 +55,8 @@ import json
 import os
 import re
 import sys
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 #: 문체 예외 — (파일, 사유). §3-2의 시트 표기 규약을 예시로 펼치는 문서들이다.
 #: 여기 적힌 파일은 **본문 검사만** 건너뛰고 제목은 그대로 본다
@@ -125,8 +141,9 @@ def check_py(path):
     return [(1, "독스트링", first[:56])] if is_statement(first) else []
 
 
-#: 이름표가 담는 항목. **이 셋뿐입니다** — 프로젝트 이야기는 한 자리도 두지 않습니다
-WS_KEYS = ("name", "subtitle", "repo")
+#: 이름표가 담는 항목. 정본은 workspace.py입니다 — 프로젝트 이야기는 한 자리도 두지 않습니다
+from workspace import WS_REQUIRED, WS_OPTIONAL, project_roots, workspace_modules  # noqa: E402
+WS_KEYS = WS_REQUIRED + WS_OPTIONAL
 
 
 def check_workspace(root):
@@ -145,10 +162,32 @@ def check_workspace(root):
             hits.append(("workspace.json", 0, "이름표",
                          "모르는 항목 `%s` — 담는 것은 %s 셋뿐입니다"
                          % (k, " · ".join(WS_KEYS))))
-    for k in WS_KEYS:
+    for k in WS_REQUIRED:
         if not str(ws.get(k, "")).strip():
             hits.append(("workspace.json", 0, "이름표", "`%s`이(가) 비어 있습니다" % k))
+    if ws.get("visibility", "public") not in ("public", "private"):
+        hits.append(("workspace.json", 0, "이름표", "visibility는 public 또는 private입니다"))
+    for k in ("project_roots", "modules"):
+        v = ws.get(k, [])
+        if not isinstance(v, list) or any(not isinstance(x, str) for x in v):
+            hits.append(("workspace.json", 0, "이름표", "`%s`은(는) 문자열 목록입니다" % k))
+    mods = os.path.join(root, "core", "modules")
+    for m in workspace_modules(root):
+        if not os.path.isdir(os.path.join(mods, m)):
+            hits.append(("workspace.json", 0, "이름표", "없는 워크스페이스 모듈 `%s`" % m))
+        elif module_scope(root, m) != "workspace":
+            hits.append(("workspace.json", 0, "이름표",
+                         "`%s`은(는) 워크스페이스 모듈이 아닙니다 — 프로젝트에서 켭니다" % m))
     return hits
+
+
+def module_scope(root, name):
+    p = os.path.join(root, "core", "modules", name, "module.json")
+    try:
+        with io.open(p, encoding="utf-8") as f:
+            return json.load(f).get("scope", "project")
+    except (OSError, ValueError):
+        return "project"
 
 
 def check_module_templates(root):
@@ -210,6 +249,80 @@ def check_module_checks(root):
     return hits
 
 
+def check_project_layout(root):
+    """등록된 프로젝트의 경로·설정 파일 접두·관리 파일을 검사합니다."""
+    from project_paths import discover, validate_key
+    from project_structure import load_structure
+    from workspace import managed_file
+    hits = []
+    for key, folder in discover(root):
+        rel = os.path.relpath(str(folder), root).replace(os.sep, "/")
+        try:
+            validate_key(key, strict=False)
+            load_structure(folder)
+        except ValueError as error:
+            hits.append((rel, 0, '프로젝트 경로', str(error)))
+            continue
+        for kind in ("change_log", "remaining_work"):
+            if not os.path.isfile(managed_file(folder, kind)):
+                hits.append((rel, 0, '관리 파일',
+                             "%s이(가) 없습니다 — 작업 전에 먼저 읽는 파일입니다 "
+                             "(rules/remaining-work.md)" % os.path.basename(managed_file(folder, kind))))
+    return hits
+
+
+#: 경로 검사가 보는 머리 — 저장소 안의 규칙·도구 자리만 봅니다. 프로젝트 안의 기본 자리
+#: (spec/ · docs/ …)는 프로젝트마다 다르므로 보지 않습니다
+REF_HEADS = ("core/", "rules/", "scripts/", "design-template/", "design-guide/", "modules/", "base/")
+REF = re.compile(r"`([A-Za-z0-9_./-]+\.(?:md|py|html|css|js|json|svg|sh|ps1|xlsx))`")
+
+
+def owner_dir(root, path):
+    """문서가 속한 base 또는 모듈 폴더."""
+    rel = os.path.relpath(path, root).replace(os.sep, "/").split("/")
+    if len(rel) > 2 and rel[0] == "core" and rel[1] == "base":
+        return os.path.join(root, "core", "base")
+    if len(rel) > 3 and rel[0] == "core" and rel[1] == "modules":
+        return os.path.join(root, "core", "modules", rel[2])
+    return root
+
+
+def check_refs(root, path):
+    hits = []
+    fence = False
+    bases = [os.path.dirname(path), owner_dir(root, path),
+             os.path.join(root, "core", "base"), os.path.join(root, "core"), root]
+    for i, line in enumerate(io.open(path, encoding="utf-8").read().split("\n"), 1):
+        if line.strip().startswith("```"):
+            fence = not fence
+            continue
+        if fence:
+            continue
+        for m in REF.finditer(line):
+            ref = m.group(1).lstrip("./")
+            # 받아 가는 저장소에만 생기는 기록 파일(core/.source.json 등)은 건너뜁니다
+            if not ref.startswith(REF_HEADS) or "{" in ref or "/." in ref:
+                continue
+            if not any(os.path.exists(os.path.join(b, ref)) for b in bases):
+                hits.append((i, "경로", "`%s`이(가) 없습니다" % ref))
+    return hits
+
+
+#: 문체를 보는 자리 — 규칙 문서만입니다(doc-write-style.md §4)
+ROOT_DOCS = ("CLAUDE.md", "AGENTS.md", "README.md")
+
+
+def style_targets(root):
+    for n in sorted(os.listdir(root)):
+        if n in ROOT_DOCS or (n.startswith("center-") and n.endswith(".md")):
+            yield os.path.join(root, n)
+    for cur, dirs, names in os.walk(os.path.join(root, "core")):
+        dirs[:] = sorted(d for d in dirs if d not in ("__pycache__", ".git", "node_modules"))
+        for n in sorted(names):
+            if n.endswith((".md", ".py")):
+                yield os.path.join(cur, n)
+
+
 def main():
     # 한글 출력이 콘솔 기본 인코딩으로 나가면, 다른 도구가 받아 읽을 때 깨집니다.
     # 오류는 stderr로 나가므로 둘 다 맞춥니다
@@ -220,22 +333,18 @@ def main():
             pass
     root = repo_root()
     found = 0
-    for rel, line, kind, text in check_workspace(root) + check_module_templates(root) + check_module_checks(root):
+    for rel, line, kind, text in check_workspace(root) + check_module_templates(root) + check_module_checks(root) + check_project_layout(root):
         print("%s:%d  [%s] %s" % (rel, line, kind, text))
         found += 1
-    for cur, dirs, names in os.walk(root):
-        dirs[:] = [d for d in dirs if d not in ("__pycache__", ".git")]
-        for n in sorted(names):
-            p = os.path.join(cur, n)
-            rel = os.path.relpath(p, root).replace(os.sep, "/")
-            try:
-                hits = check_md(p, rel) if n.endswith(".md") else (
-                    check_py(p) if n.endswith(".py") else [])
-            except (UnicodeDecodeError, OSError):
-                continue
-            for line, kind, text in hits:
-                print("%s:%d  [%s] %s" % (rel, line, kind, text))
-                found += 1
+    for p in style_targets(root):
+        rel = os.path.relpath(p, root).replace(os.sep, "/")
+        try:
+            hits = (check_md(p, rel) + check_refs(root, p)) if p.endswith(".md") else check_py(p)
+        except (UnicodeDecodeError, OSError):
+            continue
+        for line, kind, text in hits:
+            print("%s:%d  [%s] %s" % (rel, line, kind, text))
+            found += 1
     if found:
         print("")
         print("규칙과 다른 곳 %d건 — rules/doc-write-style.md · rules/site-structure.md"

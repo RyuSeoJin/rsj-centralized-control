@@ -1,0 +1,28 @@
+<!--
+part: badge
+variant: count
+source: original
+fits: any
+mood: dense, tech
+slots: value
+requires: none
+added: 2026-08-25
+spec: 0.5
+notes: 숫자 카운터. 사이드바 메뉴·탭·아이콘 버튼 우상단. data-tone="neutral|accent|danger". 99 초과는 조립 단계에서 "99+"로
+-->
+<section data-part="badge" data-variant="count" class="hdk-badge hdk-badge--count" data-tone="accent">
+<style>
+.hdk-badge--count { display: inline-flex; }
+.hdk-badge--count .hdk-badge__chip {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 20px; height: 20px; padding: 0 6px; /* 구조 치수: 한 자리도 원형 유지 */
+  border-radius: var(--hdk-radius-full);
+  font-family: var(--hdk-font-mono); font-size: var(--hdk-fs-xs); font-weight: var(--hdk-fw-bold); line-height: 1;
+  font-variant-numeric: tabular-nums;
+  background: var(--hdk-bg-elev-2); color: var(--hdk-fg);
+}
+.hdk-badge--count[data-tone="accent"] .hdk-badge__chip { background: var(--hdk-accent); color: var(--hdk-accent-fg); }
+.hdk-badge--count[data-tone="danger"] .hdk-badge__chip { background: var(--hdk-danger); color: var(--hdk-bg); }
+</style>
+  <span class="hdk-badge__chip" data-slot="value">0</span>
+</section>

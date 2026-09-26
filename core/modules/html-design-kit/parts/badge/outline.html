@@ -1,0 +1,24 @@
+<!--
+part: badge
+variant: outline
+source: satnaing/shadcn-admin
+fits: any
+mood: airy, tech
+slots: label
+requires: none
+added: 2026-08-25
+spec: 0.5
+notes: 배경 없이 테두리만. 태그·카테고리 라벨용(상태보다 분류). data-tone 은 pill 과 동일
+-->
+<section data-part="badge" data-variant="outline" class="hdk-badge hdk-badge--outline" data-tone="neutral">
+<style>
+.hdk-badge--outline { display: inline-flex; }
+.hdk-badge--outline .hdk-badge__chip { display: inline-flex; align-items: center; padding: 0 var(--hdk-sp-2); height: 22px; border-radius: var(--hdk-radius-sm); border: 1px solid var(--hdk-line-strong); color: var(--hdk-fg-muted); font-size: var(--hdk-fs-xs); font-family: var(--hdk-font-mono); white-space: nowrap; }
+.hdk-badge--outline[data-tone="accent"]  .hdk-badge__chip { border-color: var(--hdk-accent);  color: var(--hdk-accent); }
+.hdk-badge--outline[data-tone="success"] .hdk-badge__chip { border-color: var(--hdk-success); color: var(--hdk-success); }
+.hdk-badge--outline[data-tone="warning"] .hdk-badge__chip { border-color: var(--hdk-warning); color: var(--hdk-warning); }
+.hdk-badge--outline[data-tone="danger"]  .hdk-badge__chip { border-color: var(--hdk-danger);  color: var(--hdk-danger); }
+.hdk-badge--outline[data-tone="info"]    .hdk-badge__chip { border-color: var(--hdk-info);    color: var(--hdk-info); }
+</style>
+  <span class="hdk-badge__chip" data-slot="label">태그 자리</span>
+</section>

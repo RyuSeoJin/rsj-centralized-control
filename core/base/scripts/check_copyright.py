@@ -51,6 +51,8 @@ import os
 import re
 import subprocess
 import sys
+from pathlib import Path
+from project_structure import path_role
 
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
@@ -72,11 +74,15 @@ SURVEY_DIRS = ("analysis", "reference")
 
 #: 면제 — 자작이 확정된 자리. (경로, 사유)로 두어 왜 면제인지가 함께 읽히게 한다
 EXEMPT = (
-    ("structure.svg", "이 저장소의 구조도 정본"),
-    ("core/base/diagrams/", "설명 그림의 정본"),
     ("core/base/design-guide/", "스타일 정본"),
     ("core/base/design-template/", "문서 서식"),
+    ("core/modules/", "공용 모듈 — 규칙 · 서식 · 설명 그림의 정본"),
 )
+
+#: 구조 설정에서 이 역할로 등록한 자리는 자기 제작물이 확정된 곳으로 봅니다 — 게임의 그림 ·
+#: 소리처럼 이진 파일이 일상인 자리에서 매번 사람을 부르면 게이트가 형식이 되기 때문입니다.
+#: EXEMPT와 같이 **이미 있는 파일을 고칠 때만** 건너뜁니다
+OWN_ROLES = ("implementation", "tool", "output")
 
 #: 이미지가 파일이 아니라 문법으로 들어오는 통로
 IMG_SYNTAX = (
@@ -90,7 +96,7 @@ IMG_SYNTAX = (
 TEXT_EXT = (".md", ".html", ".htm", ".css", ".js", ".json", ".yml", ".yaml", ".txt", ".py")
 
 CHECKLIST = (
-    "대상 서비스의 스크린샷 포함 여부",
+    "남의 스크린샷 포함 여부",
     "원문 텍스트 인용 포함 여부 (최소 범위 · 출처 표기)",
     "상표 · 로고 노출 여부",
     "비공개 자료(유출본 · 내부 문서) 포함 여부 — 발견 시 커밋 금지",
@@ -200,6 +206,13 @@ def scan(rows, rng):
 
     for path, is_binary, status in rows:
         why = exempt_reason(path, status)
+        role = None
+        for parent in Path(path).resolve().parents:
+            if (parent / (parent.name + '-structure.json')).is_file():
+                role = path_role(parent, path)
+                break
+        if not why and status == "M" and role in OWN_ROLES:
+            why = "구조 설정의 %s 역할 — 자기 제작물 자리" % role
         if why:
             skipped.append((path, why))
             continue
@@ -208,7 +221,7 @@ def scan(rows, rng):
             hit("git이 이진으로 판정한 파일입니다", path, "확장자는 %s" % (ext or "없음"))
         elif ext in MEDIA_EXT:
             hit("미디어 파일이 들어왔습니다", path)
-        if any(s in SURVEY_DIRS for s in path.split("/")[:-1]):
+        if role in ('reference', 'evidence') or any(s in SURVEY_DIRS for s in path.split("/")[:-1]):
             hit("조사 자료 자리에 새 파일이 있습니다", path)
         if not is_binary and ext in TEXT_EXT:
             found = []

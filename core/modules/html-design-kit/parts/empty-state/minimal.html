@@ -1,0 +1,30 @@
+<!--
+part: empty-state
+variant: minimal
+source: original
+fits: any
+mood: dense, corporate
+slots: icon, title, body, cta
+requires: button.solid
+added: 2026-08-25
+spec: 0.5
+notes: 표·목록·카드 안 인라인용. 점선 테두리로 "비어 있는 영역"임을 표시. 본문은 다음 행동을 안내하는 한 문장
+-->
+<section data-part="empty-state" data-variant="minimal" class="hdk-empty-state hdk-empty-state--minimal">
+<style>
+.hdk-empty-state--minimal {
+  display: flex; flex-direction: column; align-items: center; text-align: center;
+  gap: var(--hdk-sp-2); padding: var(--hdk-sp-6) var(--hdk-sp-4);
+  border: 1px dashed var(--hdk-line-strong); border-radius: var(--hdk-radius-lg);
+  color: var(--hdk-fg-muted);
+}
+.hdk-empty-state--minimal .hdk-empty-state__icon { width: 32px; height: 32px; color: var(--hdk-fg-faint); margin-bottom: var(--hdk-sp-1); } /* 구조 치수 */
+.hdk-empty-state--minimal .hdk-empty-state__title { margin: 0; font-size: var(--hdk-fs-md); font-weight: var(--hdk-fw-medium); color: var(--hdk-fg); }
+.hdk-empty-state--minimal .hdk-empty-state__body { margin: 0; font-size: var(--hdk-fs-sm); max-width: 36ch; }
+.hdk-empty-state--minimal .hdk-empty-state__cta { margin-top: var(--hdk-sp-2); }
+</style>
+  <svg class="hdk-empty-state__icon" data-slot="icon" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="5" y="8" width="22" height="18" rx="2"/><path d="M5 13h22M11 8V5M21 8V5"/></svg>
+  <h3 class="hdk-empty-state__title" data-slot="title">제목 자리</h3>
+  <p class="hdk-empty-state__body" data-slot="body">본문 자리 — 무엇이 비어 있고 다음에 무엇을 하면 되는지</p>
+  <div class="hdk-empty-state__cta" data-slot="cta"><!-- button.solid 삽입 --></div>
+</section>

@@ -1,0 +1,37 @@
+<!--
+part: modal
+variant: drawer
+source: satnaing/shadcn-admin
+fits: frame.sidebar-shell, frame.scroll-stack
+mood: dense, tech
+slots: title, body, cta
+requires: button.solid
+added: 2026-08-25
+spec: 0.5
+notes: 우측에서 슬라이드되는 패널. 상세 보기·편집 폼용. data-open="true" 로 열림, data-side="left" 가능
+-->
+<section data-part="modal" data-variant="drawer" data-init="modal.drawer" class="hdk-modal hdk-modal--drawer" data-open="false" data-side="right">
+<style>
+.hdk-modal--drawer .hdk-modal__scrim { position: fixed; inset: 0; z-index: 40; background: var(--hdk-fg); opacity: 0; pointer-events: none; transition: opacity var(--hdk-dur-base); }
+.hdk-modal--drawer .hdk-modal__panel { position: fixed; top: 0; bottom: 0; right: 0; z-index: 41; width: min(420px, 90vw); display: flex; flex-direction: column; background: var(--hdk-bg-elev-2); border-left: 1px solid var(--hdk-line); box-shadow: var(--hdk-shadow-lg); transform: translateX(100%); transition: transform var(--hdk-dur-slow) var(--hdk-ease); }
+.hdk-modal--drawer[data-side="left"] .hdk-modal__panel { right: auto; left: 0; border-left: 0; border-right: 1px solid var(--hdk-line); transform: translateX(-100%); }
+.hdk-modal--drawer[data-open="true"] .hdk-modal__scrim { opacity: .4; pointer-events: auto; }
+.hdk-modal--drawer[data-open="true"] .hdk-modal__panel { transform: none; }
+.hdk-modal--drawer[data-inline="true"] .hdk-modal__scrim { display: none; }
+.hdk-modal--drawer[data-inline="true"] .hdk-modal__panel { position: relative; transform: none; width: 100%; max-width: 420px; height: 360px; }
+.hdk-modal--drawer .hdk-modal__head { display: flex; align-items: center; justify-content: space-between; padding: var(--hdk-sp-4) var(--hdk-sp-5); border-bottom: 1px solid var(--hdk-line); }
+.hdk-modal--drawer .hdk-modal__title { margin: 0; font-size: var(--hdk-fs-md); font-weight: var(--hdk-fw-medium); }
+.hdk-modal--drawer .hdk-modal__close { border: 0; background: none; color: var(--hdk-fg-faint); cursor: pointer; font-size: var(--hdk-fs-lg); line-height: 1; }
+.hdk-modal--drawer .hdk-modal__body { flex: 1; overflow-y: auto; padding: var(--hdk-sp-5); color: var(--hdk-fg-muted); font-size: var(--hdk-fs-sm); }
+.hdk-modal--drawer .hdk-modal__foot { display: flex; justify-content: flex-end; gap: var(--hdk-sp-2); padding: var(--hdk-sp-3) var(--hdk-sp-5); border-top: 1px solid var(--hdk-line); }
+</style>
+  <div class="hdk-modal__scrim" data-action="close" aria-hidden="true"></div>
+  <div class="hdk-modal__panel" role="dialog" aria-modal="true">
+    <div class="hdk-modal__head"><h3 class="hdk-modal__title" data-slot="title">패널 제목 자리</h3><button class="hdk-modal__close" type="button" data-action="close" aria-label="닫기">×</button></div>
+    <div class="hdk-modal__body" data-slot="body">본문 자리</div>
+    <div class="hdk-modal__foot" data-slot="cta"><!-- button.solid --></div>
+  </div>
+<script>
+hdk.register('modal.drawer', function (root) {const r=root;r.querySelectorAll('[data-action="close"]').forEach(b=>b.addEventListener('click',()=>r.dataset.open='false'));});
+</script>
+</section>

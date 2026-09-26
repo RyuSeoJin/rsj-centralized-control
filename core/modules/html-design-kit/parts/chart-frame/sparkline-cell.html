@@ -1,0 +1,20 @@
+<!--
+part: chart-frame
+variant: sparkline-cell
+source: tabler/tabler
+fits: card.stat-compact, table
+mood: dense, tech
+slots: canvas
+requires: none
+added: 2026-08-25
+spec: 0.5
+notes: 텍스트 옆에 붙는 소형 추세선 틀(폭 80·높이 24). 축·제목 없음. 인라인 SVG 또는 canvas 삽입
+-->
+<section data-part="chart-frame" data-variant="sparkline-cell" class="hdk-chart-frame hdk-chart-frame--sparkline-cell">
+<style>
+.hdk-chart-frame--sparkline-cell { display: inline-block; width: 80px; height: 24px; vertical-align: middle; color: var(--hdk-accent); } /* 구조 치수 */
+.hdk-chart-frame--sparkline-cell .hdk-chart-frame__canvas { width: 100%; height: 100%; }
+.hdk-chart-frame--sparkline-cell svg { width: 100%; height: 100%; overflow: visible; }
+</style>
+  <div class="hdk-chart-frame__canvas" data-slot="canvas"><svg viewBox="0 0 80 24" preserveAspectRatio="none" aria-hidden="true"><polyline points="0,18 10,14 20,16 30,9 40,11 50,6 60,8 70,3 80,5" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></div>
+</section>

@@ -1,0 +1,35 @@
+<!--
+part: table
+variant: comparison-matrix
+source: thedevdojo/tails
+fits: frame.scroll-stack, pricing
+mood: airy, corporate
+slots: items, item
+requires: none
+added: 2026-08-25
+spec: 0.5
+notes: 기능 × 요금제 비교표. 첫 열 고정, 체크/대시 셀은 data-yes="true|false". 강조 열은 <col data-featured>
+-->
+<section data-part="table" data-variant="comparison-matrix" class="hdk-table hdk-table--comparison-matrix">
+<style>
+.hdk-table--comparison-matrix { overflow-x: auto; }
+.hdk-table--comparison-matrix table { width: 100%; min-width: 560px; border-collapse: separate; border-spacing: 0; font-size: var(--hdk-fs-sm); }
+.hdk-table--comparison-matrix th { padding: var(--hdk-sp-3) var(--hdk-sp-4); text-align: center; font-weight: var(--hdk-fw-bold); border-bottom: 2px solid var(--hdk-line-strong); }
+.hdk-table--comparison-matrix th:first-child, .hdk-table--comparison-matrix td:first-child { text-align: left; position: sticky; left: 0; background: var(--hdk-bg); }
+.hdk-table--comparison-matrix td { padding: var(--hdk-sp-3) var(--hdk-sp-4); text-align: center; border-bottom: 1px solid var(--hdk-line); }
+.hdk-table--comparison-matrix td[data-yes="true"]::before { content: "✓"; color: var(--hdk-success); font-weight: var(--hdk-fw-bold); }
+.hdk-table--comparison-matrix td[data-yes="false"]::before { content: "—"; color: var(--hdk-fg-faint); }
+.hdk-table--comparison-matrix .hdk-table__group td { padding-top: var(--hdk-sp-4); font-size: var(--hdk-fs-xs); color: var(--hdk-fg-faint); letter-spacing: var(--hdk-tracking-caps); text-transform: uppercase; border-bottom: 0; text-align: left; }
+.hdk-table--comparison-matrix col[data-featured] { background: var(--hdk-accent-soft); }
+</style>
+  <table>
+    <colgroup><col><col><col data-featured><col></colgroup>
+    <thead><tr><th>기능</th><th>요금제 A</th><th>요금제 B</th><th>요금제 C</th></tr></thead>
+    <tbody data-slot="items">
+      <tr class="hdk-table__group"><td colspan="4">그룹 라벨 자리</td></tr>
+      <tr data-slot="item"><td>기능 자리</td><td data-yes="true"></td><td data-yes="true"></td><td data-yes="true"></td></tr>
+      <tr><td>기능 자리</td><td data-yes="false"></td><td data-yes="true"></td><td data-yes="true"></td></tr>
+      <tr><td>기능 자리</td><td data-yes="false"></td><td data-yes="false"></td><td>무제한</td></tr>
+    </tbody>
+  </table>
+</section>

@@ -1,0 +1,21 @@
+<!--
+part: breadcrumb
+variant: contained
+source: original
+fits: frame.sidebar-shell
+mood: dense, tech
+slots: items, item, label
+requires: none
+added: 2026-08-25
+spec: 0.5
+notes: 각 항목이 알약 칩. 현재 항목은 accent-soft 배경. 깊은 경로(파일 경로 등)에 가독성 좋음
+-->
+<section data-part="breadcrumb" data-variant="contained" class="hdk-breadcrumb hdk-breadcrumb--contained">
+<style>
+.hdk-breadcrumb--contained .hdk-breadcrumb__list { display: inline-flex; flex-wrap: wrap; gap: var(--hdk-sp-1); list-style: none; margin: 0; padding: var(--hdk-sp-1); background: var(--hdk-bg-elev-2); border-radius: var(--hdk-radius-full); font-size: var(--hdk-fs-xs); }
+.hdk-breadcrumb--contained a, .hdk-breadcrumb--contained span { display: inline-block; padding: var(--hdk-sp-1) var(--hdk-sp-3); border-radius: var(--hdk-radius-full); color: var(--hdk-fg-muted); text-decoration: none; }
+.hdk-breadcrumb--contained a:hover { background: var(--hdk-bg-elev); color: var(--hdk-fg); }
+.hdk-breadcrumb--contained [aria-current="page"] { background: var(--hdk-accent-soft); color: var(--hdk-accent); font-weight: var(--hdk-fw-medium); }
+</style>
+  <ol class="hdk-breadcrumb__list" data-slot="items"><li data-slot="item"><a href="#" data-slot="label">상위 자리</a></li><li><a href="#">중간 자리</a></li><li><span aria-current="page">현재 자리</span></li></ol>
+</section>

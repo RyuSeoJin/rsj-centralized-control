@@ -1,0 +1,27 @@
+<!--
+part: pricing
+variant: compact-cards
+source: satnaing/shadcn-admin
+fits: modal, frame.sidebar-shell, section
+mood: dense, corporate
+slots: items, item, label, value, body, cta
+requires: button.outline
+added: 2026-08-25
+spec: 0.5
+notes: 앱 내부(설정·업그레이드 모달)용 작은 가로 카드. 현재 플랜은 data-current="true"
+-->
+<section data-part="pricing" data-variant="compact-cards" class="hdk-pricing hdk-pricing--compact-cards">
+<style>
+.hdk-pricing--compact-cards { display: grid; gap: var(--hdk-sp-3); }
+.hdk-pricing--compact-cards .hdk-pricing__tier { display: grid; grid-template-columns: 1fr auto; gap: var(--hdk-sp-1) var(--hdk-sp-4); align-items: center; padding: var(--hdk-sp-3) var(--hdk-sp-4); background: var(--hdk-bg-elev); border: 1px solid var(--hdk-line); border-radius: var(--hdk-radius-md); }
+.hdk-pricing--compact-cards .hdk-pricing__tier[data-current="true"] { border-color: var(--hdk-accent); background: var(--hdk-accent-soft); }
+.hdk-pricing--compact-cards .hdk-pricing__label { margin: 0; font-weight: var(--hdk-fw-medium); font-size: var(--hdk-fs-sm); }
+.hdk-pricing--compact-cards .hdk-pricing__body { margin: 0; font-size: var(--hdk-fs-xs); color: var(--hdk-fg-muted); }
+.hdk-pricing--compact-cards .hdk-pricing__value { grid-column: 2; grid-row: 1; margin: 0; font-family: var(--hdk-font-mono); font-weight: var(--hdk-fw-bold); }
+.hdk-pricing--compact-cards .hdk-pricing__cta { grid-column: 2; grid-row: 2; justify-self: end; }
+</style>
+  <div style="display:contents" data-slot="items">
+    <div class="hdk-pricing__tier" data-current="true" data-slot="item"><p class="hdk-pricing__label" data-slot="label">현재 플랜 자리</p><p class="hdk-pricing__body" data-slot="body">설명 자리</p><p class="hdk-pricing__value" data-slot="value">₩0</p><span class="hdk-pricing__cta" data-slot="cta"><!-- 현재 --></span></div>
+    <div class="hdk-pricing__tier"><p class="hdk-pricing__label">상위 플랜 자리</p><p class="hdk-pricing__body">설명 자리</p><p class="hdk-pricing__value">₩9,900</p><span class="hdk-pricing__cta"><!-- button.outline sm "업그레이드" --></span></div>
+  </div>
+</section>

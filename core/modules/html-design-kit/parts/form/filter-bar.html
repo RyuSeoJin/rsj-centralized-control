@@ -1,0 +1,27 @@
+<!--
+part: form
+variant: filter-bar
+source: ColorlibHQ/AdminLTE
+fits: table, section
+mood: dense, corporate
+slots: fields, cta
+requires: button.outline, button.ghost
+added: 2026-08-25
+spec: 0.5
+notes: 표 위 가로 필터 줄. 검색·셀렉트·기간·버튼이 한 줄, 좁으면 줄바꿈. 적용된 필터 수는 badge.count 로
+-->
+<section data-part="form" data-variant="filter-bar" class="hdk-form hdk-form--filter-bar">
+<style>
+.hdk-form--filter-bar { display: flex; flex-wrap: wrap; align-items: center; gap: var(--hdk-sp-2); padding: var(--hdk-sp-3); background: var(--hdk-bg-elev); border: 1px solid var(--hdk-line); border-radius: var(--hdk-radius-lg); }
+.hdk-form--filter-bar input, .hdk-form--filter-bar select { padding: var(--hdk-sp-2) var(--hdk-sp-3); background: var(--hdk-bg); border: 1px solid var(--hdk-line-strong); border-radius: var(--hdk-radius-md); font-size: var(--hdk-fs-sm); color: var(--hdk-fg); }
+.hdk-form--filter-bar input:focus, .hdk-form--filter-bar select:focus { outline: none; border-color: var(--hdk-accent); }
+.hdk-form--filter-bar input[type="search"] { flex: 1 1 200px; }
+.hdk-form--filter-bar .hdk-form__cta { margin-left: auto; display: flex; gap: var(--hdk-sp-2); }
+</style>
+  <div style="display:contents" data-slot="fields">
+    <input type="search" placeholder="검색 자리" aria-label="검색">
+    <select aria-label="상태"><option>상태: 전체</option><option>진행</option><option>완료</option></select>
+    <select aria-label="기간"><option>기간: 최근 7일</option><option>최근 30일</option></select>
+  </div>
+  <div class="hdk-form__cta" data-slot="cta"><!-- button.ghost "초기화" · button.outline "적용" --></div>
+</section>

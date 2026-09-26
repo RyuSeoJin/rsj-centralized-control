@@ -1,0 +1,1453 @@
+<!doctype html>
+<html lang="ko" class="hdk-root" data-theme="dark"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>HTML 디자인 킷 미리보기</title>
+<style>/* tokens/base.css — 변수 이름의 단일 출처. 값은 기본값이며 테마가 덮어쓴다.
+   부품 파일은 이 변수를 사용만 하고 정의하지 않는다 (SPEC 4.1).
+   리셋은 reset.css 로 분리 — 이 파일은 변수만 정의하므로 어떤 페이지에 넣어도 부작용 없음. */
+:root, .hdk-root {
+  /* ── 색: 역할 이름. 실제 값은 themes/*.css 에서 라이트/다크 쌍으로 지정 ── */
+  --hdk-bg:            #ffffff;
+  --hdk-bg-elev:       #f6f6f8;
+  --hdk-bg-elev-2:     #ececf0;
+  --hdk-fg:            #1a1a1f;
+  --hdk-fg-muted:      #5f5f6c;
+  --hdk-fg-faint:      #9a9aa8;
+  --hdk-line:          #dedee5;
+  --hdk-line-strong:   #b8b8c4;
+  --hdk-accent:        #3b3bd6;
+  --hdk-accent-fg:     #ffffff;
+  --hdk-accent-soft:   #ebebfb;
+  --hdk-accent-hover:  #2f2fb4;
+  --hdk-success:       #1f8a4c;  --hdk-success-soft: #e3f5ea;
+  --hdk-warning:       #b4720a;  --hdk-warning-soft: #fbf0d9;
+  --hdk-danger:        #c2362f;  --hdk-danger-soft:  #fbe4e2;
+  --hdk-info:          #1c6fb5;  --hdk-info-soft:    #e0eefa;
+  --hdk-focus:         var(--hdk-accent);
+  --hdk-focus-ring:    0 0 0 3px var(--hdk-accent-soft);   /* 입력 포커스 링 */
+
+  /* ── 간격 (4px 스케일) ── */
+  --hdk-sp-1: 4px;  --hdk-sp-2: 8px;  --hdk-sp-3: 12px; --hdk-sp-4: 16px;
+  --hdk-sp-5: 24px; --hdk-sp-6: 32px; --hdk-sp-7: 48px; --hdk-sp-8: 64px; --hdk-sp-9: 96px;
+
+  /* ── 폰트 ── */
+  --hdk-font-sans:    system-ui, -apple-system, "Segoe UI", "Pretendard", "Noto Sans KR", sans-serif;
+  --hdk-font-mono:    ui-monospace, "SF Mono", "Cascadia Code", "JetBrains Mono", Consolas, monospace;
+  --hdk-font-display: var(--hdk-font-sans);
+  --hdk-fs-xs: 12px; --hdk-fs-sm: 14px; --hdk-fs-md: 16px; --hdk-fs-lg: 20px;
+  --hdk-fs-xl: 24px; --hdk-fs-2xl: 32px; --hdk-fs-3xl: 48px;
+  --hdk-lh-tight: 1.2; --hdk-lh-base: 1.5; --hdk-lh-loose: 1.7;
+  --hdk-fw-regular: 400; --hdk-fw-medium: 500; --hdk-fw-bold: 700;
+  --hdk-tracking-caps: 0.06em;
+
+  /* ── 형태 ── */
+  --hdk-radius-sm: 4px; --hdk-radius-md: 8px; --hdk-radius-lg: 16px; --hdk-radius-full: 999px;
+  --hdk-shadow-sm: 0 1px 2px rgba(0,0,0,.06);
+  --hdk-shadow-md: 0 4px 16px rgba(0,0,0,.10);
+  --hdk-shadow-lg: 0 12px 40px rgba(0,0,0,.16);
+  --hdk-border: 1px solid var(--hdk-line);
+
+  /* ── 레이아웃 ── */
+  --hdk-container: 1200px;
+  --hdk-sidebar-w: 260px; --hdk-sidebar-w-min: 64px;
+  --hdk-topbar-h: 56px;
+
+  /* ── 전환 ── */
+  --hdk-ease: cubic-bezier(.2,.8,.2,1);
+  --hdk-dur-fast: 120ms; --hdk-dur-base: 200ms; --hdk-dur-slow: 400ms;
+}
+
+/* tokens/reset.css — .hdk-root 아래에서만 적용되는 최소 리셋.
+   독립 페이지: <html class="hdk-root" data-theme="dark">
+   기존 프로젝트에 꽂을 때: <div class="hdk-root" data-theme="dark"> 로 감싼다. 바깥 스타일은 건드리지 않는다. */
+.hdk-root, .hdk-root *, .hdk-root *::before, .hdk-root *::after { box-sizing: border-box; }
+.hdk-root { background: var(--hdk-bg); color: var(--hdk-fg); font-family: var(--hdk-font-sans); font-size: var(--hdk-fs-md); line-height: var(--hdk-lh-base); -webkit-font-smoothing: antialiased; }
+html.hdk-root, html.hdk-root body { margin: 0; min-height: 100%; }
+html.hdk-root body { background: inherit; color: inherit; font: inherit; }
+.hdk-root button, .hdk-root input, .hdk-root select, .hdk-root textarea { font: inherit; color: inherit; }
+.hdk-root img, .hdk-root svg { display: block; max-width: 100%; }
+.hdk-root :focus-visible { outline: 2px solid var(--hdk-focus); outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) { .hdk-root *, .hdk-root *::before, .hdk-root *::after { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; } }
+
+/* theme: indigo / mood: corporate, tech / source: original
+   기존 문서 도구에서 쓰던 다크+인디고 계열. 범용 기본 테마. */
+.hdk-root[data-theme="light"] {
+  --hdk-bg: #f7f7fb;  --hdk-bg-elev: #ffffff;  --hdk-bg-elev-2: #ffffff;
+  --hdk-fg: #16161f;  --hdk-fg-muted: #5c5c70; --hdk-fg-faint: #9a9ab0;
+  --hdk-line: #e3e3ee; --hdk-line-strong: #c5c5d8;
+  --hdk-accent: #4f46e5; --hdk-accent-fg: #ffffff; --hdk-accent-soft: #ecebff; --hdk-accent-hover: #4338ca;
+  --hdk-success: #15803d; --hdk-success-soft: #dcfce7;
+  --hdk-warning: #b45309; --hdk-warning-soft: #fef3c7;
+  --hdk-danger:  #b91c1c; --hdk-danger-soft:  #fee2e2;
+  --hdk-info:    #1d4ed8; --hdk-info-soft:    #dbeafe;
+  --hdk-shadow-sm: 0 1px 2px rgba(22,22,50,.06);
+  --hdk-shadow-md: 0 4px 16px rgba(22,22,50,.10);
+  --hdk-shadow-lg: 0 12px 40px rgba(22,22,50,.16);
+}
+.hdk-root[data-theme="dark"] {
+  --hdk-bg: #0f1017;  --hdk-bg-elev: #171923;  --hdk-bg-elev-2: #20232f;
+  --hdk-fg: #ececf4;  --hdk-fg-muted: #9b9db3; --hdk-fg-faint: #62647a;
+  --hdk-line: #272a38; --hdk-line-strong: #3a3e52;
+  --hdk-accent: #8b83ff; --hdk-accent-fg: #0f1017; --hdk-accent-soft: #23234a; --hdk-accent-hover: #a29bff;
+  --hdk-success: #4ade80; --hdk-success-soft: #14321f;
+  --hdk-warning: #fbbf24; --hdk-warning-soft: #3a2a0a;
+  --hdk-danger:  #f87171; --hdk-danger-soft:  #3b1616;
+  --hdk-info:    #60a5fa; --hdk-info-soft:    #142a4a;
+  --hdk-shadow-sm: 0 1px 2px rgba(0,0,0,.4);
+  --hdk-shadow-md: 0 4px 16px rgba(0,0,0,.45);
+  --hdk-shadow-lg: 0 12px 40px rgba(0,0,0,.6);
+}
+
+body{padding:2rem} .catalog{display:grid;gap:1.5rem} .part{padding:1rem;border:1px solid var(--hdk-line);border-radius:var(--hdk-radius-lg);background:var(--hdk-bg-elev)} .part h2{margin:0 0 1rem;font:var(--hdk-fw-medium) var(--hdk-fs-sm) var(--hdk-font-mono);color:var(--hdk-fg-muted)}</style>
+<script>/* hdk.js — 부품 초기화 로더. 페이지 <head> 에서 먼저 로드한다.
+   부품 파일의 <script> 는 hdk.register('part.variant', function(root){...}) 로 초기화 함수를 등록하고,
+   로더가 [data-init="part.variant"] 요소를 찾아 한 번씩 실행한다.
+   innerHTML 로 부품을 나중에 끼웠으면 hdk.mount(container) 를 호출한다. */
+(function (w) {
+  const inits = Object.create(null);
+  const hdk = {
+    register(name, fn) { inits[name] = fn; hdk.mount(document); },
+    mount(container) {
+      (container || document).querySelectorAll('[data-init]').forEach(el => {
+        if (el.dataset.mounted === 'true') return;
+        const fn = inits[el.dataset.init]; if (!fn) return;
+        el.dataset.mounted = 'true'; try { fn(el); } catch (e) { console.error('hdk init failed:', el.dataset.init, e); }
+      });
+    },
+    theme(name, mode, root) { const r = root || document.querySelector('.hdk-root'); if (!r) return; if (name) r.dataset.themeName = name; if (mode) r.dataset.theme = mode; }
+  };
+  w.hdk = hdk;
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => hdk.mount(document)); else hdk.mount(document);
+})(window);
+</script></head><body><main><h1>HTML 디자인 킷</h1><p>안전 출처 또는 자체 제작 부품 75개 · 테마 2개</p><div class="catalog"><article class="part"><h2>avatar.circle · tabler/tabler</h2><section data-part="avatar" data-variant="circle" class="hdk-avatar hdk-avatar--circle" data-size="md">
+<style>
+.hdk-avatar--circle { display: inline-flex; }
+.hdk-avatar--circle .hdk-avatar__img { --avatar-size: 36px; width: var(--avatar-size); height: var(--avatar-size); display: grid; place-items: center; border-radius: var(--hdk-radius-full); background: var(--hdk-accent-soft); color: var(--hdk-accent); font-size: var(--hdk-fs-sm); font-weight: var(--hdk-fw-medium); overflow: hidden; }
+.hdk-avatar--circle .hdk-avatar__img img { width: 100%; height: 100%; object-fit: cover; }
+.hdk-avatar--circle[data-size="sm"] .hdk-avatar__img { --avatar-size: 28px; font-size: var(--hdk-fs-xs); }
+.hdk-avatar--circle[data-size="lg"] .hdk-avatar__img { --avatar-size: 56px; font-size: var(--hdk-fs-lg); }
+</style>
+  <span class="hdk-avatar__img" data-slot="image"><span data-slot="label">JH</span></span>
+</section></article><article class="part"><h2>avatar.stacked-group · thedevdojo/tails</h2><section data-part="avatar" data-variant="stacked-group" class="hdk-avatar hdk-avatar--stacked-group">
+<style>
+.hdk-avatar--stacked-group { display: inline-flex; align-items: center; }
+.hdk-avatar--stacked-group .hdk-avatar__list { display: inline-flex; list-style: none; margin: 0; padding: 0; }
+.hdk-avatar--stacked-group .hdk-avatar__img { width: 32px; height: 32px; display: grid; place-items: center; border-radius: var(--hdk-radius-full); background: var(--hdk-accent-soft); color: var(--hdk-accent); font-size: var(--hdk-fs-xs); font-weight: var(--hdk-fw-medium); border: 2px solid var(--hdk-bg-elev); overflow: hidden; }
+.hdk-avatar--stacked-group .hdk-avatar__img img { width: 100%; height: 100%; object-fit: cover; }
+.hdk-avatar--stacked-group li + li { margin-left: -10px; }
+.hdk-avatar--stacked-group li:hover { z-index: 1; position: relative; }
+.hdk-avatar--stacked-group .hdk-avatar__meta { margin-left: var(--hdk-sp-2); font-size: var(--hdk-fs-xs); color: var(--hdk-fg-muted); }
+</style>
+  <ul class="hdk-avatar__list" data-slot="items">
+    <li data-slot="item"><span class="hdk-avatar__img"><span data-slot="label">A</span></span></li>
+    <li><span class="hdk-avatar__img">B</span></li><li><span class="hdk-avatar__img">C</span></li>
+  </ul>
+  <span class="hdk-avatar__meta" data-slot="meta">+0</span>
+</section></article><article class="part"><h2>avatar.status-dot · satnaing/shadcn-admin</h2><section data-part="avatar" data-variant="status-dot" class="hdk-avatar hdk-avatar--status-dot" data-status="online">
+<style>
+.hdk-avatar--status-dot { position: relative; display: inline-flex; }
+.hdk-avatar--status-dot .hdk-avatar__img { width: 36px; height: 36px; display: grid; place-items: center; border-radius: var(--hdk-radius-full); background: var(--hdk-bg-elev-2); color: var(--hdk-fg-muted); font-size: var(--hdk-fs-sm); font-weight: var(--hdk-fw-medium); overflow: hidden; }
+.hdk-avatar--status-dot .hdk-avatar__img img { width: 100%; height: 100%; object-fit: cover; }
+.hdk-avatar--status-dot::after { content: ""; position: absolute; right: 0; bottom: 0; width: 11px; height: 11px; border-radius: var(--hdk-radius-full); background: var(--hdk-fg-faint); border: 2px solid var(--hdk-bg-elev); }
+.hdk-avatar--status-dot[data-status="online"]::after { background: var(--hdk-success); }
+.hdk-avatar--status-dot[data-status="away"]::after { background: var(--hdk-warning); }
+.hdk-avatar--status-dot[data-status="busy"]::after { background: var(--hdk-danger); }
+</style>
+  <span class="hdk-avatar__img" data-slot="image"><span data-slot="label">JH</span></span>
+</section></article><article class="part"><h2>avatar.with-name · ColorlibHQ/gentelella</h2><section data-part="avatar" data-variant="with-name" class="hdk-avatar hdk-avatar--with-name">
+<style>
+.hdk-avatar--with-name { display: inline-flex; align-items: center; gap: var(--hdk-sp-3); }
+.hdk-avatar--with-name .hdk-avatar__img { width: 36px; height: 36px; flex: none; display: grid; place-items: center; border-radius: var(--hdk-radius-full); background: var(--hdk-accent-soft); color: var(--hdk-accent); font-size: var(--hdk-fs-sm); font-weight: var(--hdk-fw-medium); overflow: hidden; }
+.hdk-avatar--with-name .hdk-avatar__img img { width: 100%; height: 100%; object-fit: cover; }
+.hdk-avatar--with-name .hdk-avatar__title { margin: 0; font-size: var(--hdk-fs-sm); font-weight: var(--hdk-fw-medium); line-height: var(--hdk-lh-tight); }
+.hdk-avatar--with-name .hdk-avatar__meta { margin: 2px 0 0; font-size: var(--hdk-fs-xs); color: var(--hdk-fg-muted); }
+</style>
+  <span class="hdk-avatar__img" data-slot="image"><span data-slot="label">JH</span></span>
+  <span><p class="hdk-avatar__title" data-slot="title">이름 자리</p><p class="hdk-avatar__meta" data-slot="meta">부가 정보 자리</p></span>
+</section></article><article class="part"><h2>badge.count · original</h2><section data-part="badge" data-variant="count" class="hdk-badge hdk-badge--count" data-tone="accent">
+<style>
+.hdk-badge--count { display: inline-flex; }
+.hdk-badge--count .hdk-badge__chip {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 20px; height: 20px; padding: 0 6px; /* 구조 치수: 한 자리도 원형 유지 */
+  border-radius: var(--hdk-radius-full);
+  font-family: var(--hdk-font-mono); font-size: var(--hdk-fs-xs); font-weight: var(--hdk-fw-bold); line-height: 1;
+  font-variant-numeric: tabular-nums;
+  background: var(--hdk-bg-elev-2); color: var(--hdk-fg);
+}
+.hdk-badge--count[data-tone="accent"] .hdk-badge__chip { background: var(--hdk-accent); color: var(--hdk-accent-fg); }
+.hdk-badge--count[data-tone="danger"] .hdk-badge__chip { background: var(--hdk-danger); color: var(--hdk-bg); }
+</style>
+  <span class="hdk-badge__chip" data-slot="value">0</span>
+</section></article><article class="part"><h2>badge.dot · original</h2><section data-part="badge" data-variant="dot" class="hdk-badge hdk-badge--dot" data-tone="neutral">
+<style>
+.hdk-badge--dot { display: inline-flex; }
+.hdk-badge--dot .hdk-badge__chip {
+  display: inline-flex; align-items: center; gap: var(--hdk-sp-2);
+  font-size: var(--hdk-fs-sm); color: var(--hdk-fg-muted); line-height: var(--hdk-lh-tight);
+  white-space: nowrap;
+}
+.hdk-badge--dot .hdk-badge__chip::before {
+  content: ""; width: 8px; height: 8px; border-radius: var(--hdk-radius-full); /* 구조 치수 */
+  background: var(--hdk-fg-faint); flex: none;
+}
+.hdk-badge--dot[data-tone="accent"]  .hdk-badge__chip::before { background: var(--hdk-accent); }
+.hdk-badge--dot[data-tone="success"] .hdk-badge__chip::before { background: var(--hdk-success); }
+.hdk-badge--dot[data-tone="warning"] .hdk-badge__chip::before { background: var(--hdk-warning); }
+.hdk-badge--dot[data-tone="danger"]  .hdk-badge__chip::before { background: var(--hdk-danger); }
+.hdk-badge--dot[data-tone="info"]    .hdk-badge__chip::before { background: var(--hdk-info); }
+</style>
+  <span class="hdk-badge__chip" data-slot="label">상태 라벨</span>
+</section></article><article class="part"><h2>badge.outline · satnaing/shadcn-admin</h2><section data-part="badge" data-variant="outline" class="hdk-badge hdk-badge--outline" data-tone="neutral">
+<style>
+.hdk-badge--outline { display: inline-flex; }
+.hdk-badge--outline .hdk-badge__chip { display: inline-flex; align-items: center; padding: 0 var(--hdk-sp-2); height: 22px; border-radius: var(--hdk-radius-sm); border: 1px solid var(--hdk-line-strong); color: var(--hdk-fg-muted); font-size: var(--hdk-fs-xs); font-family: var(--hdk-font-mono); white-space: nowrap; }
+.hdk-badge--outline[data-tone="accent"]  .hdk-badge__chip { border-color: var(--hdk-accent);  color: var(--hdk-accent); }
+.hdk-badge--outline[data-tone="success"] .hdk-badge__chip { border-color: var(--hdk-success); color: var(--hdk-success); }
+.hdk-badge--outline[data-tone="warning"] .hdk-badge__chip { border-color: var(--hdk-warning); color: var(--hdk-warning); }
+.hdk-badge--outline[data-tone="danger"]  .hdk-badge__chip { border-color: var(--hdk-danger);  color: var(--hdk-danger); }
+.hdk-badge--outline[data-tone="info"]    .hdk-badge__chip { border-color: var(--hdk-info);    color: var(--hdk-info); }
+</style>
+  <span class="hdk-badge__chip" data-slot="label">태그 자리</span>
+</section></article><article class="part"><h2>badge.pill · ColorlibHQ/gentelella</h2><section data-part="badge" data-variant="pill" class="hdk-badge hdk-badge--pill" data-tone="neutral">
+<style>
+.hdk-badge--pill { display: inline-flex; }
+.hdk-badge--pill .hdk-badge__chip {
+  display: inline-flex; align-items: center;
+  padding: 0 var(--hdk-sp-2); height: 22px; /* 구조 치수: 표 행 높이에 맞춤 */
+  border-radius: var(--hdk-radius-full);
+  font-size: var(--hdk-fs-xs); font-weight: var(--hdk-fw-medium); line-height: 1;
+  background: var(--hdk-bg-elev-2); color: var(--hdk-fg-muted);
+  border: 1px solid var(--hdk-line);
+  white-space: nowrap;
+}
+.hdk-badge--pill[data-tone="accent"]  .hdk-badge__chip { background: var(--hdk-accent-soft);  color: var(--hdk-accent);  border-color: transparent; }
+.hdk-badge--pill[data-tone="success"] .hdk-badge__chip { background: var(--hdk-success-soft); color: var(--hdk-success); border-color: transparent; }
+.hdk-badge--pill[data-tone="warning"] .hdk-badge__chip { background: var(--hdk-warning-soft); color: var(--hdk-warning); border-color: transparent; }
+.hdk-badge--pill[data-tone="danger"]  .hdk-badge__chip { background: var(--hdk-danger-soft);  color: var(--hdk-danger);  border-color: transparent; }
+.hdk-badge--pill[data-tone="info"]    .hdk-badge__chip { background: var(--hdk-info-soft);    color: var(--hdk-info);    border-color: transparent; }
+</style>
+  <span class="hdk-badge__chip" data-slot="label">상태 라벨</span>
+</section></article><article class="part"><h2>breadcrumb.back-link · satnaing/shadcn-admin</h2><section data-part="breadcrumb" data-variant="back-link" class="hdk-breadcrumb hdk-breadcrumb--back-link">
+<style>
+.hdk-breadcrumb--back-link a { display: inline-flex; align-items: center; gap: var(--hdk-sp-2); color: var(--hdk-fg-muted); text-decoration: none; font-size: var(--hdk-fs-sm); }
+.hdk-breadcrumb--back-link a:hover { color: var(--hdk-fg); }
+.hdk-breadcrumb--back-link a:hover svg { transform: translateX(-2px); }
+.hdk-breadcrumb--back-link svg { width: 16px; height: 16px; transition: transform var(--hdk-dur-fast) var(--hdk-ease); }
+</style>
+  <a href="#"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M13 8H3M7 4L3 8l4 4"/></svg><span data-slot="label">상위 페이지명 자리</span></a>
+</section></article><article class="part"><h2>breadcrumb.chevron · ColorlibHQ/AdminLTE</h2><section data-part="breadcrumb" data-variant="chevron" class="hdk-breadcrumb hdk-breadcrumb--chevron">
+<style>
+.hdk-breadcrumb--chevron .hdk-breadcrumb__list { display: flex; flex-wrap: wrap; align-items: center; gap: var(--hdk-sp-1); list-style: none; margin: 0; padding: 0; font-size: var(--hdk-fs-sm); }
+.hdk-breadcrumb--chevron li { display: flex; align-items: center; gap: var(--hdk-sp-1); }
+.hdk-breadcrumb--chevron li + li::before { content: ""; width: 5px; height: 5px; border-right: 1.5px solid var(--hdk-fg-faint); border-top: 1.5px solid var(--hdk-fg-faint); transform: rotate(45deg); margin: 0 var(--hdk-sp-1); }
+.hdk-breadcrumb--chevron a { display: inline-flex; align-items: center; gap: var(--hdk-sp-1); color: var(--hdk-fg-muted); text-decoration: none; }
+.hdk-breadcrumb--chevron a:hover { color: var(--hdk-accent); }
+.hdk-breadcrumb--chevron svg { width: 14px; height: 14px; }
+.hdk-breadcrumb--chevron [aria-current="page"] { color: var(--hdk-fg); }
+</style>
+  <ol class="hdk-breadcrumb__list" data-slot="items"><li data-slot="item"><a href="#"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M2 7l5-5 5 5M3 6v6h8V6"/></svg><span data-slot="label">홈</span></a></li><li><a href="#">중간 자리</a></li><li><span aria-current="page">현재 자리</span></li></ol>
+</section></article><article class="part"><h2>breadcrumb.contained · original</h2><section data-part="breadcrumb" data-variant="contained" class="hdk-breadcrumb hdk-breadcrumb--contained">
+<style>
+.hdk-breadcrumb--contained .hdk-breadcrumb__list { display: inline-flex; flex-wrap: wrap; gap: var(--hdk-sp-1); list-style: none; margin: 0; padding: var(--hdk-sp-1); background: var(--hdk-bg-elev-2); border-radius: var(--hdk-radius-full); font-size: var(--hdk-fs-xs); }
+.hdk-breadcrumb--contained a, .hdk-breadcrumb--contained span { display: inline-block; padding: var(--hdk-sp-1) var(--hdk-sp-3); border-radius: var(--hdk-radius-full); color: var(--hdk-fg-muted); text-decoration: none; }
+.hdk-breadcrumb--contained a:hover { background: var(--hdk-bg-elev); color: var(--hdk-fg); }
+.hdk-breadcrumb--contained [aria-current="page"] { background: var(--hdk-accent-soft); color: var(--hdk-accent); font-weight: var(--hdk-fw-medium); }
+</style>
+  <ol class="hdk-breadcrumb__list" data-slot="items"><li data-slot="item"><a href="#" data-slot="label">상위 자리</a></li><li><a href="#">중간 자리</a></li><li><span aria-current="page">현재 자리</span></li></ol>
+</section></article><article class="part"><h2>breadcrumb.slash · tabler/tabler</h2><section data-part="breadcrumb" data-variant="slash" class="hdk-breadcrumb hdk-breadcrumb--slash">
+<style>
+.hdk-breadcrumb--slash .hdk-breadcrumb__list { display: flex; flex-wrap: wrap; gap: var(--hdk-sp-2); list-style: none; margin: 0; padding: 0; font-size: var(--hdk-fs-sm); }
+.hdk-breadcrumb--slash li + li::before { content: "/"; color: var(--hdk-fg-faint); margin-right: var(--hdk-sp-2); }
+.hdk-breadcrumb--slash a { color: var(--hdk-fg-muted); text-decoration: none; }
+.hdk-breadcrumb--slash a:hover { color: var(--hdk-fg); }
+.hdk-breadcrumb--slash [aria-current="page"] { color: var(--hdk-fg); font-weight: var(--hdk-fw-medium); }
+</style>
+  <ol class="hdk-breadcrumb__list" data-slot="items"><li data-slot="item"><a href="#" data-slot="label">상위 자리</a></li><li><a href="#">중간 자리</a></li><li><span aria-current="page">현재 자리</span></li></ol>
+</section></article><article class="part"><h2>button.ghost · original</h2><section data-part="button" data-variant="ghost" class="hdk-button hdk-button--ghost">
+<style>
+.hdk-button--ghost { display: inline-flex; }
+.hdk-button--ghost .hdk-button__btn {
+  display: inline-flex; align-items: center; gap: var(--hdk-sp-2);
+  padding: var(--hdk-sp-2) var(--hdk-sp-3);
+  background: transparent; color: var(--hdk-fg-muted);
+  border: 1px solid transparent; border-radius: var(--hdk-radius-md);
+  font-size: var(--hdk-fs-sm); font-weight: var(--hdk-fw-medium); line-height: var(--hdk-lh-tight);
+  cursor: pointer; white-space: nowrap;
+  transition: background var(--hdk-dur-fast) var(--hdk-ease), color var(--hdk-dur-fast) var(--hdk-ease);
+}
+.hdk-button--ghost .hdk-button__btn:hover { background: var(--hdk-bg-elev-2); color: var(--hdk-fg); }
+.hdk-button--ghost .hdk-button__btn:disabled { opacity: .45; cursor: not-allowed; }
+.hdk-button--ghost .hdk-button__icon { width: 16px; height: 16px; flex: none; }
+.hdk-button--ghost[data-icon-only="true"] .hdk-button__btn { padding: var(--hdk-sp-2); }
+.hdk-button--ghost[data-icon-only="true"] .hdk-button__label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+</style>
+  <button type="button" class="hdk-button__btn">
+    <svg class="hdk-button__icon" data-slot="icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="8" cy="8" r="1"/><circle cx="3" cy="8" r="1"/><circle cx="13" cy="8" r="1"/></svg>
+    <span class="hdk-button__label" data-slot="label">버튼 라벨</span>
+  </button>
+</section></article><article class="part"><h2>button.link · satnaing/shadcn-admin</h2><section data-part="button" data-variant="link" class="hdk-button hdk-button--link">
+<style>
+.hdk-button--link { display: inline-flex; }
+.hdk-button--link .hdk-button__btn { display: inline-flex; align-items: center; gap: var(--hdk-sp-1); padding: 0; background: none; border: 0; color: var(--hdk-accent); font-size: var(--hdk-fs-sm); font-weight: var(--hdk-fw-medium); cursor: pointer; }
+.hdk-button--link .hdk-button__btn:hover { text-decoration: underline; text-underline-offset: 3px; }
+.hdk-button--link .hdk-button__icon { width: 14px; height: 14px; transition: transform var(--hdk-dur-fast) var(--hdk-ease); }
+.hdk-button--link .hdk-button__btn:hover .hdk-button__icon { transform: translateX(3px); }
+</style>
+  <button type="button" class="hdk-button__btn"><span data-slot="label">버튼 라벨</span><svg class="hdk-button__icon" data-slot="icon" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M2 7h10M8 3l4 4-4 4"/></svg></button>
+</section></article><article class="part"><h2>button.outline · original</h2><section data-part="button" data-variant="outline" class="hdk-button hdk-button--outline">
+<style>
+.hdk-button--outline { display: inline-flex; }
+.hdk-button--outline .hdk-button__btn {
+  display: inline-flex; align-items: center; gap: var(--hdk-sp-2);
+  padding: var(--hdk-sp-2) var(--hdk-sp-4);
+  background: transparent; color: var(--hdk-fg);
+  border: 1px solid var(--hdk-line-strong); border-radius: var(--hdk-radius-md);
+  font-size: var(--hdk-fs-sm); font-weight: var(--hdk-fw-medium); line-height: var(--hdk-lh-tight);
+  cursor: pointer; white-space: nowrap;
+  transition: border-color var(--hdk-dur-fast) var(--hdk-ease), background var(--hdk-dur-fast) var(--hdk-ease);
+}
+.hdk-button--outline .hdk-button__btn:hover { border-color: var(--hdk-accent); color: var(--hdk-accent); background: var(--hdk-accent-soft); }
+.hdk-button--outline .hdk-button__btn:disabled { opacity: .45; cursor: not-allowed; }
+.hdk-button--outline .hdk-button__icon { width: 16px; height: 16px; flex: none; }
+.hdk-button--outline[data-size="sm"] .hdk-button__btn { padding: var(--hdk-sp-1) var(--hdk-sp-3); font-size: var(--hdk-fs-xs); }
+.hdk-button--outline[data-size="lg"] .hdk-button__btn { padding: var(--hdk-sp-3) var(--hdk-sp-5); font-size: var(--hdk-fs-md); }
+</style>
+  <button type="button" class="hdk-button__btn">
+    <svg class="hdk-button__icon" data-slot="icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
+    <span data-slot="label">버튼 라벨</span>
+  </button>
+</section></article><article class="part"><h2>button.solid · original</h2><section data-part="button" data-variant="solid" class="hdk-button hdk-button--solid">
+<style>
+.hdk-button--solid { display: inline-flex; }
+.hdk-button--solid .hdk-button__btn {
+  display: inline-flex; align-items: center; gap: var(--hdk-sp-2);
+  padding: var(--hdk-sp-2) var(--hdk-sp-4);
+  background: var(--hdk-accent); color: var(--hdk-accent-fg);
+  border: 1px solid transparent; border-radius: var(--hdk-radius-md);
+  font-size: var(--hdk-fs-sm); font-weight: var(--hdk-fw-medium); line-height: var(--hdk-lh-tight);
+  cursor: pointer; white-space: nowrap;
+  transition: background var(--hdk-dur-fast) var(--hdk-ease), transform var(--hdk-dur-fast) var(--hdk-ease);
+}
+.hdk-button--solid .hdk-button__btn:hover { background: var(--hdk-accent-hover); }
+.hdk-button--solid .hdk-button__btn:active { transform: translateY(1px); }
+.hdk-button--solid .hdk-button__btn:disabled { opacity: .45; cursor: not-allowed; transform: none; }
+.hdk-button--solid .hdk-button__icon { width: 16px; height: 16px; flex: none; } /* 구조 치수 */
+.hdk-button--solid[data-size="sm"] .hdk-button__btn { padding: var(--hdk-sp-1) var(--hdk-sp-3); font-size: var(--hdk-fs-xs); }
+.hdk-button--solid[data-size="lg"] .hdk-button__btn { padding: var(--hdk-sp-3) var(--hdk-sp-5); font-size: var(--hdk-fs-md); }
+.hdk-button--solid[data-tone="danger"] .hdk-button__btn { background: var(--hdk-danger); color: var(--hdk-bg); }
+</style>
+  <button type="button" class="hdk-button__btn">
+    <svg class="hdk-button__icon" data-slot="icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 3v10M3 8h10"/></svg>
+    <span data-slot="label">버튼 라벨</span>
+  </button>
+</section></article><article class="part"><h2>card.image-top · startbootstrap/startbootstrap-agency</h2><section data-part="card" data-variant="image-top" class="hdk-card hdk-card--image-top">
+<style>
+.hdk-card--image-top { display: flex; flex-direction: column; background: var(--hdk-bg-elev); border: 1px solid var(--hdk-line); border-radius: var(--hdk-radius-lg); overflow: hidden; transition: transform var(--hdk-dur-base) var(--hdk-ease), box-shadow var(--hdk-dur-base); }
+.hdk-card--image-top:hover { transform: translateY(-2px); box-shadow: var(--hdk-shadow-md); }
+.hdk-card--image-top .hdk-card__image { aspect-ratio: 16 / 10; background: var(--hdk-bg-elev-2); }
+.hdk-card--image-top .hdk-card__image img { width: 100%; height: 100%; object-fit: cover; }
+.hdk-card--image-top .hdk-card__content { padding: var(--hdk-sp-4); display: grid; gap: var(--hdk-sp-2); }
+.hdk-card--image-top .hdk-card__eyebrow { margin: 0; font-size: var(--hdk-fs-xs); color: var(--hdk-accent); letter-spacing: var(--hdk-tracking-caps); text-transform: uppercase; }
+.hdk-card--image-top .hdk-card__title { margin: 0; font-size: var(--hdk-fs-lg); font-weight: var(--hdk-fw-bold); line-height: var(--hdk-lh-tight); }
+.hdk-card--image-top .hdk-card__body { margin: 0; color: var(--hdk-fg-muted); font-size: var(--hdk-fs-sm); }
+.hdk-card--image-top .hdk-card__meta { margin: var(--hdk-sp-1) 0 0; font-size: var(--hdk-fs-xs); color: var(--hdk-fg-faint); }
+</style>
+  <div class="hdk-card__image" data-slot="image"></div>
+  <div class="hdk-card__content"><p class="hdk-card__eyebrow" data-slot="eyebrow">분류 자리</p><h3 class="hdk-card__title" data-slot="title">카드 제목 자리</h3><p class="hdk-card__body" data-slot="body">카드 설명 자리</p><p class="hdk-card__meta" data-slot="meta">날짜·작성자 자리</p></div>
+</section></article><article class="part"><h2>card.stat-compact · ColorlibHQ/gentelella</h2><section data-part="card" data-variant="stat-compact" class="hdk-card hdk-card--stat-compact" data-trend="up">
+<style>
+.hdk-card--stat-compact { display: flex; gap: var(--hdk-sp-3); align-items: flex-start; padding: var(--hdk-sp-4); background: var(--hdk-bg-elev); border: 1px solid var(--hdk-line); border-radius: var(--hdk-radius-lg); }
+.hdk-card--stat-compact .hdk-card__icon { width: 40px; height: 40px; /* 구조 치수 */ flex: none; display: grid; place-items: center; border-radius: var(--hdk-radius-md); background: var(--hdk-accent-soft); color: var(--hdk-accent); }
+.hdk-card--stat-compact .hdk-card__icon svg { width: 20px; height: 20px; }
+.hdk-card--stat-compact .hdk-card__label { margin: 0; font-size: var(--hdk-fs-xs); color: var(--hdk-fg-muted); letter-spacing: var(--hdk-tracking-caps); text-transform: uppercase; }
+.hdk-card--stat-compact .hdk-card__value { margin: var(--hdk-sp-1) 0 0; font-family: var(--hdk-font-display); font-size: var(--hdk-fs-xl); font-weight: var(--hdk-fw-bold); line-height: var(--hdk-lh-tight); font-variant-numeric: tabular-nums; }
+.hdk-card--stat-compact .hdk-card__delta { margin: var(--hdk-sp-1) 0 0; font-size: var(--hdk-fs-xs); font-family: var(--hdk-font-mono); color: var(--hdk-fg-faint); }
+.hdk-card--stat-compact[data-trend="up"] .hdk-card__delta { color: var(--hdk-success); }
+.hdk-card--stat-compact[data-trend="down"] .hdk-card__delta { color: var(--hdk-danger); }
+</style>
+  <div class="hdk-card__icon" data-slot="icon"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M3 15l5-6 4 4 5-7"/></svg></div>
+  <div>
+    <p class="hdk-card__label" data-slot="label">지표 라벨 자리</p>
+    <p class="hdk-card__value" data-slot="value">0</p>
+    <p class="hdk-card__delta" data-slot="delta">증감 자리</p>
+  </div>
+</section></article><article class="part"><h2>chart-frame.legend-side · ColorlibHQ/AdminLTE</h2><section data-part="chart-frame" data-variant="legend-side" class="hdk-chart-frame hdk-chart-frame--legend-side">
+<style>
+.hdk-chart-frame--legend-side { display: grid; gap: var(--hdk-sp-4); align-items: center; }
+.hdk-chart-frame--legend-side .hdk-chart-frame__title { margin: 0 0 var(--hdk-sp-2); font-size: var(--hdk-fs-sm); font-weight: var(--hdk-fw-medium); grid-column: 1 / -1; }
+.hdk-chart-frame--legend-side .hdk-chart-frame__canvas { aspect-ratio: 1; max-width: 200px; margin: 0 auto; border-radius: var(--hdk-radius-full); background: conic-gradient(var(--hdk-accent) 0 45%, var(--hdk-info) 45% 75%, var(--hdk-warning) 75% 90%, var(--hdk-line) 90%); position: relative; }
+.hdk-chart-frame--legend-side .hdk-chart-frame__canvas::before { content: ""; position: absolute; inset: 28%; border-radius: inherit; background: var(--hdk-bg-elev); }
+.hdk-chart-frame--legend-side .hdk-chart-frame__list { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--hdk-sp-2); font-size: var(--hdk-fs-sm); }
+.hdk-chart-frame--legend-side .hdk-chart-frame__item { display: flex; justify-content: space-between; gap: var(--hdk-sp-3); padding-bottom: var(--hdk-sp-2); border-bottom: 1px solid var(--hdk-line); }
+.hdk-chart-frame--legend-side .hdk-chart-frame__value { font-family: var(--hdk-font-mono); font-variant-numeric: tabular-nums; color: var(--hdk-fg-muted); }
+@media (min-width: 640px) { .hdk-chart-frame--legend-side { grid-template-columns: 1fr 1fr; } } /* sm */
+</style>
+  <h4 class="hdk-chart-frame__title" data-slot="title">차트 제목 자리</h4>
+  <div class="hdk-chart-frame__canvas" data-slot="canvas"></div>
+  <ul class="hdk-chart-frame__list" data-slot="items">
+    <li class="hdk-chart-frame__item" data-slot="item"><span data-slot="label"><!-- badge.dot --> 항목 자리</span><span class="hdk-chart-frame__value" data-slot="value">45%</span></li>
+    <li class="hdk-chart-frame__item"><span>항목 자리</span><span class="hdk-chart-frame__value">30%</span></li>
+    <li class="hdk-chart-frame__item"><span>항목 자리</span><span class="hdk-chart-frame__value">15%</span></li>
+  </ul>
+</section></article><article class="part"><h2>chart-frame.sparkline-cell · tabler/tabler</h2><section data-part="chart-frame" data-variant="sparkline-cell" class="hdk-chart-frame hdk-chart-frame--sparkline-cell">
+<style>
+.hdk-chart-frame--sparkline-cell { display: inline-block; width: 80px; height: 24px; vertical-align: middle; color: var(--hdk-accent); } /* 구조 치수 */
+.hdk-chart-frame--sparkline-cell .hdk-chart-frame__canvas { width: 100%; height: 100%; }
+.hdk-chart-frame--sparkline-cell svg { width: 100%; height: 100%; overflow: visible; }
+</style>
+  <div class="hdk-chart-frame__canvas" data-slot="canvas"><svg viewBox="0 0 80 24" preserveAspectRatio="none" aria-hidden="true"><polyline points="0,18 10,14 20,16 30,9 40,11 50,6 60,8 70,3 80,5" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></div>
+</section></article><article class="part"><h2>code-block.line-numbers · original</h2><section data-part="code-block" data-variant="line-numbers" data-init="code-block.line-numbers" class="hdk-code-block hdk-code-block--line-numbers" data-hl="2">
+<style>
+.hdk-code-block--line-numbers { display: grid; grid-template-columns: auto 1fr; background: var(--hdk-bg-elev); border: 1px solid var(--hdk-line); border-radius: var(--hdk-radius-md); overflow: hidden; font-family: var(--hdk-font-mono); font-size: var(--hdk-fs-sm); line-height: var(--hdk-lh-loose); }
+.hdk-code-block--line-numbers .hdk-code-block__nums { margin: 0; padding: var(--hdk-sp-4) var(--hdk-sp-3); text-align: right; color: var(--hdk-fg-faint); background: var(--hdk-bg-elev-2); border-right: 1px solid var(--hdk-line); user-select: none; }
+.hdk-code-block--line-numbers pre { margin: 0; padding: var(--hdk-sp-4); overflow-x: auto; }
+.hdk-code-block--line-numbers .hdk-code-block__line { display: block; margin: 0 calc(-1 * var(--hdk-sp-4)); padding: 0 var(--hdk-sp-4); }
+.hdk-code-block--line-numbers .hdk-code-block__line[data-hl="true"] { background: var(--hdk-accent-soft); box-shadow: inset 2px 0 0 var(--hdk-accent); }
+</style>
+  <pre class="hdk-code-block__nums" aria-hidden="true"></pre>
+  <pre><code data-slot="body">function assemble(parts) {
+  return parts.map(load).join("");
+}
+assemble(catalog);</code></pre>
+<script>
+hdk.register('code-block.line-numbers', function (root) {const r=root,c=r.querySelector('code'),hl=(r.dataset.hl||'').split(',').map(Number);
+const lines=c.textContent.split('\n');c.innerHTML=lines.map((l,i)=>`<span class="hdk-code-block__line" ${hl.includes(i+1)?'data-hl="true"':''}>${l.replace(/</g,'&lt;')||' '}</span>`).join('\n');
+r.querySelector('.hdk-code-block__nums').textContent=lines.map((_,i)=>i+1).join('\n');});
+</script>
+</section></article><article class="part"><h2>code-block.terminal · original</h2><section data-part="code-block" data-variant="terminal" class="hdk-code-block hdk-code-block--terminal">
+<style>
+.hdk-code-block--terminal { background: var(--hdk-fg); color: var(--hdk-bg); border-radius: var(--hdk-radius-lg); overflow: hidden; box-shadow: var(--hdk-shadow-lg); font-family: var(--hdk-font-mono); font-size: var(--hdk-fs-sm); }
+.hdk-code-block--terminal .hdk-code-block__head { display: flex; align-items: center; gap: var(--hdk-sp-2); padding: var(--hdk-sp-2) var(--hdk-sp-4); opacity: .7; font-size: var(--hdk-fs-xs); }
+.hdk-code-block--terminal .hdk-code-block__head i { width: 10px; height: 10px; border-radius: var(--hdk-radius-full); background: currentColor; opacity: .5; }
+.hdk-code-block--terminal .hdk-code-block__head span { margin-left: auto; }
+.hdk-code-block--terminal pre { margin: 0; padding: var(--hdk-sp-4); line-height: var(--hdk-lh-loose); overflow-x: auto; }
+.hdk-code-block--terminal .hdk-code-block__cmd::before { content: "$ "; color: var(--hdk-accent); }
+.hdk-code-block--terminal .hdk-code-block__out { opacity: .7; }
+</style>
+  <div class="hdk-code-block__head"><i></i><i></i><i></i><span data-slot="title">터미널 제목 자리</span></div>
+  <pre data-slot="body"><span class="hdk-code-block__cmd">npm install html-design-kit</span>
+<span class="hdk-code-block__out">added 1 package in 0.4s</span>
+<span class="hdk-code-block__cmd">python3 build.py</span>
+<span class="hdk-code-block__out">parts: 96 → catalog.json, preview.html</span></pre>
+</section></article><article class="part"><h2>code-block.titled-copy · satnaing/shadcn-admin</h2><section data-part="code-block" data-variant="titled-copy" data-init="code-block.titled-copy" class="hdk-code-block hdk-code-block--titled-copy">
+<style>
+.hdk-code-block--titled-copy { border: 1px solid var(--hdk-line); border-radius: var(--hdk-radius-md); overflow: hidden; background: var(--hdk-bg-elev); }
+.hdk-code-block--titled-copy .hdk-code-block__head { display: flex; align-items: center; justify-content: space-between; padding: var(--hdk-sp-1) var(--hdk-sp-2) var(--hdk-sp-1) var(--hdk-sp-4); border-bottom: 1px solid var(--hdk-line); font-family: var(--hdk-font-mono); font-size: var(--hdk-fs-xs); color: var(--hdk-fg-muted); }
+.hdk-code-block--titled-copy .hdk-code-block__copy { padding: var(--hdk-sp-1) var(--hdk-sp-2); border: 0; border-radius: var(--hdk-radius-sm); background: none; color: var(--hdk-fg-muted); font-size: var(--hdk-fs-xs); cursor: pointer; }
+.hdk-code-block--titled-copy .hdk-code-block__copy:hover { background: var(--hdk-bg-elev-2); color: var(--hdk-fg); }
+.hdk-code-block--titled-copy pre { margin: 0; padding: var(--hdk-sp-4); overflow-x: auto; font-family: var(--hdk-font-mono); font-size: var(--hdk-fs-sm); line-height: var(--hdk-lh-loose); }
+</style>
+  <div class="hdk-code-block__head"><span data-slot="title">파일명.ext</span><button class="hdk-code-block__copy" type="button" data-action="copy">복사</button></div>
+  <pre><code data-slot="body">// 코드 자리
+export default function Part() {}</code></pre>
+<script>
+hdk.register('code-block.titled-copy', function (root) {const r=root,b=r.querySelector('[data-action="copy"]');b.addEventListener('click',async()=>{try{await navigator.clipboard.writeText(r.querySelector('code').textContent);b.textContent='복사됨';setTimeout(()=>b.textContent='복사',2000);}catch(e){}});});
+</script>
+</section></article><article class="part"><h2>empty-state.error · satnaing/shadcn-admin</h2><section data-part="empty-state" data-variant="error" class="hdk-empty-state hdk-empty-state--error">
+<style>
+.hdk-empty-state--error { min-height: 60vh; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: var(--hdk-sp-2); padding: var(--hdk-sp-8) var(--hdk-sp-4); }
+.hdk-empty-state--error .hdk-empty-state__value { margin: 0; font-family: var(--hdk-font-mono); font-size: var(--hdk-fs-3xl); font-weight: var(--hdk-fw-bold); color: var(--hdk-line-strong); letter-spacing: 0.1em; line-height: 1; }
+.hdk-empty-state--error .hdk-empty-state__title { margin: var(--hdk-sp-2) 0 0; font-family: var(--hdk-font-display); font-size: var(--hdk-fs-xl); font-weight: var(--hdk-fw-bold); }
+.hdk-empty-state--error .hdk-empty-state__body { margin: 0; color: var(--hdk-fg-muted); max-width: 40ch; }
+.hdk-empty-state--error .hdk-empty-state__cta { margin-top: var(--hdk-sp-4); }
+</style>
+  <p class="hdk-empty-state__value" data-slot="value">404</p>
+  <h1 class="hdk-empty-state__title" data-slot="title">페이지를 찾을 수 없습니다</h1>
+  <p class="hdk-empty-state__body" data-slot="body">무슨 일이 있었고 어디로 가면 되는지 자리</p>
+  <div class="hdk-empty-state__cta" data-slot="cta"><!-- button.solid --></div>
+</section></article><article class="part"><h2>empty-state.illustration · original</h2><section data-part="empty-state" data-variant="illustration" class="hdk-empty-state hdk-empty-state--illustration">
+<style>
+.hdk-empty-state--illustration {
+  display: flex; flex-direction: column; align-items: center; text-align: center;
+  gap: var(--hdk-sp-3); padding: var(--hdk-sp-8) var(--hdk-sp-4);
+}
+.hdk-empty-state--illustration .hdk-empty-state__illustration {
+  width: 120px; height: 120px; /* 구조 치수 */
+  display: grid; place-items: center;
+  background: var(--hdk-accent-soft); color: var(--hdk-accent);
+  border-radius: var(--hdk-radius-full); margin-bottom: var(--hdk-sp-2);
+}
+.hdk-empty-state--illustration .hdk-empty-state__illustration svg { width: 56px; height: 56px; }
+.hdk-empty-state--illustration .hdk-empty-state__title { margin: 0; font-family: var(--hdk-font-display); font-size: var(--hdk-fs-xl); font-weight: var(--hdk-fw-bold); line-height: var(--hdk-lh-tight); }
+.hdk-empty-state--illustration .hdk-empty-state__body { margin: 0; color: var(--hdk-fg-muted); max-width: 44ch; }
+.hdk-empty-state--illustration .hdk-empty-state__actions { display: flex; gap: var(--hdk-sp-2); margin-top: var(--hdk-sp-3); flex-wrap: wrap; justify-content: center; }
+</style>
+  <div class="hdk-empty-state__illustration" data-slot="illustration">
+    <svg viewBox="0 0 56 56" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true">
+      <path d="M10 40l8-14 8 9 6-6 14 11"/><circle cx="40" cy="16" r="4"/><rect x="6" y="10" width="44" height="36" rx="3"/>
+    </svg>
+  </div>
+  <h2 class="hdk-empty-state__title" data-slot="title">제목 자리</h2>
+  <p class="hdk-empty-state__body" data-slot="body">본문 자리 — 왜 비어 있는지와 첫 행동 안내</p>
+  <div class="hdk-empty-state__actions">
+    <span data-slot="cta"><!-- button.solid --></span>
+    <span data-slot="cta-secondary"><!-- button.outline --></span>
+  </div>
+</section></article><article class="part"><h2>empty-state.inline-row · tabler/tabler</h2><section data-part="empty-state" data-variant="inline-row" class="hdk-empty-state hdk-empty-state--inline-row">
+<style>
+.hdk-empty-state--inline-row { display: flex; align-items: center; gap: var(--hdk-sp-3); padding: var(--hdk-sp-4); color: var(--hdk-fg-muted); font-size: var(--hdk-fs-sm); }
+.hdk-empty-state--inline-row .hdk-empty-state__icon { width: 20px; height: 20px; color: var(--hdk-fg-faint); flex: none; }
+.hdk-empty-state--inline-row .hdk-empty-state__body { margin: 0; flex: 1; }
+</style>
+  <svg class="hdk-empty-state__icon" data-slot="icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="10" cy="10" r="7"/><path d="M7 10h6"/></svg>
+  <p class="hdk-empty-state__body" data-slot="body">비어 있음 안내 자리</p>
+  <span data-slot="cta"><!-- button.ghost --></span>
+</section></article><article class="part"><h2>empty-state.minimal · original</h2><section data-part="empty-state" data-variant="minimal" class="hdk-empty-state hdk-empty-state--minimal">
+<style>
+.hdk-empty-state--minimal {
+  display: flex; flex-direction: column; align-items: center; text-align: center;
+  gap: var(--hdk-sp-2); padding: var(--hdk-sp-6) var(--hdk-sp-4);
+  border: 1px dashed var(--hdk-line-strong); border-radius: var(--hdk-radius-lg);
+  color: var(--hdk-fg-muted);
+}
+.hdk-empty-state--minimal .hdk-empty-state__icon { width: 32px; height: 32px; color: var(--hdk-fg-faint); margin-bottom: var(--hdk-sp-1); } /* 구조 치수 */
+.hdk-empty-state--minimal .hdk-empty-state__title { margin: 0; font-size: var(--hdk-fs-md); font-weight: var(--hdk-fw-medium); color: var(--hdk-fg); }
+.hdk-empty-state--minimal .hdk-empty-state__body { margin: 0; font-size: var(--hdk-fs-sm); max-width: 36ch; }
+.hdk-empty-state--minimal .hdk-empty-state__cta { margin-top: var(--hdk-sp-2); }
+</style>
+  <svg class="hdk-empty-state__icon" data-slot="icon" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="5" y="8" width="22" height="18" rx="2"/><path d="M5 13h22M11 8V5M21 8V5"/></svg>
+  <h3 class="hdk-empty-state__title" data-slot="title">제목 자리</h3>
+  <p class="hdk-empty-state__body" data-slot="body">본문 자리 — 무엇이 비어 있고 다음에 무엇을 하면 되는지</p>
+  <div class="hdk-empty-state__cta" data-slot="cta"><!-- button.solid 삽입 --></div>
+</section></article><article class="part"><h2>faq.grouped-tabs · original</h2><section data-part="faq" data-variant="grouped-tabs" data-init="faq.grouped-tabs" class="hdk-faq hdk-faq--grouped-tabs">
+<style>
+.hdk-faq--grouped-tabs { padding: var(--hdk-sp-6) var(--hdk-sp-4); }
+.hdk-faq--grouped-tabs .hdk-faq__inner { max-width: 760px; margin: 0 auto; }
+.hdk-faq--grouped-tabs .hdk-faq__title { margin: 0 0 var(--hdk-sp-4); font-size: var(--hdk-fs-xl); font-weight: var(--hdk-fw-bold); }
+.hdk-faq--grouped-tabs .hdk-faq__chips { display: flex; flex-wrap: wrap; gap: var(--hdk-sp-2); margin-bottom: var(--hdk-sp-4); }
+.hdk-faq--grouped-tabs .hdk-faq__chip { padding: var(--hdk-sp-1) var(--hdk-sp-3); border: 1px solid var(--hdk-line-strong); border-radius: var(--hdk-radius-full); background: none; color: var(--hdk-fg-muted); font-size: var(--hdk-fs-sm); cursor: pointer; }
+.hdk-faq--grouped-tabs .hdk-faq__chip[aria-pressed="true"] { background: var(--hdk-accent); color: var(--hdk-accent-fg); border-color: transparent; }
+.hdk-faq--grouped-tabs details { padding: var(--hdk-sp-3) var(--hdk-sp-4); margin-bottom: var(--hdk-sp-2); background: var(--hdk-bg-elev); border: 1px solid var(--hdk-line); border-radius: var(--hdk-radius-md); }
+.hdk-faq--grouped-tabs details[hidden] { display: none; }
+.hdk-faq--grouped-tabs summary { cursor: pointer; font-weight: var(--hdk-fw-medium); font-size: var(--hdk-fs-sm); }
+.hdk-faq--grouped-tabs .hdk-faq__body { margin: var(--hdk-sp-2) 0 0; color: var(--hdk-fg-muted); font-size: var(--hdk-fs-sm); line-height: var(--hdk-lh-loose); }
+</style>
+  <div class="hdk-faq__inner">
+    <h2 class="hdk-faq__title" data-slot="title">도움말</h2>
+    <div class="hdk-faq__chips"><button class="hdk-faq__chip" type="button" aria-pressed="true" data-group="all">전체</button><button class="hdk-faq__chip" type="button" data-group="a">그룹 A</button><button class="hdk-faq__chip" type="button" data-group="b">그룹 B</button></div>
+    <div data-slot="items">
+      <details data-group="a" data-slot="item"><summary data-slot="label">질문 자리 (A)</summary><p class="hdk-faq__body" data-slot="body">답변 자리</p></details>
+      <details data-group="b"><summary>질문 자리 (B)</summary><p class="hdk-faq__body">답변 자리</p></details>
+      <details data-group="a"><summary>질문 자리 (A)</summary><p class="hdk-faq__body">답변 자리</p></details>
+    </div>
+  </div>
+<script>
+hdk.register('faq.grouped-tabs', function (root) {const r=root,c=[...r.querySelectorAll('.hdk-faq__chip')],d=[...r.querySelectorAll('details[data-group]')];
+c.forEach(b=>b.addEventListener('click',()=>{c.forEach(x=>x.setAttribute('aria-pressed',String(x===b)));const g=b.dataset.group;d.forEach(x=>x.hidden=!(g==='all'||x.dataset.group===g));}));});
+</script>
+</section></article><article class="part"><h2>faq.inline-list · original</h2><section data-part="faq" data-variant="inline-list" class="hdk-faq hdk-faq--inline-list">
+<style>
+.hdk-faq--inline-list { display: grid; gap: var(--hdk-sp-3); font-size: var(--hdk-fs-sm); }
+.hdk-faq--inline-list .hdk-faq__item { display: grid; grid-template-columns: 20px 1fr; gap: var(--hdk-sp-1) var(--hdk-sp-2); }
+.hdk-faq--inline-list .hdk-faq__q, .hdk-faq--inline-list .hdk-faq__a { font-family: var(--hdk-font-mono); font-size: var(--hdk-fs-xs); font-weight: var(--hdk-fw-bold); padding-top: 2px; }
+.hdk-faq--inline-list .hdk-faq__q { color: var(--hdk-accent); }
+.hdk-faq--inline-list .hdk-faq__a { color: var(--hdk-fg-faint); }
+.hdk-faq--inline-list .hdk-faq__label { margin: 0; font-weight: var(--hdk-fw-medium); }
+.hdk-faq--inline-list .hdk-faq__body { margin: 0; color: var(--hdk-fg-muted); }
+</style>
+  <div data-slot="items">
+    <div class="hdk-faq__item" data-slot="item"><span class="hdk-faq__q">Q</span><p class="hdk-faq__label" data-slot="label">질문 자리</p><span class="hdk-faq__a">A</span><p class="hdk-faq__body" data-slot="body">답변 자리</p></div>
+    <div class="hdk-faq__item"><span class="hdk-faq__q">Q</span><p class="hdk-faq__label">질문 자리</p><span class="hdk-faq__a">A</span><p class="hdk-faq__body">답변 자리</p></div>
+  </div>
+</section></article><article class="part"><h2>faq.two-column · thedevdojo/tails</h2><section data-part="faq" data-variant="two-column" class="hdk-faq hdk-faq--two-column">
+<style>
+.hdk-faq--two-column { padding: var(--hdk-sp-8) var(--hdk-sp-4); }
+.hdk-faq--two-column .hdk-faq__inner { max-width: var(--hdk-container); margin: 0 auto; display: grid; gap: var(--hdk-sp-6); }
+.hdk-faq--two-column .hdk-faq__title { margin: 0 0 var(--hdk-sp-2); font-family: var(--hdk-font-display); font-size: var(--hdk-fs-2xl); font-weight: var(--hdk-fw-bold); line-height: var(--hdk-lh-tight); }
+.hdk-faq--two-column .hdk-faq__subtitle { margin: 0; color: var(--hdk-fg-muted); }
+.hdk-faq--two-column .hdk-faq__grid { display: grid; gap: var(--hdk-sp-5) var(--hdk-sp-7); }
+.hdk-faq--two-column .hdk-faq__label { margin: 0 0 var(--hdk-sp-1); font-weight: var(--hdk-fw-medium); }
+.hdk-faq--two-column .hdk-faq__body { margin: 0; color: var(--hdk-fg-muted); font-size: var(--hdk-fs-sm); line-height: var(--hdk-lh-loose); }
+@media (min-width: 640px)  { .hdk-faq--two-column .hdk-faq__grid { grid-template-columns: 1fr 1fr; } } /* sm */
+@media (min-width: 1024px) { .hdk-faq--two-column .hdk-faq__inner { grid-template-columns: 1fr 2fr; } } /* md */
+</style>
+  <div class="hdk-faq__inner">
+    <div><h2 class="hdk-faq__title" data-slot="title">자주 묻는 질문</h2><p class="hdk-faq__subtitle" data-slot="subtitle">부제 자리</p></div>
+    <div class="hdk-faq__grid" data-slot="items">
+      <div data-slot="item"><h3 class="hdk-faq__label" data-slot="label">질문 자리</h3><p class="hdk-faq__body" data-slot="body">답변 자리</p></div>
+      <div><h3 class="hdk-faq__label">질문 자리</h3><p class="hdk-faq__body">답변 자리</p></div>
+      <div><h3 class="hdk-faq__label">질문 자리</h3><p class="hdk-faq__body">답변 자리</p></div>
+      <div><h3 class="hdk-faq__label">질문 자리</h3><p class="hdk-faq__body">답변 자리</p></div>
+    </div>
+  </div>
+</section></article><article class="part"><h2>feed.activity · ColorlibHQ/gentelella</h2><section data-part="feed" data-variant="activity" class="hdk-feed hdk-feed--activity">
+<style>
+.hdk-feed--activity .hdk-feed__list { list-style: none; margin: 0; padding: 0; }
+.hdk-feed--activity .hdk-feed__item { display: grid; grid-template-columns: 32px 1fr auto; gap: var(--hdk-sp-3); padding: var(--hdk-sp-3) 0; border-bottom: 1px solid var(--hdk-line); font-size: var(--hdk-fs-sm); }
+.hdk-feed--activity .hdk-feed__item:last-child { border-bottom: 0; }
+.hdk-feed--activity .hdk-feed__image { width: 32px; height: 32px; border-radius: var(--hdk-radius-full); background: var(--hdk-accent-soft); }
+.hdk-feed--activity .hdk-feed__title { margin: 0; }
+.hdk-feed--activity .hdk-feed__title b { font-weight: var(--hdk-fw-medium); }
+.hdk-feed--activity .hdk-feed__body { margin: 2px 0 0; color: var(--hdk-fg-muted); font-size: var(--hdk-fs-xs); }
+.hdk-feed--activity .hdk-feed__meta { font-size: var(--hdk-fs-xs); color: var(--hdk-fg-faint); white-space: nowrap; }
+</style>
+  <ul class="hdk-feed__list" data-slot="items">
+    <li class="hdk-feed__item" data-slot="item"><span class="hdk-feed__image" data-slot="image"></span><div><p class="hdk-feed__title" data-slot="title"><b>행위자 자리</b>가 행동 자리</p><p class="hdk-feed__body" data-slot="body">부가 설명 자리</p></div><span class="hdk-feed__meta" data-slot="meta">방금</span></li>
+    <li class="hdk-feed__item"><span class="hdk-feed__image"></span><div><p class="hdk-feed__title"><b>행위자 자리</b>가 행동 자리</p></div><span class="hdk-feed__meta">5분 전</span></li>
+    <li class="hdk-feed__item"><span class="hdk-feed__image"></span><div><p class="hdk-feed__title"><b>행위자 자리</b>가 행동 자리</p></div><span class="hdk-feed__meta">1시간 전</span></li>
+  </ul>
+</section></article><article class="part"><h2>feed.comments · tabler/tabler</h2><section data-part="feed" data-variant="comments" class="hdk-feed hdk-feed--comments">
+<style>
+.hdk-feed--comments .hdk-feed__list { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--hdk-sp-4); }
+.hdk-feed--comments .hdk-feed__item { display: grid; grid-template-columns: 36px 1fr; gap: var(--hdk-sp-3); }
+.hdk-feed--comments .hdk-feed__item[data-depth="2"] { margin-left: var(--hdk-sp-7); }
+.hdk-feed--comments .hdk-feed__image { width: 36px; height: 36px; border-radius: var(--hdk-radius-full); background: var(--hdk-accent-soft); }
+.hdk-feed--comments .hdk-feed__head { display: flex; gap: var(--hdk-sp-2); align-items: baseline; font-size: var(--hdk-fs-sm); }
+.hdk-feed--comments .hdk-feed__title { margin: 0; font-weight: var(--hdk-fw-medium); }
+.hdk-feed--comments .hdk-feed__meta { font-size: var(--hdk-fs-xs); color: var(--hdk-fg-faint); }
+.hdk-feed--comments .hdk-feed__body { margin: var(--hdk-sp-1) 0 var(--hdk-sp-2); padding: var(--hdk-sp-3); background: var(--hdk-bg-elev); border: 1px solid var(--hdk-line); border-radius: 0 var(--hdk-radius-lg) var(--hdk-radius-lg) var(--hdk-radius-lg); font-size: var(--hdk-fs-sm); line-height: var(--hdk-lh-base); }
+.hdk-feed--comments .hdk-feed__actions { display: flex; gap: var(--hdk-sp-3); font-size: var(--hdk-fs-xs); color: var(--hdk-fg-muted); }
+.hdk-feed--comments .hdk-feed__cta { margin-top: var(--hdk-sp-5); padding-top: var(--hdk-sp-4); border-top: 1px solid var(--hdk-line); }
+</style>
+  <ul class="hdk-feed__list" data-slot="items">
+    <li class="hdk-feed__item" data-slot="item"><span class="hdk-feed__image" data-slot="image"></span><div><div class="hdk-feed__head"><p class="hdk-feed__title" data-slot="title">작성자 자리</p><span class="hdk-feed__meta" data-slot="meta">시각 자리</span></div><p class="hdk-feed__body" data-slot="body">댓글 본문 자리</p><div class="hdk-feed__actions"><a href="#">답글</a><a href="#">좋아요</a></div></div></li>
+    <li class="hdk-feed__item" data-depth="2"><span class="hdk-feed__image"></span><div><div class="hdk-feed__head"><p class="hdk-feed__title">작성자 자리</p><span class="hdk-feed__meta">시각 자리</span></div><p class="hdk-feed__body">답글 본문 자리</p><div class="hdk-feed__actions"><a href="#">답글</a></div></div></li>
+  </ul>
+  <div class="hdk-feed__cta" data-slot="cta"><!-- form (댓글 입력) --></div>
+</section></article><article class="part"><h2>feed.notifications · satnaing/shadcn-admin</h2><section data-part="feed" data-variant="notifications" class="hdk-feed hdk-feed--notifications">
+<style>
+.hdk-feed--notifications .hdk-feed__list { list-style: none; margin: 0; padding: 0; }
+.hdk-feed--notifications .hdk-feed__item { position: relative; display: grid; grid-template-columns: 36px 1fr; gap: var(--hdk-sp-3); padding: var(--hdk-sp-3) var(--hdk-sp-4) var(--hdk-sp-3) var(--hdk-sp-5); border-bottom: 1px solid var(--hdk-line); font-size: var(--hdk-fs-sm); }
+.hdk-feed--notifications .hdk-feed__item[data-unread="true"] { background: var(--hdk-accent-soft); }
+.hdk-feed--notifications .hdk-feed__item[data-unread="true"]::before { content: ""; position: absolute; left: var(--hdk-sp-2); top: 50%; width: 6px; height: 6px; border-radius: var(--hdk-radius-full); background: var(--hdk-accent); transform: translateY(-50%); }
+.hdk-feed--notifications .hdk-feed__icon { width: 36px; height: 36px; display: grid; place-items: center; border-radius: var(--hdk-radius-md); background: var(--hdk-bg-elev-2); color: var(--hdk-fg-muted); }
+.hdk-feed--notifications .hdk-feed__icon svg { width: 18px; height: 18px; }
+.hdk-feed--notifications .hdk-feed__title { margin: 0; font-weight: var(--hdk-fw-medium); }
+.hdk-feed--notifications .hdk-feed__body { margin: 2px 0 0; color: var(--hdk-fg-muted); font-size: var(--hdk-fs-xs); }
+.hdk-feed--notifications .hdk-feed__meta { display: block; margin-top: var(--hdk-sp-1); font-size: var(--hdk-fs-xs); color: var(--hdk-fg-faint); }
+</style>
+  <ul class="hdk-feed__list" data-slot="items">
+    <li class="hdk-feed__item" data-unread="true" data-slot="item"><span class="hdk-feed__icon" data-slot="icon"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M4 7a5 5 0 0110 0v4l1 2H3l1-2zM7 15h4"/></svg></span><div><p class="hdk-feed__title" data-slot="title">알림 제목 자리</p><p class="hdk-feed__body" data-slot="body">알림 내용 자리</p><span class="hdk-feed__meta" data-slot="meta">시각 자리</span></div></li>
+    <li class="hdk-feed__item"><span class="hdk-feed__icon"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="9" cy="9" r="6"/></svg></span><div><p class="hdk-feed__title">알림 제목 자리</p><p class="hdk-feed__body">알림 내용 자리</p><span class="hdk-feed__meta">시각 자리</span></div></li>
+  </ul>
+</section></article><article class="part"><h2>footer.centered-social · startbootstrap/startbootstrap-agency</h2><section data-part="footer" data-variant="centered-social" class="hdk-footer hdk-footer--centered-social">
+<style>
+.hdk-footer--centered-social { display: flex; flex-direction: column; align-items: center; gap: var(--hdk-sp-4); padding: var(--hdk-sp-7) var(--hdk-sp-4); text-align: center; border-top: 1px solid var(--hdk-line); }
+.hdk-footer--centered-social .hdk-footer__logo { font-family: var(--hdk-font-display); font-weight: var(--hdk-fw-bold); font-size: var(--hdk-fs-xl); }
+.hdk-footer--centered-social .hdk-footer__nav { display: flex; flex-wrap: wrap; justify-content: center; gap: var(--hdk-sp-4); list-style: none; margin: 0; padding: 0; font-size: var(--hdk-fs-sm); }
+.hdk-footer--centered-social .hdk-footer__nav a { color: var(--hdk-fg-muted); text-decoration: none; }
+.hdk-footer--centered-social .hdk-footer__social { display: flex; gap: var(--hdk-sp-2); list-style: none; margin: 0; padding: 0; }
+.hdk-footer--centered-social .hdk-footer__social a { display: grid; place-items: center; width: 36px; height: 36px; border-radius: var(--hdk-radius-full); border: 1px solid var(--hdk-line-strong); color: var(--hdk-fg-muted); }
+.hdk-footer--centered-social .hdk-footer__social a:hover { border-color: var(--hdk-accent); color: var(--hdk-accent); }
+.hdk-footer--centered-social .hdk-footer__social svg { width: 16px; height: 16px; }
+.hdk-footer--centered-social .hdk-footer__meta { font-size: var(--hdk-fs-xs); color: var(--hdk-fg-faint); }
+</style>
+  <div class="hdk-footer__logo" data-slot="logo">로고 자리</div>
+  <ul class="hdk-footer__nav" data-slot="nav"><li><a href="#">링크 자리</a></li><li><a href="#">링크 자리</a></li><li><a href="#">링크 자리</a></li></ul>
+  <ul class="hdk-footer__social" data-slot="items"><li data-slot="item"><a href="#" aria-label="소셜"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="8" cy="8" r="6"/></svg></a></li><li><a href="#" aria-label="소셜"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="2" y="2" width="12" height="12" rx="3"/></svg></a></li><li><a href="#" aria-label="소셜"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M2 12l6-8 6 8z"/></svg></a></li></ul>
+  <span class="hdk-footer__meta" data-slot="meta">저작권 문구 자리</span>
+</section></article><article class="part"><h2>footer.minimal-line · tabler/tabler</h2><section data-part="footer" data-variant="minimal-line" class="hdk-footer hdk-footer--minimal-line">
+<style>
+.hdk-footer--minimal-line { display: flex; flex-wrap: wrap; justify-content: space-between; gap: var(--hdk-sp-2); padding: var(--hdk-sp-3) var(--hdk-sp-4); font-size: var(--hdk-fs-xs); color: var(--hdk-fg-faint); border-top: 1px solid var(--hdk-line); }
+.hdk-footer--minimal-line .hdk-footer__nav { display: flex; gap: var(--hdk-sp-4); list-style: none; margin: 0; padding: 0; }
+.hdk-footer--minimal-line a { color: inherit; text-decoration: none; }
+.hdk-footer--minimal-line a:hover { color: var(--hdk-fg); }
+</style>
+  <span data-slot="meta">저작권 문구 자리</span>
+  <ul class="hdk-footer__nav" data-slot="nav"><li><a href="#">링크 자리</a></li><li><a href="#">링크 자리</a></li></ul>
+</section></article><article class="part"><h2>form.filter-bar · ColorlibHQ/AdminLTE</h2><section data-part="form" data-variant="filter-bar" class="hdk-form hdk-form--filter-bar">
+<style>
+.hdk-form--filter-bar { display: flex; flex-wrap: wrap; align-items: center; gap: var(--hdk-sp-2); padding: var(--hdk-sp-3); background: var(--hdk-bg-elev); border: 1px solid var(--hdk-line); border-radius: var(--hdk-radius-lg); }
+.hdk-form--filter-bar input, .hdk-form--filter-bar select { padding: var(--hdk-sp-2) var(--hdk-sp-3); background: var(--hdk-bg); border: 1px solid var(--hdk-line-strong); border-radius: var(--hdk-radius-md); font-size: var(--hdk-fs-sm); color: var(--hdk-fg); }
+.hdk-form--filter-bar input:focus, .hdk-form--filter-bar select:focus { outline: none; border-color: var(--hdk-accent); }
+.hdk-form--filter-bar input[type="search"] { flex: 1 1 200px; }
+.hdk-form--filter-bar .hdk-form__cta { margin-left: auto; display: flex; gap: var(--hdk-sp-2); }
+</style>
+  <div style="display:contents" data-slot="fields">
+    <input type="search" placeholder="검색 자리" aria-label="검색">
+    <select aria-label="상태"><option>상태: 전체</option><option>진행</option><option>완료</option></select>
+    <select aria-label="기간"><option>기간: 최근 7일</option><option>최근 30일</option></select>
+  </div>
+  <div class="hdk-form__cta" data-slot="cta"><!-- button.ghost "초기화" · button.outline "적용" --></div>
+</section></article><article class="part"><h2>form.login-card · ColorlibHQ/gentelella</h2><section data-part="form" data-variant="login-card" class="hdk-form hdk-form--login-card">
+<style>
+.hdk-form--login-card { max-width: 400px; /* 구조 치수 */ margin: 0 auto; padding: var(--hdk-sp-6); background: var(--hdk-bg-elev); border: 1px solid var(--hdk-line); border-radius: var(--hdk-radius-lg); box-shadow: var(--hdk-shadow-md); }
+.hdk-form--login-card .hdk-form__logo { width: 40px; height: 40px; border-radius: var(--hdk-radius-md); background: var(--hdk-accent); margin-bottom: var(--hdk-sp-4); }
+.hdk-form--login-card .hdk-form__title { margin: 0 0 var(--hdk-sp-1); font-family: var(--hdk-font-display); font-size: var(--hdk-fs-xl); font-weight: var(--hdk-fw-bold); }
+.hdk-form--login-card .hdk-form__body { margin: 0 0 var(--hdk-sp-5); color: var(--hdk-fg-muted); font-size: var(--hdk-fs-sm); }
+.hdk-form--login-card .hdk-form__field { display: grid; gap: var(--hdk-sp-1); margin-bottom: var(--hdk-sp-4); font-size: var(--hdk-fs-sm); }
+.hdk-form--login-card .hdk-form__field > label { display: grid; gap: var(--hdk-sp-1); }
+.hdk-form--login-card .hdk-form__field > label > span { font-weight: var(--hdk-fw-medium); }
+.hdk-form--login-card input[type="email"], .hdk-form--login-card input[type="password"] { width: 100%; padding: var(--hdk-sp-2) var(--hdk-sp-3); background: var(--hdk-bg); border: 1px solid var(--hdk-line-strong); border-radius: var(--hdk-radius-md); }
+.hdk-form--login-card input:focus { outline: none; border-color: var(--hdk-accent); box-shadow: var(--hdk-focus-ring); }
+.hdk-form--login-card .hdk-form__row { display: flex; justify-content: space-between; align-items: center; font-size: var(--hdk-fs-xs); color: var(--hdk-fg-muted); margin-bottom: var(--hdk-sp-4); }
+.hdk-form--login-card .hdk-form__row a { color: var(--hdk-accent); text-decoration: none; }
+.hdk-form--login-card .hdk-form__cta [data-part="button"], .hdk-form--login-card .hdk-form__cta .hdk-button__btn { width: 100%; justify-content: center; }
+.hdk-form--login-card .hdk-form__meta { margin: var(--hdk-sp-4) 0 0; text-align: center; font-size: var(--hdk-fs-xs); color: var(--hdk-fg-faint); }
+</style>
+  <i class="hdk-form__logo" data-slot="logo" aria-hidden="true"></i>
+  <h2 class="hdk-form__title" data-slot="title">제목 자리</h2>
+  <p class="hdk-form__body" data-slot="body">안내 문구 자리</p>
+  <div data-slot="fields">
+    <div class="hdk-form__field"><label><span>이메일</span><input type="email" placeholder="you@example.com"></label></div>
+    <div class="hdk-form__field"><label><span>비밀번호</span><input type="password" placeholder="••••••••"></label></div>
+    <div class="hdk-form__row"><label><input type="checkbox"> 로그인 유지</label><a href="#">비밀번호 찾기</a></div>
+  </div>
+  <div class="hdk-form__cta" data-slot="cta"><!-- button.solid --></div>
+  <p class="hdk-form__meta" data-slot="meta">하단 안내 자리</p>
+</section></article><article class="part"><h2>form.search-bar · tabler/tabler</h2><section data-part="form" data-variant="search-bar" class="hdk-form hdk-form--search-bar">
+<style>
+.hdk-form--search-bar { position: relative; display: flex; align-items: center; max-width: 560px; }
+.hdk-form--search-bar .hdk-form__icon { position: absolute; left: var(--hdk-sp-3); width: 18px; height: 18px; color: var(--hdk-fg-faint); pointer-events: none; }
+.hdk-form--search-bar input { width: 100%; padding: var(--hdk-sp-3) var(--hdk-sp-8) var(--hdk-sp-3) var(--hdk-sp-7); background: var(--hdk-bg-elev); border: 1px solid var(--hdk-line); border-radius: var(--hdk-radius-full); font-size: var(--hdk-fs-md); box-shadow: var(--hdk-shadow-sm); }
+.hdk-form--search-bar input:focus { outline: none; border-color: var(--hdk-accent); box-shadow: var(--hdk-focus-ring); }
+.hdk-form--search-bar .hdk-form__kbd { position: absolute; right: var(--hdk-sp-3); padding: 2px var(--hdk-sp-2); font-family: var(--hdk-font-mono); font-size: var(--hdk-fs-xs); color: var(--hdk-fg-faint); background: var(--hdk-bg-elev-2); border: 1px solid var(--hdk-line); border-radius: var(--hdk-radius-sm); }
+.hdk-form--search-bar[data-size="lg"] input { padding-top: var(--hdk-sp-4); padding-bottom: var(--hdk-sp-4); font-size: var(--hdk-fs-lg); }
+</style>
+  <svg class="hdk-form__icon" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="8" cy="8" r="5.5"/><path d="M12 12l4 4"/></svg>
+  <input type="search" placeholder="검색어 입력 자리" aria-label="검색">
+  <kbd class="hdk-form__kbd">⌘K</kbd>
+</section></article><article class="part"><h2>form.stacked-fields · original</h2><section data-part="form" data-variant="stacked-fields" class="hdk-form hdk-form--stacked-fields">
+<style>
+.hdk-form--stacked-fields { display: grid; gap: var(--hdk-sp-4); max-width: 520px; }
+.hdk-form--stacked-fields .hdk-form__title { margin: 0; font-size: var(--hdk-fs-lg); font-weight: var(--hdk-fw-medium); }
+.hdk-form--stacked-fields .hdk-form__field { display: grid; gap: var(--hdk-sp-1); font-size: var(--hdk-fs-sm); }
+.hdk-form--stacked-fields label { display: grid; gap: var(--hdk-sp-1); }
+.hdk-form--stacked-fields label > span { font-weight: var(--hdk-fw-medium); }
+.hdk-form--stacked-fields input, .hdk-form--stacked-fields textarea, .hdk-form--stacked-fields select { width: 100%; padding: var(--hdk-sp-2) var(--hdk-sp-3); background: var(--hdk-bg); border: 1px solid var(--hdk-line-strong); border-radius: var(--hdk-radius-md); font-size: var(--hdk-fs-sm); }
+.hdk-form--stacked-fields input:focus, .hdk-form--stacked-fields textarea:focus, .hdk-form--stacked-fields select:focus { outline: none; border-color: var(--hdk-accent); box-shadow: var(--hdk-focus-ring); }
+.hdk-form--stacked-fields .hdk-form__help { font-size: var(--hdk-fs-xs); color: var(--hdk-fg-faint); }
+.hdk-form--stacked-fields .hdk-form__field[data-invalid="true"] input { border-color: var(--hdk-danger); }
+.hdk-form--stacked-fields .hdk-form__field[data-invalid="true"] .hdk-form__help { color: var(--hdk-danger); }
+.hdk-form--stacked-fields .hdk-form__grid { display: grid; gap: var(--hdk-sp-3); }
+.hdk-form--stacked-fields .hdk-form__cta { display: flex; gap: var(--hdk-sp-2); justify-content: flex-end; padding-top: var(--hdk-sp-2); border-top: 1px solid var(--hdk-line); }
+@media (min-width: 640px) { .hdk-form--stacked-fields .hdk-form__grid { grid-template-columns: 1fr 1fr; } } /* sm */
+</style>
+  <h3 class="hdk-form__title" data-slot="title">폼 제목 자리</h3>
+  <div style="display:contents" data-slot="fields">
+    <div class="hdk-form__grid">
+      <div class="hdk-form__field"><label><span>이름</span><input type="text" placeholder="입력 자리"></label></div>
+      <div class="hdk-form__field" data-invalid="true"><label><span>이메일</span><input type="email" value="wrong@"></label><span class="hdk-form__help">올바른 이메일 형식이 아닙니다</span></div>
+    </div>
+    <div class="hdk-form__field"><label><span>구분</span><select><option>선택 자리</option></select></label></div>
+    <div class="hdk-form__field"><label><span>메모</span><textarea rows="3" placeholder="입력 자리"></textarea></label><span class="hdk-form__help">도움말 자리</span></div>
+  </div>
+  <div class="hdk-form__cta" data-slot="cta"><!-- button.outline "취소" · button.solid "저장" --></div>
+</section></article><article class="part"><h2>frame.paper-a4 · sparksuite/simple-html-invoice-template</h2><section data-part="frame" data-variant="paper-a4" class="hdk-frame hdk-frame--paper-a4">
+<style>
+.hdk-frame--paper-a4 { min-height: 100vh; padding: var(--hdk-sp-4); background: var(--hdk-bg); }
+.hdk-frame--paper-a4 .hdk-frame__paper { max-width: 800px; /* 구조 치수: A4 비율 근사 */ margin: 0 auto; padding: var(--hdk-sp-6);
+  background: var(--hdk-bg-elev); border: 1px solid var(--hdk-line); border-radius: var(--hdk-radius-sm); box-shadow: var(--hdk-shadow-md); }
+@media (min-width: 640px) { .hdk-frame--paper-a4 { padding: var(--hdk-sp-7) var(--hdk-sp-4); } .hdk-frame--paper-a4 .hdk-frame__paper { padding: var(--hdk-sp-8); } } /* sm */
+@media print {
+  .hdk-frame--paper-a4 { padding: 0; background: none; }
+  .hdk-frame--paper-a4 .hdk-frame__paper { max-width: none; margin: 0; padding: 0; border: 0; box-shadow: none; border-radius: 0; }
+  @page { size: A4; margin: 18mm; }
+}
+</style>
+  <div class="hdk-frame__paper" data-region="content"><!-- table.document / section … --></div>
+</section></article><article class="part"><h2>frame.sidebar-shell · ColorlibHQ/gentelella</h2><section data-part="frame" data-variant="sidebar-shell" data-init="frame.sidebar-shell" class="hdk-frame hdk-frame--sidebar-shell">
+<style>
+.hdk-frame--sidebar-shell { display: grid; min-height: 100vh; grid-template-rows: var(--hdk-topbar-h) 1fr auto; grid-template-columns: 1fr; background: var(--hdk-bg); }
+.hdk-frame--sidebar-shell .hdk-frame__sidebar { position: fixed; inset: 0 auto 0 0; width: var(--hdk-sidebar-w); z-index: 20;
+  background: var(--hdk-bg-elev); border-right: 1px solid var(--hdk-line); transform: translateX(-100%);
+  transition: transform var(--hdk-dur-base) var(--hdk-ease), width var(--hdk-dur-base) var(--hdk-ease); overflow-y: auto; }
+.hdk-frame--sidebar-shell[data-open="true"] .hdk-frame__sidebar { transform: none; }
+.hdk-frame--sidebar-shell .hdk-frame__scrim { position: fixed; inset: 0; z-index: 19; background: var(--hdk-fg); opacity: 0; pointer-events: none; transition: opacity var(--hdk-dur-base); }
+.hdk-frame--sidebar-shell[data-open="true"] .hdk-frame__scrim { opacity: .4; pointer-events: auto; }
+.hdk-frame--sidebar-shell .hdk-frame__topbar { position: sticky; top: 0; z-index: 10; height: var(--hdk-topbar-h); background: var(--hdk-bg-elev); border-bottom: 1px solid var(--hdk-line); }
+.hdk-frame--sidebar-shell .hdk-frame__content { padding: var(--hdk-sp-5) var(--hdk-sp-4); }
+.hdk-frame--sidebar-shell .hdk-frame__footer { padding: var(--hdk-sp-3) var(--hdk-sp-4); border-top: 1px solid var(--hdk-line); color: var(--hdk-fg-faint); font-size: var(--hdk-fs-xs); }
+@media (min-width: 1024px) { /* md */
+  .hdk-frame--sidebar-shell { grid-template-columns: var(--hdk-sidebar-w) 1fr; }
+  .hdk-frame--sidebar-shell[data-collapsed="true"] { grid-template-columns: var(--hdk-sidebar-w-min) 1fr; }
+  .hdk-frame--sidebar-shell .hdk-frame__sidebar { position: sticky; top: 0; height: 100vh; transform: none; grid-row: 1 / -1; }
+  .hdk-frame--sidebar-shell[data-collapsed="true"] .hdk-frame__sidebar { width: var(--hdk-sidebar-w-min); }
+  .hdk-frame--sidebar-shell .hdk-frame__scrim { display: none; }
+  .hdk-frame--sidebar-shell .hdk-frame__content { padding: var(--hdk-sp-6); }
+}
+</style>
+  <aside class="hdk-frame__sidebar" data-region="sidebar"><!-- sidebar.* --></aside>
+  <div class="hdk-frame__scrim" aria-hidden="true"></div>
+  <header class="hdk-frame__topbar" data-region="topbar"><!-- topbar.* --></header>
+  <main class="hdk-frame__content" data-region="content"><!-- section / card / table … --></main>
+  <footer class="hdk-frame__footer" data-region="footer"><!-- footer.* 또는 한 줄 --></footer>
+<script>
+hdk.register('frame.sidebar-shell', function (root) {
+  root.querySelector('.hdk-frame__scrim').addEventListener('click', () => root.dataset.open = 'false');
+  // topbar 안의 [data-action="toggle-sidebar"] 가 있으면 연결
+  root.addEventListener('click', e => {
+    const b = e.target.closest('[data-action="toggle-sidebar"]'); if (!b) return;
+    const desktop = window.matchMedia('(min-width: 1024px)').matches;
+    if (desktop) root.dataset.collapsed = root.dataset.collapsed === 'true' ? 'false' : 'true';
+    else root.dataset.open = root.dataset.open === 'true' ? 'false' : 'true';
+  });
+});
+</script>
+</section></article><article class="part"><h2>hero.fullbleed-image · startbootstrap/startbootstrap-agency</h2><section data-part="hero" data-variant="fullbleed-image" class="hdk-hero hdk-hero--fullbleed-image" style="--hero-fg: var(--hdk-bg)">
+<style>
+.hdk-hero--fullbleed-image { position: relative; min-height: 70vh; display: grid; place-items: center; padding: var(--hdk-sp-8) var(--hdk-sp-4); text-align: center; color: var(--hero-fg); overflow: hidden; background: var(--hdk-fg); }
+.hdk-hero--fullbleed-image .hdk-hero__image { position: absolute; inset: 0; }
+.hdk-hero--fullbleed-image .hdk-hero__image img { width: 100%; height: 100%; object-fit: cover; opacity: .55; }
+.hdk-hero--fullbleed-image .hdk-hero__image::after { content: ""; position: absolute; inset: 0; background: linear-gradient(to top, var(--hdk-fg), transparent 60%); opacity: .8; }
+.hdk-hero--fullbleed-image .hdk-hero__inner { position: relative; max-width: 760px; display: grid; gap: var(--hdk-sp-4); justify-items: center; }
+.hdk-hero--fullbleed-image .hdk-hero__eyebrow { margin: 0; font-size: var(--hdk-fs-xs); letter-spacing: var(--hdk-tracking-caps); text-transform: uppercase; opacity: .8; }
+.hdk-hero--fullbleed-image .hdk-hero__title { margin: 0; font-family: var(--hdk-font-display); font-size: var(--hdk-fs-3xl); font-weight: var(--hdk-fw-bold); line-height: var(--hdk-lh-tight); letter-spacing: -0.02em; }
+.hdk-hero--fullbleed-image .hdk-hero__subtitle { margin: 0; font-size: var(--hdk-fs-lg); opacity: .85; max-width: 52ch; }
+</style>
+  <div class="hdk-hero__image" data-slot="image" aria-hidden="true"></div>
+  <div class="hdk-hero__inner">
+    <p class="hdk-hero__eyebrow" data-slot="eyebrow">아이브로우 자리</p>
+    <h1 class="hdk-hero__title" data-slot="title">제목 자리</h1>
+    <p class="hdk-hero__subtitle" data-slot="subtitle">부제 자리</p>
+    <div data-slot="cta"><!-- button.solid lg --></div>
+  </div>
+</section></article><article class="part"><h2>hero.stat-band · thedevdojo/tails</h2><section data-part="hero" data-variant="stat-band" class="hdk-hero hdk-hero--stat-band">
+<style>
+.hdk-hero--stat-band { padding: var(--hdk-sp-8) var(--hdk-sp-4); background: var(--hdk-bg-elev); border-bottom: 1px solid var(--hdk-line); }
+.hdk-hero--stat-band .hdk-hero__inner { max-width: var(--hdk-container); margin: 0 auto; display: grid; gap: var(--hdk-sp-6); }
+.hdk-hero--stat-band .hdk-hero__title { margin: 0 0 var(--hdk-sp-3); font-family: var(--hdk-font-display); font-size: var(--hdk-fs-2xl); font-weight: var(--hdk-fw-bold); line-height: var(--hdk-lh-tight); letter-spacing: -0.02em; }
+.hdk-hero--stat-band .hdk-hero__subtitle { margin: 0 0 var(--hdk-sp-4); color: var(--hdk-fg-muted); max-width: 48ch; }
+.hdk-hero--stat-band .hdk-hero__stats { display: grid; grid-template-columns: 1fr 1fr; gap: var(--hdk-sp-4); align-content: center; }
+.hdk-hero--stat-band .hdk-hero__value { margin: 0; font-family: var(--hdk-font-display); font-size: var(--hdk-fs-2xl); font-weight: var(--hdk-fw-bold); line-height: 1; color: var(--hdk-accent); font-variant-numeric: tabular-nums; }
+.hdk-hero--stat-band .hdk-hero__label { margin: var(--hdk-sp-1) 0 0; font-size: var(--hdk-fs-xs); color: var(--hdk-fg-muted); letter-spacing: var(--hdk-tracking-caps); text-transform: uppercase; }
+@media (min-width: 1024px) { .hdk-hero--stat-band .hdk-hero__inner { grid-template-columns: 3fr 2fr; } .hdk-hero--stat-band .hdk-hero__title { font-size: var(--hdk-fs-3xl); } } /* md */
+</style>
+  <div class="hdk-hero__inner">
+    <div><h1 class="hdk-hero__title" data-slot="title">제목 자리</h1><p class="hdk-hero__subtitle" data-slot="subtitle">부제 자리</p><div data-slot="cta"><!-- button.solid lg --></div></div>
+    <div class="hdk-hero__stats" data-slot="items">
+      <div data-slot="item"><p class="hdk-hero__value" data-slot="value">0</p><p class="hdk-hero__label" data-slot="label">지표 라벨</p></div>
+      <div><p class="hdk-hero__value">0</p><p class="hdk-hero__label">지표 라벨</p></div>
+      <div><p class="hdk-hero__value">0</p><p class="hdk-hero__label">지표 라벨</p></div>
+      <div><p class="hdk-hero__value">0</p><p class="hdk-hero__label">지표 라벨</p></div>
+    </div>
+  </div>
+</section></article><article class="part"><h2>modal.confirm · original</h2><section data-part="modal" data-variant="confirm" class="hdk-modal hdk-modal--confirm" data-tone="danger">
+<style>
+.hdk-modal--confirm dialog { width: min(380px, calc(100vw - var(--hdk-sp-6))); padding: var(--hdk-sp-6) var(--hdk-sp-5) var(--hdk-sp-5); border: 1px solid var(--hdk-line); border-radius: var(--hdk-radius-lg); background: var(--hdk-bg-elev-2); color: var(--hdk-fg); box-shadow: var(--hdk-shadow-lg); text-align: center; }
+.hdk-modal--confirm dialog::backdrop { background: var(--hdk-fg); opacity: .4; }
+.hdk-modal--confirm[data-inline="true"] dialog { display: block; position: static; margin: 0; }
+.hdk-modal--confirm .hdk-modal__icon { width: 48px; height: 48px; margin: 0 auto var(--hdk-sp-4); display: grid; place-items: center; border-radius: var(--hdk-radius-full); background: var(--hdk-danger-soft); color: var(--hdk-danger); }
+.hdk-modal--confirm[data-tone="warning"] .hdk-modal__icon { background: var(--hdk-warning-soft); color: var(--hdk-warning); }
+.hdk-modal--confirm .hdk-modal__icon svg { width: 22px; height: 22px; }
+.hdk-modal--confirm .hdk-modal__title { margin: 0 0 var(--hdk-sp-2); font-size: var(--hdk-fs-lg); font-weight: var(--hdk-fw-bold); }
+.hdk-modal--confirm .hdk-modal__body { margin: 0 0 var(--hdk-sp-5); color: var(--hdk-fg-muted); font-size: var(--hdk-fs-sm); }
+.hdk-modal--confirm .hdk-modal__cta { display: grid; grid-template-columns: 1fr 1fr; gap: var(--hdk-sp-2); }
+.hdk-modal--confirm .hdk-modal__cta [data-part="button"], .hdk-modal--confirm .hdk-modal__cta .hdk-button__btn { width: 100%; justify-content: center; }
+</style>
+  <dialog>
+    <div class="hdk-modal__icon" data-slot="icon"><svg viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M11 7v5M11 15h.01"/><circle cx="11" cy="11" r="8"/></svg></div>
+    <h3 class="hdk-modal__title" data-slot="title">정말 삭제할까요?</h3>
+    <p class="hdk-modal__body" data-slot="body">되돌릴 수 없는 작업이라는 설명 자리</p>
+    <div class="hdk-modal__cta" data-slot="cta"><!-- button.outline "취소" · button.solid danger "삭제" --></div>
+  </dialog>
+</section></article><article class="part"><h2>modal.dialog · ColorlibHQ/gentelella</h2><section data-part="modal" data-variant="dialog" data-init="modal.dialog" class="hdk-modal hdk-modal--dialog">
+<style>
+.hdk-modal--dialog dialog { width: min(480px, calc(100vw - var(--hdk-sp-6))); padding: 0; border: 1px solid var(--hdk-line); border-radius: var(--hdk-radius-lg); background: var(--hdk-bg-elev-2); color: var(--hdk-fg); box-shadow: var(--hdk-shadow-lg); }
+.hdk-modal--dialog dialog::backdrop { background: var(--hdk-fg); opacity: .4; }
+.hdk-modal--dialog[data-inline="true"] dialog { display: block; position: static; margin: 0; }
+.hdk-modal--dialog .hdk-modal__head { display: flex; align-items: center; justify-content: space-between; padding: var(--hdk-sp-4) var(--hdk-sp-5); border-bottom: 1px solid var(--hdk-line); }
+.hdk-modal--dialog .hdk-modal__title { margin: 0; font-size: var(--hdk-fs-md); font-weight: var(--hdk-fw-medium); }
+.hdk-modal--dialog .hdk-modal__close { border: 0; background: none; color: var(--hdk-fg-faint); cursor: pointer; font-size: var(--hdk-fs-lg); line-height: 1; }
+.hdk-modal--dialog .hdk-modal__body { padding: var(--hdk-sp-5); color: var(--hdk-fg-muted); font-size: var(--hdk-fs-sm); }
+.hdk-modal--dialog .hdk-modal__foot { display: flex; justify-content: flex-end; gap: var(--hdk-sp-2); padding: var(--hdk-sp-3) var(--hdk-sp-5); border-top: 1px solid var(--hdk-line); background: var(--hdk-bg-elev); border-radius: 0 0 var(--hdk-radius-lg) var(--hdk-radius-lg); }
+</style>
+  <dialog>
+    <div class="hdk-modal__head"><h3 class="hdk-modal__title" data-slot="title">대화상자 제목 자리</h3><button class="hdk-modal__close" type="button" data-action="close" aria-label="닫기">×</button></div>
+    <div class="hdk-modal__body" data-slot="body">본문 자리</div>
+    <div class="hdk-modal__foot" data-slot="cta"><!-- button.outline "취소" · button.solid "확인" --></div>
+  </dialog>
+<script>
+hdk.register('modal.dialog', function (root) {const r=root,d=r.querySelector('dialog');r.querySelectorAll('[data-action="close"]').forEach(b=>b.addEventListener('click',()=>d.close()));});
+</script>
+</section></article><article class="part"><h2>modal.drawer · satnaing/shadcn-admin</h2><section data-part="modal" data-variant="drawer" data-init="modal.drawer" class="hdk-modal hdk-modal--drawer" data-open="false" data-side="right">
+<style>
+.hdk-modal--drawer .hdk-modal__scrim { position: fixed; inset: 0; z-index: 40; background: var(--hdk-fg); opacity: 0; pointer-events: none; transition: opacity var(--hdk-dur-base); }
+.hdk-modal--drawer .hdk-modal__panel { position: fixed; top: 0; bottom: 0; right: 0; z-index: 41; width: min(420px, 90vw); display: flex; flex-direction: column; background: var(--hdk-bg-elev-2); border-left: 1px solid var(--hdk-line); box-shadow: var(--hdk-shadow-lg); transform: translateX(100%); transition: transform var(--hdk-dur-slow) var(--hdk-ease); }
+.hdk-modal--drawer[data-side="left"] .hdk-modal__panel { right: auto; left: 0; border-left: 0; border-right: 1px solid var(--hdk-line); transform: translateX(-100%); }
+.hdk-modal--drawer[data-open="true"] .hdk-modal__scrim { opacity: .4; pointer-events: auto; }
+.hdk-modal--drawer[data-open="true"] .hdk-modal__panel { transform: none; }
+.hdk-modal--drawer[data-inline="true"] .hdk-modal__scrim { display: none; }
+.hdk-modal--drawer[data-inline="true"] .hdk-modal__panel { position: relative; transform: none; width: 100%; max-width: 420px; height: 360px; }
+.hdk-modal--drawer .hdk-modal__head { display: flex; align-items: center; justify-content: space-between; padding: var(--hdk-sp-4) var(--hdk-sp-5); border-bottom: 1px solid var(--hdk-line); }
+.hdk-modal--drawer .hdk-modal__title { margin: 0; font-size: var(--hdk-fs-md); font-weight: var(--hdk-fw-medium); }
+.hdk-modal--drawer .hdk-modal__close { border: 0; background: none; color: var(--hdk-fg-faint); cursor: pointer; font-size: var(--hdk-fs-lg); line-height: 1; }
+.hdk-modal--drawer .hdk-modal__body { flex: 1; overflow-y: auto; padding: var(--hdk-sp-5); color: var(--hdk-fg-muted); font-size: var(--hdk-fs-sm); }
+.hdk-modal--drawer .hdk-modal__foot { display: flex; justify-content: flex-end; gap: var(--hdk-sp-2); padding: var(--hdk-sp-3) var(--hdk-sp-5); border-top: 1px solid var(--hdk-line); }
+</style>
+  <div class="hdk-modal__scrim" data-action="close" aria-hidden="true"></div>
+  <div class="hdk-modal__panel" role="dialog" aria-modal="true">
+    <div class="hdk-modal__head"><h3 class="hdk-modal__title" data-slot="title">패널 제목 자리</h3><button class="hdk-modal__close" type="button" data-action="close" aria-label="닫기">×</button></div>
+    <div class="hdk-modal__body" data-slot="body">본문 자리</div>
+    <div class="hdk-modal__foot" data-slot="cta"><!-- button.solid --></div>
+  </div>
+<script>
+hdk.register('modal.drawer', function (root) {const r=root;r.querySelectorAll('[data-action="close"]').forEach(b=>b.addEventListener('click',()=>r.dataset.open='false'));});
+</script>
+</section></article><article class="part"><h2>modal.toast · tabler/tabler</h2><section data-part="modal" data-variant="toast" class="hdk-modal hdk-modal--toast" data-tone="success" role="status">
+<style>
+.hdk-modal--toast { display: flex; gap: var(--hdk-sp-3); align-items: flex-start; width: min(360px, 90vw); padding: var(--hdk-sp-3) var(--hdk-sp-4); background: var(--hdk-bg-elev-2); border: 1px solid var(--hdk-line); border-left: 3px solid var(--hdk-fg-faint); border-radius: var(--hdk-radius-md); box-shadow: var(--hdk-shadow-lg); font-size: var(--hdk-fs-sm); }
+.hdk-modal--toast[data-tone="success"] { border-left-color: var(--hdk-success); }
+.hdk-modal--toast[data-tone="warning"] { border-left-color: var(--hdk-warning); }
+.hdk-modal--toast[data-tone="danger"]  { border-left-color: var(--hdk-danger); }
+.hdk-modal--toast[data-tone="info"]    { border-left-color: var(--hdk-info); }
+.hdk-modal--toast .hdk-modal__title { margin: 0; font-weight: var(--hdk-fw-medium); }
+.hdk-modal--toast .hdk-modal__body { margin: 2px 0 0; color: var(--hdk-fg-muted); font-size: var(--hdk-fs-xs); }
+.hdk-modal--toast .hdk-modal__close { margin-left: auto; border: 0; background: none; color: var(--hdk-fg-faint); cursor: pointer; line-height: 1; }
+</style>
+  <div><p class="hdk-modal__title" data-slot="title">알림 제목 자리</p><p class="hdk-modal__body" data-slot="body">알림 본문 자리</p></div>
+  <button class="hdk-modal__close" type="button" aria-label="닫기" onclick="this.closest('[data-part=modal]').remove()">×</button>
+</section></article><article class="part"><h2>pagination.compact · tabler/tabler</h2><section data-part="pagination" data-variant="compact" class="hdk-pagination hdk-pagination--compact">
+<style>
+.hdk-pagination--compact { display: inline-flex; align-items: center; gap: var(--hdk-sp-3); font-size: var(--hdk-fs-xs); color: var(--hdk-fg-muted); }
+.hdk-pagination--compact .hdk-pagination__meta { font-family: var(--hdk-font-mono); font-variant-numeric: tabular-nums; }
+.hdk-pagination--compact .hdk-pagination__nav { display: inline-flex; border: 1px solid var(--hdk-line-strong); border-radius: var(--hdk-radius-md); overflow: hidden; }
+.hdk-pagination--compact button { width: 30px; height: 28px; border: 0; background: var(--hdk-bg-elev); color: var(--hdk-fg-muted); cursor: pointer; }
+.hdk-pagination--compact button + button { border-left: 1px solid var(--hdk-line-strong); }
+.hdk-pagination--compact button:hover { background: var(--hdk-bg-elev-2); color: var(--hdk-fg); }
+.hdk-pagination--compact button:disabled { opacity: .4; cursor: not-allowed; }
+</style>
+  <span class="hdk-pagination__meta" data-slot="meta">1–20 / 0</span>
+  <span class="hdk-pagination__nav"><button type="button" disabled aria-label="이전">‹</button><button type="button" aria-label="다음">›</button></span>
+</section></article><article class="part"><h2>pagination.dots · original</h2><section data-part="pagination" data-variant="dots" class="hdk-pagination hdk-pagination--dots">
+<style>
+.hdk-pagination--dots .hdk-pagination__list { display: inline-flex; gap: var(--hdk-sp-2); list-style: none; margin: 0; padding: 0; }
+.hdk-pagination--dots button { width: 8px; height: 8px; padding: 0; border: 0; border-radius: var(--hdk-radius-full); background: var(--hdk-line-strong); cursor: pointer; transition: width var(--hdk-dur-base) var(--hdk-ease), background var(--hdk-dur-base); }
+.hdk-pagination--dots button[aria-current="true"] { width: 24px; background: var(--hdk-accent); }
+</style>
+  <ul class="hdk-pagination__list" data-slot="items"><li data-slot="item"><button type="button" aria-current="true" aria-label="1"></button></li><li><button type="button" aria-label="2"></button></li><li><button type="button" aria-label="3"></button></li><li><button type="button" aria-label="4"></button></li></ul>
+</section></article><article class="part"><h2>pagination.load-more · original</h2><section data-part="pagination" data-variant="load-more" class="hdk-pagination hdk-pagination--load-more">
+<style>
+.hdk-pagination--load-more { display: flex; flex-direction: column; align-items: center; gap: var(--hdk-sp-2); padding: var(--hdk-sp-4) 0; }
+.hdk-pagination--load-more .hdk-pagination__meta { font-size: var(--hdk-fs-xs); color: var(--hdk-fg-faint); }
+.hdk-pagination--load-more .hdk-pagination__bar { width: 160px; height: 3px; background: var(--hdk-line); border-radius: var(--hdk-radius-full); overflow: hidden; } /* 구조 치수 */
+.hdk-pagination--load-more .hdk-pagination__bar i { display: block; height: 100%; width: var(--pagination-progress, 30%); background: var(--hdk-accent); }
+</style>
+  <span class="hdk-pagination__meta" data-slot="meta">0개 중 0개 표시</span>
+  <span class="hdk-pagination__bar" aria-hidden="true"><i></i></span>
+  <span data-slot="cta"><!-- button.outline "더 보기" --></span>
+</section></article><article class="part"><h2>pagination.numbered · ColorlibHQ/gentelella</h2><section data-part="pagination" data-variant="numbered" class="hdk-pagination hdk-pagination--numbered">
+<style>
+.hdk-pagination--numbered .hdk-pagination__list { display: inline-flex; gap: var(--hdk-sp-1); list-style: none; margin: 0; padding: 0; font-size: var(--hdk-fs-sm); }
+.hdk-pagination--numbered a, .hdk-pagination--numbered span { display: inline-grid; place-items: center; min-width: 32px; height: 32px; padding: 0 var(--hdk-sp-2); border-radius: var(--hdk-radius-md); color: var(--hdk-fg-muted); text-decoration: none; }
+.hdk-pagination--numbered a:hover { background: var(--hdk-bg-elev-2); color: var(--hdk-fg); }
+.hdk-pagination--numbered [aria-current="page"] { background: var(--hdk-accent); color: var(--hdk-accent-fg); font-weight: var(--hdk-fw-medium); }
+.hdk-pagination--numbered [aria-disabled="true"] { opacity: .4; pointer-events: none; }
+</style>
+  <ul class="hdk-pagination__list" data-slot="items"><li><a href="#" aria-disabled="true">‹</a></li><li data-slot="item"><a href="#" aria-current="page">1</a></li><li><a href="#">2</a></li><li><a href="#">3</a></li><li><span>…</span></li><li><a href="#">12</a></li><li><a href="#">›</a></li></ul>
+</section></article><article class="part"><h2>pricing.compact-cards · satnaing/shadcn-admin</h2><section data-part="pricing" data-variant="compact-cards" class="hdk-pricing hdk-pricing--compact-cards">
+<style>
+.hdk-pricing--compact-cards { display: grid; gap: var(--hdk-sp-3); }
+.hdk-pricing--compact-cards .hdk-pricing__tier { display: grid; grid-template-columns: 1fr auto; gap: var(--hdk-sp-1) var(--hdk-sp-4); align-items: center; padding: var(--hdk-sp-3) var(--hdk-sp-4); background: var(--hdk-bg-elev); border: 1px solid var(--hdk-line); border-radius: var(--hdk-radius-md); }
+.hdk-pricing--compact-cards .hdk-pricing__tier[data-current="true"] { border-color: var(--hdk-accent); background: var(--hdk-accent-soft); }
+.hdk-pricing--compact-cards .hdk-pricing__label { margin: 0; font-weight: var(--hdk-fw-medium); font-size: var(--hdk-fs-sm); }
+.hdk-pricing--compact-cards .hdk-pricing__body { margin: 0; font-size: var(--hdk-fs-xs); color: var(--hdk-fg-muted); }
+.hdk-pricing--compact-cards .hdk-pricing__value { grid-column: 2; grid-row: 1; margin: 0; font-family: var(--hdk-font-mono); font-weight: var(--hdk-fw-bold); }
+.hdk-pricing--compact-cards .hdk-pricing__cta { grid-column: 2; grid-row: 2; justify-self: end; }
+</style>
+  <div style="display:contents" data-slot="items">
+    <div class="hdk-pricing__tier" data-current="true" data-slot="item"><p class="hdk-pricing__label" data-slot="label">현재 플랜 자리</p><p class="hdk-pricing__body" data-slot="body">설명 자리</p><p class="hdk-pricing__value" data-slot="value">₩0</p><span class="hdk-pricing__cta" data-slot="cta"><!-- 현재 --></span></div>
+    <div class="hdk-pricing__tier"><p class="hdk-pricing__label">상위 플랜 자리</p><p class="hdk-pricing__body">설명 자리</p><p class="hdk-pricing__value">₩9,900</p><span class="hdk-pricing__cta"><!-- button.outline sm "업그레이드" --></span></div>
+  </div>
+</section></article><article class="part"><h2>pricing.single-plan · thedevdojo/tails</h2><section data-part="pricing" data-variant="single-plan" class="hdk-pricing hdk-pricing--single-plan">
+<style>
+.hdk-pricing--single-plan { padding: var(--hdk-sp-8) var(--hdk-sp-4); }
+.hdk-pricing--single-plan .hdk-pricing__inner { max-width: 900px; margin: 0 auto; display: grid; background: var(--hdk-bg-elev); border: 1px solid var(--hdk-line); border-radius: var(--hdk-radius-lg); overflow: hidden; }
+.hdk-pricing--single-plan .hdk-pricing__left { padding: var(--hdk-sp-6); }
+.hdk-pricing--single-plan .hdk-pricing__title { margin: 0 0 var(--hdk-sp-2); font-family: var(--hdk-font-display); font-size: var(--hdk-fs-xl); font-weight: var(--hdk-fw-bold); }
+.hdk-pricing--single-plan .hdk-pricing__body { margin: 0 0 var(--hdk-sp-4); color: var(--hdk-fg-muted); }
+.hdk-pricing--single-plan .hdk-pricing__list { margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: 1fr 1fr; gap: var(--hdk-sp-2); font-size: var(--hdk-fs-sm); }
+.hdk-pricing--single-plan .hdk-pricing__list li::before { content: "✓ "; color: var(--hdk-success); }
+.hdk-pricing--single-plan .hdk-pricing__right { padding: var(--hdk-sp-6); background: var(--hdk-bg-elev-2); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: var(--hdk-sp-2); }
+.hdk-pricing--single-plan .hdk-pricing__value { margin: 0; font-family: var(--hdk-font-display); font-size: var(--hdk-fs-3xl); font-weight: var(--hdk-fw-bold); line-height: 1; }
+.hdk-pricing--single-plan .hdk-pricing__meta { margin: 0 0 var(--hdk-sp-3); font-size: var(--hdk-fs-xs); color: var(--hdk-fg-faint); }
+@media (min-width: 1024px) { .hdk-pricing--single-plan .hdk-pricing__inner { grid-template-columns: 2fr 1fr; } } /* md */
+</style>
+  <div class="hdk-pricing__inner">
+    <div class="hdk-pricing__left"><h2 class="hdk-pricing__title" data-slot="title">요금제 이름 자리</h2><p class="hdk-pricing__body" data-slot="body">설명 자리</p><ul class="hdk-pricing__list" data-slot="items"><li>기능 자리</li><li>기능 자리</li><li>기능 자리</li><li>기능 자리</li></ul></div>
+    <div class="hdk-pricing__right"><p class="hdk-pricing__value" data-slot="value">₩0</p><p class="hdk-pricing__meta" data-slot="meta">청구 단위 자리</p><div data-slot="cta"><!-- button.solid lg --></div></div>
+  </div>
+</section></article><article class="part"><h2>pricing.toggle-period · thedevdojo/tails</h2><section data-part="pricing" data-variant="toggle-period" data-init="pricing.toggle-period" class="hdk-pricing hdk-pricing--toggle-period" data-period="monthly">
+<style>
+.hdk-pricing--toggle-period { padding: var(--hdk-sp-8) var(--hdk-sp-4); }
+.hdk-pricing--toggle-period .hdk-pricing__inner { max-width: 860px; margin: 0 auto; text-align: center; }
+.hdk-pricing--toggle-period .hdk-pricing__title { margin: 0 0 var(--hdk-sp-4); font-family: var(--hdk-font-display); font-size: var(--hdk-fs-2xl); font-weight: var(--hdk-fw-bold); }
+.hdk-pricing--toggle-period .hdk-pricing__toggle { display: inline-flex; gap: var(--hdk-sp-1); padding: var(--hdk-sp-1); background: var(--hdk-bg-elev-2); border-radius: var(--hdk-radius-full); margin-bottom: var(--hdk-sp-6); }
+.hdk-pricing--toggle-period .hdk-pricing__toggle button { padding: var(--hdk-sp-1) var(--hdk-sp-4); border: 0; border-radius: var(--hdk-radius-full); background: none; color: var(--hdk-fg-muted); font-size: var(--hdk-fs-sm); cursor: pointer; }
+.hdk-pricing--toggle-period .hdk-pricing__toggle button[aria-pressed="true"] { background: var(--hdk-bg-elev); color: var(--hdk-fg); box-shadow: var(--hdk-shadow-sm); }
+.hdk-pricing--toggle-period .hdk-pricing__grid { display: grid; gap: var(--hdk-sp-4); text-align: left; }
+.hdk-pricing--toggle-period .hdk-pricing__tier { padding: var(--hdk-sp-5); background: var(--hdk-bg-elev); border: 1px solid var(--hdk-line); border-radius: var(--hdk-radius-lg); display: grid; gap: var(--hdk-sp-3); }
+.hdk-pricing--toggle-period .hdk-pricing__label { margin: 0; font-weight: var(--hdk-fw-medium); }
+.hdk-pricing--toggle-period .hdk-pricing__value { margin: 0; font-family: var(--hdk-font-display); font-size: var(--hdk-fs-2xl); font-weight: var(--hdk-fw-bold); }
+.hdk-pricing--toggle-period .hdk-pricing__value small { font-size: var(--hdk-fs-sm); color: var(--hdk-fg-faint); font-weight: var(--hdk-fw-regular); }
+.hdk-pricing--toggle-period .hdk-pricing__body { margin: 0; padding: 0; list-style: none; display: grid; gap: var(--hdk-sp-1); font-size: var(--hdk-fs-sm); color: var(--hdk-fg-muted); }
+.hdk-pricing--toggle-period .hdk-pricing__cta [data-part="button"], .hdk-pricing--toggle-period .hdk-pricing__cta .hdk-button__btn { width: 100%; justify-content: center; }
+@media (min-width: 640px) { .hdk-pricing--toggle-period .hdk-pricing__grid { grid-template-columns: 1fr 1fr; } } /* sm */
+</style>
+  <div class="hdk-pricing__inner">
+    <h2 class="hdk-pricing__title" data-slot="title">요금제 제목 자리</h2>
+    <div class="hdk-pricing__toggle"><button type="button" aria-pressed="true" data-period="monthly">월간</button><button type="button" aria-pressed="false" data-period="yearly">연간 (-20%)</button></div>
+    <div class="hdk-pricing__grid" data-slot="items">
+      <div class="hdk-pricing__tier" data-slot="item"><p class="hdk-pricing__label" data-slot="label">요금제 이름</p><p class="hdk-pricing__value"><span data-slot="value" data-monthly="₩0" data-yearly="₩0">₩0</span><small>/월</small></p><ul class="hdk-pricing__body" data-slot="body"><li>기능 자리</li><li>기능 자리</li></ul><div class="hdk-pricing__cta" data-slot="cta"><!-- button --></div></div>
+      <div class="hdk-pricing__tier"><p class="hdk-pricing__label">요금제 이름</p><p class="hdk-pricing__value"><span data-monthly="₩9,900" data-yearly="₩7,900">₩9,900</span><small>/월</small></p><ul class="hdk-pricing__body"><li>기능 자리</li><li>기능 자리</li></ul><div class="hdk-pricing__cta"><!-- button --></div></div>
+    </div>
+  </div>
+<script>
+hdk.register('pricing.toggle-period', function (root) {const r=root;r.querySelectorAll('.hdk-pricing__toggle button').forEach(b=>b.addEventListener('click',()=>{r.dataset.period=b.dataset.period;r.querySelectorAll('.hdk-pricing__toggle button').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));r.querySelectorAll('[data-monthly]').forEach(v=>v.textContent=v.dataset[b.dataset.period]);}));});
+</script>
+</section></article><article class="part"><h2>section.cta-band · thedevdojo/tails</h2><section data-part="section" data-variant="cta-band" class="hdk-section hdk-section--cta-band">
+<style>
+.hdk-section--cta-band { padding: var(--hdk-sp-4); }
+.hdk-section--cta-band .hdk-section__inner { max-width: var(--hdk-container); margin: 0 auto; padding: var(--hdk-sp-7) var(--hdk-sp-5); background: var(--hdk-accent); color: var(--hdk-accent-fg); border-radius: var(--hdk-radius-lg); display: grid; gap: var(--hdk-sp-4); text-align: center; }
+.hdk-section--cta-band .hdk-section__title { margin: 0; font-family: var(--hdk-font-display); font-size: var(--hdk-fs-2xl); font-weight: var(--hdk-fw-bold); line-height: var(--hdk-lh-tight); }
+.hdk-section--cta-band .hdk-section__body { margin: 0; opacity: .85; }
+.hdk-section--cta-band .hdk-section__actions { display: flex; flex-wrap: wrap; gap: var(--hdk-sp-2); justify-content: center; }
+.hdk-section--cta-band .hdk-section__actions .hdk-button--solid .hdk-button__btn { background: var(--hdk-accent-fg); color: var(--hdk-accent); }
+.hdk-section--cta-band .hdk-section__actions .hdk-button--outline .hdk-button__btn { color: var(--hdk-accent-fg); border-color: var(--hdk-accent-fg); }
+@media (min-width: 1024px) { .hdk-section--cta-band .hdk-section__inner { grid-template-columns: 1fr auto; text-align: left; align-items: center; } .hdk-section--cta-band .hdk-section__actions { justify-content: flex-end; } .hdk-section--cta-band .hdk-section__body { grid-column: 1; } .hdk-section--cta-band .hdk-section__actions { grid-row: 1 / 3; grid-column: 2; } } /* md */
+</style>
+  <div class="hdk-section__inner">
+    <h2 class="hdk-section__title" data-slot="title">행동 유도 제목 자리</h2>
+    <p class="hdk-section__body" data-slot="body">한 줄 설명 자리</p>
+    <div class="hdk-section__actions"><span data-slot="cta"><!-- button.solid --></span><span data-slot="cta-secondary"><!-- button.outline --></span></div>
+  </div>
+</section></article><article class="part"><h2>sidebar.accordion-groups · ColorlibHQ/AdminLTE</h2><section data-part="sidebar" data-variant="accordion-groups" class="hdk-sidebar hdk-sidebar--accordion-groups">
+<style>
+.hdk-sidebar--accordion-groups { padding: var(--hdk-sp-3) var(--hdk-sp-2); }
+.hdk-sidebar--accordion-groups .hdk-sidebar__logo { padding: var(--hdk-sp-2) var(--hdk-sp-3) var(--hdk-sp-4); font-family: var(--hdk-font-display); font-weight: var(--hdk-fw-bold); font-size: var(--hdk-fs-lg); }
+.hdk-sidebar--accordion-groups details { margin-bottom: var(--hdk-sp-1); }
+.hdk-sidebar--accordion-groups summary { list-style: none; display: flex; align-items: center; gap: var(--hdk-sp-2); padding: var(--hdk-sp-2) var(--hdk-sp-3); border-radius: var(--hdk-radius-md); color: var(--hdk-fg); font-size: var(--hdk-fs-sm); font-weight: var(--hdk-fw-medium); cursor: pointer; }
+.hdk-sidebar--accordion-groups summary::-webkit-details-marker { display: none; }
+.hdk-sidebar--accordion-groups summary:hover { background: var(--hdk-bg-elev-2); }
+.hdk-sidebar--accordion-groups summary::after { content: ""; margin-left: auto; width: 6px; height: 6px; border-right: 1.5px solid var(--hdk-fg-faint); border-bottom: 1.5px solid var(--hdk-fg-faint); transform: rotate(-45deg); transition: transform var(--hdk-dur-fast); }
+.hdk-sidebar--accordion-groups details[open] summary::after { transform: rotate(45deg); }
+.hdk-sidebar--accordion-groups .hdk-sidebar__children { list-style: none; margin: 0; padding: var(--hdk-sp-1) 0 var(--hdk-sp-2) var(--hdk-sp-5); }
+.hdk-sidebar--accordion-groups .hdk-sidebar__children a { display: block; padding: var(--hdk-sp-1) var(--hdk-sp-3); border-left: 1px solid var(--hdk-line); color: var(--hdk-fg-muted); text-decoration: none; font-size: var(--hdk-fs-sm); }
+.hdk-sidebar--accordion-groups .hdk-sidebar__children a:hover { color: var(--hdk-fg); }
+.hdk-sidebar--accordion-groups .hdk-sidebar__children a[aria-current="page"] { color: var(--hdk-accent); border-left-color: var(--hdk-accent); margin-left: -1px; }
+</style>
+  <div class="hdk-sidebar__logo" data-slot="logo">서비스명 자리</div>
+  <div data-slot="items">
+    <details open data-slot="item"><summary><span data-slot="label">상위 메뉴 자리</span></summary>
+      <ul class="hdk-sidebar__children" data-slot="children"><li><a href="#" aria-current="page">하위 메뉴 자리</a></li><li><a href="#">하위 메뉴 자리</a></li></ul></details>
+    <details><summary><span>상위 메뉴 자리</span></summary><ul class="hdk-sidebar__children"><li><a href="#">하위 메뉴 자리</a></li></ul></details>
+  </div>
+</section></article><article class="part"><h2>sidebar.collapsible-icon · ColorlibHQ/gentelella</h2><section data-part="sidebar" data-variant="collapsible-icon" class="hdk-sidebar hdk-sidebar--collapsible-icon">
+<style>
+.hdk-sidebar--collapsible-icon { display: flex; flex-direction: column; height: 100%; padding: var(--hdk-sp-3) 0; }
+.hdk-sidebar--collapsible-icon .hdk-sidebar__logo { display: flex; align-items: center; gap: var(--hdk-sp-3); padding: var(--hdk-sp-2) var(--hdk-sp-4) var(--hdk-sp-4);
+  font-family: var(--hdk-font-display); font-weight: var(--hdk-fw-bold); font-size: var(--hdk-fs-lg); white-space: nowrap; overflow: hidden; }
+.hdk-sidebar--collapsible-icon .hdk-sidebar__mark { width: 28px; height: 28px; flex: none; border-radius: var(--hdk-radius-md); background: var(--hdk-accent); } /* 구조 치수 */
+.hdk-sidebar--collapsible-icon .hdk-sidebar__group { margin: var(--hdk-sp-3) var(--hdk-sp-4) var(--hdk-sp-1); font-size: var(--hdk-fs-xs); color: var(--hdk-fg-faint); letter-spacing: var(--hdk-tracking-caps); text-transform: uppercase; white-space: nowrap; overflow: hidden; }
+.hdk-sidebar--collapsible-icon .hdk-sidebar__list { list-style: none; margin: 0; padding: 0 var(--hdk-sp-2); }
+.hdk-sidebar--collapsible-icon .hdk-sidebar__link { display: flex; align-items: center; gap: var(--hdk-sp-3); padding: var(--hdk-sp-2) var(--hdk-sp-3);
+  border-radius: var(--hdk-radius-md); color: var(--hdk-fg-muted); text-decoration: none; font-size: var(--hdk-fs-sm); white-space: nowrap;
+  transition: background var(--hdk-dur-fast) var(--hdk-ease), color var(--hdk-dur-fast) var(--hdk-ease); }
+.hdk-sidebar--collapsible-icon .hdk-sidebar__link:hover { background: var(--hdk-bg-elev-2); color: var(--hdk-fg); }
+.hdk-sidebar--collapsible-icon .hdk-sidebar__link[aria-current="page"] { background: var(--hdk-accent-soft); color: var(--hdk-accent); font-weight: var(--hdk-fw-medium); }
+.hdk-sidebar--collapsible-icon .hdk-sidebar__icon { width: 18px; height: 18px; flex: none; }
+.hdk-sidebar--collapsible-icon .hdk-sidebar__label { flex: 1; overflow: hidden; text-overflow: ellipsis; }
+.hdk-sidebar--collapsible-icon .hdk-sidebar__meta { margin-left: auto; }
+.hdk-sidebar--collapsible-icon .hdk-sidebar__bottom { margin-top: auto; padding: var(--hdk-sp-3) var(--hdk-sp-4) 0; border-top: 1px solid var(--hdk-line); font-size: var(--hdk-fs-xs); color: var(--hdk-fg-faint); white-space: nowrap; overflow: hidden; }
+[data-collapsed="true"] .hdk-sidebar--collapsible-icon .hdk-sidebar__label,
+[data-collapsed="true"] .hdk-sidebar--collapsible-icon .hdk-sidebar__meta,
+[data-collapsed="true"] .hdk-sidebar--collapsible-icon .hdk-sidebar__group,
+[data-collapsed="true"] .hdk-sidebar--collapsible-icon .hdk-sidebar__logo span,
+[data-collapsed="true"] .hdk-sidebar--collapsible-icon .hdk-sidebar__bottom { display: none; }
+[data-collapsed="true"] .hdk-sidebar--collapsible-icon .hdk-sidebar__link { justify-content: center; }
+</style>
+  <div class="hdk-sidebar__logo" data-slot="logo"><i class="hdk-sidebar__mark" aria-hidden="true"></i><span>서비스명 자리</span></div>
+  <div class="hdk-sidebar__group">그룹 라벨 자리</div>
+  <ul class="hdk-sidebar__list" data-slot="items">
+    <li data-slot="item"><a class="hdk-sidebar__link" href="#" aria-current="page">
+      <svg class="hdk-sidebar__icon" data-slot="icon" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="2" y="2" width="6" height="6" rx="1"/><rect x="10" y="2" width="6" height="6" rx="1"/><rect x="2" y="10" width="6" height="6" rx="1"/><rect x="10" y="10" width="6" height="6" rx="1"/></svg>
+      <span class="hdk-sidebar__label" data-slot="label">메뉴 라벨 자리</span>
+      <span class="hdk-sidebar__meta" data-slot="meta"><!-- badge.count --></span></a></li>
+  </ul>
+  <div class="hdk-sidebar__bottom">하단 정보 자리 (버전·사용자)</div>
+</section></article><article class="part"><h2>sidebar.rail-icons · satnaing/shadcn-admin</h2><section data-part="sidebar" data-variant="rail-icons" class="hdk-sidebar hdk-sidebar--rail-icons">
+<style>
+.hdk-sidebar--rail-icons { display: flex; flex-direction: column; align-items: center; height: 100%; padding: var(--hdk-sp-3) 0; gap: var(--hdk-sp-2); }
+.hdk-sidebar--rail-icons .hdk-sidebar__logo { width: 36px; height: 36px; border-radius: var(--hdk-radius-md); background: var(--hdk-accent); margin-bottom: var(--hdk-sp-3); } /* 구조 치수 */
+.hdk-sidebar--rail-icons .hdk-sidebar__list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--hdk-sp-1); }
+.hdk-sidebar--rail-icons .hdk-sidebar__link { position: relative; display: grid; place-items: center; width: 44px; height: 44px; border-radius: var(--hdk-radius-md); color: var(--hdk-fg-muted); }
+.hdk-sidebar--rail-icons .hdk-sidebar__link:hover { background: var(--hdk-bg-elev-2); color: var(--hdk-fg); }
+.hdk-sidebar--rail-icons .hdk-sidebar__link[aria-current="page"] { background: var(--hdk-accent-soft); color: var(--hdk-accent); }
+.hdk-sidebar--rail-icons .hdk-sidebar__link[aria-current="page"]::before { content: ""; position: absolute; left: -10px; top: 12px; bottom: 12px; width: 3px; border-radius: var(--hdk-radius-full); background: var(--hdk-accent); }
+.hdk-sidebar--rail-icons .hdk-sidebar__icon { width: 20px; height: 20px; }
+.hdk-sidebar--rail-icons .hdk-sidebar__label { position: absolute; left: calc(100% + var(--hdk-sp-2)); top: 50%; transform: translateY(-50%); padding: var(--hdk-sp-1) var(--hdk-sp-2);
+  background: var(--hdk-fg); color: var(--hdk-bg); font-size: var(--hdk-fs-xs); border-radius: var(--hdk-radius-sm); white-space: nowrap; opacity: 0; pointer-events: none; transition: opacity var(--hdk-dur-fast); z-index: 30; }
+.hdk-sidebar--rail-icons .hdk-sidebar__link:hover .hdk-sidebar__label, .hdk-sidebar--rail-icons .hdk-sidebar__link:focus-visible .hdk-sidebar__label { opacity: 1; }
+</style>
+  <i class="hdk-sidebar__logo" data-slot="logo" aria-hidden="true"></i>
+  <ul class="hdk-sidebar__list" data-slot="items">
+    <li data-slot="item"><a class="hdk-sidebar__link" href="#" aria-current="page"><svg class="hdk-sidebar__icon" data-slot="icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="3" y="3" width="6" height="6" rx="1"/><rect x="11" y="3" width="6" height="6" rx="1"/><rect x="3" y="11" width="6" height="6" rx="1"/><rect x="11" y="11" width="6" height="6" rx="1"/></svg><span class="hdk-sidebar__label" data-slot="label">메뉴 라벨 자리</span></a></li>
+    <li><a class="hdk-sidebar__link" href="#"><svg class="hdk-sidebar__icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="10" cy="10" r="7"/></svg><span class="hdk-sidebar__label">메뉴 라벨 자리</span></a></li>
+  </ul>
+</section></article><article class="part"><h2>slider.logo-marquee · thedevdojo/tails</h2><section data-part="slider" data-variant="logo-marquee" data-init="slider.logo-marquee" class="hdk-slider hdk-slider--logo-marquee">
+<style>
+.hdk-slider--logo-marquee { padding: var(--hdk-sp-6) 0; overflow: hidden; }
+.hdk-slider--logo-marquee .hdk-slider__title { margin: 0 0 var(--hdk-sp-4); text-align: center; font-size: var(--hdk-fs-xs); color: var(--hdk-fg-faint); letter-spacing: var(--hdk-tracking-caps); text-transform: uppercase; }
+.hdk-slider--logo-marquee .hdk-slider__track { display: flex; width: max-content; animation: hdk-marquee var(--slider-speed, 30s) linear infinite; }
+.hdk-slider--logo-marquee:hover .hdk-slider__track { animation-play-state: paused; }
+@keyframes hdk-marquee { to { transform: translateX(-50%); } }
+.hdk-slider--logo-marquee .hdk-slider__list { display: flex; gap: var(--hdk-sp-8); padding: 0 var(--hdk-sp-4); list-style: none; margin: 0; }
+.hdk-slider--logo-marquee .hdk-slider__logo { width: 120px; height: 36px; display: grid; place-items: center; border-radius: var(--hdk-radius-sm); background: var(--hdk-bg-elev-2); color: var(--hdk-fg-faint); font-family: var(--hdk-font-display); font-weight: var(--hdk-fw-bold); opacity: .7; transition: opacity var(--hdk-dur-fast); }
+.hdk-slider--logo-marquee .hdk-slider__logo:hover { opacity: 1; color: var(--hdk-fg); }
+</style>
+  <p class="hdk-slider__title" data-slot="title">함께하는 곳 자리</p>
+  <div class="hdk-slider__track">
+    <ul class="hdk-slider__list" data-slot="items"><li data-slot="item"><span class="hdk-slider__logo" data-slot="logo">LOGO</span></li><li><span class="hdk-slider__logo">LOGO</span></li><li><span class="hdk-slider__logo">LOGO</span></li><li><span class="hdk-slider__logo">LOGO</span></li><li><span class="hdk-slider__logo">LOGO</span></li></ul>
+  </div>
+<script>
+hdk.register('slider.logo-marquee', function (root) {const r=root,t=r.querySelector('.hdk-slider__track');t.appendChild(t.querySelector('.hdk-slider__list').cloneNode(true));});
+</script>
+</section></article><article class="part"><h2>slider.thumbnail-strip · original</h2><section data-part="slider" data-variant="thumbnail-strip" data-init="slider.thumbnail-strip" class="hdk-slider hdk-slider--thumbnail-strip">
+<style>
+.hdk-slider--thumbnail-strip { display: grid; gap: var(--hdk-sp-2); }
+.hdk-slider--thumbnail-strip .hdk-slider__stage { overflow: hidden; border-radius: var(--hdk-radius-lg); border: 1px solid var(--hdk-line); }
+.hdk-slider--thumbnail-strip .hdk-slider__track { display: flex; transition: transform var(--hdk-dur-slow) var(--hdk-ease); }
+.hdk-slider--thumbnail-strip .hdk-slider__item { flex: 0 0 100%; aspect-ratio: 16 / 10; background: var(--hdk-bg-elev-2); display: grid; place-items: center; color: var(--hdk-fg-faint); font-family: var(--hdk-font-mono); }
+.hdk-slider--thumbnail-strip .hdk-slider__item img { width: 100%; height: 100%; object-fit: contain; }
+.hdk-slider--thumbnail-strip .hdk-slider__thumbs { display: flex; gap: var(--hdk-sp-2); overflow-x: auto; }
+.hdk-slider--thumbnail-strip .hdk-slider__thumbs button { flex: 0 0 72px; aspect-ratio: 16 / 10; padding: 0; border: 2px solid transparent; border-radius: var(--hdk-radius-md); background: var(--hdk-bg-elev-2); cursor: pointer; opacity: .6; }
+.hdk-slider--thumbnail-strip .hdk-slider__thumbs button[aria-current="true"] { border-color: var(--hdk-accent); opacity: 1; }
+</style>
+  <div class="hdk-slider__stage"><div class="hdk-slider__track" data-slot="items"><div class="hdk-slider__item" data-slot="item"><span data-slot="image">이미지 1</span></div><div class="hdk-slider__item">이미지 2</div><div class="hdk-slider__item">이미지 3</div><div class="hdk-slider__item">이미지 4</div></div></div>
+  <div class="hdk-slider__thumbs"><button type="button" data-dot aria-current="true" aria-label="1"></button><button type="button" data-dot aria-label="2"></button><button type="button" data-dot aria-label="3"></button><button type="button" data-dot aria-label="4"></button></div>
+<script>
+hdk.register('slider.thumbnail-strip', function (root) {const r=root,t=r.querySelector('.hdk-slider__track'),n=t.children.length;let i=0;
+function go(k){i=(k+n)%n;t.style.transform='translateX(-'+(i*100)+'%)';r.querySelectorAll('[data-dot]').forEach((d,j)=>d.setAttribute('aria-current',String(j===i)));}
+r.querySelectorAll('[data-action="prev"]').forEach(b=>b.onclick=()=>go(i-1));r.querySelectorAll('[data-action="next"]').forEach(b=>b.onclick=()=>go(i+1));
+r.querySelectorAll('[data-dot]').forEach((d,j)=>d.onclick=()=>go(j));});
+</script>
+</section></article><article class="part"><h2>table.comparison-matrix · thedevdojo/tails</h2><section data-part="table" data-variant="comparison-matrix" class="hdk-table hdk-table--comparison-matrix">
+<style>
+.hdk-table--comparison-matrix { overflow-x: auto; }
+.hdk-table--comparison-matrix table { width: 100%; min-width: 560px; border-collapse: separate; border-spacing: 0; font-size: var(--hdk-fs-sm); }
+.hdk-table--comparison-matrix th { padding: var(--hdk-sp-3) var(--hdk-sp-4); text-align: center; font-weight: var(--hdk-fw-bold); border-bottom: 2px solid var(--hdk-line-strong); }
+.hdk-table--comparison-matrix th:first-child, .hdk-table--comparison-matrix td:first-child { text-align: left; position: sticky; left: 0; background: var(--hdk-bg); }
+.hdk-table--comparison-matrix td { padding: var(--hdk-sp-3) var(--hdk-sp-4); text-align: center; border-bottom: 1px solid var(--hdk-line); }
+.hdk-table--comparison-matrix td[data-yes="true"]::before { content: "✓"; color: var(--hdk-success); font-weight: var(--hdk-fw-bold); }
+.hdk-table--comparison-matrix td[data-yes="false"]::before { content: "—"; color: var(--hdk-fg-faint); }
+.hdk-table--comparison-matrix .hdk-table__group td { padding-top: var(--hdk-sp-4); font-size: var(--hdk-fs-xs); color: var(--hdk-fg-faint); letter-spacing: var(--hdk-tracking-caps); text-transform: uppercase; border-bottom: 0; text-align: left; }
+.hdk-table--comparison-matrix col[data-featured] { background: var(--hdk-accent-soft); }
+</style>
+  <table>
+    <colgroup><col><col><col data-featured><col></colgroup>
+    <thead><tr><th>기능</th><th>요금제 A</th><th>요금제 B</th><th>요금제 C</th></tr></thead>
+    <tbody data-slot="items">
+      <tr class="hdk-table__group"><td colspan="4">그룹 라벨 자리</td></tr>
+      <tr data-slot="item"><td>기능 자리</td><td data-yes="true"></td><td data-yes="true"></td><td data-yes="true"></td></tr>
+      <tr><td>기능 자리</td><td data-yes="false"></td><td data-yes="true"></td><td data-yes="true"></td></tr>
+      <tr><td>기능 자리</td><td data-yes="false"></td><td data-yes="false"></td><td>무제한</td></tr>
+    </tbody>
+  </table>
+</section></article><article class="part"><h2>table.data-grid · ColorlibHQ/gentelella</h2><section data-part="table" data-variant="data-grid" class="hdk-table hdk-table--data-grid">
+<style>
+.hdk-table--data-grid { background: var(--hdk-bg-elev); border: 1px solid var(--hdk-line); border-radius: var(--hdk-radius-lg); overflow: hidden; }
+.hdk-table--data-grid .hdk-table__head { display: flex; align-items: center; gap: var(--hdk-sp-3); padding: var(--hdk-sp-3) var(--hdk-sp-4); border-bottom: 1px solid var(--hdk-line); }
+.hdk-table--data-grid .hdk-table__title { margin: 0; font-size: var(--hdk-fs-md); font-weight: var(--hdk-fw-medium); }
+.hdk-table--data-grid .hdk-table__actions { margin-left: auto; display: flex; gap: var(--hdk-sp-2); }
+.hdk-table--data-grid .hdk-table__scroll { overflow-x: auto; }
+.hdk-table--data-grid table { width: 100%; border-collapse: collapse; font-size: var(--hdk-fs-sm); }
+.hdk-table--data-grid th { position: sticky; top: 0; background: var(--hdk-bg-elev); text-align: left; padding: var(--hdk-sp-2) var(--hdk-sp-4);
+  font-size: var(--hdk-fs-xs); font-weight: var(--hdk-fw-medium); color: var(--hdk-fg-faint); letter-spacing: var(--hdk-tracking-caps); text-transform: uppercase; border-bottom: 1px solid var(--hdk-line); white-space: nowrap; }
+.hdk-table--data-grid td { padding: var(--hdk-sp-3) var(--hdk-sp-4); border-bottom: 1px solid var(--hdk-line); white-space: nowrap; }
+.hdk-table--data-grid tbody tr:last-child td { border-bottom: 0; }
+.hdk-table--data-grid tbody tr:hover td { background: var(--hdk-bg-elev-2); }
+.hdk-table--data-grid [data-align="num"] { text-align: right; font-family: var(--hdk-font-mono); font-variant-numeric: tabular-nums; }
+.hdk-table--data-grid .hdk-table__foot { display: flex; align-items: center; justify-content: space-between; padding: var(--hdk-sp-2) var(--hdk-sp-4); border-top: 1px solid var(--hdk-line); font-size: var(--hdk-fs-xs); color: var(--hdk-fg-faint); }
+</style>
+  <div class="hdk-table__head"><h3 class="hdk-table__title" data-slot="title">표 제목 자리</h3><div class="hdk-table__actions" data-slot="actions"><!-- button.ghost --></div></div>
+  <div class="hdk-table__scroll"><table>
+    <thead><tr><th>열 라벨</th><th>열 라벨</th><th>상태</th><th data-align="num">수치</th><th></th></tr></thead>
+    <tbody data-slot="items">
+      <tr data-slot="item"><td>셀 값 자리</td><td>셀 값 자리</td><td><!-- badge.pill --></td><td data-align="num">0</td><td><!-- button.ghost icon-only --></td></tr>
+    </tbody>
+  </table></div>
+  <div class="hdk-table__foot"><span data-slot="meta">건수 정보 자리</span><span><!-- pagination --></span></div>
+</section></article><article class="part"><h2>table.document · sparksuite/simple-html-invoice-template</h2><section data-part="table" data-variant="document" class="hdk-table hdk-table--document">
+<style>
+.hdk-table--document table { width: 100%; border-collapse: collapse; font-size: var(--hdk-fs-sm); }
+.hdk-table--document caption { text-align: left; margin-bottom: var(--hdk-sp-3); font-family: var(--hdk-font-display); font-size: var(--hdk-fs-lg); font-weight: var(--hdk-fw-bold); }
+.hdk-table--document th { text-align: left; padding: var(--hdk-sp-2) 0; border-bottom: 2px solid var(--hdk-fg); font-size: var(--hdk-fs-xs); letter-spacing: var(--hdk-tracking-caps); text-transform: uppercase; color: var(--hdk-fg-muted); }
+.hdk-table--document td { padding: var(--hdk-sp-3) 0; border-bottom: 1px solid var(--hdk-line); vertical-align: top; }
+.hdk-table--document [data-align="num"] { text-align: right; font-variant-numeric: tabular-nums; }
+.hdk-table--document tfoot td { border-bottom: 0; padding-top: var(--hdk-sp-3); }
+.hdk-table--document .hdk-table__total-label { text-align: right; color: var(--hdk-fg-muted); }
+.hdk-table--document .hdk-table__total { font-size: var(--hdk-fs-lg); font-weight: var(--hdk-fw-bold); border-top: 2px solid var(--hdk-fg); }
+@media print { .hdk-table--document { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }
+</style>
+  <table>
+    <caption data-slot="title">표 제목 자리</caption>
+    <thead><tr><th>항목</th><th data-align="num">수량</th><th data-align="num">단가</th><th data-align="num">금액</th></tr></thead>
+    <tbody data-slot="items"><tr data-slot="item"><td>항목명 자리<br><small style="color:var(--hdk-fg-muted)">설명 자리</small></td><td data-align="num">0</td><td data-align="num">0</td><td data-align="num">0</td></tr></tbody>
+    <tfoot><tr><td colspan="3" class="hdk-table__total-label">합계</td><td data-align="num" class="hdk-table__total" data-slot="total">0</td></tr></tfoot>
+  </table>
+</section></article><article class="part"><h2>table.striped-compact · ColorlibHQ/AdminLTE</h2><section data-part="table" data-variant="striped-compact" class="hdk-table hdk-table--striped-compact">
+<style>
+.hdk-table--striped-compact table { width: 100%; border-collapse: collapse; font-size: var(--hdk-fs-sm); }
+.hdk-table--striped-compact th { text-align: left; padding: var(--hdk-sp-2) var(--hdk-sp-3); font-size: var(--hdk-fs-xs); color: var(--hdk-fg-faint); font-weight: var(--hdk-fw-medium); border-bottom: 1px solid var(--hdk-line-strong); }
+.hdk-table--striped-compact td { padding: var(--hdk-sp-2) var(--hdk-sp-3); }
+.hdk-table--striped-compact tbody tr:nth-child(even) td { background: var(--hdk-bg-elev); }
+.hdk-table--striped-compact [data-align="num"] { text-align: right; font-variant-numeric: tabular-nums; font-family: var(--hdk-font-mono); }
+</style>
+  <table>
+    <thead><tr><th>열 라벨</th><th>열 라벨</th><th data-align="num">수치</th></tr></thead>
+    <tbody data-slot="items"><tr data-slot="item"><td>셀 값 자리</td><td>셀 값 자리</td><td data-align="num">0</td></tr><tr><td>셀 값 자리</td><td>셀 값 자리</td><td data-align="num">0</td></tr><tr><td>셀 값 자리</td><td>셀 값 자리</td><td data-align="num">0</td></tr></tbody>
+  </table>
+</section></article><article class="part"><h2>tabs.card-attached · ColorlibHQ/gentelella</h2><section data-part="tabs" data-variant="card-attached" data-init="tabs.card-attached" class="hdk-tabs hdk-tabs--card-attached">
+<style>
+.hdk-tabs--card-attached .hdk-tabs__list { display: flex; gap: var(--hdk-sp-1); margin: 0; padding: 0 var(--hdk-sp-2); list-style: none; }
+.hdk-tabs--card-attached .hdk-tabs__tab { padding: var(--hdk-sp-2) var(--hdk-sp-4); border: 1px solid transparent; border-bottom: 0; border-radius: var(--hdk-radius-md) var(--hdk-radius-md) 0 0; background: none; color: var(--hdk-fg-muted); font-size: var(--hdk-fs-sm); cursor: pointer; margin-bottom: -1px; }
+.hdk-tabs--card-attached .hdk-tabs__tab:hover { color: var(--hdk-fg); }
+.hdk-tabs--card-attached .hdk-tabs__tab[aria-selected="true"] { background: var(--hdk-bg-elev); border-color: var(--hdk-line); color: var(--hdk-fg); font-weight: var(--hdk-fw-medium); position: relative; z-index: 1; }
+.hdk-tabs--card-attached .hdk-tabs__panel { padding: var(--hdk-sp-4); background: var(--hdk-bg-elev); border: 1px solid var(--hdk-line); border-radius: var(--hdk-radius-lg); color: var(--hdk-fg-muted); font-size: var(--hdk-fs-sm); }
+.hdk-tabs--card-attached .hdk-tabs__panel[hidden] { display: none; }
+</style>
+  <div class="hdk-tabs__list" role="tablist" data-slot="items">
+    <button class="hdk-tabs__tab" role="tab" aria-selected="true" data-slot="item"><span data-slot="label">탭 1</span></button>
+    <button class="hdk-tabs__tab" role="tab" aria-selected="false"><span>탭 2</span></button>
+    <button class="hdk-tabs__tab" role="tab" aria-selected="false"><span>탭 3</span></button>
+  </div>
+  <div data-slot="panels">
+    <div class="hdk-tabs__panel" role="tabpanel" data-slot="panel">패널 1 내용 자리</div>
+    <div class="hdk-tabs__panel" role="tabpanel" hidden>패널 2 내용 자리</div>
+    <div class="hdk-tabs__panel" role="tabpanel" hidden>패널 3 내용 자리</div>
+  </div>
+<script>
+hdk.register('tabs.card-attached', function (root) {const r=root,t=[...r.querySelectorAll('.hdk-tabs__tab')],p=[...r.querySelectorAll('.hdk-tabs__panel')];
+t.forEach((b,i)=>b.addEventListener('click',()=>{t.forEach((x,k)=>x.setAttribute('aria-selected',String(k===i)));p.forEach((x,k)=>x.hidden=k!==i);}));});
+</script>
+</section></article><article class="part"><h2>tabs.pill · original</h2><section data-part="tabs" data-variant="pill" data-init="tabs.pill" class="hdk-tabs hdk-tabs--pill">
+<style>
+.hdk-tabs--pill .hdk-tabs__list {
+  display: inline-flex; gap: var(--hdk-sp-1); padding: var(--hdk-sp-1);
+  background: var(--hdk-bg-elev-2); border: 1px solid var(--hdk-line);
+  border-radius: var(--hdk-radius-md); margin: 0; list-style: none;
+}
+.hdk-tabs--pill .hdk-tabs__tab {
+  padding: var(--hdk-sp-1) var(--hdk-sp-3); background: none; border: 0; cursor: pointer;
+  border-radius: var(--hdk-radius-sm);
+  color: var(--hdk-fg-muted); font-size: var(--hdk-fs-sm); font-weight: var(--hdk-fw-medium);
+  white-space: nowrap; transition: background var(--hdk-dur-fast) var(--hdk-ease), color var(--hdk-dur-fast) var(--hdk-ease);
+}
+.hdk-tabs--pill .hdk-tabs__tab:hover { color: var(--hdk-fg); }
+.hdk-tabs--pill .hdk-tabs__tab[aria-selected="true"] { background: var(--hdk-bg-elev); color: var(--hdk-fg); box-shadow: var(--hdk-shadow-sm); }
+.hdk-tabs--pill .hdk-tabs__panel { padding: var(--hdk-sp-4) 0; color: var(--hdk-fg-muted); font-size: var(--hdk-fs-sm); }
+.hdk-tabs--pill .hdk-tabs__panel[hidden] { display: none; }
+</style>
+  <div class="hdk-tabs__list" role="tablist" data-slot="items">
+    <button class="hdk-tabs__tab" role="tab" aria-selected="true" data-slot="item"><span data-slot="label">탭 1</span></button>
+    <button class="hdk-tabs__tab" role="tab" aria-selected="false"><span data-slot="label">탭 2</span></button>
+    <button class="hdk-tabs__tab" role="tab" aria-selected="false"><span data-slot="label">탭 3</span></button>
+  </div>
+  <div data-slot="panels">
+    <div class="hdk-tabs__panel" role="tabpanel" data-slot="panel">패널 1 내용 자리</div>
+    <div class="hdk-tabs__panel" role="tabpanel" hidden>패널 2 내용 자리</div>
+    <div class="hdk-tabs__panel" role="tabpanel" hidden>패널 3 내용 자리</div>
+  </div>
+<script>
+hdk.register('tabs.pill', function (root) {
+  const tabs = [...root.querySelectorAll('.hdk-tabs__tab')];
+  const panels = [...root.querySelectorAll('.hdk-tabs__panel')];
+  tabs.forEach((t, i) => t.addEventListener('click', () => {
+    tabs.forEach((x, k) => x.setAttribute('aria-selected', String(k === i)));
+    panels.forEach((p, k) => { p.hidden = k !== i; });
+  }));
+});
+</script>
+</section></article><article class="part"><h2>tabs.underline · ColorlibHQ/gentelella</h2><section data-part="tabs" data-variant="underline" data-init="tabs.underline" class="hdk-tabs hdk-tabs--underline">
+<style>
+.hdk-tabs--underline .hdk-tabs__list {
+  position: relative; display: flex; gap: var(--hdk-sp-5);
+  border-bottom: 1px solid var(--hdk-line); margin: 0; padding: 0; list-style: none;
+  overflow-x: auto; scrollbar-width: none;
+}
+.hdk-tabs--underline .hdk-tabs__list::-webkit-scrollbar { display: none; }
+.hdk-tabs--underline .hdk-tabs__tab {
+  padding: var(--hdk-sp-3) 0; background: none; border: 0; cursor: pointer;
+  color: var(--hdk-fg-muted); font-size: var(--hdk-fs-sm); font-weight: var(--hdk-fw-medium);
+  white-space: nowrap; transition: color var(--hdk-dur-fast) var(--hdk-ease);
+}
+.hdk-tabs--underline .hdk-tabs__tab:hover { color: var(--hdk-fg); }
+.hdk-tabs--underline .hdk-tabs__tab[aria-selected="true"] { color: var(--hdk-accent); }
+.hdk-tabs--underline .hdk-tabs__indicator {
+  position: absolute; bottom: -1px; height: 2px; /* 구조 치수 */
+  background: var(--hdk-accent);
+  transition: left var(--hdk-dur-base) var(--hdk-ease), width var(--hdk-dur-base) var(--hdk-ease);
+}
+.hdk-tabs--underline .hdk-tabs__panel { padding: var(--hdk-sp-4) 0; color: var(--hdk-fg-muted); font-size: var(--hdk-fs-sm); }
+.hdk-tabs--underline .hdk-tabs__panel[hidden] { display: none; }
+</style>
+  <div class="hdk-tabs__list" role="tablist" data-slot="items">
+    <button class="hdk-tabs__tab" role="tab" aria-selected="true" data-slot="item"><span data-slot="label">탭 1</span></button>
+    <button class="hdk-tabs__tab" role="tab" aria-selected="false"><span data-slot="label">탭 2</span></button>
+    <button class="hdk-tabs__tab" role="tab" aria-selected="false"><span data-slot="label">탭 3</span></button>
+    <span class="hdk-tabs__indicator" aria-hidden="true"></span>
+  </div>
+  <div data-slot="panels">
+    <div class="hdk-tabs__panel" role="tabpanel" data-slot="panel">패널 1 내용 자리</div>
+    <div class="hdk-tabs__panel" role="tabpanel" hidden>패널 2 내용 자리</div>
+    <div class="hdk-tabs__panel" role="tabpanel" hidden>패널 3 내용 자리</div>
+  </div>
+<script>
+hdk.register('tabs.underline', function (root) {
+  const tabs = [...root.querySelectorAll('.hdk-tabs__tab')];
+  const panels = [...root.querySelectorAll('.hdk-tabs__panel')];
+  const ind = root.querySelector('.hdk-tabs__indicator');
+  function activate(i) {
+    tabs.forEach((t, k) => t.setAttribute('aria-selected', String(k === i)));
+    panels.forEach((p, k) => { p.hidden = k !== i; });
+    const t = tabs[i];
+    ind.style.left = t.offsetLeft + 'px'; ind.style.width = t.offsetWidth + 'px';
+  }
+  tabs.forEach((t, i) => t.addEventListener('click', () => activate(i)));
+  activate(tabs.findIndex(t => t.getAttribute('aria-selected') === 'true') || 0);
+  window.addEventListener('resize', () => activate(tabs.findIndex(t => t.getAttribute('aria-selected') === 'true')));
+});
+</script>
+</section></article><article class="part"><h2>tabs.vertical · tabler/tabler</h2><section data-part="tabs" data-variant="vertical" data-init="tabs.vertical" class="hdk-tabs hdk-tabs--vertical">
+<style>
+.hdk-tabs--vertical { display: grid; gap: var(--hdk-sp-4); }
+.hdk-tabs--vertical .hdk-tabs__list { display: flex; gap: var(--hdk-sp-1); overflow-x: auto; margin: 0; padding: 0; list-style: none; }
+.hdk-tabs--vertical .hdk-tabs__tab { padding: var(--hdk-sp-2) var(--hdk-sp-3); border: 0; background: none; border-radius: var(--hdk-radius-md); text-align: left; color: var(--hdk-fg-muted); font-size: var(--hdk-fs-sm); cursor: pointer; white-space: nowrap; }
+.hdk-tabs--vertical .hdk-tabs__tab:hover { background: var(--hdk-bg-elev-2); color: var(--hdk-fg); }
+.hdk-tabs--vertical .hdk-tabs__tab[aria-selected="true"] { background: var(--hdk-accent-soft); color: var(--hdk-accent); font-weight: var(--hdk-fw-medium); }
+.hdk-tabs--vertical .hdk-tabs__panel { padding: var(--hdk-sp-4); background: var(--hdk-bg-elev); border: 1px solid var(--hdk-line); border-radius: var(--hdk-radius-lg); color: var(--hdk-fg-muted); font-size: var(--hdk-fs-sm); min-height: 120px; }
+.hdk-tabs--vertical .hdk-tabs__panel[hidden] { display: none; }
+@media (min-width: 1024px) { .hdk-tabs--vertical { grid-template-columns: 200px 1fr; } .hdk-tabs--vertical .hdk-tabs__list { flex-direction: column; overflow: visible; } } /* md */
+</style>
+  <div class="hdk-tabs__list" role="tablist" data-slot="items">
+    <button class="hdk-tabs__tab" role="tab" aria-selected="true" data-slot="item"><span data-slot="label">탭 1</span></button>
+    <button class="hdk-tabs__tab" role="tab" aria-selected="false"><span>탭 2</span></button>
+    <button class="hdk-tabs__tab" role="tab" aria-selected="false"><span>탭 3</span></button>
+  </div>
+  <div data-slot="panels">
+    <div class="hdk-tabs__panel" role="tabpanel" data-slot="panel">패널 1 내용 자리</div>
+    <div class="hdk-tabs__panel" role="tabpanel" hidden>패널 2 내용 자리</div>
+    <div class="hdk-tabs__panel" role="tabpanel" hidden>패널 3 내용 자리</div>
+  </div>
+<script>
+hdk.register('tabs.vertical', function (root) {const r=root,t=[...r.querySelectorAll('.hdk-tabs__tab')],p=[...r.querySelectorAll('.hdk-tabs__panel')];
+t.forEach((b,i)=>b.addEventListener('click',()=>{t.forEach((x,k)=>x.setAttribute('aria-selected',String(k===i)));p.forEach((x,k)=>x.hidden=k!==i);}));});
+</script>
+</section></article><article class="part"><h2>timeline.alternating · startbootstrap/startbootstrap-agency</h2><section data-part="timeline" data-variant="alternating" class="hdk-timeline hdk-timeline--alternating">
+<style>
+.hdk-timeline--alternating { padding: var(--hdk-sp-8) var(--hdk-sp-4); }
+.hdk-timeline--alternating .hdk-timeline__heading { margin: 0 0 var(--hdk-sp-6); text-align: center; font-family: var(--hdk-font-display); font-size: var(--hdk-fs-2xl); font-weight: var(--hdk-fw-bold); }
+.hdk-timeline--alternating .hdk-timeline__list { list-style: none; margin: 0 auto; padding: 0; max-width: 860px; position: relative; display: grid; gap: var(--hdk-sp-6); }
+.hdk-timeline--alternating .hdk-timeline__list::before { content: ""; position: absolute; top: 0; bottom: 0; left: 15px; width: 1px; background: var(--hdk-line-strong); }
+.hdk-timeline--alternating .hdk-timeline__item { position: relative; padding-left: var(--hdk-sp-7); }
+.hdk-timeline--alternating .hdk-timeline__dot { position: absolute; left: 0; top: 0; width: 32px; height: 32px; border-radius: var(--hdk-radius-full); background: var(--hdk-accent); color: var(--hdk-accent-fg); display: grid; place-items: center; font-family: var(--hdk-font-mono); font-size: var(--hdk-fs-xs); font-weight: var(--hdk-fw-bold); }
+.hdk-timeline--alternating .hdk-timeline__card { padding: var(--hdk-sp-4); background: var(--hdk-bg-elev); border: 1px solid var(--hdk-line); border-radius: var(--hdk-radius-lg); }
+.hdk-timeline--alternating .hdk-timeline__meta { margin: 0; font-size: var(--hdk-fs-xs); color: var(--hdk-accent); letter-spacing: var(--hdk-tracking-caps); text-transform: uppercase; }
+.hdk-timeline--alternating .hdk-timeline__title { margin: var(--hdk-sp-1) 0; font-size: var(--hdk-fs-lg); font-weight: var(--hdk-fw-bold); }
+.hdk-timeline--alternating .hdk-timeline__body { margin: 0; color: var(--hdk-fg-muted); font-size: var(--hdk-fs-sm); }
+@media (min-width: 1024px) { /* md */
+  .hdk-timeline--alternating .hdk-timeline__list::before { left: 50%; }
+  .hdk-timeline--alternating .hdk-timeline__item { width: 50%; padding-left: 0; padding-right: var(--hdk-sp-7); }
+  .hdk-timeline--alternating .hdk-timeline__item:nth-child(even) { margin-left: 50%; padding-right: 0; padding-left: var(--hdk-sp-7); }
+  .hdk-timeline--alternating .hdk-timeline__item .hdk-timeline__dot { left: auto; right: -16px; }
+  .hdk-timeline--alternating .hdk-timeline__item:nth-child(even) .hdk-timeline__dot { right: auto; left: -16px; }
+  .hdk-timeline--alternating .hdk-timeline__item:nth-child(odd) .hdk-timeline__card { text-align: right; }
+}
+</style>
+  <h2 class="hdk-timeline__heading" data-slot="title">연혁 제목 자리</h2>
+  <ol class="hdk-timeline__list" data-slot="items">
+    <li class="hdk-timeline__item" data-slot="item"><span class="hdk-timeline__dot">1</span><div class="hdk-timeline__card"><p class="hdk-timeline__meta" data-slot="meta">연도 자리</p><h3 class="hdk-timeline__title" data-slot="title">사건 제목 자리</h3><p class="hdk-timeline__body" data-slot="body">설명 자리</p></div></li>
+    <li class="hdk-timeline__item"><span class="hdk-timeline__dot">2</span><div class="hdk-timeline__card"><p class="hdk-timeline__meta">연도 자리</p><h3 class="hdk-timeline__title">사건 제목 자리</h3><p class="hdk-timeline__body">설명 자리</p></div></li>
+    <li class="hdk-timeline__item"><span class="hdk-timeline__dot">3</span><div class="hdk-timeline__card"><p class="hdk-timeline__meta">연도 자리</p><h3 class="hdk-timeline__title">사건 제목 자리</h3><p class="hdk-timeline__body">설명 자리</p></div></li>
+  </ol>
+</section></article><article class="part"><h2>timeline.compact-log · original</h2><section data-part="timeline" data-variant="compact-log" class="hdk-timeline hdk-timeline--compact-log">
+<style>
+.hdk-timeline--compact-log .hdk-timeline__list { list-style: none; margin: 0; padding: 0; font-family: var(--hdk-font-mono); font-size: var(--hdk-fs-xs); }
+.hdk-timeline--compact-log .hdk-timeline__item { display: grid; grid-template-columns: 64px auto 1fr; gap: var(--hdk-sp-3); align-items: baseline; padding: var(--hdk-sp-2) 0; border-bottom: 1px solid var(--hdk-line); }
+.hdk-timeline--compact-log .hdk-timeline__meta { color: var(--hdk-fg-faint); font-variant-numeric: tabular-nums; }
+.hdk-timeline--compact-log .hdk-timeline__label { padding: 0 var(--hdk-sp-2); border-radius: var(--hdk-radius-sm); background: var(--hdk-bg-elev-2); color: var(--hdk-fg-muted); }
+.hdk-timeline--compact-log .hdk-timeline__item[data-tone="danger"] .hdk-timeline__label { background: var(--hdk-danger-soft); color: var(--hdk-danger); }
+.hdk-timeline--compact-log .hdk-timeline__item[data-tone="success"] .hdk-timeline__label { background: var(--hdk-success-soft); color: var(--hdk-success); }
+.hdk-timeline--compact-log .hdk-timeline__body { margin: 0; color: var(--hdk-fg); font-family: var(--hdk-font-sans); font-size: var(--hdk-fs-sm); }
+</style>
+  <ul class="hdk-timeline__list" data-slot="items">
+    <li class="hdk-timeline__item" data-tone="success" data-slot="item"><span class="hdk-timeline__meta" data-slot="meta">14:32:07</span><span class="hdk-timeline__label" data-slot="label">DEPLOY</span><p class="hdk-timeline__body" data-slot="body">메시지 자리</p></li>
+    <li class="hdk-timeline__item"><span class="hdk-timeline__meta">14:30:11</span><span class="hdk-timeline__label">BUILD</span><p class="hdk-timeline__body">메시지 자리</p></li>
+    <li class="hdk-timeline__item" data-tone="danger"><span class="hdk-timeline__meta">14:28:55</span><span class="hdk-timeline__label">ERROR</span><p class="hdk-timeline__body">메시지 자리</p></li>
+  </ul>
+</section></article><article class="part"><h2>timeline.horizontal-steps · tabler/tabler</h2><section data-part="timeline" data-variant="horizontal-steps" class="hdk-timeline hdk-timeline--horizontal-steps">
+<style>
+.hdk-timeline--horizontal-steps .hdk-timeline__list { display: flex; list-style: none; margin: 0; padding: 0; }
+.hdk-timeline--horizontal-steps .hdk-timeline__item { flex: 1; position: relative; display: flex; flex-direction: column; align-items: center; gap: var(--hdk-sp-2); font-size: var(--hdk-fs-xs); color: var(--hdk-fg-faint); text-align: center; }
+.hdk-timeline--horizontal-steps .hdk-timeline__item:not(:last-child)::after { content: ""; position: absolute; top: 12px; left: 50%; width: 100%; height: 2px; background: var(--hdk-line); }
+.hdk-timeline--horizontal-steps .hdk-timeline__item[data-state="done"]:not(:last-child)::after { background: var(--hdk-accent); }
+.hdk-timeline--horizontal-steps .hdk-timeline__dot { position: relative; z-index: 1; width: 26px; height: 26px; border-radius: var(--hdk-radius-full); display: grid; place-items: center; background: var(--hdk-bg-elev); border: 2px solid var(--hdk-line-strong); font-family: var(--hdk-font-mono); font-weight: var(--hdk-fw-bold); }
+.hdk-timeline--horizontal-steps [data-state="done"] .hdk-timeline__dot { background: var(--hdk-accent); border-color: var(--hdk-accent); color: var(--hdk-accent-fg); }
+.hdk-timeline--horizontal-steps [data-state="current"] .hdk-timeline__dot { border-color: var(--hdk-accent); color: var(--hdk-accent); }
+.hdk-timeline--horizontal-steps [data-state] .hdk-timeline__label { color: var(--hdk-fg); }
+.hdk-timeline--horizontal-steps [data-state="current"] .hdk-timeline__label { font-weight: var(--hdk-fw-medium); }
+</style>
+  <ol class="hdk-timeline__list" data-slot="items">
+    <li class="hdk-timeline__item" data-state="done" data-slot="item"><span class="hdk-timeline__dot">✓</span><span class="hdk-timeline__label" data-slot="label">단계 자리</span></li>
+    <li class="hdk-timeline__item" data-state="done"><span class="hdk-timeline__dot">✓</span><span class="hdk-timeline__label">단계 자리</span></li>
+    <li class="hdk-timeline__item" data-state="current"><span class="hdk-timeline__dot">3</span><span class="hdk-timeline__label">단계 자리</span></li>
+    <li class="hdk-timeline__item"><span class="hdk-timeline__dot">4</span><span class="hdk-timeline__label">단계 자리</span></li>
+  </ol>
+</section></article><article class="part"><h2>timeline.vertical · ColorlibHQ/AdminLTE</h2><section data-part="timeline" data-variant="vertical" class="hdk-timeline hdk-timeline--vertical">
+<style>
+.hdk-timeline--vertical .hdk-timeline__list { list-style: none; margin: 0; padding: 0 0 0 var(--hdk-sp-5); border-left: 1px solid var(--hdk-line-strong); display: grid; gap: var(--hdk-sp-5); }
+.hdk-timeline--vertical .hdk-timeline__item { position: relative; }
+.hdk-timeline--vertical .hdk-timeline__item::before { content: ""; position: absolute; left: calc(-1 * var(--hdk-sp-5) - 6px); top: 4px; width: 11px; height: 11px; border-radius: var(--hdk-radius-full); background: var(--hdk-fg-faint); border: 2px solid var(--hdk-bg); }
+.hdk-timeline--vertical .hdk-timeline__item[data-tone="accent"]::before { background: var(--hdk-accent); }
+.hdk-timeline--vertical .hdk-timeline__item[data-tone="success"]::before { background: var(--hdk-success); }
+.hdk-timeline--vertical .hdk-timeline__item[data-tone="danger"]::before { background: var(--hdk-danger); }
+.hdk-timeline--vertical .hdk-timeline__meta { margin: 0; font-family: var(--hdk-font-mono); font-size: var(--hdk-fs-xs); color: var(--hdk-fg-faint); }
+.hdk-timeline--vertical .hdk-timeline__title { margin: 2px 0; font-size: var(--hdk-fs-sm); font-weight: var(--hdk-fw-medium); }
+.hdk-timeline--vertical .hdk-timeline__body { margin: 0; font-size: var(--hdk-fs-sm); color: var(--hdk-fg-muted); }
+</style>
+  <ul class="hdk-timeline__list" data-slot="items">
+    <li class="hdk-timeline__item" data-tone="accent" data-slot="item"><p class="hdk-timeline__meta" data-slot="meta">시각 자리</p><p class="hdk-timeline__title" data-slot="title">사건 제목 자리</p><p class="hdk-timeline__body" data-slot="body">설명 자리</p></li>
+    <li class="hdk-timeline__item"><p class="hdk-timeline__meta">시각 자리</p><p class="hdk-timeline__title">사건 제목 자리</p></li>
+    <li class="hdk-timeline__item" data-tone="success"><p class="hdk-timeline__meta">시각 자리</p><p class="hdk-timeline__title">사건 제목 자리</p></li>
+  </ul>
+</section></article><article class="part"><h2>topbar.admin-bar · ColorlibHQ/gentelella</h2><section data-part="topbar" data-variant="admin-bar" class="hdk-topbar hdk-topbar--admin-bar">
+<style>
+.hdk-topbar--admin-bar { display: flex; align-items: center; gap: var(--hdk-sp-3); height: 100%; padding: 0 var(--hdk-sp-4); }
+.hdk-topbar--admin-bar .hdk-topbar__toggle { display: inline-grid; place-items: center; width: 36px; height: 36px; /* 구조 치수 */ border: 0; background: none; border-radius: var(--hdk-radius-md); color: var(--hdk-fg-muted); cursor: pointer; }
+.hdk-topbar--admin-bar .hdk-topbar__toggle:hover { background: var(--hdk-bg-elev-2); color: var(--hdk-fg); }
+.hdk-topbar--admin-bar .hdk-topbar__title { margin: 0; font-size: var(--hdk-fs-md); font-weight: var(--hdk-fw-medium); white-space: nowrap; }
+.hdk-topbar--admin-bar .hdk-topbar__search { display: none; flex: 1; max-width: 420px; margin: 0 auto; }
+.hdk-topbar--admin-bar .hdk-topbar__input { width: 100%; padding: var(--hdk-sp-2) var(--hdk-sp-3); background: var(--hdk-bg); border: 1px solid var(--hdk-line); border-radius: var(--hdk-radius-md); font-size: var(--hdk-fs-sm); }
+.hdk-topbar--admin-bar .hdk-topbar__input:focus { border-color: var(--hdk-accent); outline: none; }
+.hdk-topbar--admin-bar .hdk-topbar__actions { display: flex; align-items: center; gap: var(--hdk-sp-1); margin-left: auto; }
+.hdk-topbar--admin-bar .hdk-topbar__user { display: flex; align-items: center; gap: var(--hdk-sp-2); padding-left: var(--hdk-sp-3); border-left: 1px solid var(--hdk-line); font-size: var(--hdk-fs-sm); }
+.hdk-topbar--admin-bar .hdk-topbar__avatar { width: 28px; height: 28px; border-radius: var(--hdk-radius-full); background: var(--hdk-accent-soft); }
+@media (min-width: 640px) { .hdk-topbar--admin-bar .hdk-topbar__search { display: block; } } /* sm */
+</style>
+  <button class="hdk-topbar__toggle" type="button" data-action="toggle-sidebar" aria-label="메뉴 열기/닫기">
+    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M2 4h14M2 9h14M2 14h14"/></svg>
+  </button>
+  <h1 class="hdk-topbar__title" data-slot="title">페이지 제목 자리</h1>
+  <div class="hdk-topbar__search" data-slot="search"><input class="hdk-topbar__input" type="search" placeholder="검색어 입력 자리"></div>
+  <div class="hdk-topbar__actions" data-slot="actions"><!-- button.ghost × n --></div>
+  <div class="hdk-topbar__user" data-slot="user"><i class="hdk-topbar__avatar" aria-hidden="true"></i><span>사용자명 자리</span></div>
+</section></article><article class="part"><h2>topbar.centered-logo · startbootstrap/startbootstrap-agency</h2><section data-part="topbar" data-variant="centered-logo" class="hdk-topbar hdk-topbar--centered-logo">
+<style>
+.hdk-topbar--centered-logo { background: var(--hdk-bg); border-bottom: 1px solid var(--hdk-line); }
+.hdk-topbar--centered-logo .hdk-topbar__inner { max-width: var(--hdk-container); margin: 0 auto; height: var(--hdk-topbar-h); padding: 0 var(--hdk-sp-4); display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; }
+.hdk-topbar--centered-logo .hdk-topbar__nav { display: none; gap: var(--hdk-sp-5); list-style: none; margin: 0; padding: 0; }
+.hdk-topbar--centered-logo .hdk-topbar__nav--right { justify-content: flex-end; }
+.hdk-topbar--centered-logo .hdk-topbar__nav a { color: var(--hdk-fg-muted); text-decoration: none; font-size: var(--hdk-fs-xs); letter-spacing: var(--hdk-tracking-caps); text-transform: uppercase; }
+.hdk-topbar--centered-logo .hdk-topbar__nav a:hover { color: var(--hdk-fg); }
+.hdk-topbar--centered-logo .hdk-topbar__logo { grid-column: 2; font-family: var(--hdk-font-display); font-weight: var(--hdk-fw-bold); font-size: var(--hdk-fs-xl); text-decoration: none; color: var(--hdk-fg); letter-spacing: -0.02em; }
+.hdk-topbar--centered-logo .hdk-topbar__burger { grid-column: 3; justify-self: end; border: 0; background: none; color: var(--hdk-fg); cursor: pointer; }
+@media (min-width: 1024px) { .hdk-topbar--centered-logo .hdk-topbar__nav { display: flex; } .hdk-topbar--centered-logo .hdk-topbar__burger { display: none; } } /* md */
+</style>
+  <div class="hdk-topbar__inner">
+    <ul class="hdk-topbar__nav" data-slot="nav"><li><a href="#">링크 자리</a></li><li><a href="#">링크 자리</a></li></ul>
+    <a class="hdk-topbar__logo" href="#" data-slot="logo">로고 자리</a>
+    <ul class="hdk-topbar__nav hdk-topbar__nav--right"><li><a href="#">링크 자리</a></li><li><a href="#">링크 자리</a></li></ul>
+    <button class="hdk-topbar__burger" type="button" data-action="open-menu" aria-label="메뉴"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 5h14M3 10h14M3 15h14"/></svg></button>
+  </div>
+</section></article><article class="part"><h2>topbar.tab-strip · tabler/tabler</h2><section data-part="topbar" data-variant="tab-strip" class="hdk-topbar hdk-topbar--tab-strip">
+<style>
+.hdk-topbar--tab-strip { background: var(--hdk-bg-elev); border-bottom: 1px solid var(--hdk-line); }
+.hdk-topbar--tab-strip .hdk-topbar__row { display: flex; align-items: center; gap: var(--hdk-sp-3); height: var(--hdk-topbar-h); padding: 0 var(--hdk-sp-4); }
+.hdk-topbar--tab-strip .hdk-topbar__title { margin: 0; font-size: var(--hdk-fs-lg); font-weight: var(--hdk-fw-medium); }
+.hdk-topbar--tab-strip .hdk-topbar__actions { margin-left: auto; display: flex; gap: var(--hdk-sp-2); }
+.hdk-topbar--tab-strip .hdk-topbar__tabs { display: flex; gap: var(--hdk-sp-4); padding: 0 var(--hdk-sp-4); overflow-x: auto; list-style: none; margin: 0; }
+.hdk-topbar--tab-strip .hdk-topbar__tabs a { display: block; padding: var(--hdk-sp-2) 0 var(--hdk-sp-3); color: var(--hdk-fg-muted); text-decoration: none; font-size: var(--hdk-fs-sm); border-bottom: 2px solid transparent; white-space: nowrap; }
+.hdk-topbar--tab-strip .hdk-topbar__tabs a[aria-current="page"] { color: var(--hdk-fg); border-bottom-color: var(--hdk-accent); }
+</style>
+  <div class="hdk-topbar__row"><h1 class="hdk-topbar__title" data-slot="title">페이지 제목 자리</h1><div class="hdk-topbar__actions" data-slot="actions"><!-- button --></div></div>
+  <ul class="hdk-topbar__tabs" data-slot="items"><li data-slot="item"><a href="#" aria-current="page">탭 자리</a></li><li><a href="#">탭 자리</a></li><li><a href="#">탭 자리</a></li></ul>
+</section></article></div></main></body></html>

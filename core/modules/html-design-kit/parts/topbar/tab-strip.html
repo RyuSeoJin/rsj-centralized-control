@@ -1,0 +1,25 @@
+<!--
+part: topbar
+variant: tab-strip
+source: tabler/tabler
+fits: frame.sidebar-shell
+mood: dense, tech
+slots: title, items, item, actions
+requires: button.solid
+added: 2026-08-25
+spec: 0.5
+notes: 상단 바 아래에 페이지 내 섹션 탭이 붙은 2단 헤더. 설정·상세 페이지용. 높이가 topbar-h 의 2배이므로 frame 의 --hdk-topbar-h 를 조립 시 조정
+-->
+<section data-part="topbar" data-variant="tab-strip" class="hdk-topbar hdk-topbar--tab-strip">
+<style>
+.hdk-topbar--tab-strip { background: var(--hdk-bg-elev); border-bottom: 1px solid var(--hdk-line); }
+.hdk-topbar--tab-strip .hdk-topbar__row { display: flex; align-items: center; gap: var(--hdk-sp-3); height: var(--hdk-topbar-h); padding: 0 var(--hdk-sp-4); }
+.hdk-topbar--tab-strip .hdk-topbar__title { margin: 0; font-size: var(--hdk-fs-lg); font-weight: var(--hdk-fw-medium); }
+.hdk-topbar--tab-strip .hdk-topbar__actions { margin-left: auto; display: flex; gap: var(--hdk-sp-2); }
+.hdk-topbar--tab-strip .hdk-topbar__tabs { display: flex; gap: var(--hdk-sp-4); padding: 0 var(--hdk-sp-4); overflow-x: auto; list-style: none; margin: 0; }
+.hdk-topbar--tab-strip .hdk-topbar__tabs a { display: block; padding: var(--hdk-sp-2) 0 var(--hdk-sp-3); color: var(--hdk-fg-muted); text-decoration: none; font-size: var(--hdk-fs-sm); border-bottom: 2px solid transparent; white-space: nowrap; }
+.hdk-topbar--tab-strip .hdk-topbar__tabs a[aria-current="page"] { color: var(--hdk-fg); border-bottom-color: var(--hdk-accent); }
+</style>
+  <div class="hdk-topbar__row"><h1 class="hdk-topbar__title" data-slot="title">페이지 제목 자리</h1><div class="hdk-topbar__actions" data-slot="actions"><!-- button --></div></div>
+  <ul class="hdk-topbar__tabs" data-slot="items"><li data-slot="item"><a href="#" aria-current="page">탭 자리</a></li><li><a href="#">탭 자리</a></li><li><a href="#">탭 자리</a></li></ul>
+</section>

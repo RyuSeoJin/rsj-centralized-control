@@ -1,0 +1,34 @@
+<!--
+part: faq
+variant: two-column
+source: thedevdojo/tails
+fits: frame.scroll-stack, section
+mood: airy, editorial
+slots: title, subtitle, items, item, label, body
+requires: none
+added: 2026-08-25
+spec: 0.5
+notes: 접지 않고 전부 펼친 2열 그리드. 질문 6~8개일 때. 좌측에 제목 블록 고정도 가능(data-layout="side")
+-->
+<section data-part="faq" data-variant="two-column" class="hdk-faq hdk-faq--two-column">
+<style>
+.hdk-faq--two-column { padding: var(--hdk-sp-8) var(--hdk-sp-4); }
+.hdk-faq--two-column .hdk-faq__inner { max-width: var(--hdk-container); margin: 0 auto; display: grid; gap: var(--hdk-sp-6); }
+.hdk-faq--two-column .hdk-faq__title { margin: 0 0 var(--hdk-sp-2); font-family: var(--hdk-font-display); font-size: var(--hdk-fs-2xl); font-weight: var(--hdk-fw-bold); line-height: var(--hdk-lh-tight); }
+.hdk-faq--two-column .hdk-faq__subtitle { margin: 0; color: var(--hdk-fg-muted); }
+.hdk-faq--two-column .hdk-faq__grid { display: grid; gap: var(--hdk-sp-5) var(--hdk-sp-7); }
+.hdk-faq--two-column .hdk-faq__label { margin: 0 0 var(--hdk-sp-1); font-weight: var(--hdk-fw-medium); }
+.hdk-faq--two-column .hdk-faq__body { margin: 0; color: var(--hdk-fg-muted); font-size: var(--hdk-fs-sm); line-height: var(--hdk-lh-loose); }
+@media (min-width: 640px)  { .hdk-faq--two-column .hdk-faq__grid { grid-template-columns: 1fr 1fr; } } /* sm */
+@media (min-width: 1024px) { .hdk-faq--two-column .hdk-faq__inner { grid-template-columns: 1fr 2fr; } } /* md */
+</style>
+  <div class="hdk-faq__inner">
+    <div><h2 class="hdk-faq__title" data-slot="title">자주 묻는 질문</h2><p class="hdk-faq__subtitle" data-slot="subtitle">부제 자리</p></div>
+    <div class="hdk-faq__grid" data-slot="items">
+      <div data-slot="item"><h3 class="hdk-faq__label" data-slot="label">질문 자리</h3><p class="hdk-faq__body" data-slot="body">답변 자리</p></div>
+      <div><h3 class="hdk-faq__label">질문 자리</h3><p class="hdk-faq__body">답변 자리</p></div>
+      <div><h3 class="hdk-faq__label">질문 자리</h3><p class="hdk-faq__body">답변 자리</p></div>
+      <div><h3 class="hdk-faq__label">질문 자리</h3><p class="hdk-faq__body">답변 자리</p></div>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>05 · 시스템 기획서 템플릿 — UE 문서 디자인 시스템 v1.0</title>
+<link rel="stylesheet" href="../../../base/design-guide/design-guide-ue-master.css">
+<!-- ============================================================
+     CHANGELOG — 05-system-spec.html
+     시스템 기획서 템플릿. 작업 규약: core/base/rules/change-log-writing.md §4
+     이관 · 2026-09-27 (버전 변경 없음)
+       - (변경) 중앙 저장소 core/로 옮김 — 마스터 링크를 ../../../base/design-guide/로 고치고,
+         저장소마다 자리가 다른 문서 허브 링크를 뺌
+       - (변경) 지난 사유 줄의 프로젝트 이름을 「한 프로젝트」로 바꿈 — 공개 중앙 저장소에 프로젝트 이름을 두지 않음(사용자 결정)
+     · 2026-09-16 — (반영) 마스터 v1.12의 .pill 줄바꿈 방지(white-space: nowrap). 템플릿은 <link>로 master.css를
+       참조하므로 자동 적용(파일 내용·자체 버전 무변경, 기반 표기만 v1.12로 갱신).
+     v1.0 · 2026-09-15
+       - 신규 생성. Case C: "게임/앱 시스템 하나를 개발자가 구현에 착수할 수 있도록
+         목적·규칙·흐름·화면·예외·데이터·연동·미결 사항까지 정의하는 기획서" 템플릿.
+         (02-A=클래스 역할·책임, 02-B=복붙 코드, 04=변수 배치·흐름과 구분 — 이 템플릿은 코드 없는 기획 정의)
+       - 변형 2종: 05-A 시스템 기획서(9섹션) · 05-B 콘텐츠 총괄표(5섹션)
+       - 전용 컴포넌트(master.css v1.11): .wire(화면 와이어프레임) · .pill.amber(기획 상태 '제안')
+       - 재사용 컴포넌트: .stat-row-4 · .tree · .tbl · .diagram(+*.mmd) · .rel-map · .pitfall · .callout · .dd-grid
+       - 사유: 한 프로젝트의 시스템 기획서 요청(사용자 승인)
+     ============================================================ -->
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">UE DESIGN SYSTEM · 05 SYSTEM SPEC</div>
+  <div class="nav-links">
+    <a href="../../../base/design-guide/design-guide-ue-master-visual.html">&larr; 마스터</a>
+    <a href="04-ue-data-map.html">&larr; 데이터 지도</a>
+    <a href="#overview">구성 개요</a>
+    <a href="#status">상태 표기</a>
+    <a href="#rules-table">규칙 표</a>
+    <a href="#screen">화면 구성</a>
+    <a href="#flow">플로우</a>
+    <a href="#open">미결 사항</a>
+    <a href="#summary">05-B 총괄표</a>
+    <a href="#usage">사용 규칙</a>
+  </div>
+</nav>
+
+<div class="hero">
+  <div class="hero-eyebrow">Design System · v1.0 · System Spec</div>
+  <h1>시스템<br><span>기획서 템플릿</span></h1>
+  <p class="hero-sub">
+    게임·앱의 <strong>시스템 하나를 "무엇을 · 어떤 규칙으로 · 어떤 화면에서 · 예외는 어떻게"</strong>까지 정의하는 기획서용 템플릿입니다. 코드는 담지 않고, 개발자가 구현 명세(02-B)를 쓰기 전에 합의해야 할 기획 정의를 한 문서에 모읍니다. 확정·제안·미정을 색으로 구분해, 무엇이 결정됐고 무엇이 남았는지 한눈에 보이게 합니다.
+  </p>
+  <div class="hero-meta">
+    <span class="badge badge-blue">Track B 주용도</span>
+    <span class="badge badge-green">Master v1.11 기반</span>
+    <span class="badge badge-purple">05-A 9섹션 · 05-B 5섹션</span>
+  </div>
+</div>
+
+<div class="content">
+
+  <!-- 00 구성 개요 -->
+  <div class="section" id="overview">
+    <div class="section-label">00 — 구성 개요</div>
+    <h2>05-A 시스템 기획서 — 섹션 구조 (독자 이해 순서)</h2>
+    <p>독자는 <strong>이 시스템이 왜 있는지 알고 → 어떤 기능들로 이뤄졌는지 훑고 → 규칙을 익히고 → 사용자가 실제로 밟는 흐름을 따라가고 → 그 흐름이 화면에 어떻게 놓이는지 보고 → 예외를 확인하고 → 데이터가 어디 사는지 · 다른 시스템과 어떻게 이어지는지 파악한 뒤 → 남은 결정</strong>을 확인하는 순서로 이해에 도달합니다. 요청 내용에 맞게 섹션을 추가·흡수·축약할 수 있습니다.</p>
+    <table class="tbl">
+      <tr><th>#</th><th>섹션</th><th>답하는 질문</th><th>핵심 컴포넌트</th></tr>
+      <tr><td>01</td><td>개요</td><td>이 시스템은 <strong>왜</strong> 있고, 코어 루프 어디에 끼는가</td><td><code>.stat-row-4</code>(Phase·소유 범위·상태·화면 존) · <code>.callout</code>(핵심 용어)</td></tr>
+      <tr><td>02</td><td>기능 구성</td><td>어떤 <strong>하위 기능</strong>들로 이뤄지는가</td><td><code>.tree</code>(기능 트리 + 상태 표기)</td></tr>
+      <tr><td>03</td><td>핵심 규칙</td><td>시스템이 <strong>어떤 규칙</strong>으로 동작하는가</td><td><code>.tbl</code> 규칙 표(규칙 ID · 내용 · 수치 · 상태 · 근거)</td></tr>
+      <tr><td>04</td><td>유저 플로우</td><td>사용자는 <strong>어떤 순서</strong>로 무엇을 누르는가</td><td><code>.diagram</code>(구워넣은 SVG) + <code>*.mmd</code> 단일 탭 · <code>.pipe-step</code></td></tr>
+      <tr><td>05</td><td>화면 구성</td><td>그 흐름이 <strong>화면 어디에</strong> 어떤 요소로 놓이는가</td><td><code>.wire</code>(와이어프레임) + UI 요소 표(<code>.w-mark</code> 번호 1:1)</td></tr>
+      <tr><td>06</td><td>상태 · 예외 처리</td><td>빈 상태 · 취소 · 앱 종료 · 경계값에서 <strong>무슨 일이</strong> 일어나는가</td><td><code>.tbl</code> 상태 표 · <code>.pitfall</code> 엣지 케이스</td></tr>
+      <tr><td>07</td><td>데이터 · 수치</td><td>값이 <strong>어디에 저장</strong>되고, 무엇이 튜닝 대상인가</td><td><code>.tbl</code>(저장 위치 · 튜닝 파라미터)</td></tr>
+      <tr><td>08</td><td>시스템 연동</td><td>다른 시스템과 <strong>무엇을 주고받는가</strong></td><td><code>.rel-map</code>(시스템 간 관계)</td></tr>
+      <tr><td>09</td><td>미결 사항</td><td><strong>아직 안 정해진 것</strong>은 무엇이고, 무엇을 골라야 하나</td><td><code>.tbl</code> 미결 표(항목 · 선택지 · 제안안) · 관련 구현 문서 이름</td></tr>
+    </table>
+    <div class="callout info"><span class="ic">📐</span><p><strong>02-A · 02-B · 04와의 구분</strong> — 이 템플릿은 <strong>코드 없는 기획 정의</strong>입니다. "누가(클래스) 무엇을 책임지나"는 02-A, "복붙할 .h/.cpp"는 02-B, "변수가 어디 살고 어디로 흐르나"는 04가 담당합니다. 기획서의 07·08 섹션은 저장 위치·연동 대상을 <strong>이름 수준</strong>으로만 적고, 상세 구현은 해당 구현 문서 이름으로 넘깁니다(🚀 작업 시작하기 블록 생략 가능 — 코드 없음).</p></div>
+  </div>
+
+  <!-- 01 상태 표기 -->
+  <div class="section" id="status">
+    <div class="section-label">01 — 공통 규약 · 상태 표기</div>
+    <h2>확정 · 제안 · 미정을 색으로 구분한다</h2>
+    <p>기획서의 모든 규칙·기능·수치에는 상태가 붙습니다. 독자가 "이건 믿고 구현해도 되나?"를 문장을 읽지 않고도 판단할 수 있게 하기 위함입니다.</p>
+    <div class="demo"><div class="demo-head">Live</div><div class="demo-body">
+      <div class="pills"><span class="pill green">확정</span><span class="pill amber">제안</span><span class="pill red">미정</span><span class="pill blue">Phase 1</span><span class="pill purple">Phase 2</span><span class="pill pink">Phase 3+</span></div>
+    </div></div>
+    <table class="tbl">
+      <tr><th>표기</th><th>의미</th><th>규칙</th></tr>
+      <tr><td><span class="pill green">확정</span></td><td>사용자 또는 정본 문서가 확정</td><td>근거 열에 정본 문서 이름·버전을 적음</td></tr>
+      <tr><td><span class="pill amber">제안</span></td><td>기획서가 제안하는 안(확정 전)</td><td><strong>09 미결 사항 표에 반드시 올림</strong> — 제안이 조용히 확정처럼 굳지 않게</td></tr>
+      <tr><td><span class="pill red">미정</span></td><td>정해지지 않았고 제안도 없음</td><td>왜 결정이 필요한지 한 줄</td></tr>
+      <tr><td><span class="pill blue">Phase 1</span> <span class="pill purple">Phase 2</span> <span class="pill pink">Phase 3+</span></td><td>개발 단계</td><td>01 개요 · 02 기능 트리에서 사용</td></tr>
+    </table>
+    <h3>기능 트리 표기 (.tree)</h3>
+    <div class="tree">1 영지                         <span class="note">[확정 · 계정 공유]</span>
+├── 1.1 HUD                    <span class="note">[확정]</span>
+│   └── 1.1.1 재화 표시        <span class="note">[확정]</span>
+└── 1.3 플레이어 정보          <span class="note">[제안]</span>  ← 원본 상태가 미정이면 제안/미정 중 하나로</div>
+    <div class="callout tip"><span class="ic">💡</span><p><strong>트리 번호는 원본 기능 목록(예: Notion Feature DB) 넘버링을 그대로</strong> 씁니다. 기획서가 새 하위 기능을 제안하면 번호 대신 <code>(제안)</code>으로 표기하고 번호 부여는 원본 관리자에게 맡깁니다.</p></div>
+  </div>
+
+  <!-- 02 규칙 표 -->
+  <div class="section" id="rules-table">
+    <div class="section-label">02 — 패턴 · 핵심 규칙 표</div>
+    <h2>규칙은 ID를 붙여 한 줄에 하나</h2>
+    <p>규칙마다 <strong>ID(시스템 약어-번호)</strong>를 붙이면 플로우·예외·미결 표에서 "R-03 참조"처럼 짧게 가리킬 수 있습니다. 수치는 확정값만 적고, 튜닝할 값은 <code>튜닝</code>으로 표기해 07 데이터·수치 섹션의 파라미터 표로 넘깁니다.</p>
+    <div class="demo"><div class="demo-head">Live</div><div class="demo-body">
+      <table class="tbl" style="margin:0">
+        <tr><th>ID</th><th>규칙</th><th>수치</th><th>상태</th><th>근거</th></tr>
+        <tr><td><code>FC-01</code></td><td>레벨은 실제 집중 시간으로만 오른다</td><td>3600초 = 1레벨</td><td><span class="pill green">확정</span></td><td>정본 문서 이름 v0.x</td></tr>
+        <tr><td><code>FC-02</code></td><td>일시정지 중에는 산출 배율을 적용하지 않는다</td><td>—</td><td><span class="pill green">확정</span></td><td>정본 문서 이름</td></tr>
+        <tr><td><code>FC-03</code></td><td>하루 최대 인정 시간을 둔다</td><td><code>튜닝</code></td><td><span class="pill amber">제안</span></td><td>09 미결 #1</td></tr>
+      </table>
+    </div></div>
+  </div>
+
+  <!-- 03 화면 구성 -->
+  <div class="section" id="screen">
+    <div class="section-label">03 — 전용 컴포넌트 · 화면 구성</div>
+    <h2>.wire — 와이어프레임 + UI 요소 표</h2>
+    <p>① 화면 존 격자로 <strong>이 시스템이 화면 어디에 사는지</strong> 먼저 보여주고, ② 패널·모달 박스로 <strong>요소 자리</strong>를 그린 뒤, ③ 번호 마커와 1:1로 대응하는 <strong>UI 요소 표</strong>에서 각 요소의 동작을 정의합니다. 컴포넌트 데모와 클래스 규칙은 마스터 비주얼 11 섹션을 따릅니다.</p>
+    <div class="demo"><div class="demo-head">Live</div><div class="demo-body">
+      <div class="wire" style="margin:0">
+        <div class="wire-screen">
+          <div class="wz a-hud"><span class="wz-name">HUD</span><span class="w-text">재화 · 시계</span></div>
+          <div class="wz a-tl on"><span class="wz-name">좌측 상단</span><div class="w-slot"><span class="w-mark">1</span>대상 패널</div></div>
+          <div class="wz a-tr off"><span class="wz-name">우측 상단</span></div>
+          <div class="wz a-bg"><span class="wz-name">배경</span><div class="w-slot">메인 공간</div></div>
+          <div class="wz a-bl off"><span class="wz-name">좌측 하단</span></div>
+          <div class="wz a-br off"><span class="wz-name">우측 하단</span></div>
+        </div>
+        <div class="wire-row">
+          <div class="wire-panel">
+            <div class="wp-head"><span class="wp-kind">Panel</span><span class="wp-title">대상 패널</span><span class="wp-x">✕</span></div>
+            <div class="wp-body">
+              <div class="w-slot">목록 (행 반복)</div>
+              <div class="w-row end"><span class="w-mark">2</span><span class="w-btn primary">주 행동</span></div>
+            </div>
+          </div>
+          <div class="wire-panel modal">
+            <div class="wp-head"><span class="wp-kind">Modal</span><span class="wp-title">확인</span><span class="wp-x">✕</span></div>
+            <div class="wp-body">
+              <div class="w-text">확인 문구</div>
+              <div class="w-row end"><span class="w-btn ghost">취소</span><span class="w-mark">3</span><span class="w-btn primary">확인</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div></div>
+    <table class="tbl">
+      <tr><th>#</th><th>요소</th><th>표시 · 동작</th><th>상태</th></tr>
+      <tr><td>1</td><td>대상 패널</td><td>앱 시작 시 기본으로 열림</td><td><span class="pill green">확정</span></td></tr>
+      <tr><td>2</td><td>주 행동 버튼</td><td>누르면 확인 모달(3)을 연다</td><td><span class="pill amber">제안</span></td></tr>
+      <tr><td>3</td><td>확인 버튼</td><td>성공 시 모달 전부 닫기, 취소 시 맨 위 1장만 닫기</td><td><span class="pill green">확정</span></td></tr>
+    </table>
+  </div>
+
+  <!-- 04 플로우 -->
+  <div class="section" id="flow">
+    <div class="section-label">04 — 재사용 컴포넌트 · 유저 플로우</div>
+    <h2>.diagram + *.mmd — 분기까지 한 장에</h2>
+    <p>정상 경로만 그리지 말고 <strong>취소 · ESC · 실패 · 빈 상태</strong> 분기를 같은 그림에 넣습니다. SVG는 생성 시점에 구워넣고(런타임 렌더링 금지), Mermaid 소스를 <code>.codeblock</code> 단일 탭(<code>*.mmd</code>)으로 병기합니다. 컴포넌트 규칙은 마스터 비주얼 08 섹션을 따릅니다.</p>
+    <table class="tbl">
+      <tr><th>그림</th><th>어울리는 자리</th><th>노드 종류(k-*) 권장</th></tr>
+      <tr><td>유저 플로우 <code>.diagram</code></td><td>04 섹션 — 화면·행동 단위 흐름</td><td>화면/패널=<code>k-ui</code> · 판단=<code>k-decision</code> · 저장=<code>k-db</code></td></tr>
+      <tr><td>단계 절차 <code>.pipe-step</code></td><td>분기 없는 순차 절차(예: 첫 실행 안내 단계)</td><td>—</td></tr>
+    </table>
+  </div>
+
+  <!-- 05 미결 사항 -->
+  <div class="section" id="open">
+    <div class="section-label">05 — 패턴 · 미결 사항 표</div>
+    <h2>제안은 결정 요청으로 끝맺는다</h2>
+    <p>본문의 <span class="pill amber">제안</span>·<span class="pill red">미정</span>은 전부 이 표에 모읍니다. 사용자가 이 표만 보고 결정을 내릴 수 있도록 <strong>선택지와 제안안의 근거</strong>를 함께 적습니다.</p>
+    <table class="tbl">
+      <tr><th>#</th><th>항목</th><th>선택지</th><th>제안안 · 근거</th><th>상태</th></tr>
+      <tr><td>1</td><td>하루 최대 인정 시간(FC-03)</td><td>A. 제한 없음 · B. 12시간</td><td>B — 켜두고 잊은 스톱워치로 레벨이 부풀려지는 것 방지</td><td><span class="pill amber">제안</span></td></tr>
+      <tr><td>2</td><td>알림음 종류</td><td>—</td><td>사운드 기획 확정 후 결정</td><td><span class="pill red">미정</span></td></tr>
+    </table>
+    <div class="callout info"><span class="ic">🔗</span><p><strong>관련 구현 문서</strong>는 섹션 끝에 이름으로만 나열합니다(문서 간 상대 링크 금지 — 연결은 허브 담당). 예: 『집중: 타이머 · 스톱워치 구현 명세』.</p></div>
+  </div>
+
+  <!-- 06 05-B 총괄표 -->
+  <div class="section" id="summary">
+    <div class="section-label">06 — 변형 · 05-B 콘텐츠 총괄표</div>
+    <h2>프로젝트 전체 콘텐츠를 한 장으로</h2>
+    <p>시스템 기획서 묶음의 입구 문서입니다. 독자는 <strong>제품이 무엇인지 → 화면이 어떻게 나뉘는지 → 콘텐츠가 몇 개 시스템으로 묶이는지 → 언제 만드는지 → 무엇이 비어 있고 어긋나는지</strong> 순서로 전체를 파악합니다.</p>
+    <table class="tbl">
+      <tr><th>#</th><th>섹션</th><th>답하는 질문</th><th>핵심 컴포넌트</th></tr>
+      <tr><td>01</td><td>제품과 코어 루프</td><td>이 제품은 무엇이고 어떤 순환으로 돌아가나</td><td><code>.stat-row-4</code> · <code>.diagram</code>(+*.mmd)</td></tr>
+      <tr><td>02</td><td>화면 존 지도</td><td>화면은 어떤 영역으로 나뉘나</td><td><code>.wire</code>(존 격자) · <code>.tbl</code></td></tr>
+      <tr><td>03</td><td>콘텐츠 전수표</td><td>기능 전체가 어느 시스템 기획서에 속하나</td><td><code>.tbl</code>(시스템 · 기능 범위 · Phase · 상태 · 기존 문서 커버리지)</td></tr>
+      <tr><td>04</td><td>Phase별 개발 범위</td><td>무엇을 먼저 만드나</td><td><code>.pipe-step</code> · <code>.pills</code></td></tr>
+      <tr><td>05</td><td>갭 · 충돌 목록</td><td>문서가 없거나 서로 어긋나는 곳은 어디인가</td><td><code>.tbl</code> · <code>.callout warn</code></td></tr>
+    </table>
+  </div>
+
+  <!-- 07 사용 규칙 -->
+  <div class="section" id="usage">
+    <div class="section-label">07 — 사용 규칙</div>
+    <h2>이 템플릿의 Do &amp; Don't</h2>
+    <div class="dd-grid">
+      <div class="dd do">
+        <h4>✓ 이렇게</h4>
+        <ul>
+          <li>모든 규칙·기능·수치에 상태 pill(확정/제안/미정)을 붙이기</li>
+          <li>제안·미정은 전부 미결 사항 표에 모으기</li>
+          <li>기능 트리 번호는 원본 기능 목록 넘버링을 그대로</li>
+          <li>와이어프레임 번호 마커와 UI 요소 표를 1:1로 대응</li>
+          <li>용어는 처음 1회 풀어 쓰고, 한 개념엔 한 용어만</li>
+          <li>수치는 확정값만 — 나머지는 <code>튜닝</code> 표기</li>
+        </ul>
+      </div>
+      <div class="dd dont">
+        <h4>✗ 이건 피하기</h4>
+        <ul>
+          <li>제안을 확정 규칙과 같은 색·문장으로 섞어 쓰기</li>
+          <li>.h/.cpp 코드 넣기 (구현 명세 02-B의 몫)</li>
+          <li>와이어프레임을 픽셀 시안처럼 꾸미기</li>
+          <li>정상 경로만 있는 플로우 (취소·ESC·실패 누락)</li>
+          <li>폐기된 기능·용어를 "폐기됨" 안내로 본문에 남기기 (프로젝트 규칙이 있는 경우)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  <span>UE 문서 디자인 시스템 · 05 시스템 기획서 템플릿 v1.0</span>
+  <span>기반: Master v1.12</span>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,22 @@
+<!--
+part: button
+variant: link
+source: satnaing/shadcn-admin
+fits: any
+mood: airy, editorial
+slots: label, icon
+requires: none
+added: 2026-08-25
+spec: 0.5
+notes: 텍스트 링크처럼 보이는 버튼. 화살표 아이콘이 hover 시 이동. "자세히 보기 →" 용
+-->
+<section data-part="button" data-variant="link" class="hdk-button hdk-button--link">
+<style>
+.hdk-button--link { display: inline-flex; }
+.hdk-button--link .hdk-button__btn { display: inline-flex; align-items: center; gap: var(--hdk-sp-1); padding: 0; background: none; border: 0; color: var(--hdk-accent); font-size: var(--hdk-fs-sm); font-weight: var(--hdk-fw-medium); cursor: pointer; }
+.hdk-button--link .hdk-button__btn:hover { text-decoration: underline; text-underline-offset: 3px; }
+.hdk-button--link .hdk-button__icon { width: 14px; height: 14px; transition: transform var(--hdk-dur-fast) var(--hdk-ease); }
+.hdk-button--link .hdk-button__btn:hover .hdk-button__icon { transform: translateX(3px); }
+</style>
+  <button type="button" class="hdk-button__btn"><span data-slot="label">버튼 라벨</span><svg class="hdk-button__icon" data-slot="icon" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M2 7h10M8 3l4 4-4 4"/></svg></button>
+</section>

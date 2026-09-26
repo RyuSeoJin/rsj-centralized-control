@@ -1,0 +1,25 @@
+<!--
+part: empty-state
+variant: error
+source: satnaing/shadcn-admin
+fits: any
+mood: airy, tech
+slots: value, title, body, cta
+requires: button.solid
+added: 2026-08-25
+spec: 0.5
+notes: 404·500·권한 없음 전체 페이지. 큰 코드 숫자 + 설명 + 돌아가기. data-code 로 숫자
+-->
+<section data-part="empty-state" data-variant="error" class="hdk-empty-state hdk-empty-state--error">
+<style>
+.hdk-empty-state--error { min-height: 60vh; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: var(--hdk-sp-2); padding: var(--hdk-sp-8) var(--hdk-sp-4); }
+.hdk-empty-state--error .hdk-empty-state__value { margin: 0; font-family: var(--hdk-font-mono); font-size: var(--hdk-fs-3xl); font-weight: var(--hdk-fw-bold); color: var(--hdk-line-strong); letter-spacing: 0.1em; line-height: 1; }
+.hdk-empty-state--error .hdk-empty-state__title { margin: var(--hdk-sp-2) 0 0; font-family: var(--hdk-font-display); font-size: var(--hdk-fs-xl); font-weight: var(--hdk-fw-bold); }
+.hdk-empty-state--error .hdk-empty-state__body { margin: 0; color: var(--hdk-fg-muted); max-width: 40ch; }
+.hdk-empty-state--error .hdk-empty-state__cta { margin-top: var(--hdk-sp-4); }
+</style>
+  <p class="hdk-empty-state__value" data-slot="value">404</p>
+  <h1 class="hdk-empty-state__title" data-slot="title">페이지를 찾을 수 없습니다</h1>
+  <p class="hdk-empty-state__body" data-slot="body">무슨 일이 있었고 어디로 가면 되는지 자리</p>
+  <div class="hdk-empty-state__cta" data-slot="cta"><!-- button.solid --></div>
+</section>

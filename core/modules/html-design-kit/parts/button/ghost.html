@@ -1,0 +1,35 @@
+<!--
+part: button
+variant: ghost
+source: original
+fits: any
+mood: dense, tech
+slots: label, icon
+requires: none
+added: 2026-08-25
+spec: 0.5
+notes: 배경 없는 3차 행동. 표 행·툴바·카드 헤더 안에서 사용. data-icon-only="true"면 라벨 숨김(정사각형)
+-->
+<section data-part="button" data-variant="ghost" class="hdk-button hdk-button--ghost">
+<style>
+.hdk-button--ghost { display: inline-flex; }
+.hdk-button--ghost .hdk-button__btn {
+  display: inline-flex; align-items: center; gap: var(--hdk-sp-2);
+  padding: var(--hdk-sp-2) var(--hdk-sp-3);
+  background: transparent; color: var(--hdk-fg-muted);
+  border: 1px solid transparent; border-radius: var(--hdk-radius-md);
+  font-size: var(--hdk-fs-sm); font-weight: var(--hdk-fw-medium); line-height: var(--hdk-lh-tight);
+  cursor: pointer; white-space: nowrap;
+  transition: background var(--hdk-dur-fast) var(--hdk-ease), color var(--hdk-dur-fast) var(--hdk-ease);
+}
+.hdk-button--ghost .hdk-button__btn:hover { background: var(--hdk-bg-elev-2); color: var(--hdk-fg); }
+.hdk-button--ghost .hdk-button__btn:disabled { opacity: .45; cursor: not-allowed; }
+.hdk-button--ghost .hdk-button__icon { width: 16px; height: 16px; flex: none; }
+.hdk-button--ghost[data-icon-only="true"] .hdk-button__btn { padding: var(--hdk-sp-2); }
+.hdk-button--ghost[data-icon-only="true"] .hdk-button__label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+</style>
+  <button type="button" class="hdk-button__btn">
+    <svg class="hdk-button__icon" data-slot="icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="8" cy="8" r="1"/><circle cx="3" cy="8" r="1"/><circle cx="13" cy="8" r="1"/></svg>
+    <span class="hdk-button__label" data-slot="label">버튼 라벨</span>
+  </button>
+</section>

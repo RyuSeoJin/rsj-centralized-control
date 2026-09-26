@@ -1,0 +1,23 @@
+<!--
+part: pagination
+variant: load-more
+source: original
+fits: feed, section
+mood: airy, editorial
+slots: meta, cta
+requires: button.outline
+added: 2026-08-25
+spec: 0.5
+notes: 페이지 번호 대신 "더 보기" 버튼 + 남은 개수. 피드·갤러리용
+-->
+<section data-part="pagination" data-variant="load-more" class="hdk-pagination hdk-pagination--load-more">
+<style>
+.hdk-pagination--load-more { display: flex; flex-direction: column; align-items: center; gap: var(--hdk-sp-2); padding: var(--hdk-sp-4) 0; }
+.hdk-pagination--load-more .hdk-pagination__meta { font-size: var(--hdk-fs-xs); color: var(--hdk-fg-faint); }
+.hdk-pagination--load-more .hdk-pagination__bar { width: 160px; height: 3px; background: var(--hdk-line); border-radius: var(--hdk-radius-full); overflow: hidden; } /* 구조 치수 */
+.hdk-pagination--load-more .hdk-pagination__bar i { display: block; height: 100%; width: var(--pagination-progress, 30%); background: var(--hdk-accent); }
+</style>
+  <span class="hdk-pagination__meta" data-slot="meta">0개 중 0개 표시</span>
+  <span class="hdk-pagination__bar" aria-hidden="true"><i></i></span>
+  <span data-slot="cta"><!-- button.outline "더 보기" --></span>
+</section>

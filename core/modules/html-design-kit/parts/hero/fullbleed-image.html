@@ -1,0 +1,31 @@
+<!--
+part: hero
+variant: fullbleed-image
+source: startbootstrap/startbootstrap-agency
+fits: frame.scroll-stack
+mood: airy, editorial
+slots: image, eyebrow, title, subtitle, cta
+requires: button.solid
+added: 2026-08-25
+spec: 0.5
+notes: 배경 이미지 풀폭 + 어두운 오버레이 + 흰 텍스트. 글자색은 테마와 무관하게 이미지 위 대비용으로 accent-fg 대신 --hero-fg 보조 변수 사용
+-->
+<section data-part="hero" data-variant="fullbleed-image" class="hdk-hero hdk-hero--fullbleed-image" style="--hero-fg: var(--hdk-bg)">
+<style>
+.hdk-hero--fullbleed-image { position: relative; min-height: 70vh; display: grid; place-items: center; padding: var(--hdk-sp-8) var(--hdk-sp-4); text-align: center; color: var(--hero-fg); overflow: hidden; background: var(--hdk-fg); }
+.hdk-hero--fullbleed-image .hdk-hero__image { position: absolute; inset: 0; }
+.hdk-hero--fullbleed-image .hdk-hero__image img { width: 100%; height: 100%; object-fit: cover; opacity: .55; }
+.hdk-hero--fullbleed-image .hdk-hero__image::after { content: ""; position: absolute; inset: 0; background: linear-gradient(to top, var(--hdk-fg), transparent 60%); opacity: .8; }
+.hdk-hero--fullbleed-image .hdk-hero__inner { position: relative; max-width: 760px; display: grid; gap: var(--hdk-sp-4); justify-items: center; }
+.hdk-hero--fullbleed-image .hdk-hero__eyebrow { margin: 0; font-size: var(--hdk-fs-xs); letter-spacing: var(--hdk-tracking-caps); text-transform: uppercase; opacity: .8; }
+.hdk-hero--fullbleed-image .hdk-hero__title { margin: 0; font-family: var(--hdk-font-display); font-size: var(--hdk-fs-3xl); font-weight: var(--hdk-fw-bold); line-height: var(--hdk-lh-tight); letter-spacing: -0.02em; }
+.hdk-hero--fullbleed-image .hdk-hero__subtitle { margin: 0; font-size: var(--hdk-fs-lg); opacity: .85; max-width: 52ch; }
+</style>
+  <div class="hdk-hero__image" data-slot="image" aria-hidden="true"></div>
+  <div class="hdk-hero__inner">
+    <p class="hdk-hero__eyebrow" data-slot="eyebrow">아이브로우 자리</p>
+    <h1 class="hdk-hero__title" data-slot="title">제목 자리</h1>
+    <p class="hdk-hero__subtitle" data-slot="subtitle">부제 자리</p>
+    <div data-slot="cta"><!-- button.solid lg --></div>
+  </div>
+</section>

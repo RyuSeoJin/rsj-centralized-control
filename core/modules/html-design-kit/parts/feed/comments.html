@@ -1,0 +1,31 @@
+<!--
+part: feed
+variant: comments
+source: tabler/tabler
+fits: section, modal, card
+mood: airy, editorial
+slots: items, item, image, title, meta, body, cta
+requires: avatar.with-name, form.stacked-fields
+added: 2026-08-25
+spec: 0.5
+notes: 댓글 스레드. 답글은 data-depth="2" 로 들여쓰기. 하단에 입력 폼 슬롯
+-->
+<section data-part="feed" data-variant="comments" class="hdk-feed hdk-feed--comments">
+<style>
+.hdk-feed--comments .hdk-feed__list { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--hdk-sp-4); }
+.hdk-feed--comments .hdk-feed__item { display: grid; grid-template-columns: 36px 1fr; gap: var(--hdk-sp-3); }
+.hdk-feed--comments .hdk-feed__item[data-depth="2"] { margin-left: var(--hdk-sp-7); }
+.hdk-feed--comments .hdk-feed__image { width: 36px; height: 36px; border-radius: var(--hdk-radius-full); background: var(--hdk-accent-soft); }
+.hdk-feed--comments .hdk-feed__head { display: flex; gap: var(--hdk-sp-2); align-items: baseline; font-size: var(--hdk-fs-sm); }
+.hdk-feed--comments .hdk-feed__title { margin: 0; font-weight: var(--hdk-fw-medium); }
+.hdk-feed--comments .hdk-feed__meta { font-size: var(--hdk-fs-xs); color: var(--hdk-fg-faint); }
+.hdk-feed--comments .hdk-feed__body { margin: var(--hdk-sp-1) 0 var(--hdk-sp-2); padding: var(--hdk-sp-3); background: var(--hdk-bg-elev); border: 1px solid var(--hdk-line); border-radius: 0 var(--hdk-radius-lg) var(--hdk-radius-lg) var(--hdk-radius-lg); font-size: var(--hdk-fs-sm); line-height: var(--hdk-lh-base); }
+.hdk-feed--comments .hdk-feed__actions { display: flex; gap: var(--hdk-sp-3); font-size: var(--hdk-fs-xs); color: var(--hdk-fg-muted); }
+.hdk-feed--comments .hdk-feed__cta { margin-top: var(--hdk-sp-5); padding-top: var(--hdk-sp-4); border-top: 1px solid var(--hdk-line); }
+</style>
+  <ul class="hdk-feed__list" data-slot="items">
+    <li class="hdk-feed__item" data-slot="item"><span class="hdk-feed__image" data-slot="image"></span><div><div class="hdk-feed__head"><p class="hdk-feed__title" data-slot="title">작성자 자리</p><span class="hdk-feed__meta" data-slot="meta">시각 자리</span></div><p class="hdk-feed__body" data-slot="body">댓글 본문 자리</p><div class="hdk-feed__actions"><a href="#">답글</a><a href="#">좋아요</a></div></div></li>
+    <li class="hdk-feed__item" data-depth="2"><span class="hdk-feed__image"></span><div><div class="hdk-feed__head"><p class="hdk-feed__title">작성자 자리</p><span class="hdk-feed__meta">시각 자리</span></div><p class="hdk-feed__body">답글 본문 자리</p><div class="hdk-feed__actions"><a href="#">답글</a></div></div></li>
+  </ul>
+  <div class="hdk-feed__cta" data-slot="cta"><!-- form (댓글 입력) --></div>
+</section>

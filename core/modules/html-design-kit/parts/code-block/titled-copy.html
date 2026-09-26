@@ -1,0 +1,27 @@
+<!--
+part: code-block
+variant: titled-copy
+source: satnaing/shadcn-admin
+fits: section, card, modal
+mood: dense, tech
+slots: title, body
+requires: none
+added: 2026-08-25
+spec: 0.5
+notes: 상단 바에 파일명/언어 + 복사 버튼. 복사 성공 시 버튼 텍스트 2초 교체
+-->
+<section data-part="code-block" data-variant="titled-copy" data-init="code-block.titled-copy" class="hdk-code-block hdk-code-block--titled-copy">
+<style>
+.hdk-code-block--titled-copy { border: 1px solid var(--hdk-line); border-radius: var(--hdk-radius-md); overflow: hidden; background: var(--hdk-bg-elev); }
+.hdk-code-block--titled-copy .hdk-code-block__head { display: flex; align-items: center; justify-content: space-between; padding: var(--hdk-sp-1) var(--hdk-sp-2) var(--hdk-sp-1) var(--hdk-sp-4); border-bottom: 1px solid var(--hdk-line); font-family: var(--hdk-font-mono); font-size: var(--hdk-fs-xs); color: var(--hdk-fg-muted); }
+.hdk-code-block--titled-copy .hdk-code-block__copy { padding: var(--hdk-sp-1) var(--hdk-sp-2); border: 0; border-radius: var(--hdk-radius-sm); background: none; color: var(--hdk-fg-muted); font-size: var(--hdk-fs-xs); cursor: pointer; }
+.hdk-code-block--titled-copy .hdk-code-block__copy:hover { background: var(--hdk-bg-elev-2); color: var(--hdk-fg); }
+.hdk-code-block--titled-copy pre { margin: 0; padding: var(--hdk-sp-4); overflow-x: auto; font-family: var(--hdk-font-mono); font-size: var(--hdk-fs-sm); line-height: var(--hdk-lh-loose); }
+</style>
+  <div class="hdk-code-block__head"><span data-slot="title">파일명.ext</span><button class="hdk-code-block__copy" type="button" data-action="copy">복사</button></div>
+  <pre><code data-slot="body">// 코드 자리
+export default function Part() {}</code></pre>
+<script>
+hdk.register('code-block.titled-copy', function (root) {const r=root,b=r.querySelector('[data-action="copy"]');b.addEventListener('click',async()=>{try{await navigator.clipboard.writeText(r.querySelector('code').textContent);b.textContent='복사됨';setTimeout(()=>b.textContent='복사',2000);}catch(e){}});});
+</script>
+</section>

@@ -1,0 +1,30 @@
+<!--
+part: card
+variant: stat-compact
+source: ColorlibHQ/gentelella
+fits: frame.sidebar-shell, section
+mood: dense, corporate
+slots: label, value, delta, icon
+requires: none
+added: 2026-08-25
+spec: 0.5
+notes: KPI 한 개. 4열 그리드로 나란히 놓는 용도. delta 는 data-trend="up|down|flat"
+-->
+<section data-part="card" data-variant="stat-compact" class="hdk-card hdk-card--stat-compact" data-trend="up">
+<style>
+.hdk-card--stat-compact { display: flex; gap: var(--hdk-sp-3); align-items: flex-start; padding: var(--hdk-sp-4); background: var(--hdk-bg-elev); border: 1px solid var(--hdk-line); border-radius: var(--hdk-radius-lg); }
+.hdk-card--stat-compact .hdk-card__icon { width: 40px; height: 40px; /* 구조 치수 */ flex: none; display: grid; place-items: center; border-radius: var(--hdk-radius-md); background: var(--hdk-accent-soft); color: var(--hdk-accent); }
+.hdk-card--stat-compact .hdk-card__icon svg { width: 20px; height: 20px; }
+.hdk-card--stat-compact .hdk-card__label { margin: 0; font-size: var(--hdk-fs-xs); color: var(--hdk-fg-muted); letter-spacing: var(--hdk-tracking-caps); text-transform: uppercase; }
+.hdk-card--stat-compact .hdk-card__value { margin: var(--hdk-sp-1) 0 0; font-family: var(--hdk-font-display); font-size: var(--hdk-fs-xl); font-weight: var(--hdk-fw-bold); line-height: var(--hdk-lh-tight); font-variant-numeric: tabular-nums; }
+.hdk-card--stat-compact .hdk-card__delta { margin: var(--hdk-sp-1) 0 0; font-size: var(--hdk-fs-xs); font-family: var(--hdk-font-mono); color: var(--hdk-fg-faint); }
+.hdk-card--stat-compact[data-trend="up"] .hdk-card__delta { color: var(--hdk-success); }
+.hdk-card--stat-compact[data-trend="down"] .hdk-card__delta { color: var(--hdk-danger); }
+</style>
+  <div class="hdk-card__icon" data-slot="icon"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M3 15l5-6 4 4 5-7"/></svg></div>
+  <div>
+    <p class="hdk-card__label" data-slot="label">지표 라벨 자리</p>
+    <p class="hdk-card__value" data-slot="value">0</p>
+    <p class="hdk-card__delta" data-slot="delta">증감 자리</p>
+  </div>
+</section>

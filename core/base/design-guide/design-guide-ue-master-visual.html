@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>디자인 마스터 (비주얼) — UE 문서 디자인 시스템 v1.13</title>
+<link rel="stylesheet" href="design-guide-ue-master.css">
+<!-- ============================================================
+     CHANGELOG — design-guide-ue-master-visual.html
+     ---
+     이관 · 2026-09-27 (버전 변경 없음)
+       - (변경) 중앙 저장소 core/base/로 옮김 — 템플릿 · 문서 허브로 가는 링크를 글자로 바꿈.
+         템플릿은 켠 모듈의 design-template/에 있고, base는 모듈 자리를 가리키지 않는다
+     v1.13 · 2026-09-16
+       - (문서화) master.css v1.12 반영 — .pill 에 white-space: nowrap 추가(좁은 표 칸에서 배지 글자가
+         두 줄로 쪼개지던 것 방지). 신규 컴포넌트·색 없어 별도 데모 없이 11 섹션 상태 pill 설명에 한 줄 보강.
+       - (변경) 버전 표기 v1.12 → v1.13 (헤더·hero·footer)
+     v1.12 · 2026-09-15
+       - (추가) 11 섹션: master.css v1.11 기획서 컴포넌트 데모 — .wire 화면 와이어프레임
+         (.wire-screen 존 격자 · .wz 존 강조 · .wire-panel/.modal 패널·모달 박스 · .w-btn/.w-field/
+         .w-text/.w-slot/.w-mark 요소 자리) + .pill.amber('제안') 기획 상태 규약 표.
+       - (추가) wire 사용 규칙 명문화: 픽셀 디자인 금지(자리·위계만), 번호 마커 ↔ UI 요소 표 1:1,
+         존 강조(.on)는 문서가 다루는 존만, 색은 기존 팔레트 재사용.
+       - (변경) 버전 표기 v1.11 → v1.12 (헤더·hero·footer), nav에 기획서(#v111) 링크 추가.
+       - 사유: 05 시스템 기획서 템플릿(design-template/05-system-spec.html, Case C) 지원. 사용자 승인.
+         (참고: 이 파일의 자체 버전은 master.css보다 1 앞서 있음 — master.css v1.11 ↔ visual v1.12)
+     v1.11 · 2026-07-27
+       - (추가) master.css v1.10의 다이어그램 DB 노드 2종(.dg-node.k-db/.gn-node.k-db, --ue-mat 주황)
+         등록 — §08 관계망 데모에 Archive.db 노드(k-db) 추가, 플로차트/관계망 소개문에 k-db 명시.
+       - (변경) 버전 표기 v1.10 → v1.11 (헤더·hero·footer)
+     v1.10 · 2026-07-20
+       - (문서화) master.css v1.9 반응형 보완 반영 — 좁은 폭(≤720px)에서 .tbl 표가 body를 밀지 않고
+         자기 상자 안에서 가로 스크롤(.tbl{display:block;overflow-x:auto}). 신규 컴포넌트·색 없음이라
+         별도 데모 없이 CHANGELOG·버전 라벨만 동기화.
+       - (변경) 버전 표기 v1.9 → v1.10 (헤더·hero·footer)
+     master.css의 시각 레퍼런스. 작업 규약: core/base/rules/change-log-writing.md §4
+     v1.9 · 2026-07-20
+       - (추가) master.css v1.8 DB(SQLite) 표기 3종 반영 — 07 섹션 수명 배지 문구를 4종→5종으로
+         (.vbadge.db), lane-seq 파일 칩 설명에 .ls-file.db 추가. 색은 --ue-mat 재사용.
+       - (변경) 버전 표기 v1.8 → v1.9 (헤더·hero·footer)
+     v1.8 · 2026-07-18
+       - (추가) 10 섹션: master.css v1.7 인터랙티브 진행률 체크리스트 데모
+         (.checklist — 단계 헤더 클릭/Enter로 완료 토글 · 상단 진행률 바 즉시 반영,
+         .check-prog/.check-bar/.check-fill/.check-count · .check-step(.done) ·
+         .check-head/.check-tick/.check-title/.check-why · .check-body)
+       - (추가) checklist 사용 규칙 명문화: 완료 상태는 로컬·비영속, 토글 JS는 결과물에 inline,
+         본문(.check-body)은 헤더(.check-head) 밖이라 codeblock 복사/탭 클릭이 완료를 토글하지 않음
+       - (변경) 버전 표기 v1.7 → v1.8 (헤더·hero·footer), nav에 체크리스트(#v17) 링크 추가
+     v1.7 · 2026-07-10
+       - (추가) 09 섹션: master.css v1.6 블루프린트 노드 그래프 데모
+         (.bp-graph — UE 에디터 재현 SVG: 노드 종류 5색 제목 바 · 실행/데이터 핀 ·
+         와이어 · 변수 Get 캡슐 · 드롭다운 값 상자, --bp-* 관례색 토큰 범례)
+       - (추가) bp-graph 사용 규칙 명문화: SVG <defs> 표준 블록(bpg-*) 포함,
+         제목 바는 fill="url(#bpg-…)" 속성 지정, --bp-* 색은 그래프 내부 전용
+       - (변경) 버전 표기 v1.6 → v1.7 (헤더·hero·footer), nav에 BP 노드(#v16) 링크 추가
+     v1.6 · 2026-07-07
+       - (추가) 08 섹션: master.css v1.5 다이어그램 컴포넌트 데모
+         (.diagram — Mermaid 스타일 구워넣은 SVG, .graph-net — 옵시디언 그래프 뷰 스타일)
+       - (추가) 다이어그램 사용 규칙 명문화: SVG 구워넣기(런타임 렌더링 금지) +
+         Mermaid 소스 병기(.codeblock 단일 탭 *.mmd)
+       - (변경) 버전 표기 v1.5 → v1.6 (헤더·hero·footer), nav에 다이어그램(#v15) 링크 추가
+     v1.5 · 2026-07-07
+       - (추가) 07 섹션: master.css v1.4 데이터 설계 컴포넌트 데모
+         (.var-card + .vbadge 수명 배지, .flow-hub + .flow-legend 연결 전도, .lane-seq 변수 여정)
+       - (변경) 버전 표기 v1.4 → v1.5 (헤더·hero·footer), nav에 데이터 설계(#v14) 링크 추가
+       - 사유: 데이터 설계 지도 템플릿(design-template/04-ue-data-map.html, Case C) 지원
+     v1.4 · 2026-07-02
+       - (변경) 문서 허브 이동(ue-wiki/ue-architect/ → ue-wiki/) 반영: nav 허브 링크 갱신
+     v1.3 · 2026-07-02
+       - (변경) 폴더 재구조화: 템플릿(01·02)이 design-template/(루트)로,
+         규약(DOC-GENERATION-PLAYBOOK.md)이 doc-process/(루트)로 이동
+       - (변경) 01·02 템플릿 링크를 ../design-template/ 상대경로로 갱신
+     v1.2 · 2026-07-01
+       - (추가) 06 섹션: v1.2 신규 컴포넌트 데모 (.grid-3, .stat-row-4, .compare-box, .pill.pink/.red)
+       - (변경) 버전 표기 v1.1 → v1.2 (헤더·footer)
+     v1.1 · 2026-07-01
+       - 파일명 00-foundation.html → design-guide-ue-master-visual.html
+       - 프레임워크 클래스 컬러 맵 / 파일 타입 컬러 맵 스와치 섹션 추가
+       - 라벨 톤 정리: 토대→마스터, C++ 아키텍처→아키텍처
+       - CSS·상호 링크를 새 파일명으로 갱신
+       - nav에 문서 허브(design-guide-ue-index.html) 링크 추가
+     v1.0
+       - 최초 토대 레퍼런스 (원본 design-guide-ue-asset-structure.html에서 분리, 원본 2026-07-01 삭제)
+     ============================================================ -->
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">UE DESIGN SYSTEM · MASTER VISUAL</div>
+  <div class="nav-links">
+    <a href="#principles">원칙</a>
+    <a href="#color">컬러</a>
+    <a href="#type">타이포</a>
+    <a href="#layout">레이아웃</a>
+    <a href="#base">기본 컴포넌트</a>
+    <a href="#rules">규칙</a>
+    <a href="#v14">데이터 설계</a>
+    <a href="#v15">다이어그램</a>
+    <a href="#v16">BP 노드</a>
+    <a href="#v17">체크리스트</a>
+    <a href="#v111">기획서</a>
+  </div>
+</nav>
+
+<div class="hero">
+  <div class="hero-eyebrow">Design System · v1.13 · Master Visual</div>
+  <h1>UE 디자인<br><span>마스터</span></h1>
+  <p class="hero-sub">
+    모든 언리얼 문서(에셋 분석 · 아키텍처 설계)가 공유하는 디자인 마스터입니다. 컬러·타이포·레이아웃·기본 컴포넌트를 한 곳에 고정합니다. 스타일 원본은 <code>design-guide-ue-master.css</code> 한 파일이며, 이 문서는 그 시각 레퍼런스입니다.
+  </p>
+  <div class="hero-meta">
+    <span class="badge badge-blue">Dark · Indigo Minimal</span>
+    <span class="badge badge-green">Pretendard + IBM Plex Mono</span>
+    <span class="badge badge-purple">920px 단일 컬럼</span>
+  </div>
+</div>
+
+<div class="content">
+
+  <!-- 00 원칙 -->
+  <div class="section" id="principles">
+    <div class="section-label">00 — 디자인 원칙</div>
+    <h2>이 디자인이 지키는 다섯 가지</h2>
+    <p>화려함이 아니라 <strong>읽기 쉬움과 일관성</strong>이 목표입니다. 다섯 원칙이 전부입니다.</p>
+    <table class="tbl">
+      <tr><th>원칙</th><th>의미</th></tr>
+      <tr><td>다크 · 인디고 미니멀</td><td>어두운 네이비 배경에 인디고 포인트 하나. 밝은 그라데이션·요란한 색을 쓰지 않습니다.</td></tr>
+      <tr><td>에디토리얼 단일 컬럼</td><td>두꺼운 사이드바 대신 920px 중앙 컬럼 + 상단 sticky 내비. 글처럼 위에서 아래로 읽힙니다.</td></tr>
+      <tr><td>모노 라벨은 순서를 뜻함</td><td><code>01 — 개념</code>처럼 번호 라벨은 실제 읽기 순서가 있을 때만 씁니다. 장식용 번호는 금지.</td></tr>
+      <tr><td>색은 의미를 운반</td><td>색을 예쁘라고 칠하지 않습니다. 특히 타입 컬러 맵은 트리·관계도·태그에서만 일관되게 적용합니다.</td></tr>
+      <tr><td>강조는 한 곳에</td><td>한 화면에서 시선을 끄는 요소는 하나. 나머지는 조용하게 유지합니다.</td></tr>
+    </table>
+    <div class="callout info"><span class="ic">🎯</span><p><strong>시그니처 요소</strong>는 <strong>타입 컬러 맵</strong>입니다 — 폴더/클래스/파일을 코드 하이라이팅처럼 색으로 구분하는 것. 이 시스템이 기억되는 단 하나의 장치이므로, 다른 곳에서 색을 남발하지 않습니다.</p></div>
+  </div>
+
+  <!-- 01 컬러 -->
+  <div class="section" id="color">
+    <div class="section-label">01 — 컬러 토큰</div>
+    <h2>팔레트</h2>
+    <h3>기본 토큰</h3>
+    <div class="swatch-grid">
+      <div class="swatch"><div class="chip" style="background:#0D0F1A"></div><div class="meta"><div class="vn">--bg</div><div class="hx">#0D0F1A</div><div class="role">페이지 배경</div></div></div>
+      <div class="swatch"><div class="chip" style="background:#13162A"></div><div class="meta"><div class="vn">--surface</div><div class="hx">#13162A</div><div class="role">코드·트리 배경</div></div></div>
+      <div class="swatch"><div class="chip" style="background:#1A1F38"></div><div class="meta"><div class="vn">--surface-2</div><div class="hx">#1A1F38</div><div class="role">카드·표 헤더</div></div></div>
+      <div class="swatch"><div class="chip" style="background:#252B4A"></div><div class="meta"><div class="vn">--border</div><div class="hx">#252B4A</div><div class="role">모든 경계선</div></div></div>
+      <div class="swatch"><div class="chip" style="background:#E4E8FF"></div><div class="meta"><div class="vn">--text</div><div class="hx">#E4E8FF</div><div class="role">본문 강조·제목</div></div></div>
+      <div class="swatch"><div class="chip" style="background:#7B82A6"></div><div class="meta"><div class="vn">--text-muted</div><div class="hx">#7B82A6</div><div class="role">본문 기본</div></div></div>
+      <div class="swatch"><div class="chip" style="background:#4A5080"></div><div class="meta"><div class="vn">--text-dim</div><div class="hx">#4A5080</div><div class="role">라벨·캡션</div></div></div>
+      <div class="swatch"><div class="chip" style="background:#5B6EFA"></div><div class="meta"><div class="vn">--accent</div><div class="hx">#5B6EFA</div><div class="role">메인 포인트(인디고)</div></div></div>
+    </div>
+
+    <h3>액센트 & 시맨틱</h3>
+    <div class="swatch-grid">
+      <div class="swatch"><div class="chip" style="background:#9B6DFF"></div><div class="meta"><div class="vn">--accent-2</div><div class="hx">#9B6DFF</div><div class="role">보조 강조(퍼플)</div></div></div>
+      <div class="swatch"><div class="chip" style="background:#38D9B4"></div><div class="meta"><div class="vn">--accent-3</div><div class="hx">#38D9B4</div><div class="role">긍정·팁(틸)</div></div></div>
+      <div class="swatch"><div class="chip" style="background:#F59E0B"></div><div class="meta"><div class="vn">--amber</div><div class="hx">#F59E0B</div><div class="role">주의·경고</div></div></div>
+      <div class="swatch"><div class="chip" style="background:#F87171"></div><div class="meta"><div class="vn">--red</div><div class="hx">#F87171</div><div class="role">금지·오류</div></div></div>
+    </div>
+
+    <h3>에셋 타입 컬러 맵 <span style="color:var(--text-dim);font-size:12px;font-weight:400">(에셋 분석 문서 — 트리·태그 전용)</span></h3>
+    <div class="swatch-grid">
+      <div class="swatch"><div class="chip" style="background:#F59E0B"></div><div class="meta"><div class="vn">--ue-folder</div><div class="hx">#F59E0B</div><div class="role">폴더</div></div></div>
+      <div class="swatch"><div class="chip" style="background:#5B6EFA"></div><div class="meta"><div class="vn">--ue-bp</div><div class="hx">#5B6EFA</div><div class="role">블루프린트 WBP/BP</div></div></div>
+      <div class="swatch"><div class="chip" style="background:#9B6DFF"></div><div class="meta"><div class="vn">--ue-enum</div><div class="hx">#9B6DFF</div><div class="role">열거형 Enum</div></div></div>
+      <div class="swatch"><div class="chip" style="background:#FB8C5A"></div><div class="meta"><div class="vn">--ue-mat</div><div class="hx">#FB8C5A</div><div class="role">머티리얼</div></div></div>
+      <div class="swatch"><div class="chip" style="background:#38D9B4"></div><div class="meta"><div class="vn">--ue-tex</div><div class="hx">#38D9B4</div><div class="role">텍스처</div></div></div>
+      <div class="swatch"><div class="chip" style="background:#6BD98E"></div><div class="meta"><div class="vn">--ue-demo</div><div class="hx">#6BD98E</div><div class="role">데모·레벨</div></div></div>
+    </div>
+
+    <h3>프레임워크 클래스 컬러 맵 <span style="color:var(--text-dim);font-size:12px;font-weight:400">(아키텍처 문서 — 관계도·트리·태그 전용, v1.1 신규)</span></h3>
+    <div class="swatch-grid">
+      <div class="swatch"><div class="chip" style="background:#5B6EFA"></div><div class="meta"><div class="vn">--ue-gamemode</div><div class="hx">#5B6EFA</div><div class="role">GameMode · 규칙/권한(서버)</div></div></div>
+      <div class="swatch"><div class="chip" style="background:#7B9CFF"></div><div class="meta"><div class="vn">--ue-gamestate</div><div class="hx">#7B9CFF</div><div class="role">GameState · 공유 상태(복제)</div></div></div>
+      <div class="swatch"><div class="chip" style="background:#38D9B4"></div><div class="meta"><div class="vn">--ue-controller</div><div class="hx">#38D9B4</div><div class="role">PlayerController · 입력/의도</div></div></div>
+      <div class="swatch"><div class="chip" style="background:#6BD98E"></div><div class="meta"><div class="vn">--ue-pawn</div><div class="hx">#6BD98E</div><div class="role">Pawn/Character · 조종 대상</div></div></div>
+      <div class="swatch"><div class="chip" style="background:#9B6DFF"></div><div class="meta"><div class="vn">--ue-instance</div><div class="hx">#9B6DFF</div><div class="role">GameInstance · 세션 영속</div></div></div>
+      <div class="swatch"><div class="chip" style="background:#F59E0B"></div><div class="meta"><div class="vn">--ue-savegame</div><div class="hx">#F59E0B</div><div class="role">SaveGame · 디스크 저장</div></div></div>
+      <div class="swatch"><div class="chip" style="background:#E040FB"></div><div class="meta"><div class="vn">--ue-subsystem</div><div class="hx">#E040FB</div><div class="role">Subsystem · 수명 범위 서비스</div></div></div>
+    </div>
+
+    <h3>파일 타입 컬러 맵 <span style="color:var(--text-dim);font-size:12px;font-weight:400">(코드 탭·파일 태그, v1.1 신규)</span></h3>
+    <div class="swatch-grid">
+      <div class="swatch"><div class="chip" style="background:#38D9B4"></div><div class="meta"><div class="vn">--ue-header</div><div class="hx">#38D9B4</div><div class="role">.h 헤더(선언)</div></div></div>
+      <div class="swatch"><div class="chip" style="background:#FB8C5A"></div><div class="meta"><div class="vn">--ue-source</div><div class="hx">#FB8C5A</div><div class="role">.cpp 소스(구현)</div></div></div>
+      <div class="swatch"><div class="chip" style="background:#FB8C5A"></div><div class="meta"><div class="vn">--ue-macro</div><div class="hx">#FB8C5A</div><div class="role">UCLASS/UPROPERTY 등 매크로</div></div></div>
+    </div>
+
+    <div class="callout warn"><span class="ic">⚠️</span><p>위 맵에 없는 타입(예: <code>Sound</code>, <code>DataTable</code>, <code>Niagara</code>, 또는 새 프레임워크 클래스)이 필요하면, 기존 색을 재활용하지 말고 팔레트 톤에 맞는 색 1개를 추가하고 이 표에 기록하세요. 색이 늘어날수록 의미가 흐려지니 신중하게.</p></div>
+  </div>
+
+  <!-- 02 타이포 -->
+  <div class="section" id="type">
+    <div class="section-label">02 — 타이포그래피</div>
+    <h2>두 글꼴, 명확한 역할</h2>
+    <p><strong>Pretendard</strong>는 본문·제목을, <strong>IBM Plex Mono</strong>는 라벨·코드·에셋/클래스 이름·데이터를 맡습니다. 모노는 "기계적 정보"라는 신호이므로 일반 문장에는 쓰지 않습니다.</p>
+
+    <div class="demo">
+      <div class="demo-head">Type Scale</div>
+      <div class="demo-body">
+        <div class="type-row"><div class="type-spec">H1 / 700 / -0.02em<br>Pretendard</div><div class="ts-h1">아키텍처 설계</div></div>
+        <div class="type-row"><div class="type-spec">H2 / 700 / 22px<br>Pretendard</div><div class="ts-h2">클래스 책임 분배</div></div>
+        <div class="type-row"><div class="type-spec">H3 / 700 / 15px<br>Pretendard</div><div class="ts-h3">헤더와 소스</div></div>
+        <div class="type-row"><div class="type-spec">Body / 400 / 15px<br>muted</div><div class="ts-body">저장 데이터는 SaveGame에, 세션 전역 상태는 GameInstance에 둡니다.</div></div>
+        <div class="type-row"><div class="type-spec">Label / 600 / 10px<br>IBM Plex Mono</div><div class="ts-label">01 — 개념 이해</div></div>
+        <div class="type-row"><div class="type-spec">Code / 12px<br>IBM Plex Mono</div><div class="ts-code">AMyGameMode::HandleMatchHasStarted()</div></div>
+      </div>
+    </div>
+
+    <table class="tbl">
+      <tr><th>역할</th><th>글꼴 / 크기 / 굵기</th><th>용도</th></tr>
+      <tr><td>H1</td><td>Pretendard 700 · clamp(28–44px) · -0.02em</td><td>히어로 제목 1회</td></tr>
+      <tr><td>H2</td><td>Pretendard 700 · 22px</td><td>섹션 제목</td></tr>
+      <tr><td>H3</td><td>Pretendard 700 · 15px</td><td>하위 항목·클래스명</td></tr>
+      <tr><td>Body</td><td>Pretendard 400 · 15px · muted</td><td>본문 (line-height 1.8)</td></tr>
+      <tr><td>Label</td><td>Mono 600 · 10px · 0.16em · 대문자</td><td>섹션 번호 라벨</td></tr>
+      <tr><td>Code / ID</td><td>Mono 400–600 · 12px</td><td>클래스·변수·경로·값</td></tr>
+    </table>
+  </div>
+
+  <!-- 03 레이아웃 -->
+  <div class="section" id="layout">
+    <div class="section-label">03 — 레이아웃 & 스페이싱</div>
+    <h2>페이지 골격</h2>
+    <p>모든 문서는 동일한 골격을 따릅니다: <strong>sticky 내비 → 히어로 → 번호 섹션들 → 푸터</strong>. 콘텐츠 폭은 920px로 고정합니다.</p>
+    <div class="demo">
+      <div class="demo-head">Page Skeleton</div>
+      <div class="demo-body">
+<pre style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--text-muted);line-height:1.7;white-space:pre">┌────────────────────────────────────────────┐
+│ NAV  로고 · 섹션 링크          (sticky, 52px) │
+├────────────────────────────────────────────┤
+│ HERO  eyebrow / H1 / sub / badges  (≤920px) │
+├────────────────────────────────────────────┤
+│ 01 — 라벨                                    │
+│ H2 제목                                      │
+│ 본문 · 컴포넌트 ……         (top-border 구분) │
+│ 52px 간격                                    │
+│ 02 — 라벨 ……                                │
+├────────────────────────────────────────────┤
+│ FOOTER  좌: 제목 · 우: 버전                  │
+└────────────────────────────────────────────┘</pre>
+      </div>
+    </div>
+    <table class="tbl">
+      <tr><th>토큰</th><th>값</th><th>적용</th></tr>
+      <tr><td>콘텐츠 폭</td><td><code>max-width: 920px</code></td><td>hero·content·footer 공통</td></tr>
+      <tr><td>좌우 패딩</td><td><code>48px</code> (모바일 20px)</td><td>모든 컨테이너</td></tr>
+      <tr><td>섹션 간격</td><td><code>margin-top: 52px</code> + 상단 보더</td><td>섹션 구분 리듬</td></tr>
+      <tr><td>카드/표 라운드</td><td><code>8px</code> (코드·트리 10px)</td><td>전 컴포넌트 통일</td></tr>
+      <tr><td>그리드 간격</td><td><code>gap: 14px</code></td><td>카드·스탯·스와치</td></tr>
+    </table>
+  </div>
+
+  <!-- 04 기본 컴포넌트 -->
+  <div class="section" id="base">
+    <div class="section-label">04 — 공통 기본 컴포넌트</div>
+    <h2>모든 문서가 공유하는 블록</h2>
+    <p>아래는 에셋·아키텍처 문서 모두에서 쓰이는 범용 컴포넌트입니다. 에셋 전용(트리·에셋 카드)은 <strong>01 에셋 분석</strong>, 아키텍처 전용(관계도·코드 탭·결정표)은 <strong>02 아키텍처</strong>를 보세요.</p>
+
+    <h3>섹션 라벨 + 제목</h3>
+    <div class="demo"><div class="demo-head">Live</div><div class="demo-body">
+      <div class="section-label" style="margin:0 0 12px">02 — 구조 이해</div>
+      <div style="font-size:22px;font-weight:700;letter-spacing:-0.01em">클래스 책임 해부</div>
+    </div></div>
+
+    <h3>스탯 카드</h3>
+    <div class="demo"><div class="demo-head">Live</div><div class="demo-body">
+      <div class="stat-row">
+        <div class="stat-card"><div class="stat-num" style="color:var(--ue-gamemode)">4</div><div class="stat-label">핵심 클래스</div></div>
+        <div class="stat-card"><div class="stat-num" style="color:var(--ue-savegame)">2</div><div class="stat-label">저장 슬롯</div></div>
+        <div class="stat-card"><div class="stat-num" style="color:var(--ue-controller)">6</div><div class="stat-label">입력 액션</div></div>
+      </div>
+    </div></div>
+
+    <h3>Callout (info · tip · warn)</h3>
+    <div class="demo"><div class="demo-head">Live</div><div class="demo-body">
+      <div class="callout info" style="margin:0 0 12px"><span class="ic">🧭</span><p><strong>정보</strong> — 개념·맥락을 짚을 때.</p></div>
+      <div class="callout tip" style="margin:0 0 12px"><span class="ic">💡</span><p><strong>팁</strong> — 더 나은 방법을 제안할 때.</p></div>
+      <div class="callout warn" style="margin:0"><span class="ic">⚠️</span><p><strong>주의</strong> — 실수하기 쉬운 지점을 경고할 때.</p></div>
+    </div></div>
+
+    <h3>번호 파이프라인 (단계별)</h3>
+    <div class="demo"><div class="demo-head">Live</div><div class="demo-body">
+      <div class="pipe-step"><div class="pipe-num">1</div><div class="pipe-body"><div class="pipe-title">클래스 생성</div><div class="pipe-desc">C++ 클래스 위저드로 부모를 지정해 생성.</div></div></div>
+      <div class="pipe-step"><div class="pipe-num">2</div><div class="pipe-body"><div class="pipe-title">프로젝트 설정 등록</div><div class="pipe-desc">GameMode를 Project Settings 또는 World Settings에 지정.</div></div></div>
+    </div></div>
+
+    <h3>생명주기/흐름 다이어그램 (Arch)</h3>
+    <div class="demo"><div class="demo-head">Live</div><div class="demo-body">
+      <div class="arch">
+        <div class="arch-layer"><div class="arch-tag">Step 1</div><div class="arch-title">InitGame</div><div class="arch-desc">GameMode 초기화</div></div>
+        <div class="arch-arrow">→</div>
+        <div class="arch-layer"><div class="arch-tag">Step 2</div><div class="arch-title">Login</div><div class="arch-desc">Controller 생성</div></div>
+        <div class="arch-arrow">→</div>
+        <div class="arch-layer"><div class="arch-tag">Step 3</div><div class="arch-title">Possess</div><div class="arch-desc">Pawn 빙의</div></div>
+      </div>
+    </div></div>
+
+    <h3>Pitfall (주의 · 팁)</h3>
+    <div class="demo"><div class="demo-head">Live</div><div class="demo-body">
+      <div class="pitfall" style="margin-bottom:12px"><span class="ic">⚠️</span><div class="pitfall-text"><strong>GameMode는 서버에만 존재</strong> — 클라이언트에서 참조하면 항상 null입니다.</div></div>
+      <div class="pitfall tip"><span class="ic">💡</span><div class="pitfall-text"><strong>GameStateBase</strong>를 쓰면 모든 클라이언트가 공유 상태를 복제받습니다.</div></div>
+    </div></div>
+
+    <h3>표 (tbl)</h3>
+    <div class="demo"><div class="demo-head">Live</div><div class="demo-body">
+      <table class="tbl" style="margin:0">
+        <tr><th>항목</th><th>값</th><th>설명</th></tr>
+        <tr><td>DefaultPawnClass</td><td><code>ACharacter</code></td><td>스폰될 폰 클래스</td></tr>
+        <tr><td>PlayerControllerClass</td><td><code>APlayerController</code></td><td>플레이어 컨트롤러</td></tr>
+      </table>
+    </div></div>
+  </div>
+
+  <!-- 05 규칙 -->
+  <div class="section" id="rules">
+    <div class="section-label">05 — 일관성 규칙</div>
+    <h2>Do &amp; Don't</h2>
+    <div class="dd-grid">
+      <div class="dd do">
+        <h4>✓ 이렇게</h4>
+        <ul>
+          <li>클래스·변수·경로·값은 항상 IBM Plex Mono로</li>
+          <li>색은 의미가 있을 때만. 타입 색은 트리·관계도·태그·카드 보더에서만</li>
+          <li>번호 라벨은 실제 읽기 순서가 있을 때만 사용</li>
+          <li>강조 callout/통계는 섹션당 1~2개로 제한</li>
+          <li>표·카드·코드 라운드는 8px(코드 10px)로 통일</li>
+          <li>새 타입 색이 필요하면 1개 추가 후 이 색상표에 기록</li>
+        </ul>
+      </div>
+      <div class="dd dont">
+        <h4>✗ 이건 피하기</h4>
+        <ul>
+          <li>밝은 그라데이션 헤더·두꺼운 좌측 사이드바</li>
+          <li>본문에 모노 글꼴, 라벨에 본문 글꼴 섞어 쓰기</li>
+          <li>한 화면에 4색 이상 포인트 컬러 난립</li>
+          <li>이모지를 컬러 시스템 대신 의미 전달 수단으로 남용</li>
+          <li>장식용 번호·아이콘으로 빈 공간 채우기</li>
+          <li>같은 정보를 카드·표·다이어그램으로 중복 표현</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="callout tip"><span class="ic">📐</span><p><strong>품질 기준선</strong>: 모바일까지 반응형, 키보드 포커스 표시, <code>prefers-reduced-motion</code> 존중. 이 세 가지는 모든 문서가 기본으로 갖춥니다.</p></div>
+  </div>
+
+  <!-- 06 v1.2 신규 컴포넌트 -->
+  <div class="section" id="v12">
+    <div class="section-label">06 — v1.2 신규 컴포넌트</div>
+    <h2>그리드 · 비교 · Pill 확장</h2>
+    <p>v1.2에서 추가된 컴포넌트입니다. 기존 컴포넌트와 동일한 디자인 언어를 따릅니다.</p>
+
+    <h3>3열 그리드 (.grid-3)</h3>
+    <div class="demo"><div class="demo-head">Live</div><div class="demo-body">
+      <div class="grid-3">
+        <div class="a-card"><div class="ic">📦</div><div class="a-title">UObject</div><div class="a-id">최상위 기반 클래스</div><div class="a-desc">리플렉션 · GC · 직렬화</div></div>
+        <div class="a-card" style="border-top-color:var(--ue-gamemode)"><div class="ic">🎮</div><div class="a-title">AActor</div><div class="a-id">월드 배치 가능</div><div class="a-desc">Transform · Tick · 복제</div></div>
+        <div class="a-card" style="border-top-color:var(--ue-pawn)"><div class="ic">🏃</div><div class="a-title">ACharacter</div><div class="a-id">이동 컴포넌트 내장</div><div class="a-desc">걷기 · 점프 · 수영</div></div>
+      </div>
+    </div></div>
+
+    <h3>4열 통계 카드 (.stat-row-4)</h3>
+    <div class="demo"><div class="demo-head">Live</div><div class="demo-body">
+      <div class="stat-row-4">
+        <div class="stat-card"><div class="stat-num" style="color:var(--accent)">5</div><div class="stat-label">매크로 종류</div></div>
+        <div class="stat-card"><div class="stat-num" style="color:var(--accent-3)">7</div><div class="stat-label">접두사 규칙</div></div>
+        <div class="stat-card"><div class="stat-num" style="color:var(--accent-2)">11</div><div class="stat-label">핵심 클래스</div></div>
+        <div class="stat-card"><div class="stat-num" style="color:var(--ue-savegame)">3</div><div class="stat-label">문자열 타입</div></div>
+      </div>
+    </div></div>
+
+    <h3>좌우 비교 카드 (.compare-box in .grid-2)</h3>
+    <div class="demo"><div class="demo-head">Live</div><div class="demo-body">
+      <div class="grid-2">
+        <div class="compare-box">
+          <h4 style="color:var(--accent-3)">Spawning 흐름</h4>
+          <p>런타임에 SpawnActor로 동적 생성할 때의 초기화 순서.</p>
+          <div class="pills">
+            <span class="pill green">SpawnActor</span>
+            <span class="pill green">PostActorCreated</span>
+            <span class="pill blue">BeginPlay</span>
+          </div>
+        </div>
+        <div class="compare-box">
+          <h4 style="color:var(--ue-mat)">Loading 흐름</h4>
+          <p>레벨에 미리 배치된 액터가 로드될 때의 초기화 순서.</p>
+          <div class="pills">
+            <span class="pill purple">PostLoad</span>
+            <span class="pill purple">InitializeActors</span>
+            <span class="pill blue">BeginPlay</span>
+          </div>
+        </div>
+      </div>
+    </div></div>
+
+    <h3>Pill 확장 (.pill.pink · .pill.red)</h3>
+    <div class="demo"><div class="demo-head">Live</div><div class="demo-body">
+      <div class="pills">
+        <span class="pill blue">BlueprintReadOnly</span>
+        <span class="pill green">EditAnywhere</span>
+        <span class="pill purple">Transient</span>
+        <span class="pill pink">Replicated</span>
+        <span class="pill red">Server RPC</span>
+      </div>
+    </div></div>
+  </div>
+
+  <!-- 07 v1.4 데이터 설계 컴포넌트 -->
+  <div class="section" id="v14">
+    <div class="section-label">07 — v1.4 데이터 설계 컴포넌트</div>
+    <h2>파일-변수 카드 · 흐름 전도 · 변수 여정</h2>
+    <p>데이터 설계 지도 템플릿(<strong>04 데이터 설계 지도</strong>) 전용 컴포넌트입니다. "변수가 어느 파일에 살고(정적 배치), 어떻게 흘러가는지(동적 연결)"를 시각화합니다. 색은 전부 기존 팔레트를 재사용합니다.</p>
+
+    <h3>파일-변수 카드 (.var-card + .vbadge)</h3>
+    <p>헤더/소스 파일 쌍이 <strong>소유한 변수의 전수 목록</strong>을 카드로 보여줍니다. 각 행은 변수명 · 타입 · 수명 배지 · 한 줄 설명으로 구성합니다. 수명 배지 5종: <span class="vbadge save">SAVE</span> 디스크 저장 · <span class="vbadge run">RUNTIME</span> 휘발 · <span class="vbadge cfg">CONFIG</span> Settings 상수 · <span class="vbadge row">ROW</span> DataTable 행 · <span class="vbadge db">DB</span> SQLite 파일 저장 <span style="color:var(--text-dim);font-size:11px">[v1.8]</span>.</p>
+    <div class="demo"><div class="demo-head">Live</div><div class="demo-body">
+      <div class="var-card" style="margin:0">
+        <div class="vc-head">
+          <span class="vc-domain">Score</span>
+          <span class="vc-file">ScoreSubsystem<span style="color:var(--ue-header)">.h</span> / <span style="color:var(--ue-source)">.cpp</span></span>
+          <span class="vc-role">점수 적립 · 랭킹 판정</span>
+        </div>
+        <div class="vc-var">
+          <span class="vv-name">CurrentScore</span><span class="vv-type">int32</span><span class="vbadge save">SAVE</span>
+          <span class="vv-note">현재 점수. 변경 즉시 SaveGame에 기록</span>
+        </div>
+        <div class="vc-var">
+          <span class="vv-name">ComboTimer</span><span class="vv-type">FTimerHandle</span><span class="vbadge run">RUNTIME</span>
+          <span class="vv-note">콤보 유지 타이머 — 세션이 끝나면 소멸</span>
+        </div>
+        <div class="vc-var">
+          <span class="vv-name">ComboWindowSec</span><span class="vv-type">float</span><span class="vbadge cfg">CONFIG</span>
+          <span class="vv-note">콤보 인정 시간(초). DeveloperSettings에서 조정</span>
+        </div>
+      </div>
+    </div></div>
+
+    <h3>변수 흐름 연결 전도 (.flow-hub + .flow-legend)</h3>
+    <p>허브(중앙) 노드를 사이에 두고 <strong>좌 → 중 → 우로 데이터가 흐르는 N:N 전도</strong>입니다. 각 노드의 연결은 색 칩(<code>.fh-link</code>)으로 표기하고, 색의 의미는 범례(<code>.flow-legend</code>)가 고정합니다.</p>
+    <div class="demo"><div class="demo-head">Live</div><div class="demo-body">
+      <div class="flow-legend" style="margin-top:0">
+        <span><span class="lk lk-call"></span>함수 호출</span>
+        <span><span class="lk lk-event"></span>델리게이트 브로드캐스트</span>
+        <span><span class="lk lk-save"></span>SaveGame 직렬화</span>
+        <span><span class="lk lk-table"></span>DataTable 조회</span>
+      </div>
+      <div class="flow-hub">
+        <div class="fh-col">
+          <div class="fh-node n-subsystem">
+            <div class="fn-name">UScoreSubsystem</div>
+            <div class="fn-role">점수 적립 로직</div>
+            <div class="fh-links"><span class="fh-link lk-call">AddScore() →</span><span class="fh-link lk-save">CurrentScore →</span></div>
+          </div>
+          <div class="fh-node n-table">
+            <div class="fn-name">DT_ScoreTable</div>
+            <div class="fn-role">점수 배율 마스터</div>
+            <div class="fh-links"><span class="fh-link lk-table">FindRow() →</span></div>
+          </div>
+        </div>
+        <div class="fh-hub">
+          <div class="fn-name">UMySaveGame</div>
+          <div class="fn-role">디스크에 저장되는<br>유일한 지점</div>
+        </div>
+        <div class="fh-col">
+          <div class="fh-node n-ui">
+            <div class="fn-name">WBP_ScorePanel</div>
+            <div class="fn-role">점수 표시 위젯</div>
+            <div class="fh-links"><span class="fh-link lk-event">← OnScoreChanged</span></div>
+          </div>
+        </div>
+      </div>
+    </div></div>
+
+    <h3>변수 여정 시퀀스 (.lane-seq)</h3>
+    <p>변수 하나가 <strong>어느 파일의 어느 함수를 거쳐 어떻게 변하는지</strong>를 단계로 추적합니다. 파일 칩(<code>.ls-file</code>) 색: <span class="ls-file">.h</span> 선언 · <span class="ls-file cpp">.cpp</span> 구현 · <span class="ls-file save">SaveGame</span> 저장 · <span class="ls-file table">DataTable</span> 데이터 · <span class="ls-file db">SQLite DB</span> DB 파일 <span style="color:var(--text-dim);font-size:11px">[v1.8]</span>.</p>
+    <div class="demo"><div class="demo-head">Live</div><div class="demo-body">
+      <div class="lane-seq" style="margin:0">
+        <div class="ls-step">
+          <div class="ls-head"><span class="ls-file cpp">ScoreSubsystem.cpp</span><span class="ls-title">적 처치 판정</span><span class="ls-fn">AddScore(100)</span></div>
+          <div class="ls-var">CurrentScore: 400 → 500</div>
+          <div class="ls-desc">처치 이벤트가 점수를 더합니다. 변수의 주인은 ScoreSubsystem 하나뿐입니다.</div>
+        </div>
+        <div class="ls-step">
+          <div class="ls-head"><span class="ls-file save">MySaveGame.sav</span><span class="ls-title">즉시 저장</span><span class="ls-fn">SaveGameToSlot()</span></div>
+          <div class="ls-var">SaveGame.CurrentScore = 500</div>
+          <div class="ls-desc">변경 직후 디스크에 직렬화합니다. 앱이 꺼져도 값이 살아남습니다.</div>
+        </div>
+        <div class="ls-step">
+          <div class="ls-head"><span class="ls-file">ScorePanelWidget.h</span><span class="ls-title">UI 갱신</span><span class="ls-fn">OnScoreChanged.Broadcast(500)</span></div>
+          <div class="ls-var">TXT_Score = "500"</div>
+          <div class="ls-desc">위젯은 델리게이트로 통지받아 표시만 바꿉니다. UI는 값을 소유하지 않습니다.</div>
+        </div>
+      </div>
+    </div></div>
+  </div>
+
+  <!-- 08 v1.5 다이어그램 컴포넌트 -->
+  <div class="section" id="v15">
+    <div class="section-label">08 — v1.5 다이어그램 컴포넌트</div>
+    <h2>Mermaid 스타일 SVG · 옵시디언 그래프 뷰</h2>
+    <p>다이어그램은 <strong>생성 시점에 SVG로 미리 렌더링해 구워넣습니다</strong> — C++ 하이라이팅(hljs span)과 같은 철학입니다. 런타임 렌더링 라이브러리(mermaid.js 등)는 넣지 않으며, 대신 <strong>Mermaid 소스를 <code>.codeblock</code> 단일 탭(<code>*.mmd</code>)으로 병기</strong>해 옵시디언·GitHub에 복사해 재사용할 수 있게 합니다. 색은 전부 기존 토큰(연결 lk-* 4색, 타입 k-*)을 재사용합니다.</p>
+
+    <h3>구워넣은 플로차트 (.diagram)</h3>
+    <div class="demo"><div class="demo-head">Live</div><div class="demo-body">
+      <div class="diagram" style="margin:0">
+        <svg viewBox="0 0 640 150" role="img" aria-label="예시 플로차트: 저장 필요 판정">
+          <defs>
+            <marker id="mv-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M0,0 L10,5 L0,10 z" fill="var(--text-dim)"/>
+            </marker>
+          </defs>
+          <rect class="dg-node k-subsystem" x="20" y="55" width="150" height="44" rx="8"/>
+          <text class="dg-text" x="95" y="74" text-anchor="middle">값 변경 발생</text>
+          <text class="dg-sub" x="95" y="90" text-anchor="middle">Subsystem 내부</text>
+          <polygon class="dg-node k-decision" points="305,45 385,77 305,109 225,77"/>
+          <text class="dg-text" x="305" y="73" text-anchor="middle">껐다 켜도</text>
+          <text class="dg-text" x="305" y="88" text-anchor="middle">남아야 하나?</text>
+          <rect class="dg-node k-savegame" x="460" y="20" width="160" height="40" rx="8"/>
+          <text class="dg-text" x="540" y="44" text-anchor="middle">SaveGame 필드</text>
+          <rect class="dg-node" x="460" y="95" width="160" height="40" rx="8"/>
+          <text class="dg-text" x="540" y="119" text-anchor="middle">RUNTIME 멤버</text>
+          <path class="dg-edge lk-call" d="M170,77 L221,77" marker-end="url(#mv-arrow)"/>
+          <path class="dg-edge lk-save" d="M385,77 C420,77 425,40 456,40" marker-end="url(#mv-arrow)"/>
+          <text class="dg-elabel" x="415" y="48">예</text>
+          <path class="dg-edge" d="M385,77 C420,77 425,115 456,115" marker-end="url(#mv-arrow)"/>
+          <text class="dg-elabel" x="412" y="110">아니오</text>
+        </svg>
+      </div>
+    </div></div>
+
+    <h3>Mermaid 소스 병기 규칙 (.codeblock 단일 탭)</h3>
+    <div class="demo"><div class="demo-head">Live</div><div class="demo-body">
+      <div class="codeblock" style="margin:0">
+        <div class="codeblock-bar">
+          <button class="codeblock-tab tab-h active" type="button">save-decision.mmd</button>
+          <button class="codeblock-copy" type="button">복사</button>
+        </div>
+        <div class="codeblock-panel active"><pre class="hljs"><span class="hljs-keyword">flowchart</span> LR
+    A[<span class="hljs-string">"값 변경 발생"</span>] --&gt; Q{<span class="hljs-string">"껐다 켜도 남아야 하나?"</span>}
+    Q -- 예 --&gt; S[<span class="hljs-string">"SaveGame 필드"</span>]
+    Q -- 아니오 --&gt; R[<span class="hljs-string">"RUNTIME 멤버"</span>]</pre></div>
+      </div>
+    </div></div>
+
+    <h3>옵시디언 그래프 뷰 스타일 관계망 (.graph-net)</h3>
+    <p>노드 크기 = 연결 수, 노드 색 = 타입, 엣지 색 = 연결 유형(<code>.flow-legend</code>와 동일 의미). 정적 SVG이므로 오프라인·단일 파일 규칙을 그대로 지킵니다. 타입 변형: <code>k-subsystem</code> · <code>k-savegame</code> · <code>k-instance</code> · <code>k-table</code> · <code>k-ui</code> · <code>k-config</code> · <code>k-db</code>(SQLite DB 저장소, <code>--ue-mat</code> 주황 — v1.10, <code>.dg-node</code>에도 동일 적용).</p>
+    <div class="demo"><div class="demo-head">Live</div><div class="demo-body">
+      <div class="graph-net" style="margin:0">
+        <svg viewBox="0 0 640 220" role="img" aria-label="예시 관계망: 서브시스템과 SaveGame, DB 노드(Archive.db)">
+          <line class="gn-edge lk-event" x1="150" y1="70" x2="320" y2="110"/>
+          <line class="gn-edge lk-save"  x1="320" y1="110" x2="490" y2="80"/>
+          <line class="gn-edge lk-save"  x1="150" y1="70"  x2="490" y2="80"/>
+          <line class="gn-edge lk-call"  x1="320" y1="110" x2="200" y2="180"/>
+          <line class="gn-edge lk-table" x1="320" y1="110" x2="470" y2="180"/>
+          <line class="gn-edge lk-save"  x1="320" y1="110" x2="585" y2="140"/>
+          <circle class="gn-node k-subsystem" cx="150" cy="70" r="14"/>
+          <text class="gn-label" x="150" y="42">FocusSubsystem</text>
+          <circle class="gn-node k-subsystem" cx="320" cy="110" r="20"/>
+          <text class="gn-label big" x="320" y="145">EconomySubsystem</text>
+          <circle class="gn-node k-savegame" cx="490" cy="80" r="17"/>
+          <text class="gn-label big" x="490" y="52">SaveGame</text>
+          <circle class="gn-node k-ui" cx="200" cy="180" r="11"/>
+          <text class="gn-label" x="200" y="207">WBP 위젯</text>
+          <circle class="gn-node k-table" cx="470" cy="180" r="11"/>
+          <text class="gn-label" x="470" y="207">DT_GuildLevels</text>
+          <circle class="gn-node k-db" cx="585" cy="140" r="13"/>
+          <text class="gn-label" x="585" y="170">Archive.db</text>
+        </svg>
+      </div>
+      <div class="flow-legend" style="margin-bottom:0">
+        <span><span class="lk lk-call"></span>함수 호출</span>
+        <span><span class="lk lk-event"></span>델리게이트</span>
+        <span><span class="lk lk-save"></span>직렬화</span>
+        <span><span class="lk lk-table"></span>테이블 조회</span>
+      </div>
+    </div></div>
+
+    <div class="callout warn"><span class="ic">⚠️</span><p><strong>다이어그램 3원칙</strong> — ① SVG는 생성 시점에 구워넣기(런타임 렌더링 스크립트 금지), ② Mermaid 소스를 반드시 병기(단일 탭 <code>*.mmd</code> + 복사 버튼), ③ 같은 정보를 전도·표와 삼중으로 중복 표현하지 않기 — 관계망(조감)과 전도(주제별 상세)처럼 역할이 다를 때만 함께 씁니다.</p></div>
+  </div>
+
+  <!-- 09 v1.6 블루프린트 노드 그래프 -->
+  <div class="section" id="v16">
+    <div class="section-label">09 — v1.6 블루프린트 노드 그래프</div>
+    <h2>UE 에디터 재현 노드 그래프 (.bp-graph)</h2>
+    <p>블루프린트 에디터의 <strong>노드·핀·와이어를 UE 관례색 그대로 재현</strong>하는 컴포넌트입니다. 문서에서 "블루프린트로 이렇게 조립한다"를 보여줄 때 씁니다. <code>.diagram</code>과 동일 철학 — <strong>생성 시점에 SVG로 구워넣고</strong> 런타임 렌더링 스크립트는 넣지 않습니다. UE 에디터의 의미색(<code>--bp-*</code>)은 이 컴포넌트 내부 전용이며 본문 UI에 유출하지 않습니다.</p>
+
+    <h3>노드 종류 (제목 바 색 — UE 에디터 관례)</h3>
+    <table class="tbl">
+      <tr><th>종류</th><th>제목 바</th><th>그라데이션 id</th><th>비고</th></tr>
+      <tr><td>이벤트</td><td><span style="display:inline-block;width:34px;height:12px;border-radius:3px;background:linear-gradient(90deg,var(--bp-event),rgba(160,50,50,0.12))"></span> 빨강</td><td><code>#bpg-event</code></td><td>Event BeginPlay, 인터페이스 구현 이벤트 등</td></tr>
+      <tr><td>함수 호출 · 메시지</td><td><span style="display:inline-block;width:34px;height:12px;border-radius:3px;background:linear-gradient(90deg,var(--bp-call),rgba(46,111,180,0.12))"></span> 파랑</td><td><code>#bpg-call</code></td><td>인터페이스 Message 호출 포함(✉ 아이콘 병기)</td></tr>
+      <tr><td>순수 함수</td><td><span style="display:inline-block;width:34px;height:12px;border-radius:3px;background:linear-gradient(90deg,var(--bp-pure),rgba(63,145,66,0.12))"></span> 초록</td><td><code>#bpg-pure</code></td><td>실행 핀 없음 (Does Implement Interface 등)</td></tr>
+      <tr><td>흐름 제어</td><td><span style="display:inline-block;width:34px;height:12px;border-radius:3px;background:linear-gradient(90deg,var(--bp-flow),rgba(120,120,120,0.12))"></span> 회색</td><td><code>#bpg-flow</code></td><td>Branch, Sequence, ForEach 등</td></tr>
+      <tr><td>캐스트</td><td><span style="display:inline-block;width:34px;height:12px;border-radius:3px;background:linear-gradient(90deg,var(--bp-cast),rgba(56,128,143,0.12))"></span> 청록</td><td><code>#bpg-cast</code></td><td>Cast To … 노드</td></tr>
+      <tr><td>변수 Get/Set</td><td>캡슐형 (제목 바 없음)</td><td>—</td><td><code>.bpn-body</code> rx=15 + 좌측 타입 색 스트립</td></tr>
+    </table>
+
+    <h3>핀 타입 색 (UE 규칙 그대로)</h3>
+    <div class="legend">
+      <span><span class="dot" style="background:var(--bp-exec)"></span>Exec 실행 ▷</span>
+      <span><span class="dot" style="background:var(--bp-bool)"></span>Boolean</span>
+      <span><span class="dot" style="background:var(--bp-float)"></span>Float</span>
+      <span><span class="dot" style="background:var(--bp-int)"></span>Integer</span>
+      <span><span class="dot" style="background:var(--bp-string)"></span>String</span>
+      <span><span class="dot" style="background:var(--bp-vector)"></span>Vector</span>
+      <span><span class="dot" style="background:var(--bp-object)"></span>Object</span>
+      <span><span class="dot" style="background:var(--bp-class)"></span>Class·Interface</span>
+    </div>
+
+    <h3>Live — 인터페이스 메시지 호출 그래프</h3>
+    <div class="demo"><div class="demo-head">Live</div><div class="demo-body">
+      <div class="bp-graph" style="margin:0">
+        <svg viewBox="0 0 960 440" role="img" aria-label="블루프린트 예시: BeginPlay가 인터페이스 구현 여부를 확인한 뒤 On Interact 메시지를 호출">
+          <defs>
+            <!-- ▼ bpg-* 표준 defs 블록 — .bp-graph SVG마다 이 블록을 그대로 복사해 포함 -->
+            <pattern id="bpg-grid" width="16" height="16" patternUnits="userSpaceOnUse">
+              <path d="M16 0H0V16" fill="none" style="stroke:var(--bp-grid)" stroke-width="1"/>
+            </pattern>
+            <pattern id="bpg-grid80" width="80" height="80" patternUnits="userSpaceOnUse">
+              <rect width="80" height="80" fill="url(#bpg-grid)"/>
+              <path d="M80 0H0V80" fill="none" style="stroke:var(--bp-grid-2)" stroke-width="1.4"/>
+            </pattern>
+            <linearGradient id="bpg-event" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0" style="stop-color:var(--bp-event)" stop-opacity="0.95"/>
+              <stop offset="1" style="stop-color:var(--bp-event)" stop-opacity="0.12"/>
+            </linearGradient>
+            <linearGradient id="bpg-call" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0" style="stop-color:var(--bp-call)" stop-opacity="0.95"/>
+              <stop offset="1" style="stop-color:var(--bp-call)" stop-opacity="0.12"/>
+            </linearGradient>
+            <linearGradient id="bpg-pure" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0" style="stop-color:var(--bp-pure)" stop-opacity="0.95"/>
+              <stop offset="1" style="stop-color:var(--bp-pure)" stop-opacity="0.12"/>
+            </linearGradient>
+            <linearGradient id="bpg-flow" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0" style="stop-color:var(--bp-flow)" stop-opacity="0.95"/>
+              <stop offset="1" style="stop-color:var(--bp-flow)" stop-opacity="0.12"/>
+            </linearGradient>
+            <linearGradient id="bpg-cast" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0" style="stop-color:var(--bp-cast)" stop-opacity="0.95"/>
+              <stop offset="1" style="stop-color:var(--bp-cast)" stop-opacity="0.12"/>
+            </linearGradient>
+            <filter id="bpg-shadow" x="-20%" y="-20%" width="140%" height="150%">
+              <feDropShadow dx="0" dy="2.5" stdDeviation="3" flood-color="#000" flood-opacity="0.55"/>
+            </filter>
+            <!-- ▲ bpg-* 표준 defs 블록 끝 -->
+          </defs>
+
+          <rect width="960" height="440" style="fill:var(--bp-canvas)"/>
+          <rect width="960" height="440" fill="url(#bpg-grid80)"/>
+
+          <!-- 와이어 (노드 뒤) -->
+          <path class="bpw exec" d="M216,100 C268,100 284,102 330,102"/>
+          <path class="bpw exec" d="M474,102 C528,102 574,96 630,96"/>
+          <path class="bpw t-bool" d="M545,296 C680,296 250,110 334,126"/>
+          <path class="bpw t-object" d="M228,395 C266,395 266,296 305,296"/>
+          <path class="bpw t-object" d="M228,395 C720,395 560,122 634,122"/>
+
+          <!-- 이벤트: Event BeginPlay -->
+          <g filter="url(#bpg-shadow)">
+            <rect class="bpn-body" x="40" y="60" width="180" height="60" rx="6"/>
+            <path d="M40,84 v-18 a6,6 0 0 1 6,-6 h168 a6,6 0 0 1 6,6 v18 z" fill="url(#bpg-event)"/>
+            <text class="bpn-icon" x="52" y="77">◆</text>
+            <text class="bpn-name" x="66" y="77">Event BeginPlay</text>
+            <path class="bpp-exec" d="M202,94 h7 l7,6 -7,6 h-7 z"/>
+          </g>
+
+          <!-- 흐름 제어: Branch -->
+          <g filter="url(#bpg-shadow)">
+            <rect class="bpn-body" x="330" y="60" width="150" height="84" rx="6"/>
+            <path d="M330,84 v-18 a6,6 0 0 1 6,-6 h138 a6,6 0 0 1 6,6 v18 z" fill="url(#bpg-flow)"/>
+            <text class="bpn-icon" x="342" y="77">⑂</text>
+            <text class="bpn-name" x="356" y="77">Branch</text>
+            <path class="bpp-exec" d="M336,96 h7 l7,6 -7,6 h-7 z"/>
+            <circle class="bpp-pin t-bool" cx="341" cy="126" r="5"/>
+            <text class="bpp-label" x="353" y="130">Condition</text>
+            <path class="bpp-exec" d="M460,96 h7 l7,6 -7,6 h-7 z"/>
+            <text class="bpp-label" x="454" y="106" text-anchor="end">True</text>
+            <path class="bpp-exec off" d="M460,120 h7 l7,6 -7,6 h-7 z"/>
+            <text class="bpp-label" x="454" y="130" text-anchor="end">False</text>
+          </g>
+
+          <!-- 인터페이스 메시지: On Interact (파랑 + ✉) -->
+          <g filter="url(#bpg-shadow)">
+            <rect class="bpn-body" x="630" y="48" width="270" height="96" rx="6"/>
+            <path d="M630,78 v-24 a6,6 0 0 1 6,-6 h258 a6,6 0 0 1 6,6 v24 z" fill="url(#bpg-call)"/>
+            <text class="bpn-icon" x="642" y="66">✉</text>
+            <text class="bpn-name" x="658" y="64">On Interact (Message)</text>
+            <text class="bpn-sub" x="658" y="75">Target is BPI Interact</text>
+            <path class="bpp-exec" d="M636,90 h7 l7,6 -7,6 h-7 z"/>
+            <circle class="bpp-pin t-object" cx="641" cy="122" r="5"/>
+            <text class="bpp-label" x="653" y="126">Target</text>
+            <path class="bpp-exec off" d="M880,90 h7 l7,6 -7,6 h-7 z"/>
+          </g>
+
+          <!-- 순수 함수: Does Implement Interface (초록, 실행 핀 없음) -->
+          <g filter="url(#bpg-shadow)">
+            <rect class="bpn-body" x="300" y="254" width="250" height="76" rx="6"/>
+            <path d="M300,278 v-18 a6,6 0 0 1 6,-6 h238 a6,6 0 0 1 6,6 v18 z" fill="url(#bpg-pure)"/>
+            <text class="bpn-icon" x="312" y="271" font-style="italic">ƒ</text>
+            <text class="bpn-name" x="326" y="271">Does Implement Interface</text>
+            <circle class="bpp-pin t-object" cx="311" cy="296" r="5"/>
+            <text class="bpp-label" x="323" y="300">Test Object</text>
+            <circle class="bpp-pin t-class off" cx="311" cy="316" r="5"/>
+            <text class="bpp-label" x="323" y="320">Interface</text>
+            <rect class="bpn-chip" x="390" y="308" width="112" height="16" rx="3"/>
+            <text class="bpn-chip-text" x="446" y="319" text-anchor="middle">BPI_Interact</text>
+            <circle class="bpp-pin t-bool" cx="539" cy="296" r="5"/>
+            <text class="bpp-label" x="527" y="300" text-anchor="end">Return Value</text>
+          </g>
+
+          <!-- 변수 Get: Target Actor (캡슐형) -->
+          <g filter="url(#bpg-shadow)">
+            <rect class="bpn-body" x="70" y="380" width="160" height="30" rx="15"/>
+            <rect x="70" y="380" width="6" height="30" rx="3" style="fill:var(--bp-object)"/>
+            <text class="bpn-name" x="90" y="399">Target Actor</text>
+            <circle class="bpp-pin t-object" cx="216" cy="395" r="5"/>
+          </g>
+
+          <text class="bpg-caption" x="40" y="34">Blueprint Interface — BeginPlay → 구현 여부 확인 → 인터페이스 메시지 호출</text>
+        </svg>
+      </div>
+    </div></div>
+
+    <div class="callout warn"><span class="ic">⚠️</span><p><strong>bp-graph 사용 규칙</strong> — ① SVG는 생성 시점에 구워넣기(런타임 렌더링 스크립트 금지), ② <code>bpg-*</code> 표준 defs 블록(격자 패턴·제목 그라데이션 5종·그림자)을 각 SVG에 포함, ③ 제목 바는 CSS 클래스가 아니라 <code>fill="url(#bpg-…)"</code> 속성으로 지정, ④ <code>--bp-*</code> 관례색은 이 컴포넌트 안에서만 사용(본문 UI에 유출 금지), ⑤ 미연결 핀은 <code>.off</code>(외곽선만)로 UE 에디터처럼 구분.</p></div>
+  </div>
+
+  <!-- 10 v1.7 인터랙티브 진행률 체크리스트 -->
+  <div class="section" id="v17">
+    <div class="section-label">10 — v1.7 인터랙티브 체크리스트</div>
+    <h2>따라 하며 완료를 체크하는 실습 컴포넌트 (.checklist)</h2>
+    <p>플러그인 활성화·빌드처럼 <strong>순서대로 따라 하며 하나씩 완료를 확인</strong>하는 "따라하기" 문서용 컴포넌트입니다. 단계 헤더를 클릭(또는 <code>Enter</code>/<code>Space</code>)하면 완료로 표시되고, 상단 진행률 바가 즉시 갱신됩니다. 완료 상태는 <strong>로컬·비영속</strong>(새로고침 시 초기화)이며, 토글 JS는 탭/복사 JS처럼 결과물에 inline합니다. 색은 기존 팔레트만 재사용합니다(완료 체크 <code>accent-3</code>, 진행 바 <code>accent</code>).</p>
+
+    <h3>Live — 클릭해서 완료 토글</h3>
+    <div class="demo"><div class="demo-head">Live · 헤더를 클릭하면 완료 처리</div><div class="demo-body">
+      <div class="checklist" style="margin:0">
+        <div class="check-prog">
+          <div class="check-bar"><span class="check-fill"></span></div>
+          <div class="check-count"><b>0</b> / 3 단계</div>
+        </div>
+        <div class="check-step">
+          <div class="check-head" tabindex="0" role="button" aria-pressed="false">
+            <div class="check-tick"><span class="tk-num">1</span></div>
+            <div><div class="check-title">플러그인 켜기</div><div class="check-why">설치가 아니라 스위치입니다</div></div>
+          </div>
+          <div class="check-body">
+            <p style="margin-top:0"><code>편집 &gt; 플러그인</code>에서 대상 플러그인을 체크하고 에디터를 재시작합니다. 본문에는 <code>.codeblock</code>·<code>.callout</code> 등 어떤 컴포넌트든 넣을 수 있고, 그 안에서의 클릭(복사 버튼 등)은 완료를 토글하지 않습니다.</p>
+          </div>
+        </div>
+        <div class="check-step">
+          <div class="check-head" tabindex="0" role="button" aria-pressed="false">
+            <div class="check-tick"><span class="tk-num">2</span></div>
+            <div><div class="check-title">Build.cs에 모듈 추가</div><div class="check-why">이게 있어야 #include가 통과합니다</div></div>
+          </div>
+          <div class="check-body">
+            <p style="margin-top:0">모듈 의존을 <code>PublicDependencyModuleNames</code>에 추가합니다.</p>
+          </div>
+        </div>
+        <div class="check-step">
+          <div class="check-head" tabindex="0" role="button" aria-pressed="false">
+            <div class="check-tick"><span class="tk-num">3</span></div>
+            <div><div class="check-title">빌드로 검증</div><div class="check-why">로그가 찍히면 배관이 뚫린 것</div></div>
+          </div>
+          <div class="check-body">
+            <p style="margin-top:0">에디터를 닫고 Visual Studio에서 빌드한 뒤, 출력 로그에서 준비 완료 메시지를 확인합니다.</p>
+          </div>
+        </div>
+      </div>
+    </div></div>
+
+    <div class="callout warn"><span class="ic">⚠️</span><p><strong>checklist 사용 규칙</strong> — ① 완료 상태는 로컬·비영속(저장하지 않음), ② 토글/진행률 JS는 결과물에 inline(탭·복사 JS와 같은 최소 상호작용 범위), ③ 본문은 반드시 <code>.check-body</code>(헤더 <code>.check-head</code> 밖)에 넣어 codeblock 복사·탭 클릭이 완료를 토글하지 않게 함, ④ 색은 기존 팔레트만 재사용(신규 토큰 금지), ⑤ <code>role="button"</code>·<code>tabindex="0"</code>·<code>aria-pressed</code>로 키보드 접근성 유지.</p></div>
+
+    <div class="demo"><div class="demo-head">토글 JS (결과물에 inline)</div><div class="demo-body">
+      <div class="codeblock" style="margin:0">
+        <div class="codeblock-bar">
+          <button class="codeblock-tab tab-h active" type="button">checklist.js</button>
+        </div>
+        <div class="codeblock-panel active"><pre class="hljs"><span class="hljs-title function_">document</span>.<span class="hljs-title">querySelectorAll</span>(<span class="hljs-string">'.checklist'</span>).<span class="hljs-title">forEach</span>(<span class="hljs-keyword">function</span> (list) {
+  <span class="hljs-keyword">var</span> steps = [].slice.<span class="hljs-title">call</span>(list.<span class="hljs-title">querySelectorAll</span>(<span class="hljs-string">'.check-step'</span>));
+  <span class="hljs-keyword">var</span> fill  = list.<span class="hljs-title">querySelector</span>(<span class="hljs-string">'.check-fill'</span>);
+  <span class="hljs-keyword">var</span> count = list.<span class="hljs-title">querySelector</span>(<span class="hljs-string">'.check-count b'</span>);
+  <span class="hljs-keyword">function</span> <span class="hljs-title">refresh</span>() {
+    <span class="hljs-keyword">var</span> done = steps.<span class="hljs-title">filter</span>(<span class="hljs-keyword">function</span> (s) { <span class="hljs-keyword">return</span> s.classList.<span class="hljs-title">contains</span>(<span class="hljs-string">'done'</span>); }).length;
+    <span class="hljs-keyword">if</span> (count) count.textContent = done;
+    <span class="hljs-keyword">if</span> (fill)  fill.style.width = (steps.length ? done / steps.length * <span class="hljs-number">100</span> : <span class="hljs-number">0</span>) + <span class="hljs-string">'%'</span>;
+  }
+  steps.<span class="hljs-title">forEach</span>(<span class="hljs-keyword">function</span> (step) {
+    <span class="hljs-keyword">var</span> head = step.<span class="hljs-title">querySelector</span>(<span class="hljs-string">'.check-head'</span>);
+    <span class="hljs-keyword">function</span> <span class="hljs-title">toggle</span>() {
+      step.classList.<span class="hljs-title">toggle</span>(<span class="hljs-string">'done'</span>);
+      head.<span class="hljs-title">setAttribute</span>(<span class="hljs-string">'aria-pressed'</span>, <span class="hljs-title">String</span>(step.classList.<span class="hljs-title">contains</span>(<span class="hljs-string">'done'</span>)));
+      <span class="hljs-title">refresh</span>();
+    }
+    head.<span class="hljs-title">addEventListener</span>(<span class="hljs-string">'click'</span>, toggle);
+    head.<span class="hljs-title">addEventListener</span>(<span class="hljs-string">'keydown'</span>, <span class="hljs-keyword">function</span> (e) {
+      <span class="hljs-keyword">if</span> (e.key === <span class="hljs-string">'Enter'</span> || e.key === <span class="hljs-string">' '</span>) { e.<span class="hljs-title">preventDefault</span>(); <span class="hljs-title">toggle</span>(); }
+    });
+  });
+  <span class="hljs-title">refresh</span>();
+});</pre></div>
+      </div>
+    </div></div>
+  </div>
+
+  <!-- 11 v1.11 기획서 컴포넌트 -->
+  <div class="section" id="v111">
+    <div class="section-label">11 — v1.11 기획서 컴포넌트</div>
+    <h2>화면 와이어프레임 (.wire) · 기획 상태 pill (.pill.amber)</h2>
+    <p>시스템 기획서(<code>design-template/05-system-spec.html</code>)의 <strong>화면 구성</strong>과 <strong>상태 표기</strong>를 위한 컴포넌트입니다. 와이어프레임은 픽셀 디자인이 아니라 <strong>어느 화면 존에 · 어떤 패널/모달이 뜨고 · 어떤 요소가 어디 놓이는가</strong>만 박스로 보여줍니다. 색은 기존 팔레트만 재사용합니다(존 강조 <code>accent</code>, 모달·번호 마커 <code>accent-2</code>, 제안 <code>--amber</code>).</p>
+
+    <h3>Live — 화면 존 격자 (.wire-screen)</h3>
+    <div class="demo"><div class="demo-head">Live · .wz.on = 이 문서가 다루는 존</div><div class="demo-body">
+      <div class="wire" style="margin:0">
+        <div class="wire-screen">
+          <div class="wz a-hud"><span class="wz-name">HUD</span><span class="w-text">재화 · 시계 · 설정 버튼</span></div>
+          <div class="wz a-tl on"><span class="wz-name">좌측 상단</span><div class="w-slot"><span class="w-mark">1</span>할 일 패널</div></div>
+          <div class="wz a-tr off"><span class="wz-name">우측 상단</span><span class="w-text">예약 영역</span></div>
+          <div class="wz a-bg"><span class="wz-name">배경</span><div class="w-slot">메인 공간 (오브젝트 배치)</div></div>
+          <div class="wz a-bl"><span class="wz-name">좌측 하단</span><span class="w-text">사운드</span></div>
+          <div class="wz a-br"><span class="wz-name">우측 하단</span><span class="w-text">목록 버튼</span></div>
+        </div>
+        <div class="wire-cap">화면 존 격자는 문서 첫 와이어프레임에서 "이 시스템이 화면 어디에 사는가"를 보여줄 때 씁니다. 존 이름은 프로젝트의 화면 존 정의를 그대로 씁니다.</div>
+      </div>
+    </div></div>
+
+    <h3>Live — 패널 · 모달 박스 (.wire-panel)</h3>
+    <div class="demo"><div class="demo-head">Live · 패널(기본) + 모달(.modal)</div><div class="demo-body">
+      <div class="wire" style="margin:0">
+        <div class="wire-row" style="margin-top:0">
+          <div class="wire-panel">
+            <div class="wp-head"><span class="wp-kind">Panel</span><span class="wp-title">할 일 목록</span><span class="wp-x">✕</span></div>
+            <div class="wp-body">
+              <div class="w-row"><span class="w-mark">2</span><span class="w-field">검색…</span><span class="w-btn">＋ 추가</span></div>
+              <div class="w-slot">항목 리스트 (행 반복)</div>
+              <div class="w-text">빈 상태: 안내 문구 한 줄</div>
+            </div>
+          </div>
+          <div class="wire-panel modal">
+            <div class="wp-head"><span class="wp-kind">Modal</span><span class="wp-title">항목 만들기</span><span class="wp-x">✕</span></div>
+            <div class="wp-body">
+              <div class="w-text strong">제목</div>
+              <div class="w-row"><span class="w-mark">3</span><span class="w-field">한 줄 입력</span></div>
+              <div class="w-row end"><span class="w-btn ghost">취소</span><span class="w-btn primary">저장</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="wire-cap">번호 마커(<code>.w-mark</code>)는 와이어프레임 바로 아래 "UI 요소 표"의 번호와 1:1로 대응합니다.</div>
+      </div>
+    </div></div>
+
+    <h3>요소 클래스</h3>
+    <table class="tbl">
+      <tr><th>클래스</th><th>표현하는 것</th><th>변형</th></tr>
+      <tr><td><code>.wz</code></td><td>화면 존 한 칸</td><td><code>a-hud/a-tl/a-tr/a-bg/a-bl/a-br</code> 위치 · <code>.on</code> 강조 · <code>.off</code> 흐리게</td></tr>
+      <tr><td><code>.wire-panel</code></td><td>패널/모달 박스</td><td><code>.modal</code>(보라 테두리)</td></tr>
+      <tr><td><code>.w-btn</code></td><td>버튼 자리</td><td><code>.primary</code>(주 행동) · <code>.ghost</code>(취소·보조)</td></tr>
+      <tr><td><code>.w-field</code></td><td>입력 칸 자리(placeholder 문구)</td><td>—</td></tr>
+      <tr><td><code>.w-text</code></td><td>표시 텍스트·라벨</td><td><code>.strong</code>(라벨·제목)</td></tr>
+      <tr><td><code>.w-slot</code></td><td>목록·이미지·반복 영역 자리</td><td>—</td></tr>
+      <tr><td><code>.w-mark</code></td><td>UI 요소 표 번호 마커</td><td>—</td></tr>
+    </table>
+
+    <h3>기획 상태 pill 규약</h3>
+    <div class="demo"><div class="demo-head">Live</div><div class="demo-body">
+      <div class="pills"><span class="pill green">확정</span><span class="pill amber">제안</span><span class="pill red">미정</span></div>
+    </div></div>
+    <table class="tbl">
+      <tr><th>pill</th><th>의미</th><th>사용 규칙</th></tr>
+      <tr><td><span class="pill green">확정</span></td><td>사용자·정본 문서가 확정한 규칙</td><td>근거(정본 문서 이름)를 함께 적음</td></tr>
+      <tr><td><span class="pill amber">제안</span> <code>.pill.amber</code></td><td>기획서가 제안하는 안 — 아직 사용자 확정 전</td><td>반드시 미결 사항 표에도 올림</td></tr>
+      <tr><td><span class="pill red">미정</span></td><td>정해지지 않았고 제안도 없음</td><td>결정이 필요한 이유를 한 줄로</td></tr>
+      <tr><td colspan="3">[v1.12] 모든 pill은 글자가 두 줄로 쪼개지지 않는다(<code>white-space: nowrap</code>) — 좁은 표 칸에서도 한 줄 유지.</td></tr>
+    </table>
+
+    <div class="callout warn"><span class="ic">⚠️</span><p><strong>wire 사용 규칙</strong> — ① 픽셀 디자인 금지: 색·아이콘·장식 대신 <strong>자리와 위계</strong>만 표기, ② 번호 마커 ↔ UI 요소 표 1:1, ③ <code>.wz.on</code>은 문서가 다루는 존에만, ④ 한 박스에 요소 8개 이하 — 넘치면 패널을 나눠 그림, ⑤ 색은 기존 팔레트만 재사용(신규 토큰 금지), ⑥ 좁은 폭(≤720px)에서 존 격자는 1열로 풀림.</p></div>
+  </div>
+
+</div>
+
+<footer>
+  <span>UE 문서 디자인 시스템 · Master v1.13</span>
+  <span>기준 디자인: Dark · Indigo Minimal · Editorial</span>
+</footer>
+
+<script>
+  /* v1.7 체크리스트 Live 데모 — 헤더 클릭/Enter로 완료 토글 + 진행률 반영 */
+  document.querySelectorAll('.checklist').forEach(function (list) {
+    var steps = [].slice.call(list.querySelectorAll('.check-step'));
+    var fill  = list.querySelector('.check-fill');
+    var count = list.querySelector('.check-count b');
+    function refresh() {
+      var done = steps.filter(function (s) { return s.classList.contains('done'); }).length;
+      if (count) count.textContent = done;
+      if (fill)  fill.style.width = (steps.length ? done / steps.length * 100 : 0) + '%';
+    }
+    steps.forEach(function (step) {
+      var head = step.querySelector('.check-head');
+      if (!head) return;
+      function toggle() {
+        step.classList.toggle('done');
+        head.setAttribute('aria-pressed', String(step.classList.contains('done')));
+        refresh();
+      }
+      head.addEventListener('click', toggle);
+      head.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); }
+      });
+    });
+    refresh();
+  });
+</script>
+
+</body>
+</html>

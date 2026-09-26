@@ -1,0 +1,29 @@
+<!--
+part: section
+variant: cta-band
+source: thedevdojo/tails
+fits: frame.scroll-stack
+mood: airy, corporate
+slots: title, body, cta, cta-secondary
+requires: button.solid, button.outline
+added: 2026-08-25
+spec: 0.5
+notes: accent 배경의 풀폭 행동 유도 띠. 랜딩 끝·요금제 뒤. 글자는 accent-fg
+-->
+<section data-part="section" data-variant="cta-band" class="hdk-section hdk-section--cta-band">
+<style>
+.hdk-section--cta-band { padding: var(--hdk-sp-4); }
+.hdk-section--cta-band .hdk-section__inner { max-width: var(--hdk-container); margin: 0 auto; padding: var(--hdk-sp-7) var(--hdk-sp-5); background: var(--hdk-accent); color: var(--hdk-accent-fg); border-radius: var(--hdk-radius-lg); display: grid; gap: var(--hdk-sp-4); text-align: center; }
+.hdk-section--cta-band .hdk-section__title { margin: 0; font-family: var(--hdk-font-display); font-size: var(--hdk-fs-2xl); font-weight: var(--hdk-fw-bold); line-height: var(--hdk-lh-tight); }
+.hdk-section--cta-band .hdk-section__body { margin: 0; opacity: .85; }
+.hdk-section--cta-band .hdk-section__actions { display: flex; flex-wrap: wrap; gap: var(--hdk-sp-2); justify-content: center; }
+.hdk-section--cta-band .hdk-section__actions .hdk-button--solid .hdk-button__btn { background: var(--hdk-accent-fg); color: var(--hdk-accent); }
+.hdk-section--cta-band .hdk-section__actions .hdk-button--outline .hdk-button__btn { color: var(--hdk-accent-fg); border-color: var(--hdk-accent-fg); }
+@media (min-width: 1024px) { .hdk-section--cta-band .hdk-section__inner { grid-template-columns: 1fr auto; text-align: left; align-items: center; } .hdk-section--cta-band .hdk-section__actions { justify-content: flex-end; } .hdk-section--cta-band .hdk-section__body { grid-column: 1; } .hdk-section--cta-band .hdk-section__actions { grid-row: 1 / 3; grid-column: 2; } } /* md */
+</style>
+  <div class="hdk-section__inner">
+    <h2 class="hdk-section__title" data-slot="title">행동 유도 제목 자리</h2>
+    <p class="hdk-section__body" data-slot="body">한 줄 설명 자리</p>
+    <div class="hdk-section__actions"><span data-slot="cta"><!-- button.solid --></span><span data-slot="cta-secondary"><!-- button.outline --></span></div>
+  </div>
+</section>

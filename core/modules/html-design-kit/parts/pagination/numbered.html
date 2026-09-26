@@ -1,0 +1,22 @@
+<!--
+part: pagination
+variant: numbered
+source: ColorlibHQ/gentelella
+fits: table, feed
+mood: dense, corporate
+slots: items, item
+requires: none
+added: 2026-08-25
+spec: 0.5
+notes: 이전/번호/다음. 현재 페이지 aria-current="page". 생략은 <span>…</span>
+-->
+<section data-part="pagination" data-variant="numbered" class="hdk-pagination hdk-pagination--numbered">
+<style>
+.hdk-pagination--numbered .hdk-pagination__list { display: inline-flex; gap: var(--hdk-sp-1); list-style: none; margin: 0; padding: 0; font-size: var(--hdk-fs-sm); }
+.hdk-pagination--numbered a, .hdk-pagination--numbered span { display: inline-grid; place-items: center; min-width: 32px; height: 32px; padding: 0 var(--hdk-sp-2); border-radius: var(--hdk-radius-md); color: var(--hdk-fg-muted); text-decoration: none; }
+.hdk-pagination--numbered a:hover { background: var(--hdk-bg-elev-2); color: var(--hdk-fg); }
+.hdk-pagination--numbered [aria-current="page"] { background: var(--hdk-accent); color: var(--hdk-accent-fg); font-weight: var(--hdk-fw-medium); }
+.hdk-pagination--numbered [aria-disabled="true"] { opacity: .4; pointer-events: none; }
+</style>
+  <ul class="hdk-pagination__list" data-slot="items"><li><a href="#" aria-disabled="true">‹</a></li><li data-slot="item"><a href="#" aria-current="page">1</a></li><li><a href="#">2</a></li><li><a href="#">3</a></li><li><span>…</span></li><li><a href="#">12</a></li><li><a href="#">›</a></li></ul>
+</section>

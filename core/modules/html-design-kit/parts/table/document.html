@@ -1,0 +1,31 @@
+<!--
+part: table
+variant: document
+source: sparksuite/simple-html-invoice-template
+fits: frame.paper-a4
+mood: airy, corporate
+slots: title, items, item, total
+requires: none
+added: 2026-08-25
+spec: 0.5
+notes: 인보이스·명세서 항목 표. 얇은 밑줄, 합계 행 강조, 인쇄 시 색 유지. 금액 열은 data-align="num"
+-->
+<section data-part="table" data-variant="document" class="hdk-table hdk-table--document">
+<style>
+.hdk-table--document table { width: 100%; border-collapse: collapse; font-size: var(--hdk-fs-sm); }
+.hdk-table--document caption { text-align: left; margin-bottom: var(--hdk-sp-3); font-family: var(--hdk-font-display); font-size: var(--hdk-fs-lg); font-weight: var(--hdk-fw-bold); }
+.hdk-table--document th { text-align: left; padding: var(--hdk-sp-2) 0; border-bottom: 2px solid var(--hdk-fg); font-size: var(--hdk-fs-xs); letter-spacing: var(--hdk-tracking-caps); text-transform: uppercase; color: var(--hdk-fg-muted); }
+.hdk-table--document td { padding: var(--hdk-sp-3) 0; border-bottom: 1px solid var(--hdk-line); vertical-align: top; }
+.hdk-table--document [data-align="num"] { text-align: right; font-variant-numeric: tabular-nums; }
+.hdk-table--document tfoot td { border-bottom: 0; padding-top: var(--hdk-sp-3); }
+.hdk-table--document .hdk-table__total-label { text-align: right; color: var(--hdk-fg-muted); }
+.hdk-table--document .hdk-table__total { font-size: var(--hdk-fs-lg); font-weight: var(--hdk-fw-bold); border-top: 2px solid var(--hdk-fg); }
+@media print { .hdk-table--document { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }
+</style>
+  <table>
+    <caption data-slot="title">표 제목 자리</caption>
+    <thead><tr><th>항목</th><th data-align="num">수량</th><th data-align="num">단가</th><th data-align="num">금액</th></tr></thead>
+    <tbody data-slot="items"><tr data-slot="item"><td>항목명 자리<br><small style="color:var(--hdk-fg-muted)">설명 자리</small></td><td data-align="num">0</td><td data-align="num">0</td><td data-align="num">0</td></tr></tbody>
+    <tfoot><tr><td colspan="3" class="hdk-table__total-label">합계</td><td data-align="num" class="hdk-table__total" data-slot="total">0</td></tr></tfoot>
+  </table>
+</section>

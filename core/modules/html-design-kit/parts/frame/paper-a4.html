@@ -1,0 +1,26 @@
+<!--
+part: frame
+variant: paper-a4
+source: sparksuite/simple-html-invoice-template
+fits: any
+mood: airy, corporate
+slots: content
+requires: none
+added: 2026-08-25
+spec: 0.5
+notes: 문서 골격. 화면에서는 종이 한 장이 회색 배경 위에 떠 있고, 인쇄 시 배경·그림자 제거 + A4 여백. 인보이스·보고서·명세서용
+-->
+<section data-part="frame" data-variant="paper-a4" class="hdk-frame hdk-frame--paper-a4">
+<style>
+.hdk-frame--paper-a4 { min-height: 100vh; padding: var(--hdk-sp-4); background: var(--hdk-bg); }
+.hdk-frame--paper-a4 .hdk-frame__paper { max-width: 800px; /* 구조 치수: A4 비율 근사 */ margin: 0 auto; padding: var(--hdk-sp-6);
+  background: var(--hdk-bg-elev); border: 1px solid var(--hdk-line); border-radius: var(--hdk-radius-sm); box-shadow: var(--hdk-shadow-md); }
+@media (min-width: 640px) { .hdk-frame--paper-a4 { padding: var(--hdk-sp-7) var(--hdk-sp-4); } .hdk-frame--paper-a4 .hdk-frame__paper { padding: var(--hdk-sp-8); } } /* sm */
+@media print {
+  .hdk-frame--paper-a4 { padding: 0; background: none; }
+  .hdk-frame--paper-a4 .hdk-frame__paper { max-width: none; margin: 0; padding: 0; border: 0; box-shadow: none; border-radius: 0; }
+  @page { size: A4; margin: 18mm; }
+}
+</style>
+  <div class="hdk-frame__paper" data-region="content"><!-- table.document / section … --></div>
+</section>

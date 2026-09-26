@@ -1,0 +1,36 @@
+<!--
+part: tabs
+variant: card-attached
+source: ColorlibHQ/gentelella
+fits: section, card
+mood: dense, corporate
+slots: items, item, label, panels, panel
+requires: none
+added: 2026-08-25
+spec: 0.5
+notes: 활성 탭이 아래 카드와 이어지는 폴더 탭 형태. 탭 내용이 카드 안에서 보여야 할 때
+-->
+<section data-part="tabs" data-variant="card-attached" data-init="tabs.card-attached" class="hdk-tabs hdk-tabs--card-attached">
+<style>
+.hdk-tabs--card-attached .hdk-tabs__list { display: flex; gap: var(--hdk-sp-1); margin: 0; padding: 0 var(--hdk-sp-2); list-style: none; }
+.hdk-tabs--card-attached .hdk-tabs__tab { padding: var(--hdk-sp-2) var(--hdk-sp-4); border: 1px solid transparent; border-bottom: 0; border-radius: var(--hdk-radius-md) var(--hdk-radius-md) 0 0; background: none; color: var(--hdk-fg-muted); font-size: var(--hdk-fs-sm); cursor: pointer; margin-bottom: -1px; }
+.hdk-tabs--card-attached .hdk-tabs__tab:hover { color: var(--hdk-fg); }
+.hdk-tabs--card-attached .hdk-tabs__tab[aria-selected="true"] { background: var(--hdk-bg-elev); border-color: var(--hdk-line); color: var(--hdk-fg); font-weight: var(--hdk-fw-medium); position: relative; z-index: 1; }
+.hdk-tabs--card-attached .hdk-tabs__panel { padding: var(--hdk-sp-4); background: var(--hdk-bg-elev); border: 1px solid var(--hdk-line); border-radius: var(--hdk-radius-lg); color: var(--hdk-fg-muted); font-size: var(--hdk-fs-sm); }
+.hdk-tabs--card-attached .hdk-tabs__panel[hidden] { display: none; }
+</style>
+  <div class="hdk-tabs__list" role="tablist" data-slot="items">
+    <button class="hdk-tabs__tab" role="tab" aria-selected="true" data-slot="item"><span data-slot="label">탭 1</span></button>
+    <button class="hdk-tabs__tab" role="tab" aria-selected="false"><span>탭 2</span></button>
+    <button class="hdk-tabs__tab" role="tab" aria-selected="false"><span>탭 3</span></button>
+  </div>
+  <div data-slot="panels">
+    <div class="hdk-tabs__panel" role="tabpanel" data-slot="panel">패널 1 내용 자리</div>
+    <div class="hdk-tabs__panel" role="tabpanel" hidden>패널 2 내용 자리</div>
+    <div class="hdk-tabs__panel" role="tabpanel" hidden>패널 3 내용 자리</div>
+  </div>
+<script>
+hdk.register('tabs.card-attached', function (root) {const r=root,t=[...r.querySelectorAll('.hdk-tabs__tab')],p=[...r.querySelectorAll('.hdk-tabs__panel')];
+t.forEach((b,i)=>b.addEventListener('click',()=>{t.forEach((x,k)=>x.setAttribute('aria-selected',String(k===i)));p.forEach((x,k)=>x.hidden=k!==i);}));});
+</script>
+</section>

@@ -1,0 +1,40 @@
+<!--
+part: timeline
+variant: alternating
+source: startbootstrap/startbootstrap-agency
+fits: frame.scroll-stack, section
+mood: airy, editorial
+slots: title, items, item, meta, title, body
+requires: none
+added: 2026-08-25
+spec: 0.5
+notes: 중앙선 기준 좌우 번갈아. 회사 연혁·프로젝트 여정용. md 미만: vertical 과 같은 한 줄
+-->
+<section data-part="timeline" data-variant="alternating" class="hdk-timeline hdk-timeline--alternating">
+<style>
+.hdk-timeline--alternating { padding: var(--hdk-sp-8) var(--hdk-sp-4); }
+.hdk-timeline--alternating .hdk-timeline__heading { margin: 0 0 var(--hdk-sp-6); text-align: center; font-family: var(--hdk-font-display); font-size: var(--hdk-fs-2xl); font-weight: var(--hdk-fw-bold); }
+.hdk-timeline--alternating .hdk-timeline__list { list-style: none; margin: 0 auto; padding: 0; max-width: 860px; position: relative; display: grid; gap: var(--hdk-sp-6); }
+.hdk-timeline--alternating .hdk-timeline__list::before { content: ""; position: absolute; top: 0; bottom: 0; left: 15px; width: 1px; background: var(--hdk-line-strong); }
+.hdk-timeline--alternating .hdk-timeline__item { position: relative; padding-left: var(--hdk-sp-7); }
+.hdk-timeline--alternating .hdk-timeline__dot { position: absolute; left: 0; top: 0; width: 32px; height: 32px; border-radius: var(--hdk-radius-full); background: var(--hdk-accent); color: var(--hdk-accent-fg); display: grid; place-items: center; font-family: var(--hdk-font-mono); font-size: var(--hdk-fs-xs); font-weight: var(--hdk-fw-bold); }
+.hdk-timeline--alternating .hdk-timeline__card { padding: var(--hdk-sp-4); background: var(--hdk-bg-elev); border: 1px solid var(--hdk-line); border-radius: var(--hdk-radius-lg); }
+.hdk-timeline--alternating .hdk-timeline__meta { margin: 0; font-size: var(--hdk-fs-xs); color: var(--hdk-accent); letter-spacing: var(--hdk-tracking-caps); text-transform: uppercase; }
+.hdk-timeline--alternating .hdk-timeline__title { margin: var(--hdk-sp-1) 0; font-size: var(--hdk-fs-lg); font-weight: var(--hdk-fw-bold); }
+.hdk-timeline--alternating .hdk-timeline__body { margin: 0; color: var(--hdk-fg-muted); font-size: var(--hdk-fs-sm); }
+@media (min-width: 1024px) { /* md */
+  .hdk-timeline--alternating .hdk-timeline__list::before { left: 50%; }
+  .hdk-timeline--alternating .hdk-timeline__item { width: 50%; padding-left: 0; padding-right: var(--hdk-sp-7); }
+  .hdk-timeline--alternating .hdk-timeline__item:nth-child(even) { margin-left: 50%; padding-right: 0; padding-left: var(--hdk-sp-7); }
+  .hdk-timeline--alternating .hdk-timeline__item .hdk-timeline__dot { left: auto; right: -16px; }
+  .hdk-timeline--alternating .hdk-timeline__item:nth-child(even) .hdk-timeline__dot { right: auto; left: -16px; }
+  .hdk-timeline--alternating .hdk-timeline__item:nth-child(odd) .hdk-timeline__card { text-align: right; }
+}
+</style>
+  <h2 class="hdk-timeline__heading" data-slot="title">연혁 제목 자리</h2>
+  <ol class="hdk-timeline__list" data-slot="items">
+    <li class="hdk-timeline__item" data-slot="item"><span class="hdk-timeline__dot">1</span><div class="hdk-timeline__card"><p class="hdk-timeline__meta" data-slot="meta">연도 자리</p><h3 class="hdk-timeline__title" data-slot="title">사건 제목 자리</h3><p class="hdk-timeline__body" data-slot="body">설명 자리</p></div></li>
+    <li class="hdk-timeline__item"><span class="hdk-timeline__dot">2</span><div class="hdk-timeline__card"><p class="hdk-timeline__meta">연도 자리</p><h3 class="hdk-timeline__title">사건 제목 자리</h3><p class="hdk-timeline__body">설명 자리</p></div></li>
+    <li class="hdk-timeline__item"><span class="hdk-timeline__dot">3</span><div class="hdk-timeline__card"><p class="hdk-timeline__meta">연도 자리</p><h3 class="hdk-timeline__title">사건 제목 자리</h3><p class="hdk-timeline__body">설명 자리</p></div></li>
+  </ol>
+</section>

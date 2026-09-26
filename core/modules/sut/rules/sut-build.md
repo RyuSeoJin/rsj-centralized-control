@@ -31,7 +31,7 @@
 - 결함 주입의 종별·주입 지점·기대 탐지 TC는 프로젝트의 fault-injection 명세가 정본입니다
 - **SUT는 문서가 아니라 프로그램이므로 자기완결 단일 파일 규칙의 예외입니다.** HTML·JS·CSS를
   파일로 나눠 쓰고, CSS·JS를 고치면 `index.html`의 캐시 무효화 번호를 함께 올립니다.
-  문서 쪽 규칙은 `html-report-guide.md` §대원칙에 있습니다
+  문서 쪽 규칙은 `core/modules/qa-site/rules/qa-report-design.md` §대원칙에 있습니다
   코드와 청사진이 어긋나면 청사진을 먼저 고칩니다
 
 ## 2. 결함 주입 매트릭스

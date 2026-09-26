@@ -1,0 +1,26 @@
+<!--
+part: modal
+variant: toast
+source: tabler/tabler
+fits: any
+mood: dense, tech
+slots: title, body
+requires: none
+added: 2026-08-25
+spec: 0.5
+notes: 우하단 알림. data-tone="success|warning|danger|info". 조립 단계에서 position:fixed 컨테이너에 append. 프리뷰는 data-inline
+-->
+<section data-part="modal" data-variant="toast" class="hdk-modal hdk-modal--toast" data-tone="success" role="status">
+<style>
+.hdk-modal--toast { display: flex; gap: var(--hdk-sp-3); align-items: flex-start; width: min(360px, 90vw); padding: var(--hdk-sp-3) var(--hdk-sp-4); background: var(--hdk-bg-elev-2); border: 1px solid var(--hdk-line); border-left: 3px solid var(--hdk-fg-faint); border-radius: var(--hdk-radius-md); box-shadow: var(--hdk-shadow-lg); font-size: var(--hdk-fs-sm); }
+.hdk-modal--toast[data-tone="success"] { border-left-color: var(--hdk-success); }
+.hdk-modal--toast[data-tone="warning"] { border-left-color: var(--hdk-warning); }
+.hdk-modal--toast[data-tone="danger"]  { border-left-color: var(--hdk-danger); }
+.hdk-modal--toast[data-tone="info"]    { border-left-color: var(--hdk-info); }
+.hdk-modal--toast .hdk-modal__title { margin: 0; font-weight: var(--hdk-fw-medium); }
+.hdk-modal--toast .hdk-modal__body { margin: 2px 0 0; color: var(--hdk-fg-muted); font-size: var(--hdk-fs-xs); }
+.hdk-modal--toast .hdk-modal__close { margin-left: auto; border: 0; background: none; color: var(--hdk-fg-faint); cursor: pointer; line-height: 1; }
+</style>
+  <div><p class="hdk-modal__title" data-slot="title">알림 제목 자리</p><p class="hdk-modal__body" data-slot="body">알림 본문 자리</p></div>
+  <button class="hdk-modal__close" type="button" aria-label="닫기" onclick="this.closest('[data-part=modal]').remove()">×</button>
+</section>

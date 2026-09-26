@@ -1,0 +1,24 @@
+<!--
+part: avatar
+variant: status-dot
+source: satnaing/shadcn-admin
+fits: topbar, feed, sidebar
+mood: dense, tech
+slots: image, label
+requires: none
+added: 2026-08-25
+spec: 0.5
+notes: 우하단 상태 점. data-status="online|away|offline|busy". 채팅·멤버 목록용
+-->
+<section data-part="avatar" data-variant="status-dot" class="hdk-avatar hdk-avatar--status-dot" data-status="online">
+<style>
+.hdk-avatar--status-dot { position: relative; display: inline-flex; }
+.hdk-avatar--status-dot .hdk-avatar__img { width: 36px; height: 36px; display: grid; place-items: center; border-radius: var(--hdk-radius-full); background: var(--hdk-bg-elev-2); color: var(--hdk-fg-muted); font-size: var(--hdk-fs-sm); font-weight: var(--hdk-fw-medium); overflow: hidden; }
+.hdk-avatar--status-dot .hdk-avatar__img img { width: 100%; height: 100%; object-fit: cover; }
+.hdk-avatar--status-dot::after { content: ""; position: absolute; right: 0; bottom: 0; width: 11px; height: 11px; border-radius: var(--hdk-radius-full); background: var(--hdk-fg-faint); border: 2px solid var(--hdk-bg-elev); }
+.hdk-avatar--status-dot[data-status="online"]::after { background: var(--hdk-success); }
+.hdk-avatar--status-dot[data-status="away"]::after { background: var(--hdk-warning); }
+.hdk-avatar--status-dot[data-status="busy"]::after { background: var(--hdk-danger); }
+</style>
+  <span class="hdk-avatar__img" data-slot="image"><span data-slot="label">JH</span></span>
+</section>

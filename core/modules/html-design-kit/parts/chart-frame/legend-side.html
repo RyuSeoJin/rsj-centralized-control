@@ -1,0 +1,31 @@
+<!--
+part: chart-frame
+variant: legend-side
+source: ColorlibHQ/AdminLTE
+fits: card, section
+mood: dense, corporate
+slots: title, canvas, items, item, label, value
+requires: badge.dot
+added: 2026-08-25
+spec: 0.5
+notes: 좌 차트(도넛·파이) + 우 범례 목록(라벨·값). 구성비 표시용
+-->
+<section data-part="chart-frame" data-variant="legend-side" class="hdk-chart-frame hdk-chart-frame--legend-side">
+<style>
+.hdk-chart-frame--legend-side { display: grid; gap: var(--hdk-sp-4); align-items: center; }
+.hdk-chart-frame--legend-side .hdk-chart-frame__title { margin: 0 0 var(--hdk-sp-2); font-size: var(--hdk-fs-sm); font-weight: var(--hdk-fw-medium); grid-column: 1 / -1; }
+.hdk-chart-frame--legend-side .hdk-chart-frame__canvas { aspect-ratio: 1; max-width: 200px; margin: 0 auto; border-radius: var(--hdk-radius-full); background: conic-gradient(var(--hdk-accent) 0 45%, var(--hdk-info) 45% 75%, var(--hdk-warning) 75% 90%, var(--hdk-line) 90%); position: relative; }
+.hdk-chart-frame--legend-side .hdk-chart-frame__canvas::before { content: ""; position: absolute; inset: 28%; border-radius: inherit; background: var(--hdk-bg-elev); }
+.hdk-chart-frame--legend-side .hdk-chart-frame__list { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--hdk-sp-2); font-size: var(--hdk-fs-sm); }
+.hdk-chart-frame--legend-side .hdk-chart-frame__item { display: flex; justify-content: space-between; gap: var(--hdk-sp-3); padding-bottom: var(--hdk-sp-2); border-bottom: 1px solid var(--hdk-line); }
+.hdk-chart-frame--legend-side .hdk-chart-frame__value { font-family: var(--hdk-font-mono); font-variant-numeric: tabular-nums; color: var(--hdk-fg-muted); }
+@media (min-width: 640px) { .hdk-chart-frame--legend-side { grid-template-columns: 1fr 1fr; } } /* sm */
+</style>
+  <h4 class="hdk-chart-frame__title" data-slot="title">차트 제목 자리</h4>
+  <div class="hdk-chart-frame__canvas" data-slot="canvas"></div>
+  <ul class="hdk-chart-frame__list" data-slot="items">
+    <li class="hdk-chart-frame__item" data-slot="item"><span data-slot="label"><!-- badge.dot --> 항목 자리</span><span class="hdk-chart-frame__value" data-slot="value">45%</span></li>
+    <li class="hdk-chart-frame__item"><span>항목 자리</span><span class="hdk-chart-frame__value">30%</span></li>
+    <li class="hdk-chart-frame__item"><span>항목 자리</span><span class="hdk-chart-frame__value">15%</span></li>
+  </ul>
+</section>

@@ -1,0 +1,34 @@
+<!--
+part: sidebar
+variant: accordion-groups
+source: ColorlibHQ/AdminLTE
+fits: frame.sidebar-shell
+mood: dense, corporate
+slots: logo, items, item, label, children
+requires: none
+added: 2026-08-25
+spec: 0.5
+notes: 상위 메뉴를 펼치면 하위 메뉴가 나오는 트리형. 메뉴가 20개 이상일 때. <details> 기반이라 JS 없음
+-->
+<section data-part="sidebar" data-variant="accordion-groups" class="hdk-sidebar hdk-sidebar--accordion-groups">
+<style>
+.hdk-sidebar--accordion-groups { padding: var(--hdk-sp-3) var(--hdk-sp-2); }
+.hdk-sidebar--accordion-groups .hdk-sidebar__logo { padding: var(--hdk-sp-2) var(--hdk-sp-3) var(--hdk-sp-4); font-family: var(--hdk-font-display); font-weight: var(--hdk-fw-bold); font-size: var(--hdk-fs-lg); }
+.hdk-sidebar--accordion-groups details { margin-bottom: var(--hdk-sp-1); }
+.hdk-sidebar--accordion-groups summary { list-style: none; display: flex; align-items: center; gap: var(--hdk-sp-2); padding: var(--hdk-sp-2) var(--hdk-sp-3); border-radius: var(--hdk-radius-md); color: var(--hdk-fg); font-size: var(--hdk-fs-sm); font-weight: var(--hdk-fw-medium); cursor: pointer; }
+.hdk-sidebar--accordion-groups summary::-webkit-details-marker { display: none; }
+.hdk-sidebar--accordion-groups summary:hover { background: var(--hdk-bg-elev-2); }
+.hdk-sidebar--accordion-groups summary::after { content: ""; margin-left: auto; width: 6px; height: 6px; border-right: 1.5px solid var(--hdk-fg-faint); border-bottom: 1.5px solid var(--hdk-fg-faint); transform: rotate(-45deg); transition: transform var(--hdk-dur-fast); }
+.hdk-sidebar--accordion-groups details[open] summary::after { transform: rotate(45deg); }
+.hdk-sidebar--accordion-groups .hdk-sidebar__children { list-style: none; margin: 0; padding: var(--hdk-sp-1) 0 var(--hdk-sp-2) var(--hdk-sp-5); }
+.hdk-sidebar--accordion-groups .hdk-sidebar__children a { display: block; padding: var(--hdk-sp-1) var(--hdk-sp-3); border-left: 1px solid var(--hdk-line); color: var(--hdk-fg-muted); text-decoration: none; font-size: var(--hdk-fs-sm); }
+.hdk-sidebar--accordion-groups .hdk-sidebar__children a:hover { color: var(--hdk-fg); }
+.hdk-sidebar--accordion-groups .hdk-sidebar__children a[aria-current="page"] { color: var(--hdk-accent); border-left-color: var(--hdk-accent); margin-left: -1px; }
+</style>
+  <div class="hdk-sidebar__logo" data-slot="logo">서비스명 자리</div>
+  <div data-slot="items">
+    <details open data-slot="item"><summary><span data-slot="label">상위 메뉴 자리</span></summary>
+      <ul class="hdk-sidebar__children" data-slot="children"><li><a href="#" aria-current="page">하위 메뉴 자리</a></li><li><a href="#">하위 메뉴 자리</a></li></ul></details>
+    <details><summary><span>상위 메뉴 자리</span></summary><ul class="hdk-sidebar__children"><li><a href="#">하위 메뉴 자리</a></li></ul></details>
+  </div>
+</section>
