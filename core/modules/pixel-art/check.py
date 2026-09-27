@@ -63,6 +63,18 @@ def flow():
         if abs(g - 7.5) > 0.2 or back.crop(back.getbbox()).size != (18, 36):
             fails.append("도트 격자 되읽기 — 간격 %.2f(기대 7.5), 크기 %s(기대 18x36)"
                          % (g, back.crop(back.getbbox()).size))
+        # --native는 일부러 찍은 한 점(눈동자 등)을 지우면 안 됩니다
+        lone = Image.new("RGBA", (24, 40), (0, 0, 0, 0))
+        for y in range(4, 36):
+            for x in range(6, 18):
+                lone.putpixel((x, y), sp.palette[sp.c("SKIN", 1)] + (255,))
+        eye = sp.palette[sp.c("EYE", 2)] + (255,)
+        lone.putpixel((11, 10), eye)
+        # 경계가 거의 없는 그림이라 격자는 직접 줍니다 — 여기서 보는 것은 외톨이 정리입니다
+        drawn = pixelize.pixelize(lone.resize((192, 320), Image.NEAREST), sp, native=True, grid=8,
+                                  edge="none")
+        if eye not in [p for p in drawn.getdata()]:
+            fails.append("--native가 한 점짜리 포인트 색(눈동자)을 지웠습니다")
         small = dots.resize((96, 160), Image.NEAREST)                  # 4배 — 간격을 직접 줍니다
         g, ox, oy, _ = pixelize.detect_grid(small, 4)
         back = pixelize.sample_native(small, g, ox, oy)

@@ -11,7 +11,9 @@
        도트가 번지고 섞여 원본보다 흐려지기 때문입니다.
   3. 팔레트의 가장 가까운 색으로 바꿉니다 — 외곽선 색은 후보에서 뺍니다. 어두운 색이 외곽선 색으로
      바뀐 뒤 5단계에서 선을 한 번 더 두르면 선이 두 겹이 됩니다.
-  4. 외톨이 픽셀을 주변 다수 색으로 바꿉니다 — 축소가 남기는 점 노이즈입니다.
+  4. 외톨이 픽셀을 주변 다수 색으로 바꿉니다 — 축소가 남기는 점 노이즈입니다. --native에서는 하지
+     않습니다. 원본 도트를 그대로 읽으면 노이즈가 없고, 눈동자 · 하이라이트 · 입처럼 일부러 찍은 한 점이
+     지워지기 때문입니다(시험에서 한쪽 눈의 파랑과 입이 사라졌습니다).
   5. 실루엣 가장자리를 셀아웃으로 바꿉니다 — 바깥 선은 재질의 가장 어두운 단계입니다.
   6. 캔버스의 발바닥 기준선과 중심선에 맞춰 놓습니다.
 
@@ -221,7 +223,7 @@ def pixelize(img, sp, height=None, ramps=None, edge="selout", keep_singles=False
     def at(x, y):
         return grid[y][x] if 0 <= x < w and 0 <= y < height else 0
 
-    if not keep_singles:
+    if not keep_singles and not native:
         for _ in range(2):
             out = [row[:] for row in grid]
             for y in range(height):
