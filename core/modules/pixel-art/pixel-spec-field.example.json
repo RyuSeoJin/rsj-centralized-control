@@ -4,8 +4,9 @@
   "center_x": 32,
   "light": "top-left",
   "facing": "left",
+  "body_box": [16, 28, 47, 59],
   "anchors": {
-    "head_top": 28, "eye": 40, "chin": 46, "shoulder": 47, "waist": 51,
+    "head_top": 28, "eye": 41, "chin": 46, "shoulder": 47, "waist": 51,
     "crotch": 53, "knee": 55, "ankle": 57, "sole": 59, "ground": 60
   },
   "palette": {

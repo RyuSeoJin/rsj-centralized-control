@@ -42,6 +42,7 @@
 | `slots` | 표준 슬롯 이름, 뒤에서 앞 순서 (`pixel-rig.md` §2) |
 | `bones` | 뼈 이름 → [부모, x, y] (캔버스 좌표) |
 | `slot_bone` | 슬롯 → 붙는 뼈 |
+| `body_box` | 캐릭터 상자 `[x0, y0, x1, y1]` — 몸 · 머리 · 머리카락의 고정 범위 (`pixel-style.md` §9-1) |
 | `facing` | 기준 방향 — `left`(기본) · `right` · `front`. 반대 방향은 좌우 반전 (`pixel-anim.md` §2) |
 | `animations` | 프레임 애니메이션일 때만 — 태그 → 프레임 수 · ms · 반복 · 앵커 이동량 (`pixel-anim.md` §3 · §4-2) |
 

@@ -60,6 +60,12 @@ class Spec:
             self._start[n] = len(self.palette)
             self.palette += self.ramps[n]
         self.colors_max = int(data.get("limits", {}).get("colors_max", 48))
+        # 캐릭터 상자 (rules/pixel-style.md §9-1) — 몸 · 머리 · 머리카락이 들어가는 고정 네모. 없으면 None
+        bb = data.get("body_box")
+        self.body_box = tuple(int(v) for v in bb) if bb else None
+        if self.body_box and not (0 <= self.body_box[0] < self.body_box[2] < self.width
+                                  and 0 <= self.body_box[1] < self.body_box[3] < self.height):
+            raise ValueError("%s: body_box가 캔버스 밖이거나 뒤집혀 있습니다" % path)
         self.slots = list(data.get("slots", []))
         self.bones = {k: (v[0], float(v[1]), float(v[2])) for k, v in data.get("bones", {}).items()}
         self.slot_bone = dict(data.get("slot_bone", {}))
