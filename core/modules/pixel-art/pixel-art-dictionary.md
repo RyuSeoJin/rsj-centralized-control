@@ -21,6 +21,7 @@
 | 스킨 | 같은 슬롯들에 끼우는 캐릭터별 그림 묶음 | `rules/pixel-rig.md` |
 | 기본 자세 | 모든 캐릭터가 같은 뼈대를 쓰기 위해 공유하는 자세 | `rules/pixel-rig.md` §4 |
 | 포즈 일러스트 | 규약 밖에서 따로 그리는 특정 포즈 그림. 파츠로 나누지 않습니다 | `rules/pixel-rig.md` §4 |
+| 레퍼런스 세트 | 스타일 기준 그림 묶음에 붙인 이름. 측정값과 특징을 `reference/{이름}.md`에 둡니다 | `rules/pixel-style.md` §10 |
 | 필드 스프라이트 · 초상화 | 게임 안을 움직이는 작은 그림(치비) · 정보 화면의 큰 그림(등신대) — 용도별 사양 | `rules/pixel-style.md` §1 · §9 |
 | 기준 방향 | 캐릭터를 그리는 한 방향. 반대쪽은 좌우 반전 | `rules/pixel-anim.md` §2 |
 | 동작 태그 | 동작 하나에 해당하는 Aseprite 태그(`idle` · `walk` …) | `rules/pixel-anim.md` §3 |

@@ -13,7 +13,7 @@
 
 | 갈래 | 무엇 |
 |---|---|
-| 규칙 | `rules/pixel-style.md`(스타일 · 치비 §9) · `rules/pixel-pipeline.md`(제작 절차) · `rules/pixel-rig.md`(Spine 리깅) · `rules/pixel-anim.md`(프레임 애니메이션) |
+| 규칙 | `rules/pixel-style.md`(스타일 · 치비 §9 · 레퍼런스 세트 §10) · `rules/pixel-pipeline.md`(제작 절차) · `rules/pixel-rig.md`(Spine 리깅) · `rules/pixel-anim.md`(프레임 애니메이션) |
 | 용어 | `pixel-art-dictionary.md` |
 | 도구 | `scripts/`의 변환(`pixelize.py`) · 팔레트 제안(`palette_suggest.py`) · 레이어 쌓기(`sprite_build.py`) · 동작 합성(`anim_build.py`) · 검사(`lint.py`) · 라인업 시트(`lineup.py`) · Spine 뼈대(`spine_rig.py`) |
 | 프로젝트 폴더 | `source/`(입력 그림) · `sprites/`(원본 `.aseprite`) · `export/`(다시 만들 수 있는 파생물) |

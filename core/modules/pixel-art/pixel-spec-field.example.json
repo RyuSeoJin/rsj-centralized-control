@@ -5,8 +5,8 @@
   "light": "top-left",
   "facing": "left",
   "anchors": {
-    "head_top": 12, "eye": 25, "chin": 33, "shoulder": 35, "waist": 43,
-    "crotch": 47, "knee": 53, "ankle": 57, "sole": 59, "ground": 60
+    "head_top": 28, "eye": 40, "chin": 46, "shoulder": 47, "waist": 51,
+    "crotch": 53, "knee": 55, "ankle": 57, "sole": 59, "ground": 60
   },
   "palette": {
     "outline": "#221A26",
