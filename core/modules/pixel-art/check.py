@@ -19,6 +19,7 @@ import modcheck  # noqa: E402
 def flow():
     from PIL import Image, ImageDraw
     import lint
+    import palette_suggest
     import pixelize
     import pixkit
     import spec as specmod
@@ -34,7 +35,7 @@ def flow():
         d.rectangle((120, 140, 280, 460), fill=sp.palette[sp.c("CLOTH_A", 1)])
         d.rectangle((130, 460, 190, 820), fill=sp.palette[sp.c("SKIN", 2)])
         d.rectangle((210, 460, 270, 820), fill=sp.palette[sp.c("SKIN", 2)])
-        out = pixelize.pixelize(big, sp, height=102)
+        out = pixelize.pixelize(big, sp, height=sp.anchors["sole"] - sp.anchors["head_top"] + 1)
         png = os.path.join(tmp, "probe.png")
         out.save(png)
         n, lint_fails, _ = lint.lint(out, sp)
@@ -49,6 +50,27 @@ def flow():
         doc = spine_rig.build(sp, ["probe"], tmp)
         if len(doc["bones"]) != len(sp.bones) or len(doc["slots"]) != len(sp.slots):
             fails.append("Spine 뼈대의 뼈 · 슬롯 수가 사양과 다릅니다")
+        # 도트 그림을 소수배(7.5배)로 키운 입력: 격자를 찾아 원본 도트를 그대로 되읽어야 합니다
+        import random
+        rnd = random.Random(7)
+        dots = Image.new("RGBA", (24, 40), (0, 0, 0, 0))
+        for y in range(2, 38):
+            for x in range(3, 21):
+                dots.putpixel((x, y), sp.palette[sp.c(rnd.choice(sp.ramp_names), rnd.randrange(3))] + (255,))
+        scaled = dots.resize((180, 300), Image.NEAREST)
+        g, ox, oy, _ = pixelize.detect_grid(scaled)
+        back = pixelize.sample_native(scaled, g, ox, oy)
+        if abs(g - 7.5) > 0.2 or back.crop(back.getbbox()).size != (18, 36):
+            fails.append("도트 격자 되읽기 — 간격 %.2f(기대 7.5), 크기 %s(기대 18x36)"
+                         % (g, back.crop(back.getbbox()).size))
+        small = dots.resize((96, 160), Image.NEAREST)                  # 4배 — 간격을 직접 줍니다
+        g, ox, oy, _ = pixelize.detect_grid(small, 4)
+        back = pixelize.sample_native(small, g, ox, oy)
+        if back.crop(back.getbbox()).size != (18, 36):
+            fails.append("격자 직접 지정(4배) — 크기 %s(기대 18x36)" % (back.crop(back.getbbox()).size,))
+        pal = palette_suggest.suggest(dots)
+        if not pal["ramps"]:
+            fails.append("팔레트 제안이 램프를 만들지 못했습니다")
     return fails
 
 
