@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "canvas": {"width": 64, "height": 64},
+  "center_x": 32,
+  "light": "top-left",
+  "facing": "left",
+  "anchors": {
+    "head_top": 12, "eye": 25, "chin": 33, "shoulder": 35, "waist": 43,
+    "crotch": 47, "knee": 53, "ankle": 57, "sole": 59, "ground": 60
+  },
+  "palette": {
+    "outline": "#221A26",
+    "ramps": {
+      "SKIN": ["#FFF1E4", "#F6D2BC", "#E2A895", "#B87574"],
+      "HAIR": ["#FFE6A6", "#F2C069", "#CC8A45", "#8F5438"],
+      "CLOTH_A": ["#9FC3E8", "#6A8FC9", "#4A63A0", "#353F75"],
+      "CLOTH_B": ["#FAF6F0", "#E3DCD8", "#BCB0BC", "#8A7D97"],
+      "LEATHER": ["#D8A87A", "#A8744C", "#7A4E38", "#523030"],
+      "METAL": ["#F4F7FA", "#C3CCD8", "#8C97AD", "#5B637F"],
+      "ACCENT": ["#FFB0A0", "#E8646A", "#B43A56", "#7A2446"],
+      "EYE": ["#FFFFFF", "#7FD0E0", "#3E8FB8", "#2A4F80"]
+    }
+  },
+  "limits": {"colors_max": 32},
+  "animations": {
+    "idle": {"frames": 4, "ms": [260, 200, 260, 200], "loop": true,
+             "offsets": {"head": [[0, 0], [0, 0], [0, 1], [0, 1]],
+                         "body": [[0, 0], [0, 0], [0, 1], [0, 1]],
+                         "hand_R": [[0, 0], [0, 0], [0, 1], [0, 1]]}},
+    "walk": {"frames": 8, "ms": 100, "loop": true,
+             "offsets": {"head": [[0, 0], [0, -1], [0, -1], [0, 0], [0, 0], [0, -1], [0, -1], [0, 0]],
+                         "body": [[0, 0], [0, -1], [0, -1], [0, 0], [0, 0], [0, -1], [0, -1], [0, 0]],
+                         "hand_R": [[1, 0], [1, -1], [0, -1], [-1, 0], [-1, 0], [-1, -1], [0, -1], [1, 0]]}}
+  }
+}

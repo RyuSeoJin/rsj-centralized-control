@@ -83,6 +83,52 @@ def flow():
         pal = palette_suggest.suggest(dots)
         if not pal["ramps"]:
             fails.append("팔레트 제안이 램프를 만들지 못했습니다")
+        fails += anim_flow(tmp)
+    return fails
+
+
+def anim_flow(tmp):
+    """공통 몸체 + 파츠 합성: 파츠가 앵커 이동량만큼 옮겨지고 시트 · 반전 시트 · Lua가 나오는지."""
+    import json
+    from PIL import Image
+    import anim_build
+    import spec as specmod
+    fails = []
+    sp = specmod.load(os.path.join(HERE, "pixel-spec-field.example.json"))
+    body, parts, out = (os.path.join(tmp, d) for d in ("body", "parts", "out"))
+    skin = sp.palette[sp.c("SKIN", 1)] + (255,)
+    hair = sp.palette[sp.c("HAIR", 1)] + (255,)
+    for tag, a in sp.animations.items():
+        os.makedirs(os.path.join(body, tag))
+        for f in range(a["frames"]):
+            im = Image.new("RGBA", (sp.width, sp.height), (0, 0, 0, 0))
+            dx, dy = sp.offset(tag, "body", f)
+            for y in range(30, 60):
+                for x in range(26, 38):
+                    im.putpixel((x + dx, min(59, y + dy)), skin)
+            im.save(os.path.join(body, tag, "%02d.png" % f))
+    os.makedirs(parts)
+    h = Image.new("RGBA", (sp.width, sp.height), (0, 0, 0, 0))
+    for y in range(14, 20):
+        for x in range(26, 38):
+            h.putpixel((x, y), hair)
+    h.save(os.path.join(parts, "hair_front.png"))
+    with open(os.path.join(parts, "parts.json"), "w", encoding="utf-8") as f:
+        json.dump({"order": ["BODY", "hair_front"], "parts": {"hair_front": {"anchor": "head"}}}, f)
+    names, frames, durations, tags = anim_build.compose(sp, body, parts)
+    imgs = anim_build.export(sp, names, frames, durations, tags, out, "probe")
+    # idle 세 번째 프레임에서 머리 앵커는 (0, 1) — 머리카락 맨 윗줄이 14 → 15로 내려가야 합니다
+    top = min(y for y in range(sp.height) for x in range(sp.width) if frames[2]["hair_front"].px[y][x])
+    if top != 15:
+        fails.append("파츠 이동 — idle 3번째 프레임 머리카락 윗줄 %d(기대 15)" % top)
+    if len(frames) != sum(a["frames"] for a in sp.animations.values()):
+        fails.append("프레임 수가 사양의 합과 다릅니다")
+    for fn in ("probe_sheet.png", "probe_sheet_R.png", "probe_sheet.json", "probe_preview.gif"):
+        fails += modcheck.wrote(os.path.join(out, fn), "동작 스프라이트 산출물이 비었습니다")
+    import pixkit
+    lua = os.path.join(out, "probe.lua")
+    pixkit.write_lua_anim(names, frames, durations, tags, sp, lua, os.path.join(out, "probe.aseprite"))
+    fails += modcheck.wrote(lua, "동작 Lua가 비었습니다")
     return fails
 
 

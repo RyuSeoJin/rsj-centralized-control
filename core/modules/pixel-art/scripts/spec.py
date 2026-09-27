@@ -66,6 +66,30 @@ class Spec:
         for s in self.slots:
             if self.bones and self.slot_bone.get(s) not in self.bones:
                 raise ValueError("%s: 슬롯 %r의 뼈대가 bones에 없습니다" % (path, s))
+        # 프레임 애니메이션 (rules/pixel-anim.md) — 없으면 정지 그림 사양입니다
+        self.facing = data.get("facing", "left")
+        if self.facing not in ("left", "right", "front"):
+            raise ValueError("%s: facing은 left · right · front 중 하나입니다" % path)
+        self.animations = {}
+        for tag, a in data.get("animations", {}).items():
+            n = int(a["frames"])
+            ms = a.get("ms", 100)
+            ms = [int(ms)] * n if isinstance(ms, (int, float)) else [int(v) for v in ms]
+            if len(ms) != n:
+                raise ValueError("%s: %s의 ms 개수(%d)가 frames(%d)와 다릅니다" % (path, tag, len(ms), n))
+            offsets = {}
+            for anchor, seq in a.get("offsets", {}).items():
+                if len(seq) != n:
+                    raise ValueError("%s: %s.offsets.%s 개수(%d)가 frames(%d)와 다릅니다"
+                                     % (path, tag, anchor, len(seq), n))
+                offsets[anchor] = [(int(p[0]), int(p[1])) for p in seq]
+            self.animations[tag] = {"frames": n, "ms": ms, "loop": bool(a.get("loop", True)),
+                                    "offsets": offsets}
+
+    def offset(self, tag, anchor, frame):
+        """동작 `tag`의 `frame`번째 프레임에서 앵커가 기본 자세보다 얼마나 움직였나 (dx, dy)."""
+        seq = self.animations[tag]["offsets"].get(anchor)
+        return seq[frame] if seq else (0, 0)
 
     # --- 팔레트 ---------------------------------------------------------
     def c(self, ramp, step):

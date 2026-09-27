@@ -203,3 +203,49 @@ def write_lua(layers, order, spec, lua_path, ase_path, png_path):
     lines.append("spr:saveCopyAs([[%s]])" % os.path.abspath(png_path).replace("\\", "/"))
     with open(lua_path, "w", encoding="utf-8") as f:
         f.write("\n".join(lines) + "\n")
+
+
+def write_lua_anim(order, frames, durations, tags, spec, lua_path, ase_path):
+    """여러 프레임 · 태그를 가진 .aseprite를 만드는 Lua를 씁니다 (rules/pixel-anim.md).
+
+    order: 레이어 이름(뒤 → 앞). frames: 프레임마다 {레이어 이름: Layer}. durations: 프레임마다 ms.
+    tags: [(태그 이름, 첫 프레임 번호, 끝 프레임 번호)] — 번호는 0부터.
+    """
+    w, h = spec.width, spec.height
+    if len(spec.palette) > 256:
+        raise ValueError("Indexed 팔레트는 256색까지입니다")
+    lines = ["local spr = Sprite(%d, %d, ColorMode.INDEXED)" % (w, h),
+             "local pal = Palette(%d)" % len(spec.palette)]
+    for i, c in enumerate(spec.palette):
+        r, g, b = c[:3]
+        a = c[3] if len(c) == 4 else 255
+        lines.append("pal:setColor(%d, Color{r=%d,g=%d,b=%d,a=%d})" % (i, r, g, b, a))
+    lines += ["spr:setPalette(pal)", "spr.transparentColor = 0",
+              "local function fill(layer, frame, data)",
+              "  local img = Image(%d, %d, ColorMode.INDEXED)" % (w, h),
+              "  img:clear(0)",
+              "  for i = 1, #data // 2 do",
+              "    local v = tonumber(data:sub(2 * i - 1, 2 * i), 16)",
+              "    if v > 0 then img:putPixel((i - 1) %% %d, (i - 1) // %d, v) end" % (w, w),
+              "  end",
+              "  spr:newCel(layer, frame, img, Point(0, 0))",
+              "end",
+              "local L = {}"]
+    for i, n in enumerate(order):
+        lines.append(("L[%d] = spr.layers[1]" if i == 0 else "L[%d] = spr:newLayer()") % i)
+        lines.append('L[%d].name = "%s"' % (i, n))
+    for f, layers in enumerate(frames):
+        if f:
+            lines.append("spr:newEmptyFrame(%d)" % (f + 1))
+        lines.append("spr.frames[%d].duration = %.3f" % (f + 1, durations[f] / 1000.0))
+        for i, n in enumerate(order):
+            lay = layers.get(n)
+            if lay is None or lay.empty():
+                continue
+            data = "".join("%02x" % v for row in lay.px for v in row)
+            lines.append('fill(L[%d], %d, "%s")' % (i, f + 1, data))
+    for name, a, b in tags:
+        lines.append('do local t = spr:newTag(%d, %d); t.name = "%s" end' % (a + 1, b + 1, name))
+    lines.append("spr:saveAs([[%s]])" % os.path.abspath(ase_path).replace("\\", "/"))
+    with open(lua_path, "w", encoding="utf-8") as f:
+        f.write("\n".join(lines) + "\n")

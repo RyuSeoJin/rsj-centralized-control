@@ -13,11 +13,11 @@
 
 | 갈래 | 무엇 |
 |---|---|
-| 규칙 | `rules/pixel-style.md`(스타일) · `rules/pixel-pipeline.md`(제작 절차) · `rules/pixel-rig.md`(리깅 규약) |
+| 규칙 | `rules/pixel-style.md`(스타일 · 치비 §9) · `rules/pixel-pipeline.md`(제작 절차) · `rules/pixel-rig.md`(Spine 리깅) · `rules/pixel-anim.md`(프레임 애니메이션) |
 | 용어 | `pixel-art-dictionary.md` |
-| 도구 | `scripts/`의 변환(`pixelize.py`) · 레이어 쌓기(`sprite_build.py`) · 검사(`lint.py`) · 라인업 시트(`lineup.py`) · Spine 뼈대(`spine_rig.py`) |
+| 도구 | `scripts/`의 변환(`pixelize.py`) · 팔레트 제안(`palette_suggest.py`) · 레이어 쌓기(`sprite_build.py`) · 동작 합성(`anim_build.py`) · 검사(`lint.py`) · 라인업 시트(`lineup.py`) · Spine 뼈대(`spine_rig.py`) |
 | 프로젝트 폴더 | `source/`(입력 그림) · `sprites/`(원본 `.aseprite`) · `export/`(다시 만들 수 있는 파생물) |
-| 프로젝트가 쓰는 정본 | 사양 파일 `spec/design/pixel-spec.json` — 켠 뒤 사람이 씁니다. 형식과 예시는 `pixel-spec.example.json` |
+| 프로젝트가 쓰는 정본 | 사양 파일 `spec/design/pixel-spec-{용도}.json` — 켠 뒤 사람이 씁니다. 예시는 `pixel-spec.example.json`(등신대) · `pixel-spec-field.example.json`(치비 · 동작) |
 | 의존성 | `requirements.txt` (Pillow) |
 
 사양 파일은 켤 때 만들지 않습니다. 빈 사양이 있으면 도구가 그 값으로 그림을 찍어 내고, 그것이
@@ -45,6 +45,7 @@ python core/modules/aseprite/scripts/aseprite_env.py
 | 이 모듈로 작업을 시작할 때 (세션마다 한 번) | `core/modules/aseprite/module.md` — 위 점검 명령을 돌립니다 | 점검이 실패하면 그 문서의 「새 컴퓨터 설치」를 먼저 끝냅니다. 설치는 컴퓨터를 바꾸는 일이라 사용자 승인 뒤에만 합니다 |
 | 캐릭터를 새로 만들거나 다듬을 때 | `rules/pixel-style.md` · `rules/pixel-pipeline.md` · 프로젝트의 사양 파일 | 사양 파일이 없으면 값을 추측하지 않고 사양부터 확정받습니다 |
 | 파츠를 나누거나 Spine으로 보낼 때 | `rules/pixel-rig.md` | 사양 파일의 슬롯 · 뼈대를 캐릭터마다 바꾸지 않습니다 |
+| 동작(프레임 애니메이션)을 만들 때 | `rules/pixel-anim.md` | 동작은 공통 몸체에만 그리고, 캐릭터별로 동작 프레임을 새로 그리지 않습니다 |
 | 등신 · 캔버스 · 팔레트를 바꿀 때 | 프로젝트 change-log의 현행 기준 | 이미 만든 캐릭터를 모두 다시 맞춰야 하므로 승인 전에는 바꾸지 않습니다 |
 
 ## 자기 점검

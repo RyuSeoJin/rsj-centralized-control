@@ -26,8 +26,9 @@
 **작업 전에 사양 파일이 확정되어 있어야 합니다.** 없으면 값을 추측해 채우지 않고 사양부터
 확정받습니다 — 캐릭터를 몇 명 만든 뒤 등신이나 캔버스를 바꾸면 전부 다시 맞춰야 합니다.
 
-자리는 프로젝트의 `spec/design/pixel-spec.json`이고, 형식과 예시는 모듈의 `pixel-spec.example.json`
-입니다.
+자리는 프로젝트의 `spec/design/`입니다. 용도가 하나면 `pixel-spec.json`, 용도가 여럿이면
+`pixel-spec-{용도}.json`(예: `field` · `portrait`)으로 나눕니다. 형식과 예시는 모듈의 `pixel-spec.example.json`
+(등신대 · Spine)과 `pixel-spec-field.example.json`(치비 · 프레임 애니메이션)입니다.
 
 | 항목 | 담는 것 |
 |---|---|
@@ -41,6 +42,8 @@
 | `slots` | 표준 슬롯 이름, 뒤에서 앞 순서 (`pixel-rig.md` §2) |
 | `bones` | 뼈 이름 → [부모, x, y] (캔버스 좌표) |
 | `slot_bone` | 슬롯 → 붙는 뼈 |
+| `facing` | 기준 방향 — `left`(기본) · `right` · `front`. 반대 방향은 좌우 반전 (`pixel-anim.md` §2) |
+| `animations` | 프레임 애니메이션일 때만 — 태그 → 프레임 수 · ms · 반복 · 앵커 이동량 (`pixel-anim.md` §3 · §4-2) |
 
 ## 0-1. 캐릭터 팔레트 제안
 
