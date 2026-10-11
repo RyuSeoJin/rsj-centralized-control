@@ -14,8 +14,10 @@ TOP = 1.45                    # 본문이 시작하는 높이 — 제목 아래
 BOTTOM = SH - 0.6             # 본문이 끝나는 높이 — 푸터 위
 
 
+#: 한 카드 안에서 ▼ 소제목 묶음과 다음 ▼ 소제목 사이 틈 — 앞 묶음이 끝난 자리에서 이만큼만 띄웁니다
+SECTION_GAP = 0.22
 #: 카드 높이 = 본문 시작 위치(소제목 아래) + 내용 높이 + 아래 여백 — 카드마다 같은 공식이라 여백이 같습니다
-CARD_BODY = 0.72
+CARD_BODY = 0.64
 CARD_PAD = 0.3
 
 
@@ -43,11 +45,11 @@ def numbered_list(slide, x, y, w, items, size=14, fill=INK):
     마지막 항목 아래 끝 y를 돌려줍니다.
     """
     lh = line_height(size)
-    d = round(lh * 0.82, 3)
+    d = round(size * 1.43 / 72.0, 3)                       # 원 지름 — 본문 한 줄 높이 정도
     gap = size * MARK_GAP / 72.0 + 0.04
     tw = w - d - gap
     for no, body in enumerate(items, 1):
-        mid = y + TEXT_MARGIN + lh / 2.0 - 0.025          # 한글 글자의 눈에 보이는 중심은 줄 상자 중심보다 조금 위
+        mid = glyph_mid(y, size)                           # 첫 줄 글자의 눈에 보이는 중심
         circle(slide, x, mid - d / 2.0, d, fill, str(no), size=max(8, int(size * 0.72)))
         th = est_text_height(body, tw, size, 0)
         text(slide, x + d + gap, y, tw, th + 0.05, body, size=size)
@@ -57,20 +59,28 @@ def numbered_list(slide, x, y, w, items, size=14, fill=INK):
 
 # ── 목차 ──────────────────────────────────────────────────────────────
 
-def draw_toc(slide, entries, x=MX, w=SW - 2 * MX, top=1.5, step=None):
-    """번호 · 제목 · 설명과 오른쪽 끝의 쪽 번호. 제목과 쪽 번호 사이를 옅은 선으로 잇습니다."""
+def draw_toc(slide, entries, x=MX, w=SW - 2 * MX, top=1.5, step=None, link=None):
+    """번호 · 제목 · 설명과 오른쪽 끝의 쪽 번호. 제목과 쪽 번호 사이를 옅은 선으로 잇습니다.
+
+    link(run, page)를 주면 쪽 번호 글자에 그 장으로 가는 링크를 겁니다.
+    """
     step = step or min(1.05, (SH - top - 0.7) / max(1, len(entries)))
     for i, (no, t, lead, page) in enumerate(entries):
         y = top + i * step
         text(slide, x, y, 1.0, 0.7, no, size=28, bold=True, color=ACCENT)
-        # 제목 첫 줄을 큰 번호의 세로 중심에 맞춥니다 — 쪽 번호도 같은 줄에 둡니다
-        mid = y + TEXT_MARGIN + line_height(28) / 2.0
+        # ① 큰 번호와 제목은 글자 중심을 맞춥니다
+        mid = glyph_mid(y, 28)
         ty = first_line_top(mid, 18)
         text(slide, x + 1.1, ty, w - 2.4, line_height(18) + 0.06, t, size=18, bold=True)
-        text(slide, x + 1.1, ty + line_height(18) + 0.04, w - 2.4, 0.36, lead, size=12, color=SUB)
+        ly = ty + line_height(18) + 0.04
+        text(slide, x + 1.1, ly, w - 2.4, 0.36, lead, size=12, color=SUB)
         line(slide, x + 1.1, y + step - 0.12, x + w, y + step - 0.12, color=LINE, width=0.75)
-        text(slide, x + w - 1.2, first_line_top(mid, 16), 1.2, line_height(16) + 0.06, "p. %s" % (page or "—"),
-             size=16, bold=True, color=INK, align="r")
+        # ② 쪽 번호는 제목과 설명 두 줄 묶음의 세로 가운데에 둡니다
+        block = (mid + glyph_mid(ly, 12)) / 2.0
+        pb = text(slide, x + w - 1.2, first_line_top(block, 16), 1.2, line_height(16) + 0.06,
+                  "p. %s" % (page or "—"), size=16, bold=True, color=INK, align="r")
+        if link and page:
+            link(pb.text_frame.paragraphs[0].runs[0], page)
 
 
 # ── 정보 구조도 ───────────────────────────────────────────────────────
@@ -110,13 +120,14 @@ def _node(slide, x, y, w, h, n, k, has_children, fs):
         label += "  ↗"
     root = k == 0
     fill = INK if root else (TINT if has_children else (TAB_FILL if kind == "tab" else WHITE))
-    box(slide, x, y, w, h, fill=fill,
+    shp = box(slide, x, y, w, h, fill=fill,
         line=None if root else (INK if has_children else GRID),
         shape="round",
         dash=kind in ("popup", "external"), label=label.strip(), size=fs,
         color=WHITE if root else INK, bold=has_children, align="l", name="ia-node")
     if n.get("change"):
         badge(slide, x + w - 0.5, y - 0.1, n["change"], size=7)
+    return shp
 
 
 def ia_legend(slide, tree):
@@ -166,18 +177,17 @@ def draw_tree(slide, tree):
         ch = n.get("children") or []
         x = MX + x_off + k * (cw + gap)
         if ch:
-            ys = [place(c, k + 1) for c in ch]
-            y = (ys[0] + ys[-1]) / 2.0
-            mid = x + cw + gap / 2.0
-            line(slide, x + cw, y + nh / 2, mid, y + nh / 2, color=MUTED)
-            line(slide, mid, ys[0] + nh / 2, mid, ys[-1] + nh / 2, color=MUTED)
-            for cy in ys:
-                line(slide, mid, cy + nh / 2, mid + gap / 2.0, cy + nh / 2, color=MUTED)
+            kids = [place(c, k + 1) for c in ch]
+            y = (kids[0][0] + kids[-1][0]) / 2.0
         else:
             y = cursor[0] + (slot - nh) / 2.0
             cursor[0] += slot
-        _node(slide, x, y, cw, nh, n, k, bool(ch), fs)
-        return y
+        shp = _node(slide, x, y, cw, nh, n, k, bool(ch), fs)
+        # 부모 오른쪽 → 자식 왼쪽을 Z자 연결선 하나로 잇고 양 끝을 노드에 붙입니다(노드를 옮기면 따라옵니다)
+        for cy, cshp in (kids if ch else []):
+            elbow(slide, x + cw, y + nh / 2, x + cw + gap, cy + nh / 2, first="h", mid=x + cw + gap / 2.0,
+                  color=MUTED, start=(shp, 3), end=(cshp, 1))
+        return y, shp
     for n in tree:
         place(n, 0)
     ia_legend(slide, tree)
@@ -245,9 +255,8 @@ def paginate_desc(items, w, h):
 
 def description_list(slide, x, y, w, items, title="Description"):
     """와이어프레임의 번호 표식과 1:1로 대응하는 설명 목록입니다. 하위 항목은 1-1) 형식으로 씁니다."""
-    subhead(slide, x, y, w, title, size=12)
+    card_title(slide, x, y, w, title, size=12)           # 제목 하나뿐 — ▼ 없이, 본문도 같은 선에서
     line(slide, x, y + 0.34, x + w, y + 0.34, color=GRID, width=0.75)
-    x, w = x + TOGGLE_STEP, w - TOGGLE_STEP              # 토글 아래 — 소제목 글자 선에 맞춥니다
     cy = y + 0.48
     for it in items:
         no = str(it.get("no", "?"))
@@ -273,7 +282,7 @@ def description_list(slide, x, y, w, items, title="Description"):
 #: 순서도 기호 — 시작·종료 캡슐, 화면 사각형, 처리 둥근 사각, 입출력 평행사변형, 분기 마름모
 FLOW_SHAPES = {"start": "capsule", "end": "capsule", "screen": "rect", "process": "round",
                "io": "para", "decision": "diamond"}
-FLOW_NAMES = {"start": "시작 · 종료", "screen": "화면", "process": "처리", "io": "입력 · 출력",
+FLOW_NAMES = {"start": "시작 · 종료", "screen": "화면", "process": "처리", "io": "안내 · 입력",
               "decision": "분기"}
 FLOW_MAX = 15
 
@@ -343,55 +352,70 @@ def flowchart(slide, nodes, edges, x0=MX, y0=TOP, w=SW - 2 * MX, h=None):
         nh = 0.78 if t == "decision" else 0.56
         size[n["id"]] = (nw, nh)
     types = {n["id"]: n.get("type", "process") for n in nodes}
-    for e in edges:
-        if e["from"] not in pos or e["to"] not in pos:
-            continue
-        (ax, ay), (bx, by) = pos[e["from"]], pos[e["to"]]
-        (aw, ah), (bw, bh) = size[e["from"]], size[e["to"]]
-        exc = e.get("kind") == "exception"
-        c, d = (ACCENT if exc else INK), exc
-        same_row = abs(ay - by) < 0.01
-        if bx > ax and same_row:                           # 같은 줄 앞으로 — 오른쪽 변에서 왼쪽 변으로
-            line(slide, ax + aw, ay, bx, by, color=c, width=1.0, arrow=True, dash=d)
-            lx, ly = ax + aw + 0.02, ay - 0.27
-        elif bx > ax and types[e["from"]] == "decision":   # 분기의 위 · 아래 갈래 — 위 · 아래 꼭짓점에서 나갑니다
-            sx = ax + aw / 2
-            sy = ay - ah / 2 if by < ay else ay + ah / 2
-            line(slide, sx, sy, sx, by, color=c, width=1.0, dash=d)
-            line(slide, sx, by, bx, by, color=c, width=1.0, arrow=True, dash=d)
-            lx, ly = sx + 0.04, (sy - 0.3 if by < ay else sy + 0.02)
-        elif bx > ax:                                      # 다른 줄 앞으로 — 꺾어서 들어갑니다
-            mx = ax + aw + 0.2
-            line(slide, ax + aw, ay, mx, ay, color=c, width=1.0, dash=d)
-            line(slide, mx, ay, mx, by, color=c, width=1.0, dash=d)
-            line(slide, mx, by, bx, by, color=c, width=1.0, arrow=True, dash=d)
-            lx, ly = mx + 0.04, (ay + by) / 2 - 0.12
-        else:                                              # 되돌아감 — 왼쪽으로 나가 대상의 위 · 아래로 들어갑니다
-            tx = bx + bw / 2
-            ty = by - bh / 2 if ay < by else by + bh / 2
-            if same_row:
-                ty, top = by - bh / 2, by - bh / 2 - 0.3
-                line(slide, ax + aw / 2, ay - ah / 2, ax + aw / 2, top, color=c, width=1.0, dash=d)
-                line(slide, ax + aw / 2, top, tx, top, color=c, width=1.0, dash=d)
-                line(slide, tx, top, tx, ty, color=c, width=1.0, arrow=True, dash=d)
-                lx, ly = (ax + tx) / 2, top - 0.26
-            else:
-                # 출발 상자의 위 · 아래 변에서 대상의 높이까지 간 뒤, 대상의 오른쪽 변으로 들어갑니다.
-                # 분기의 위 · 아래 꼭짓점은 앞으로 가는 갈래가 쓰므로 비워 둡니다
-                sx = ax + aw / 2
-                sy = ay + ah / 2 if by > ay else ay - ah / 2
-                line(slide, sx, sy, sx, by, color=c, width=1.0, dash=d)
-                line(slide, sx, by, bx + bw, by, color=c, width=1.0, arrow=True, dash=d)
-                lx, ly = sx + 0.04, (sy + by) / 2 - 0.12
-        if e.get("label"):
-            text(slide, lx, ly, 0.9, 0.24, e["label"], size=9, bold=True, color=c)
+    # 도형을 먼저 만들고 선을 붙입니다 — 연결선 끝을 도형의 연결점에 붙여 편집기에서 옮겨도 따라오게
+    shapes = {}
     for n in nodes:
         t = n.get("type", "process")
         (x, cy), (bw, bh) = pos[n["id"]], size[n["id"]]
         root = t in ("start", "end")
-        box(slide, x, cy - bh / 2, bw, bh, fill=INK if root else WHITE, line=INK,
-            shape=FLOW_SHAPES.get(t, "round"), label=v(n.get("label")), size=9 if t == "decision" else 10,
-            color=WHITE if root else INK, bold=root, name="flow-%s" % t)
+        shp = box(slide, x, cy - bh / 2, bw, bh, fill=INK if root else WHITE, line=INK,
+                  shape=FLOW_SHAPES.get(t, "round"), label=v(n.get("label")),
+                  size=9 if t in ("decision", "io") else 10, color=WHITE if root else INK, bold=root,
+                  name="flow-%s" % t)
+        if t in ("decision", "io"):
+            # 마름모 · 평행사변형은 안쪽 글 영역이 좁습니다 — 여백을 없애 짧은 질문이 두 줄로 꺾이지 않게
+            tf = shp.text_frame
+            tf.margin_left = tf.margin_right = tf.margin_top = tf.margin_bottom = 0
+        shapes[n["id"]] = shp
+
+    def site(nid, idx):
+        # 사각형 · 둥근 사각형 · 마름모만 연결점 번호가 0 위 · 1 왼쪽 · 2 아래 · 3 오른쪽입니다(평행사변형은 붙이지 않음)
+        return None if types[nid] == "io" else (shapes[nid], idx)
+
+    for e in edges:
+        if e["from"] not in pos or e["to"] not in pos:
+            continue
+        a, b = e["from"], e["to"]
+        (ax, ay), (bx, by) = pos[a], pos[b]
+        (aw, ah), (bw, bh) = size[a], size[b]
+        exc = e.get("kind") == "exception"
+        kw = dict(color=ACCENT if exc else INK, width=1.0, arrow=True, dash=exc)
+        c = kw["color"]
+        same_row = abs(ay - by) < 0.01
+        if abs(bx - ax) < 0.01 and not same_row:          # 같은 열 위아래 — 곧은 세로 화살표
+            sx = ax + aw / 2
+            down = by > ay
+            sy, ey = (ay + ah / 2, by - bh / 2) if down else (ay - ah / 2, by + bh / 2)
+            elbow(slide, sx, sy, sx, ey, start=site(a, 2 if down else 0), end=site(b, 0 if down else 2), **kw)
+            lx, ly = sx + 0.06, (sy + ey) / 2 - 0.12
+        elif bx > ax and same_row:                         # 같은 줄 앞으로 — 오른쪽 변에서 왼쪽 변으로
+            elbow(slide, ax + aw, ay, bx, by, start=site(a, 3), end=site(b, 1), **kw)
+            lx, ly = ax + aw + 0.02, ay - 0.27
+        elif bx > ax and types[a] == "decision":           # 분기의 위 · 아래 갈래 — 위 · 아래 꼭짓점에서 L자로
+            sx = ax + aw / 2
+            up = by < ay
+            sy = ay - ah / 2 if up else ay + ah / 2
+            elbow(slide, sx, sy, bx, by, first="v", start=site(a, 0 if up else 2), end=site(b, 1), **kw)
+            lx, ly = sx + 0.04, (sy - 0.3 if up else sy + 0.02)
+        elif bx > ax:                                      # 다른 줄 앞으로 — Z자로 꺾어 들어갑니다
+            mx = ax + aw + 0.2
+            elbow(slide, ax + aw, ay, bx, by, first="h", mid=mx, start=site(a, 3), end=site(b, 1), **kw)
+            lx, ly = mx + 0.04, (ay + by) / 2 - 0.12
+        elif same_row:                                     # 같은 줄 되돌아감 — 위로 돌아 대상의 위 변으로(ㄷ자)
+            tx, ty, top = bx + bw / 2, by - bh / 2, by - bh / 2 - 0.3
+            elbow(slide, ax + aw / 2, ay - ah / 2, tx, ty, first="v", mid=top, start=site(a, 0), end=site(b, 0),
+                  **kw)
+            lx, ly = (ax + tx) / 2, top - 0.26
+        else:
+            # 다른 줄 되돌아감 — 출발 상자의 위 · 아래 변에서 L자로 대상의 오른쪽 변에 들어갑니다.
+            # 분기의 위 · 아래 꼭짓점은 앞으로 가는 갈래가 쓰므로 비워 둡니다
+            sx = ax + aw / 2
+            down = by > ay
+            sy = ay + ah / 2 if down else ay - ah / 2
+            elbow(slide, sx, sy, bx + bw, by, first="v", start=site(a, 2 if down else 0), end=site(b, 3), **kw)
+            lx, ly = sx + 0.04, (sy + by) / 2 - 0.12
+        if e.get("label"):
+            text(slide, lx, ly, 0.9, 0.24, e["label"], size=9, bold=True, color=c)
     kinds = []
     for n in nodes:
         t = "start" if n.get("type") in ("start", "end") else n.get("type", "process")
@@ -509,10 +533,12 @@ def moscow_board(slide, items, x0=MX, y0=TOP, w=SW - 2 * MX):
 # ── 로드맵 ───────────────────────────────────────────────────────────
 
 ROADMAP_MAX_TRACKS = 6
+#: 마일스톤 별 크기(in) — ◆는 2단 글머리와 헷갈려 강조색 별을 씁니다
+MS_STAR = 0.26
 
 
 def roadmap(slide, rm, x0=MX, y0=TOP, w=SW - 2 * MX):
-    """기간(열) × 트랙(행). 막대는 start~end 기간 칸, 마일스톤은 마름모, today는 점선입니다.
+    """기간(열) × 트랙(행). 막대는 start~end 기간 칸, 마일스톤은 별 + 점선, today는 실선입니다.
 
     start · end · at · today는 periods의 순번(0부터)이며 소수로 칸 중간을 가리킬 수 있습니다.
     """
@@ -537,9 +563,12 @@ def roadmap(slide, rm, x0=MX, y0=TOP, w=SW - 2 * MX):
             box(slide, x0 + lw + i * pw, y, pw, th, fill=WHITE, line=GRID)
     for m in ms:                                          # ② 선 — 막대 아래에 깔립니다
         mx = x0 + lw + float(m.get("at", 0)) * pw
-        box(slide, mx - 0.12, y0 + 0.05, 0.24, 0.24, fill=ACCENT, shape="diamond")
-        text(slide, mx + 0.14, y0 + 0.02, 1.8, 0.3, v(m.get("label")), size=9, bold=True, color=ACCENT)
-        line(slide, mx, y0 + 0.3, mx, bottom, color=ACCENT, width=0.5, dash=True)
+        cy = y0 + 0.05 + MS_STAR / 2                       # 별 중심 — 라벨 글자 · 점선이 여기에 맞습니다
+        line(slide, mx, cy, mx, bottom, color=ACCENT, width=0.5, dash=True)
+        box(slide, mx - MS_STAR / 2, cy - MS_STAR / 2, MS_STAR, MS_STAR, fill=ACCENT, shape="star",
+            name="milestone")
+        text(slide, mx + MS_STAR / 2 + 0.04, first_line_top(cy, 9), 1.8, 0.3, v(m.get("label")), size=9,
+             bold=True, color=ACCENT)
     if rm.get("today") is not None:
         tx = x0 + lw + float(rm["today"]) * pw
         line(slide, tx, top, tx, bottom, color=INK, width=1.25)
@@ -554,7 +583,7 @@ def roadmap(slide, rm, x0=MX, y0=TOP, w=SW - 2 * MX):
                 label=v(it.get("label")), size=9, color=WHITE, bold=True)
     legend(slide, [(lambda s, x, y: box(s, x, y, 0.28, 0.18, fill=INK, round_=True), "주요 작업"),
                    (lambda s, x, y: box(s, x, y, 0.28, 0.18, fill=SUB, round_=True), "작업"),
-                   (lambda s, x, y: box(s, x + 0.05, y, 0.18, 0.18, fill=ACCENT, shape="diamond"), "마일스톤")],
+                   (lambda s, x, y: box(s, x + 0.03, y - 0.02, 0.22, 0.22, fill=ACCENT, shape="star"), "마일스톤")],
            y=min(SH - 0.85, bottom + 0.45))          # 범례는 차트 바로 아래
 
 
@@ -600,3 +629,365 @@ def ui_states(slide, states, header=None, y0=2.3):
         phone(slide, x, y0, ph, regions, markers=False, title=name)
         text(slide, x - 0.3, y0 + ph + 0.08, pw + 0.6, 0.8, v(st.get("note") or st.get("sub")), size=10,
              color=SUB, align="c")
+
+
+# ── 읽는 법 ──────────────────────────────────────────────────────────
+
+def reading_guide(slide, kind="feature", change_base=None, y0=TOP + 0.05):
+    """이 문서에 나오는 기호와 표기를 한 장에 모읍니다 — 처음 보는 사람이 기호에서 막히지 않게.
+
+    kind="feature"(기능별 문서): 왼쪽 열은 화면 장(번호 표식 · 변경 배지 · 영역 유형), 오른쪽 열은 흐름도
+    기호와 글 표기입니다.
+    kind="overview"(서비스 개요 문서): 왼쪽 열은 IA · 화면, 오른쪽 열은 흐름 · 우선순위 · 일정입니다.
+    change_base는 변경 배지의 비교 기준(예: 운영 중인 앱 1.4)이며, 없으면 미정으로 적습니다.
+    견본은 열 왼쪽 0.6in 안에 그려 이름(x + 0.85)과 부딪치지 않습니다. 열마다 7줄까지입니다.
+    """
+    colw = (SW - 2 * MX - 0.6) / 2
+    rows_l, rows_r = (_guide_overview(slide, change_base) if kind == "overview" else _guide_feature(slide))
+    for c, rows in enumerate((rows_l, rows_r)):
+        x = MX + c * (colw + 0.6)
+        y = y0
+        for draw, name, desc in rows:
+            draw(x + 0.1, y + 0.08)
+            text(slide, x + 0.85, first_line_top(y + 0.21, 13), colw - 0.9, 0.32, name, size=13, bold=True)
+            text(slide, x + 0.85, y + 0.42, colw - 0.9, 0.3, desc, size=11, color=SUB)
+            line(slide, x, y + 0.7, x + colw, y + 0.7, color=LINE, width=0.5)
+            y += 0.72
+
+
+def _guide_unknown(slide):
+    return (lambda x, y: text(slide, x - 0.04, y - 0.03, 0.6, 0.3, "?", size=14, bold=True, color=ACCENT,
+                              align="c"),
+            "? · 미정", "아직 정하지 않은 값 — 문서 끝 「미결 사항」에 모여 있습니다")
+
+
+def _guide_page_link(slide):
+    return (lambda x, y: text(slide, x - 0.04, y - 0.03, 0.6, 0.3, "p. 4", size=12, bold=True, color=INK,
+                              align="c"),
+            "밑줄 쪽 번호", "누르면 그 장으로 이동합니다")
+
+
+def _guide_overview(slide, change_base=None):
+    """서비스 개요 문서의 읽는 법 — (왼쪽 열 IA · 화면, 오른쪽 열 흐름 · 우선순위 · 일정)."""
+    def ia_kinds(x, y):                                   # ia_legend의 네 노드를 작게 나란히
+        for i, k in enumerate(("page", "tab", "popup", "external")):
+            shp = box(slide, x - 0.07 + i * 0.15, y + 0.04, 0.12, 0.18, fill=TAB_FILL if k == "tab" else WHITE,
+                      line=INK, shape="round", dash=k in ("popup", "external"),
+                      label="↗" if k == "external" else None, size=6)
+            tf = shp.text_frame                           # 작은 상자라 여백을 없애야 ↗가 줄바꿈되지 않습니다
+            tf.margin_left = tf.margin_right = tf.margin_top = tf.margin_bottom = 0
+            tf.word_wrap = False
+
+    def parent_leaf(x, y):                                # _node — 묶음은 옅은 바탕 + 잉크 테두리, 끝 화면은 흰 바탕 + 옅은 테두리
+        box(slide, x - 0.05, y + 0.02, 0.26, 0.22, fill=TINT, line=INK, shape="round")
+        box(slide, x + 0.27, y + 0.02, 0.26, 0.22, fill=WHITE, line=GRID, shape="round")
+
+    def flow(x, y):
+        box(slide, x - 0.05, y + 0.04, 0.16, 0.18, fill=WHITE, line=INK, shape="round")
+        line(slide, x + 0.13, y + 0.13, x + 0.31, y + 0.13, color=INK, width=1.0, arrow=True)
+        box(slide, x + 0.33, y + 0.04, 0.16, 0.18, fill=WHITE, line=INK, shape="round")
+
+    def moscow(x, y):
+        for i in range(4):
+            box(slide, x - 0.05 + i * 0.14, y, 0.12, 0.26, fill=INK if i == 0 else TINT,
+                line=None if i == 0 else GRID)
+
+    def matrix(x, y):
+        for r in range(2):
+            for c in range(2):
+                box(slide, x + 0.05 + c * 0.2, y - 0.02 + r * 0.15, 0.2, 0.15,
+                    fill=TINT if (r, c) == (0, 0) else WHITE, line=GRID)
+
+    def milestone(x, y):
+        box(slide, x - 0.02, y + 0.02, 0.22, 0.22, fill=ACCENT, shape="star")
+        line(slide, x + 0.38, y - 0.04, x + 0.38, y + 0.3, color=INK, width=1.25)
+
+    rows_l = [
+        (ia_kinds, "IA 노드 형태", "페이지 · 탭 · 팝업 · 외부 링크 — 점선은 잠깐 뜨는 창이나 앱 밖"),
+        (lambda x, y: (badge(slide, x - 0.12, y + 0.02, "NEW", size=7), badge(slide, x + 0.28, y + 0.02, "UPDATE", size=7)),
+         "변경 배지 (신규 · 수정)",
+         "%s에 비해 새로 생기거나 바뀐 화면" % change_base if change_base else "비교 기준이 아직 없습니다 — 미정"),
+        (parent_leaf, "굵은 테두리", "아래에 화면을 거느린 메뉴 묶음 — 옅은 테두리는 끝 화면"),
+        (lambda x, y: text(slide, x - 0.08, y - 0.02, 0.7, 0.3, "S1-01", size=11, bold=True, color=INK,
+                           align="c"),
+         "ID 표기", "S는 화면, F-는 기능, P-는 정책 — 문서 사이는 ID로 찾습니다"),
+        _guide_unknown(slide),
+        _guide_page_link(slide),
+    ]
+    rows_r = [
+        (flow, "주요 흐름", "화면이 이어지는 순서 — 화살표 방향으로 읽습니다"),
+        (lambda x, y: line(slide, x, y + 0.13, x + 0.5, y + 0.13, color=ACCENT, dash=True),
+         "예외 경로", "정상 흐름에서 벗어나는 길 (비로그인 · 마감 등)"),
+        (moscow, "MoSCoW", "이번 출시에 넣을지 — 반드시 · 해야 함 · 하면 좋음 · 이번엔 안 함"),
+        (matrix, "영향 × 노력", "범위 안 기능을 어떤 순서로 할지 — 빠른 성과부터"),
+        (lambda x, y: text(slide, x - 0.08, y - 0.01, 0.7, 0.3, "범위 밖", size=10, color=SUB, align="c"),
+         "범위 밖", "이번 출시에서 빠진 기능 — 목록엔 두되 기능별 문서는 없습니다"),
+        (milestone, "마일스톤 · 오늘", "★은 중요한 날짜, 세로 실선은 오늘"),
+    ]
+    return rows_l, rows_r
+
+
+def _guide_feature(slide):
+    """기능별 문서의 읽는 법 — (왼쪽 열 화면 장, 오른쪽 열 흐름도 기호 · 글 표기)."""
+    rows_l = [
+        (lambda x, y: circle(slide, x + 0.05, y, 0.26, ACCENT, "1", size=9),
+         "번호 표식", "와이어프레임의 영역과 Description의 같은 번호가 짝입니다"),
+        (lambda x, y: (badge(slide, x - 0.12, y + 0.02, "NEW", size=7), badge(slide, x + 0.28, y + 0.02, "UPDATE", size=7)),
+         "변경 배지 (신규 · 수정 · 삭제)", "직전 버전(문서 이력)에 비해 생기거나 바뀌거나 빠진 곳"),
+        (lambda x, y: box(slide, x, y, 0.5, 0.26, fill=WF_FILL["button"], round_=True, label="버튼", size=8,
+                          color=WHITE),
+         "와이어프레임 영역", "회색 상자는 자리만 보입니다 — 색 · 이미지는 디자인 단계에서 정합니다"),
+        (lambda x, y: (box(slide, x, y, 0.5, 0.26, fill=WF_FILL["image"], line="7F8A93"),
+                       line(slide, x, y, x + 0.5, y + 0.26, color="B5BCC2", width=0.75),
+                       line(slide, x, y + 0.26, x + 0.5, y, color="B5BCC2", width=0.75)),
+         "이미지 자리", "X자 상자는 사진 · 그림이 들어갈 자리입니다"),
+        (lambda x, y: storyboard_mini(slide, x, y),
+         "화면 정보 띠", "화면 장 맨 위 — 화면 ID(S로 시작) · 화면명 · 경로 · 버전"),
+        _guide_unknown(slide),
+        (lambda x, y: text(slide, x - 0.08, y - 0.02, 0.7, 0.3, "{이름}", size=11, color=SUB, align="c"),
+         "{동적 데이터}", "실제 값으로 바뀌어 보이는 자리"),
+    ]
+    rows_r = [
+        (lambda x, y: box(slide, x, y, 0.5, 0.26, fill=INK, shape="capsule"),
+         "시작 · 종료", "흐름도의 처음과 끝"),
+        (lambda x, y: box(slide, x + 0.06, y - 0.04, 0.38, 0.34, fill=WHITE, line=INK, shape="diamond"),
+         "분기", "질문 하나 — 나가는 선에 「예 · 아니오」"),
+        (lambda x, y: (box(slide, x, y, 0.22, 0.26, fill=WHITE, line=INK),
+                       box(slide, x + 0.28, y, 0.22, 0.26, fill=WHITE, line=INK, round_=True)),
+         "화면 · 처리", "네모는 화면, 둥근 네모는 시스템이 하는 일"),
+        (lambda x, y: box(slide, x, y, 0.5, 0.26, fill=WHITE, line=INK, shape="para"),
+         "안내 · 입력", "사용자에게 보이는 시트 · 알림 · 입력창"),
+        (lambda x, y: line(slide, x, y + 0.13, x + 0.5, y + 0.13, color=ACCENT, dash=True),
+         "예외 경로", "정상 흐름에서 벗어나는 길 — 점선"),
+        _guide_page_link(slide),
+    ]
+    return rows_l, rows_r
+
+
+def storyboard_mini(slide, x, y):
+    """읽는 법에 쓰는 정보 띠 축소판."""
+    box(slide, x, y, 0.22, 0.26, fill=TABLE["head_fill"], line=GRID)
+    box(slide, x + 0.22, y, 0.3, 0.26, fill=WHITE, line=GRID)
+
+
+# ── 주요 흐름 ────────────────────────────────────────────────────────
+
+#: 흐름 한 줄의 높이(in) — 예외가 없으면 칸 한 줄, 있으면 아래에 예외 상자 줄이 더 붙습니다
+FLOW_ROW_H = 1.45
+FLOW_ROW_EXC_H = 2.6
+#: 한 줄에 놓는 화면 칸의 최대 개수
+FLOW_MAX_STEPS = 7
+FLOW_GAP = 0.45               # 칸 사이 가로 틈
+FLOW_STEP_H = 0.8             # 화면 칸 높이
+FLOW_EXC_GAP = 0.55           # 화면 칸 아래 변 ~ 예외 상자 위 변
+FLOW_EXC_H = 0.62             # 예외 상자 높이
+
+
+def _flow_h(f):
+    return FLOW_ROW_EXC_H if f.get("exceptions") else FLOW_ROW_H
+
+
+def flow_pages(flows):
+    """주요 흐름을 장으로 나눕니다 — 본문 높이(BOTTOM - TOP) 안에 들어가는 만큼 앞에서부터 채웁니다."""
+    pages, cur, used = [], [], 0.0
+    for f in flows or []:
+        h = _flow_h(f)
+        if cur and used + h > BOTTOM - TOP + 0.001:
+            pages.append(cur)
+            cur, used = [], 0.0
+        cur.append(f)
+        used += h
+    if cur:
+        pages.append(cur)
+    return pages
+
+
+def main_flows(slide, flows, names, y0=TOP):
+    """주요 흐름 한 장 — 흐름마다 ▼ 이름, 화면 칸을 가로로 잇고, 예외는 아래 줄의 주황 점선 상자로 갈라집니다.
+
+    예외 상자는 출발 칸 바로 아래 열에 두고, 그 열이 이미 차 있으면 오른쪽 빈 열로 밉니다.
+    연결선은 칸끼리 곧은 화살표, 예외로는 세로로 나가 꺾는 Z자(같은 열이면 곧은 세로) 하나입니다.
+    """
+    import re
+    names = names or {}
+    n = max([1] + [min(len(f.get("path") or []), FLOW_MAX_STEPS) for f in flows])
+    gap = FLOW_GAP
+    left = MX + TOGGLE_STEP
+    cw = min(2.1, (SW - 2 * MX - TOGGLE_STEP - gap * (n - 1)) / n)
+    # 슬라이드 안에 들어가는 열 수 — 예외 상자가 화면 칸보다 오른쪽으로 밀릴 때의 한계
+    cols = max(n, int((SW - MX - left + gap) // (cw + gap)))
+
+    def col_x(k):
+        return left + k * (cw + gap)
+
+    y = y0
+    any_exc = False
+    for f in flows:
+        subhead(slide, MX, y, SW - 2 * MX, v(f.get("name")), size=14)
+        path = (f.get("path") or [])[:FLOW_MAX_STEPS]
+        sy = y + 0.48
+        chips = []
+        for k, sid in enumerate(path):
+            chips.append(box(slide, col_x(k), sy, cw, FLOW_STEP_H, fill=WHITE, line=INK, round_=True,
+                             label="%s\n%s" % (sid, names.get(sid, "")), size=11, name="flow-step"))
+            if k:
+                # 곧은 화살표 하나 — 앞 칸 오른쪽 변 가운데에서 이 칸 왼쪽 변 가운데로
+                elbow(slide, col_x(k - 1) + cw, sy + FLOW_STEP_H / 2, col_x(k), sy + FLOW_STEP_H / 2,
+                      color=INK, width=1.0, arrow=True, start=(chips[k - 1], 3), end=(chips[k], 1))
+        excs = [e for e in (f.get("exceptions") or []) if e.get("from") in path]
+        if excs:
+            any_exc = True
+            cb = sy + FLOW_STEP_H                     # 칸 아래 변
+            ey = cb + FLOW_EXC_GAP                    # 예외 상자 위 변
+            # 열 정하기 — 출발 칸 아래, 차 있으면 오른쪽 빈 열(끝까지 차면 왼쪽 빈 열)
+            used, place = set(), []
+            for e in excs:
+                src = path.index(e["from"])
+                c = src
+                while c in used and c < cols - 1:
+                    c += 1
+                if c in used:
+                    c = next((i for i in range(cols) if i not in used), src)
+                used.add(c)
+                place.append((e, src, c))
+            # 한 칸에서 여러 예외가 나가면 출발점을 칸 아래 변에서 조금씩 비켜 겹치지 않게 합니다
+            by_src = {}
+            for e, src, c in place:
+                by_src.setdefault(src, []).append(c)
+            for e, src, c in place:
+                sibs = sorted(by_src[src])
+                m, j = len(sibs), sibs.index(c)
+                ax = col_x(src) + cw / 2 + (j - (m - 1) / 2.0) * 0.24
+                bx = col_x(c) + cw / 2
+                to = v(e.get("to"))
+                label = "%s %s" % (to, names.get(to, "")) if re.match(r"^S\d", to) else to
+                if e.get("back"):
+                    label += "\n%s" % e["back"]
+                # 칸이 좁아 세 줄 넘게 접히면 9pt로 줄이고, 상자 높이는 글 줄 수에 맞춰 조금 늘립니다(줄 높이 안에서)
+                fs = 10 if est_lines(label, cw - 0.14, 10) <= 2 else 9
+                eh = min(FLOW_ROW_EXC_H - (0.48 + FLOW_STEP_H + FLOW_EXC_GAP) - 0.15,
+                         max(FLOW_EXC_H, est_lines(label, cw - 0.14, fs) * line_height(fs) + 0.12))
+                shp = box(slide, col_x(c), ey, cw, eh, fill=WHITE, line=ACCENT, dash=True, round_=True,
+                          label=label, size=fs, name="flow-exception")
+                kw = dict(color=ACCENT, width=1.0, arrow=True, dash=True)
+                st = (chips[src], 2) if m == 1 else None
+                if c == src:
+                    # 같은 열 — 곧은 세로 화살표(출발점을 비켰으면 상자 위 변의 같은 x로 들어갑니다)
+                    elbow(slide, ax, cb, ax, ey, start=st, end=(shp, 0) if abs(ax - bx) < 0.005 else None, **kw)
+                    lx = ax + 0.06
+                else:
+                    # 다른 열 — 세로로 나가 칸 아래 틈의 가운데에서 꺾고, 상자 위 변 가운데로 내려갑니다.
+                    # 편집기가 경로를 다시 그려도 기본 꺾임 자리가 틈 가운데라 모양이 같습니다
+                    mid = cb + FLOW_EXC_GAP / 2 + 0.06 * (j - (m - 1) / 2.0)
+                    elbow(slide, ax, cb, bx, ey, first="v", mid=mid, start=st, end=(shp, 0), **kw)
+                    lx = bx + 0.06
+                # 조건 글은 화살표 오른쪽 — 옆 열의 선까지 쓰고, 한 줄에 안 들면 8pt로 줄입니다
+                lw = cw / 2 + gap - 0.12
+                when = v(e.get("when"))
+                text(slide, lx, ey - 0.24, lw, 0.24, when, size=9 if est_lines(when, lw - 0.06, 9) <= 1 else 8,
+                     bold=True, color=ACCENT, name="flow-when")
+        y += _flow_h(f)
+    if any_exc:
+        legend(slide, [
+            (lambda s, x, y: line(s, x, y + 0.09, x + 0.28, y + 0.09, color=INK, arrow=True), "정상 흐름"),
+            (lambda s, x, y: line(s, x, y + 0.09, x + 0.28, y + 0.09, color=ACCENT, dash=True), "예외 경로")])
+
+
+# ── 화면 흐름 ────────────────────────────────────────────────────────
+
+#: 이동 조건이 이 말을 담으면 예외 이동으로 그립니다(입력에 kind가 없을 때)
+EXCEPTION_WORDS = ("비로그인", "데이터 없음", "네트워크", "오류", "잘못된 입력", "실패", "마감")
+
+
+def is_exception_move(n):
+    if n.get("kind"):
+        return n["kind"] == "exception"
+    return any(w in str(n.get("when", "")) for w in EXCEPTION_WORDS)
+
+
+def screen_flow(slide, screens, linked=None, y0=TOP + 0.35):
+    """화면 흐름 — 이 기능의 화면(와이어 축소판)과 다른 기능의 화면(이름 상자) 사이의 이동을 모두 그립니다.
+
+    정상 이동은 실선, 예외 이동은 주황 점선이고 라벨은 「조건 (요소 번호)」입니다. 이 기능의 화면끼리는
+    가로로, 다른 기능의 화면으로는 아래로 나갑니다. 선마다 가로 길(레인)을 따로 줘 겹치지 않게 합니다.
+    """
+    linked = {l.get("id"): l for l in (linked or [])}
+    own = [sc for sc in screens[:5]]
+    ids = [sc.get("id") for sc in own]
+    far = []
+    for sc in own:
+        for n in sc.get("next") or []:
+            if n.get("to") not in ids and n.get("to") not in far:
+                far.append(n.get("to"))
+    # 이 기능의 화면 — 위쪽 가운데
+    # 아래로 나가는 선마다 레인(0.3")이 하나씩 필요합니다 — 마지막 레인도 아래 상자 위로 0.3" 띄우게 화면 높이를 줄입니다
+    n_down = sum(1 for sc in own for n in sc.get("next") or [] if n.get("to") in far)
+    by_top = BOTTOM - 0.55 - 0.62
+    ph = max(1.8, min(2.6, by_top - 0.3 - 0.3 * max(0, n_down - 1) - 0.35 - y0)) if far else 4.4
+    pw = ph * 0.5
+    gap = max(1.6, min(3.2, (SW - 2 * MX - pw * len(own)) / max(1, len(own) - 1 if len(own) > 1 else 1)))
+    total = pw * len(own) + gap * (len(own) - 1)
+    x0 = (SW - total) / 2.0
+    pos, shp = {}, {}
+    for i, sc in enumerate(own):
+        x = x0 + i * (pw + gap)
+        # 흐름 그림의 화면은 썸네일 — 영역 글자는 생략하고 화면 이름은 제목이 맡습니다
+        frames = []
+        phone(slide, x, y0, ph, sc.get("regions") or [], markers=False, labels=False,
+              title="%s %s" % (v(sc.get("id")), v(sc.get("name"))), frames=frames)
+        pos[sc.get("id")], shp[sc.get("id")] = (x, y0, pw, ph), frames[0]
+    # 다른 기능의 화면 — 아래쪽 줄
+    bw, bh = 2.0, 0.62
+    by = BOTTOM - 0.55 - bh
+    if far:
+        fgap = (SW - 2 * MX - bw * len(far)) / max(1, len(far) + 1)
+        for k, fid in enumerate(far):
+            bx = MX + fgap + k * (bw + fgap)
+            ln = linked.get(fid, {})
+            shp[fid] = box(slide, bx, by, bw, bh, fill=TINT, line=GRID, round_=True,
+                           label="%s\n%s" % (v(fid), v(ln.get("name"))), size=10, name="linked-screen")
+            pos[fid] = (bx, by, bw, bh)
+    # 선 — 화면마다 나가는 선을 아래 변에 고르게 나눠 붙이고, 가로 길은 선마다 따로 둡니다
+    lane = y0 + ph + 0.35
+    top_lane = y0 - 0.55
+    for sc in own:
+        sx, sy, sw, sh = pos[sc.get("id")]
+        outs = [n for n in sc.get("next") or [] if n.get("to") in pos]
+        # 아래로 나가는 선은 목적지가 왼쪽인 것부터 왼쪽에서 나갑니다 — 선끼리 엇갈리지 않게
+        down = sorted([n for n in outs if n.get("to") not in ids], key=lambda n: pos[n["to"]][0])
+        for k, n in enumerate(outs):
+            exc = is_exception_move(n)
+            c = ACCENT if exc else INK
+            label = "%s (%s)" % (v(n.get("when")), v(n.get("element")))
+            tx, ty, tw, th = pos[n["to"]]
+            if n["to"] in ids:                                   # 이 기능의 화면끼리
+                if tx > sx:                                      # 앞으로 — 오른쪽 변 가운데에서 왼쪽 변 가운데로
+                    yy = sy + sh / 2
+                    elbow(slide, sx + sw, yy, tx, yy, color=c, width=1.25, arrow=True, dash=exc,
+                          start=(shp[sc.get("id")], 3), end=(shp[n["to"]], 1))
+                    text(slide, sx + sw + 0.05, yy - 0.32, tx - sx - sw - 0.1, 0.28, label, size=9, bold=True,
+                         color=c, align="c")
+                else:                                            # 되돌아감 — 위로 돌아 들어갑니다
+                    ax, bxx = sx + sw / 2, tx + tw / 2
+                    # ㄷ자 연결선 하나 — 화면 이름 위에서 나가 위쪽 레인을 지나 대상 화면 이름 위로 들어갑니다
+                    elbow(slide, ax, sy - 0.35, bxx, ty - 0.35, first="v", mid=top_lane, color=c, width=1.0,
+                          arrow=True, dash=exc)
+                    text(slide, min(ax, bxx), top_lane - 0.28, abs(ax - bxx), 0.26, label, size=9, bold=True,
+                         color=c, align="c")
+                    top_lane -= 0.12
+            else:                                                # 다른 기능의 화면으로 — 아래로
+                j = down.index(n)
+                ax = sx + sw * (j + 1) / (len(down) + 1)
+                cx = tx + tw / 2
+                # Z자 연결선 하나 — 아래로 나가 제 레인에서 꺾고, 대상 상자의 위 변 가운데에 붙습니다
+                elbow(slide, ax, sy + sh, cx, ty, first="v", mid=lane, color=c, width=1.0, arrow=True, dash=exc,
+                      end=(shp[n["to"]], 0))
+                lx = min(ax, cx) if abs(ax - cx) > 1.2 else cx - 0.9
+                text(slide, lx, lane - 0.27, max(1.8, abs(ax - cx)), 0.26, label, size=9, bold=True, color=c,
+                     align="c")
+                lane += 0.3
+    items = [(lambda s, x, y: line(s, x, y + 0.09, x + 0.28, y + 0.09, color=INK, width=1.25), "정상 이동"),
+             (lambda s, x, y: line(s, x, y + 0.09, x + 0.28, y + 0.09, color=ACCENT, dash=True), "예외 이동")]
+    if far:
+        items.append((lambda s, x, y: box(s, x, y, 0.28, 0.18, fill=TINT, line=GRID, round_=True), "다른 기능 화면"))
+    legend(slide, items)

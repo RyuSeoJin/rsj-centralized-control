@@ -5,7 +5,8 @@
     "version": "0.1",
     "date": "2026-10-11",
     "author": "기획",
-    "status": "초안"
+    "status": "초안",
+    "change_base": "운영 중인 앱 1.4 (2026-09 배포본)"
   },
   "history": [
     {
@@ -260,9 +261,22 @@
         "path": [
           "S2-01",
           "S2-02",
-          "S1-01",
           "S2-03",
           "S3-01"
+        ],
+        "exceptions": [
+          {
+            "from": "S2-02",
+            "when": "비로그인",
+            "to": "S1-01",
+            "back": "로그인 뒤 상세로 돌아옴"
+          },
+          {
+            "from": "S2-02",
+            "when": "마감",
+            "to": "대기 신청 안내",
+            "back": "자리가 나면 알림"
+          }
         ]
       },
       {
@@ -271,6 +285,13 @@
           "S3-01",
           "S2-02",
           "S3-01"
+        ],
+        "exceptions": [
+          {
+            "from": "S2-02",
+            "when": "시작 2시간 이내",
+            "to": "취소 불가 안내"
+          }
         ]
       }
     ]
@@ -289,11 +310,23 @@
       "moscow": "must"
     },
     {
+      "id": "F-AUTH-02",
+      "name": "회원가입",
+      "screen": "S1-02",
+      "summary": "이메일 인증 뒤 닉네임 · 동네를 정해 가입합니다",
+      "policy": "만 14세 이상만 가입합니다",
+      "integration": "메일 발송",
+      "priority": "P1",
+      "impact": "high",
+      "effort": "low",
+      "moscow": "must"
+    },
+    {
       "id": "F-MEET-01",
       "name": "모임 목록 보기",
       "screen": "S2-01",
       "summary": "현재 위치 기준 반경 안의 모임을 시간순으로 봅니다",
-      "policy": "",
+      "policy": "없음",
       "integration": "지도 · 위치 API",
       "priority": "P1",
       "impact": "high",
@@ -303,7 +336,10 @@
     {
       "id": "F-MEET-02",
       "name": "참가 신청",
-      "screen": "S2-02",
+      "screen": [
+        "S2-02",
+        "S2-03"
+      ],
       "summary": "빈자리가 있으면 참가를 확정합니다",
       "policy": "시작 2시간 전까지 취소 가능",
       "integration": "",
@@ -325,11 +361,48 @@
       "moscow": "should"
     },
     {
+      "id": "F-MEET-04",
+      "name": "참가 취소",
+      "screen": "S3-01",
+      "summary": "참가 예정 모임을 취소합니다",
+      "policy": "2시간 전까지만 취소 (P-01)",
+      "integration": "",
+      "priority": "P1",
+      "impact": "high",
+      "effort": "low",
+      "moscow": "must"
+    },
+    {
+      "id": "F-MEET-05",
+      "name": "모임 만들기",
+      "screen": "S3-02",
+      "summary": "일시 · 장소 · 정원을 정해 모임을 엽니다",
+      "policy": "정원 2~30명 (P-03)",
+      "integration": "",
+      "priority": "P1",
+      "impact": "high",
+      "effort": "high",
+      "moscow": "must"
+    },
+    {
+      "id": "F-MY-01",
+      "name": "프로필",
+      "screen": "S4-01",
+      "summary": "닉네임 · 동네 · 참가 기록을 봅니다",
+      "policy": "없음",
+      "integration": "",
+      "priority": "P2",
+      "impact": "low",
+      "effort": "low",
+      "moscow": "should"
+    },
+    {
       "id": "F-PAY-01",
       "name": "참가비 결제",
+      "scope": "out",
       "screen": "S2-02",
       "summary": "참가 시 참가비를 결제합니다",
-      "policy": "?",
+      "policy": "2차에서 정합니다",
       "integration": "결제 대행",
       "priority": "P3",
       "impact": "low",

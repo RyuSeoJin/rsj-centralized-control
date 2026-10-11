@@ -7,8 +7,8 @@
   ② design-template/의 예시 둘로 전체 문서 · 기능별 문서를 만들어 봅니다.
   ③ 만든 파일에 Google Slides 변환 때 굳는 요소(차트 · SmartArt · 그라데이션 · 그림자 ·
      허용하지 않은 글꼴)가 없는지 봅니다.
-  ④ `all`이 기능 ID를 대조하는지, 잘못된 입력(영역 유형 · ID 중복 · 흐름도 연결 · 변경 표시)을
-     막는지 봅니다.
+  ④ `all`이 기능 ID를 대조하는지, 잘못된 입력(영역 유형 · ID 중복 · 흐름도 연결 · 변경 표시 ·
+     범위 밖 MoSCoW 충돌 · 경로 밖 예외 갈래)을 막는지 봅니다.
 
 무엇을 안 보나
 -------------
@@ -82,6 +82,14 @@ def main():
         dup["features"].append(dict(dup["features"][0]))
         if not b.validate("overview", dup)[0]:
             fails.append("기능 ID 중복을 통과시켰습니다")
+        clash = copy.deepcopy(ov)
+        clash["features"][0]["scope"] = "out"           # 범위 밖인데 moscow는 must
+        if not b.validate("overview", clash)[0]:
+            fails.append("범위 밖 기능의 MoSCoW 충돌을 통과시켰습니다")
+        branch = copy.deepcopy(ov)
+        branch["ia"]["flows"][0].setdefault("exceptions", []).append({"from": "S9-99", "when": "?", "to": "S1-01"})
+        if not b.validate("overview", branch)[0]:
+            fails.append("흐름 경로에 없는 예외 갈래를 통과시켰습니다")
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
     return modcheck.done("app-planning-slides", fails)

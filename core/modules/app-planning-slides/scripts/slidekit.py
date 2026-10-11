@@ -6,6 +6,7 @@
 그림자 없음)도 여기서 지킵니다 — 규칙 정본은 ../rules/planning-slides.md §6입니다.
 """
 import os
+import re
 import sys
 
 from pptx import Presentation
@@ -13,6 +14,7 @@ from pptx.dml.color import RGBColor
 from pptx.enum.dml import MSO_LINE
 from pptx.enum.shapes import MSO_CONNECTOR, MSO_SHAPE
 from pptx.enum.text import MSO_ANCHOR, PP_ALIGN
+from pptx.opc.constants import RELATIONSHIP_TYPE as RT
 from pptx.oxml.ns import qn
 from pptx.util import Emu, Inches, Pt
 
@@ -129,8 +131,9 @@ LETTER_SPACING = 0.03
 LINE_SPACING = 1.2
 #: 기호 뒤 간격 — 공백 한 칸 너비(글자 크기 대비)
 MARK_GAP = 0.35
-#: Noto Sans KR의 한 줄 높이(글자 크기 대비, 줄 간격 1배 기준). 첫 줄을 번호 표식 가운데에 맞출 때 씁니다
-LINE_H = 1.45
+#: Noto Sans KR의 한 줄 높이(글자 크기 대비, 줄 간격 1배 기준). 줄 간격 1.2로 렌더링해 잰 줄 사이 거리가
+#: 글자 크기의 1.465배라 1배 기준으로는 1.22입니다. 카드 · 목록 높이 어림이 이 값을 씁니다
+LINE_H = 1.22
 TEXT_MARGIN = 0.02
 
 
@@ -139,12 +142,23 @@ def line_height(size):
     return size * LINE_H * LINE_SPACING / 72.0
 
 
+#: 첫 줄 글자의 눈에 보이는 세로 중심 — 상자 위끝(여백 뒤)에서 글자 크기의 몇 배 아래인가.
+#: 줄 간격 1.2 · Noto Sans KR로 렌더링해 잰 값입니다(한글 · 숫자 · 굵게 모두 11~28pt에서 0.70±0.01)
+GLYPH_MID = 0.70
+
+
+def glyph_mid(top, size):
+    """상자 위끝이 top인 글의 첫 줄 글자 중심 y."""
+    return top + TEXT_MARGIN + GLYPH_MID * size / 72.0
+
+
 def first_line_top(center_y, size):
-    """첫 줄의 세로 중심이 center_y에 오도록 하는 텍스트 상자의 위쪽 y.
+    """첫 줄 글자의 세로 중심이 center_y에 오도록 하는 텍스트 상자의 위쪽 y.
 
     번호 표식(원 · 큰 숫자) 오른쪽에 글을 둘 때 씁니다 — 위를 맞추면 글이 표식보다 높아 보입니다.
+    줄 상자의 절반이 아니라 잰 글자 중심(GLYPH_MID)을 씁니다 — 글자 크기가 다른 둘을 맞출 때 어긋나지 않게.
     """
-    return center_y - line_height(size) / 2.0 - TEXT_MARGIN
+    return center_y - GLYPH_MID * size / 72.0 - TEXT_MARGIN
 
 
 def bullets(items, level=0):
@@ -215,16 +229,27 @@ def text(slide, x, y, w, h, paras, size=14, bold=False, color=INK, align="l",
 
 
 def subhead(slide, x, y, w, label, size=15, color=INK):
-    """카드 안 소제목 — ▼ 표식 + 굵은 글자. 아래 내용은 x + TOGGLE_STEP에서 시작합니다(토글처럼)."""
+    """카드 안 소제목 — ▼ 표식 + 굵은 글자. 아래 내용은 x + TOGGLE_STEP에서 시작합니다(토글처럼).
+
+    ▼는 같은 면(카드 하나 또는 카드 없는 본문)에 소제목 묶음이 둘 이상일 때만 붙입니다 —
+    제목이 하나뿐이면 card_title()을 씁니다.
+    """
     return text(slide, x, y, w, line_height(size) + 0.1, [(label, {"head": True})], size=size, bold=True,
                 color=color)
+
+
+def card_title(slide, x, y, w, label, size=15, color=INK):
+    """카드 하나에 제목 하나뿐일 때 — 카드 테두리가 이미 묶음을 보이므로 ▼를 붙이지 않고,
+    본문은 제목과 같은 선에서 시작합니다."""
+    return text(slide, x, y, w, line_height(size) + 0.1, [label], size=size, bold=True, color=color)
 
 
 #: 도형 이름 — 순서도 기호도 여기서 고릅니다(시작·종료 capsule · 처리 rect · 입출력 para · 분기 diamond)
 SHAPES = {"rect": MSO_SHAPE.RECTANGLE, "round": MSO_SHAPE.ROUNDED_RECTANGLE,
           "capsule": MSO_SHAPE.ROUNDED_RECTANGLE, "diamond": MSO_SHAPE.DIAMOND,
           "para": MSO_SHAPE.PARALLELOGRAM, "oval": MSO_SHAPE.OVAL, "chevron": MSO_SHAPE.CHEVRON,
-          "pentagon": MSO_SHAPE.PENTAGON}
+          "pentagon": MSO_SHAPE.PENTAGON,
+          "star": MSO_SHAPE.STAR_5_POINT}   # 로드맵 마일스톤 — ◆는 2단 글머리와 헷갈려 별을 씁니다
 
 
 def box(slide, x, y, w, h, fill=None, line=None, round_=False, label=None, size=11,
@@ -433,9 +458,31 @@ class Deck:
         if v(val) == UNKNOWN:
             self.open.append(where)
 
+    def page_slide(self, page):
+        """쪽 번호(1부터)의 슬라이드."""
+        return self.prs.slides[int(page) - 1]
+
+    def link(self, run, from_slide, page):
+        """글 한 조각(run)에 그 쪽으로 이동하는 슬라이드 내부 링크를 겁니다. 쪽이 없으면 걸지 않습니다."""
+        if not page:
+            return
+        rid = from_slide.part.relate_to(self.page_slide(page).part, RT.SLIDE)
+        rpr = run._r.get_or_add_rPr()
+        hl = rpr.makeelement(qn("a:hlinkClick"), {qn("r:id"): rid, "action": "ppaction://hlinksldjump"})
+        rpr.append(hl)
+
+    def _link_colors(self):
+        """테마의 링크 색을 본문 잉크색으로 — 링크 글자가 파랑으로 바뀌어 디자인이 깨지지 않게 합니다."""
+        theme = self.prs.slide_masters[0].part.part_related_by(RT.THEME)
+        xml = theme.blob.decode("utf-8")
+        for tag in ("hlink", "folHlink"):
+            xml = re.sub(r"(<a:%s>)\s*<a:(srgbClr|sysClr)[^>]*/>" % tag, lambda m: m.group(1) + '<a:srgbClr val="%s"/>' % INK, xml)
+        theme._blob = xml.encode("utf-8")
+
     def save(self, path):
         d = os.path.dirname(os.path.abspath(path))
         os.makedirs(d, exist_ok=True)
+        self._link_colors()
         self.prs.core_properties.title = "%s — %s" % (v(self.meta.get("name")), self.kind)
         self.prs.core_properties.author = v(self.meta.get("author"))
         self.prs.save(path)
@@ -461,14 +508,19 @@ def layout_regions(regions):
     return out
 
 
-def phone(slide, x, y, h, regions, markers=True, title=None):
-    """기기 틀 안에 영역을 회색 상자로 그립니다. 색 · 이미지는 넣지 않습니다(와이어프레임)."""
+def phone(slide, x, y, h, regions, markers=True, title=None, labels=True, frames=None):
+    """기기 틀 안에 영역을 회색 상자로 그립니다. 색 · 이미지는 넣지 않습니다(와이어프레임).
+
+    frames에 목록을 주면 틀 도형을 담아 줍니다 — 연결선을 틀에 붙일 때 씁니다."""
     w = h * 0.5
-    box(slide, x, y, w, h, fill=WHITE, line=WF_FRAME, round_=True, width=1.5, name="wf-frame")
+    frame = box(slide, x, y, w, h, fill=WHITE, line=WF_FRAME, round_=True, width=1.5, name="wf-frame")
+    if frames is not None:
+        frames.append(frame)
     sx, sy, sw, sh = x + 0.12, y + 0.3, w - 0.24, h - 0.5
     box(slide, sx, sy, sw, sh, fill="FBFBFC", line=LINE, name="wf-screen")
     if title:
-        text(slide, x, y - 0.35, w, 0.3, title, size=10, bold=True, color=SUB, align="c")
+        # 제목은 틀보다 넓게 — 화면 이름이 길어도 한 줄에 둡니다
+        text(slide, x - 0.8, y - 0.35, w + 1.6, 0.3, title, size=10, bold=True, color=SUB, align="c")
     for i, r in enumerate(layout_regions(regions), 1):
         kind = r.get("type", "other")
         rx, ry = sx + sw * r["x"] / 100.0, sy + sh * r["y"] / 100.0
@@ -477,9 +529,11 @@ def phone(slide, x, y, h, regions, markers=True, title=None):
         is_btn = kind == "button"
         box(slide, rx, ry, rw, rh, fill=WF_FILL.get(kind, WF_FILL["other"]),
             line="7F8A93" if kind in ("input", "card", "image") else None, round_=is_btn,
-            label=None if kind in ("image", "list", "text") else lbl, size=WF_SIZE,
+            label=None if kind in ("image", "list", "text") or not labels else lbl, size=WF_SIZE,
             color=WHITE if is_btn else WF_TEXT, name="wf-%s" % kind)
-        if kind == "image":
+        if not labels:                                   # 썸네일 — 배치만 보입니다
+            pass
+        elif kind == "image":
             line(slide, rx, ry, rx + rw, ry + rh, color="B5BCC2", width=0.75)
             line(slide, rx, ry + rh, rx + rw, ry, color="B5BCC2", width=0.75)
             text(slide, rx, ry + rh / 2 - 0.13, rw, 0.26, lbl, size=WF_SIZE, color=WF_TEXT, align="c")
@@ -583,3 +637,144 @@ def est_text_height(paras, width_in, size, spacing=4):
             indent = sz * (MARK_SCALE + MARK_GAP) / 72.0 * ((0 if lvl is True else int(lvl)) + 1)
         h += est_lines(s, width_in - 0.08 - indent, sz) * line_height(sz) + spacing / 72.0
     return h
+
+
+# ── 꺾은선 연결선 ─────────────────────────────────────────────────────
+
+def _set_geom(conn, prst, adj=None):
+    """연결선의 모양(직선 · L자 · Z자)을 바꿉니다."""
+    sp = conn._element
+    geom = sp.spPr.find(qn("a:prstGeom"))
+    geom.set("prst", prst)
+    av = geom.find(qn("a:avLst"))
+    if av is None:
+        av = geom.makeelement(qn("a:avLst"), {})
+        geom.append(av)
+    for g in list(av):
+        av.remove(g)
+    if adj is not None:
+        gd = av.makeelement(qn("a:gd"), {"name": "adj1", "fmla": "val %d" % int(round(adj * 100000))})
+        av.append(gd)
+
+
+def _set_xfrm(conn, x, y, w, h, rot=0, flip_h=False, flip_v=False):
+    xfrm = conn._element.spPr.find(qn("a:xfrm"))
+    for k in ("rot", "flipH", "flipV"):
+        if k in xfrm.attrib:
+            del xfrm.attrib[k]
+    if rot:
+        xfrm.set("rot", str(rot))
+    if flip_h:
+        xfrm.set("flipH", "1")
+    if flip_v:
+        xfrm.set("flipV", "1")
+    xfrm.find(qn("a:off")).set("x", str(int(Inches(x))))
+    xfrm.find(qn("a:off")).set("y", str(int(Inches(y))))
+    xfrm.find(qn("a:ext")).set("cx", str(int(Inches(max(w, 0.001)))))
+    xfrm.find(qn("a:ext")).set("cy", str(int(Inches(max(h, 0.001)))))
+
+
+def _glue(conn, start=None, end=None):
+    """연결선 끝을 도형의 연결점에 붙입니다(도형을 옮기면 선이 따라옵니다). (도형, 연결점 번호)."""
+    nv = conn._element.find(qn("p:nvCxnSpPr")).find(qn("p:cNvCxnSpPr"))
+    for tag, target in (("a:stCxn", start), ("a:endCxn", end)):
+        if target is None:
+            continue
+        shp, idx = target
+        el = nv.makeelement(qn(tag), {"id": str(shp.shape_id), "idx": str(idx)})
+        nv.append(el)
+
+
+ANCHOR = 0.08                  # 연결선 앵커(보이지 않는 정사각형) 한 변
+
+
+def _sign_dir(d, axis):
+    return ("r" if d > 0 else "l") if axis == "h" else ("d" if d > 0 else "u")
+
+
+def _directions(sx, sy, ex, ey, first, mid):
+    """(시작점에서 나가는 방향, 끝점으로 들어가는 방향) — r · l · d · u."""
+    if abs(sx - ex) < 0.005:
+        d = _sign_dir(ey - sy, "v")
+        return d, d
+    if abs(sy - ey) < 0.005:
+        d = _sign_dir(ex - sx, "h")
+        return d, d
+    other = "v" if first == "h" else "h"
+    to = mid if mid is not None else (ex if first == "h" else ey)
+    dep = _sign_dir(to - (sx if first == "h" else sy), first)
+    if mid is None:                                       # L자 — 마지막 선은 다른 축
+        arr = _sign_dir((ey - sy) if other == "v" else (ex - sx), other)
+    else:                                                 # Z · ㄷ자 — 마지막 선은 처음과 같은 축
+        arr = _sign_dir((ex if first == "h" else ey) - mid, first)
+    return dep, arr
+
+
+def _anchor(slide, x, y, d, at_start):
+    """(x, y)에 연결점이 오도록 보이지 않는 작은 도형을 두고 (도형, 연결점 번호)를 돌려줍니다.
+
+    시작점이면 나가는 방향 쪽 변, 끝점이면 들어오는 쪽 변의 연결점을 씁니다(0 위 · 1 왼쪽 · 2 아래 · 3 오른쪽).
+    """
+    a = ANCHOR
+    if at_start:
+        place = {"r": (x - a, y - a / 2, 3), "l": (x, y - a / 2, 1), "d": (x - a / 2, y - a, 2),
+                 "u": (x - a / 2, y, 0)}
+    else:
+        place = {"r": (x, y - a / 2, 1), "l": (x - a, y - a / 2, 3), "d": (x - a / 2, y, 0),
+                 "u": (x - a / 2, y - a, 2)}
+    bx, by, idx = place[d]
+    return box(slide, bx, by, a, a, name="connector-anchor"), idx
+
+
+def elbow(slide, sx, sy, ex, ey, first="h", mid=None, color=MUTED, width=1.0, arrow=False, dash=False,
+          start=None, end=None):
+    """꺾은선 연결선 하나 — 선 여러 개를 이어 붙이지 않습니다. 편집기에서 도형을 옮겨도 함께 움직입니다.
+
+    first="h": 가로로 먼저, "v": 세로로 먼저 나갑니다. mid가 없으면 한 번 꺾는 L자,
+    있으면 두 번 꺾는 Z자이고 mid는 꺾이는 자리(가로 먼저면 x, 세로 먼저면 y)입니다. mid가 양 끝 바깥이면
+    ㄷ자(위로 돌아 들어가기)가 됩니다.
+    start · end는 (도형, 연결점 번호) — 사각형 · 마름모는 0 위 · 1 왼쪽 · 2 아래 · 3 오른쪽입니다.
+    비우면 그 자리에 보이지 않는 앵커 도형(`connector-anchor`)을 두고 붙입니다.
+    """
+    # ㄷ자(양 끝이 같은 높이 · 같은 열이고 mid가 바깥) — 한쪽 끝을 아주 조금 비켜 Z자 연결선으로 그립니다
+    if mid is not None and first == "v" and abs(sy - ey) < 0.005:
+        ey = sy + 0.01
+    elif mid is not None and first == "h" and abs(sx - ex) < 0.005:
+        ex = sx + 0.01
+    # 도형 연결점에 붙지 않는 끝은 보이지 않는 앵커 도형을 두고 붙입니다 — 편집기(PowerPoint · Google Slides)가
+    # 경로를 다시 계산해도 끝 위치와 나가고 들어오는 방향이 그대로 남습니다
+    if start is None or end is None:
+        dep, arr = _directions(sx, sy, ex, ey, first, mid)
+        if start is None:
+            start = _anchor(slide, sx, sy, dep, True)
+        if end is None:
+            end = _anchor(slide, ex, ey, arr, False)
+    if abs(sx - ex) < 0.005 or abs(sy - ey) < 0.005:      # 일직선
+        c = line(slide, sx, sy, ex, ey, color=color, width=width, arrow=arrow, dash=dash)
+        _glue(c, start, end)
+        return c
+    c = line(slide, sx, sy, ex, ey, color=color, width=width, dash=dash)
+    head = False
+    if mid is None and first == "v":
+        # 세로 먼저 L자 = 끝에서 시작하는 가로 먼저 L자를 거꾸로 — 화살표는 머리 쪽에 둡니다
+        sx, sy, ex, ey = ex, ey, sx, sy
+        start, end = end, start
+        head = True
+    w, h = abs(ex - sx), abs(ey - sy)
+    if mid is None:
+        _set_geom(c, "bentConnector2")
+        _set_xfrm(c, min(sx, ex), min(sy, ey), w, h, flip_h=ex < sx, flip_v=ey < sy)
+    elif first == "h":
+        _set_geom(c, "bentConnector3", (mid - sx) / (ex - sx))
+        _set_xfrm(c, min(sx, ex), min(sy, ey), w, h, flip_h=ex < sx, flip_v=ey < sy)
+    else:
+        # 세로 먼저 Z자 — 90° 돌린 가로 먼저 Z자입니다. 돌리기 전 상자는 가로 · 세로가 바뀝니다
+        cx, cy = (sx + ex) / 2.0, (sy + ey) / 2.0
+        _set_geom(c, "bentConnector3", (mid - sy) / (ey - sy))
+        _set_xfrm(c, cx - h / 2.0, cy - w / 2.0, h, w, rot=5400000, flip_h=ey < sy, flip_v=ex > sx)
+    if arrow:
+        ln = c.line._get_or_add_ln()
+        ln.append(ln.makeelement(qn("a:headEnd" if head else "a:tailEnd"),
+                                 {"type": "triangle", "w": "med", "len": "med"}))
+    _glue(c, start, end)
+    return c
