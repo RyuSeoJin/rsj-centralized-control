@@ -1,0 +1,460 @@
+{
+  "schema": "app-planning/overview@1",
+  "project": {
+    "name": "예시 앱 — 동네 운동 모임",
+    "version": "0.1",
+    "date": "2026-10-11",
+    "author": "기획",
+    "status": "초안"
+  },
+  "history": [
+    {
+      "version": "0.1",
+      "date": "2026-10-11",
+      "author": "기획",
+      "note": "최초 작성"
+    }
+  ],
+  "overview": {
+    "background": "가까운 곳에서 함께 운동할 사람을 찾으려면 여러 단체 대화방을 오가며 일정을 맞춰야 합니다. 모집 글이 흩어져 있어 빈자리를 알기 어렵고, 노쇼가 잦습니다.",
+    "problems": [
+      "근처에서 열리는 모임을 한곳에서 볼 수 없습니다",
+      "빈자리와 참가 확정 여부를 실시간으로 알 수 없습니다",
+      "노쇼가 생겨도 모임장이 관리할 방법이 없습니다"
+    ],
+    "personas": [
+      {
+        "name": "퇴근 후 러너",
+        "profile": "30대 직장인 · 주 2회 저녁 운동",
+        "needs": [
+          "회사 근처 저녁 모임",
+          "혼자 가도 어색하지 않은 분위기"
+        ],
+        "pains": [
+          "대화방 알림이 너무 많음",
+          "당일 취소가 잦음"
+        ],
+        "quote": "퇴근길에 바로 갈 수 있는 모임이면 좋겠어요"
+      },
+      {
+        "name": "주말 모임장",
+        "profile": "40대 · 주말 배드민턴 모임 운영",
+        "needs": [
+          "인원 마감 자동 처리",
+          "참가비 정산"
+        ],
+        "pains": [
+          "노쇼 관리",
+          "공지 반복 작성"
+        ],
+        "quote": "누가 오는지만 확실하면 운영이 훨씬 편해요"
+      }
+    ],
+    "value": "내 주변 운동 모임의 빈자리를 바로 찾아 한 번에 참가를 확정합니다.",
+    "kpis": [
+      {
+        "name": "주간 참가 확정 수",
+        "target": "주 500건",
+        "measure": "참가 확정 이벤트 집계"
+      },
+      {
+        "name": "노쇼율",
+        "target": "5% 이하",
+        "measure": "확정 대비 미출석 비율"
+      },
+      {
+        "name": "재참가율",
+        "target": "40%",
+        "measure": "30일 안에 다시 참가한 사용자 비율"
+      }
+    ],
+    "scope": {
+      "in": [
+        "모임 찾기 · 참가 신청",
+        [
+          "목록 · 상세 · 신청 · 취소",
+          "대기 신청"
+        ],
+        "모임 만들기 · 인원 관리",
+        "로그인 · 프로필"
+      ],
+      "out": [
+        "결제 · 정산 (2차)",
+        "채팅 (2차)"
+      ]
+    },
+    "journey": {
+      "persona": "퇴근 후 러너",
+      "stages": [
+        {
+          "name": "찾기",
+          "actions": [
+            "퇴근 전 근처 모임 검색"
+          ],
+          "touchpoints": "모임 목록",
+          "thoughts": "오늘 저녁에 갈 수 있을까?",
+          "emotion": 0,
+          "pains": [
+            "시간대가 안 맞는 모임이 섞여 보임"
+          ],
+          "opportunities": [
+            "퇴근 시간 기준 정렬"
+          ]
+        },
+        {
+          "name": "고르기",
+          "actions": [
+            "상세에서 장소 · 인원 확인"
+          ],
+          "touchpoints": "모임 상세",
+          "thoughts": "처음 가도 괜찮을까?",
+          "emotion": -1,
+          "pains": [
+            "분위기를 알 수 없음"
+          ],
+          "opportunities": [
+            "참가자 수준 표시"
+          ]
+        },
+        {
+          "name": "신청",
+          "actions": [
+            "참가 신청"
+          ],
+          "touchpoints": "참가 신청 버튼",
+          "thoughts": "자리가 남아 있네",
+          "emotion": 1,
+          "pains": [
+            "마지막 자리 경쟁"
+          ],
+          "opportunities": [
+            "대기 신청"
+          ]
+        },
+        {
+          "name": "참가",
+          "actions": [
+            "장소 도착 · 출석"
+          ],
+          "touchpoints": "알림",
+          "thoughts": "생각보다 사람이 많네",
+          "emotion": 2,
+          "pains": [
+            "장소 찾기"
+          ],
+          "opportunities": [
+            "도착 안내"
+          ]
+        },
+        {
+          "name": "다시 찾기",
+          "actions": [
+            "다음 모임 찾기"
+          ],
+          "touchpoints": "내 모임",
+          "thoughts": "다음 주에도 가야지",
+          "emotion": 1,
+          "pains": [
+            "같은 모임 다시 찾기 번거로움"
+          ],
+          "opportunities": [
+            "모임 구독"
+          ]
+        }
+      ]
+    }
+  },
+  "ia": {
+    "tree": [
+      {
+        "id": "S0",
+        "name": "앱",
+        "children": [
+          {
+            "id": "S1",
+            "name": "로그인",
+            "children": [
+              {
+                "id": "S1-01",
+                "name": "로그인",
+                "kind": "page",
+                "login": false
+              },
+              {
+                "id": "S1-02",
+                "name": "회원가입",
+                "kind": "page",
+                "login": false,
+                "change": "NEW"
+              }
+            ]
+          },
+          {
+            "id": "S2",
+            "name": "모임 찾기",
+            "children": [
+              {
+                "id": "S2-01",
+                "name": "모임 목록",
+                "kind": "page",
+                "login": false
+              },
+              {
+                "id": "S2-02",
+                "name": "모임 상세",
+                "kind": "page",
+                "login": false,
+                "change": "UPDATE"
+              },
+              {
+                "id": "S2-03",
+                "name": "참가 신청 완료",
+                "kind": "popup",
+                "login": true
+              }
+            ]
+          },
+          {
+            "id": "S3",
+            "name": "내 모임",
+            "children": [
+              {
+                "id": "S3-01",
+                "name": "참가 예정",
+                "kind": "tab",
+                "login": true
+              },
+              {
+                "id": "S3-02",
+                "name": "모임 만들기",
+                "kind": "page",
+                "login": true,
+                "change": "NEW"
+              }
+            ]
+          },
+          {
+            "id": "S4",
+            "name": "마이",
+            "children": [
+              {
+                "id": "S4-01",
+                "name": "프로필",
+                "kind": "tab",
+                "login": true
+              },
+              {
+                "id": "S4-02",
+                "name": "설정",
+                "kind": "external",
+                "login": true
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "flows": [
+      {
+        "name": "참가 신청",
+        "path": [
+          "S2-01",
+          "S2-02",
+          "S1-01",
+          "S2-03",
+          "S3-01"
+        ]
+      },
+      {
+        "name": "참가 취소",
+        "path": [
+          "S3-01",
+          "S2-02",
+          "S3-01"
+        ]
+      }
+    ]
+  },
+  "features": [
+    {
+      "id": "F-AUTH-01",
+      "name": "로그인",
+      "screen": "S1-01",
+      "summary": "이메일 · 소셜 계정으로 로그인합니다",
+      "policy": "5회 실패 시 10분 잠금",
+      "integration": "소셜 로그인 SDK",
+      "priority": "P1",
+      "impact": "high",
+      "effort": "low",
+      "moscow": "must"
+    },
+    {
+      "id": "F-MEET-01",
+      "name": "모임 목록 보기",
+      "screen": "S2-01",
+      "summary": "현재 위치 기준 반경 안의 모임을 시간순으로 봅니다",
+      "policy": "",
+      "integration": "지도 · 위치 API",
+      "priority": "P1",
+      "impact": "high",
+      "effort": "high",
+      "moscow": "must"
+    },
+    {
+      "id": "F-MEET-02",
+      "name": "참가 신청",
+      "screen": "S2-02",
+      "summary": "빈자리가 있으면 참가를 확정합니다",
+      "policy": "시작 2시간 전까지 취소 가능",
+      "integration": "",
+      "priority": "P1",
+      "impact": "high",
+      "effort": "low",
+      "moscow": "must"
+    },
+    {
+      "id": "F-MEET-03",
+      "name": "대기 신청",
+      "screen": "S2-02",
+      "summary": "마감된 모임에 대기를 걸어 둡니다",
+      "policy": "자리가 나면 알림만 보냅니다",
+      "integration": "푸시 알림",
+      "priority": "P2",
+      "impact": "low",
+      "effort": "low",
+      "moscow": "should"
+    },
+    {
+      "id": "F-PAY-01",
+      "name": "참가비 결제",
+      "screen": "S2-02",
+      "summary": "참가 시 참가비를 결제합니다",
+      "policy": "?",
+      "integration": "결제 대행",
+      "priority": "P3",
+      "impact": "low",
+      "effort": "high",
+      "moscow": "wont"
+    }
+  ],
+  "open_questions": [
+    "노쇼 제재 기준(횟수 · 기간)을 정해야 합니다"
+  ],
+  "glossary": [
+    {
+      "term": "모임",
+      "definition": "모임장이 연 1회성 운동 일정. 일시 · 장소 · 정원을 가집니다",
+      "example": "화요일 저녁 한강 러닝"
+    },
+    {
+      "term": "모임장",
+      "definition": "모임을 만들고 참가자를 관리하는 사용자",
+      "example": ""
+    },
+    {
+      "term": "참가 확정",
+      "definition": "남은 자리를 차지해 참가자 목록에 들어간 상태",
+      "example": ""
+    },
+    {
+      "term": "노쇼",
+      "definition": "참가 확정 뒤 취소 없이 나타나지 않은 경우",
+      "example": ""
+    }
+  ],
+  "policies": [
+    {
+      "id": "P-01",
+      "name": "참가 취소",
+      "rule": "모임 시작 2시간 전까지 취소할 수 있습니다. 그 뒤에는 모임장만 처리합니다",
+      "screens": [
+        "S2-02",
+        "S3-01"
+      ]
+    },
+    {
+      "id": "P-02",
+      "name": "로그인 잠금",
+      "rule": "5회 연속 실패하면 10분 동안 로그인을 막습니다",
+      "screens": [
+        "S1-01"
+      ]
+    },
+    {
+      "id": "P-03",
+      "name": "정원",
+      "rule": "모임 정원은 2~30명입니다. 마감 뒤에는 대기 신청만 받습니다",
+      "screens": [
+        "S2-02",
+        "S3-02"
+      ]
+    }
+  ],
+  "roadmap": {
+    "periods": [
+      "10월",
+      "11월",
+      "12월",
+      "1월"
+    ],
+    "today": 0.4,
+    "tracks": [
+      {
+        "name": "기획",
+        "items": [
+          {
+            "label": "기획서 확정",
+            "start": 0,
+            "end": 0,
+            "main": true
+          }
+        ]
+      },
+      {
+        "name": "디자인",
+        "items": [
+          {
+            "label": "UI 디자인",
+            "start": 0.5,
+            "end": 1
+          }
+        ]
+      },
+      {
+        "name": "개발",
+        "items": [
+          {
+            "label": "1차 개발",
+            "start": 1,
+            "end": 2,
+            "main": true
+          }
+        ]
+      },
+      {
+        "name": "QA · 출시",
+        "items": [
+          {
+            "label": "QA",
+            "start": 2.5,
+            "end": 3
+          }
+        ]
+      }
+    ],
+    "milestones": [
+      {
+        "label": "기획 확정",
+        "at": 0.9
+      },
+      {
+        "label": "베타",
+        "at": 2.4
+      },
+      {
+        "label": "출시",
+        "at": 3.8
+      }
+    ]
+  }
+}

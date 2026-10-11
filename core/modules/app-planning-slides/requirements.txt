@@ -1,0 +1,2 @@
+# app-planning-slides 모듈이 필요로 하는 것. 게이트가 이 파일이 있으면 설치합니다
+python-pptx>=1.0
