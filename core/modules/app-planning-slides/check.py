@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+# v1.3 · 2026-10-12: 흐름 ID와 분기·복귀 구조 경고 회귀 검사 추가
+# v1.2 · 2026-10-12: 미등록 이동·처리 노드 혼입·연결 화면 ID 검사와 기존 예시 호환 점검 추가
 """app-planning-slides 모듈 자기 점검 — 도구가 뜨고 두 문서가 만들어지는지 봅니다
 
 무엇을 보나
@@ -90,6 +92,47 @@ def main():
         branch["ia"]["flows"][0].setdefault("exceptions", []).append({"from": "S9-99", "when": "?", "to": "S1-01"})
         if not b.validate("overview", branch)[0]:
             fails.append("흐름 경로에 없는 예외 갈래를 통과시켰습니다")
+
+        # 화면 사이 처리 노드를 화면처럼 그리던 실제 누락을 일반화한 회귀 사례입니다.
+        for target in ("n4", "UNREGISTERED", None, "", 7):
+            move = copy.deepcopy(ft)
+            move["screens"][0]["next"][0]["to"] = target
+            errors, _ = b.validate("feature", move)
+            if not any("이동" in e for e in errors):
+                fails.append("잘못된 화면 이동 대상을 통과시켰습니다: %r" % target)
+        disguised = copy.deepcopy(ft)
+        disguised["linked_screens"].append({"id": "n4", "name": "처리 노드"})
+        disguised["screens"][0]["next"][0]["to"] = "n4"
+        if not any("화면이 아닌" in e for e in b.validate("feature", disguised)[0]):
+            fails.append("처리 노드를 연결 화면으로 등록해 검사를 우회했습니다")
+        for sid in ("S2-02", "S1-01", None, ""):
+            catalog = copy.deepcopy(ft)
+            catalog["linked_screens"].append({"id": sid, "name": "중복 또는 빈 ID"})
+            if not b.validate("feature", catalog)[0]:
+                fails.append("잘못된 연결 화면 ID를 통과시켰습니다: %r" % sid)
+        shared = copy.deepcopy(ft)
+        shared["flow"]["nodes"].append({"id": "S2-02", "type": "screen", "label": "모임 상세", "lane": "앱"})
+        if b.validate("feature", shared)[0]:
+            fails.append("실제 화면 노드의 기존 ID 재사용을 막았습니다")
+        for sid in ("n1", None, "", 7):
+            bad_id = copy.deepcopy(ft)
+            bad_id["flow"]["nodes"].append({"id": sid, "type": "process", "label": "검사", "lane": "앱"})
+            if not any("노드 ID" in e for e in b.validate("feature", bad_id)[0]):
+                fails.append("빈 값 또는 중복 흐름 ID를 통과시켰습니다: %r" % sid)
+        branch = copy.deepcopy(ft)
+        branch["flow"]["edges"] = [e for e in branch["flow"]["edges"] if not (e["from"] == "n2" and e.get("label") == "아니오")]
+        if not any("조건 출구" in w for w in b.validate("feature", branch)[1]):
+            fails.append("조건 출구 누락을 알리지 않았습니다")
+        unlabeled = copy.deepcopy(ft)
+        for edge in unlabeled["flow"]["edges"]:
+            if edge["from"] == "n2": edge.pop("label", None)
+        if not any("분기 라벨" in w for w in b.validate("feature", unlabeled)[1]):
+            fails.append("분기 라벨 누락을 알리지 않았습니다")
+        dead = copy.deepcopy(ft)
+        dead["flow"]["edges"] = [e for e in dead["flow"]["edges"] if e["from"] != "n4"]
+        warnings = b.validate("feature", dead)[1]
+        if not any("n4: 출구" in w for w in warnings) or any("n7: 출구" in w for w in warnings):
+            fails.append("처리 출구 누락과 정상 종료를 구분하지 못했습니다")
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
     return modcheck.done("app-planning-slides", fails)

@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+# v1.3 · 2026-10-12: 흐름 ID·분기 라벨·출구 누락 검사 추가
+# v1.2 · 2026-10-12: 화면 카탈로그와 이동 대상 검사 — 처리 노드를 화면으로 그리는 입력 차단
 """앱 기획 슬라이드 생성 — 입력(JSON)에서 Google Slides로 옮길 .pptx를 만듭니다
 
 두 가지 문서를 만듭니다. 형식과 채우는 법의 정본은 rules/planning-slides.md입니다.
@@ -616,17 +618,41 @@ def validate(kind, data):
             if marked:
                 warn.append("변경 배지(%s)가 있지만 문서 이력이 한 줄뿐입니다 — 무엇에 비해 바뀌었는지 이력에 적습니다"
                             % ", ".join(marked))
-        own = {sc.get("id") for sc in data.get("screens", [])}
-        named = {l.get("id") for l in data.get("linked_screens") or []}
-        far = sorted({n.get("to") for sc in data.get("screens", []) for n in sc.get("next") or []} - own - named)
-        if far:
-            warn.append("이동 대상 %s의 이름이 없습니다 — linked_screens에 적어야 처음 읽는 사람이 압니다" % ", ".join(far))
+        if len((data.get("feature") or {}).get("terms") or []) > 6:
+            warn.append("용어는 6개까지 보입니다 — 7번째부터는 빠집니다. 합치거나 전체 문서의 용어 정의로 옮깁니다")
+        # 등록 여부와 의미를 따로 검사합니다. 코드 접두로 화면 종류를 추측하지 않습니다.
+        catalog = list(data.get("screens") or []) + list(data.get("linked_screens") or [])
+        screen_ids = set()
+        for sc in catalog:
+            sid = sc.get("id")
+            if not isinstance(sid, str) or not sid.strip():
+                err.append("화면 ID는 비어 있지 않은 문자열이어야 합니다")
+                continue
+            if sid in screen_ids:
+                err.append("화면 카탈로그 ID 중복: %s" % sid)
+            screen_ids.add(sid)
+        for sc in data.get("linked_screens") or []:
+            if not sc.get("name"):
+                warn.append("연결 화면 %s의 이름이 없습니다" % sc.get("id"))
         fl = data.get("flow") or {}
-        ids = {n.get("id") for n in fl.get("nodes") or []}
+        non_screens = {n.get("id") for n in fl.get("nodes") or []
+                       if n.get("type", "process") not in ("screen", "io")}
+        for sid in screen_ids & non_screens:
+            err.append("화면 %s: 처리·조건 등 화면이 아닌 흐름 노드와 ID가 겹칩니다" % sid)
+        node_ids = [n.get("id") for n in fl.get("nodes") or []]
+        ids = {sid for sid in node_ids if isinstance(sid, str) and sid.strip()}
+        if len(ids) != len(node_ids):
+            err.append("흐름도: 노드 ID는 비어 있지 않은 문자열이며 중복될 수 없습니다")
         if len(ids) > FLOW_MAX:
             warn.append("흐름도 노드는 %d개 이하를 권합니다 — 나눠 그립니다 (지금 %d)" % (FLOW_MAX, len(ids)))
         for sc in data.get("screens", []):
             for n in sc.get("next") or []:
+                to = n.get("to")
+                if not isinstance(to, str) or not to.strip():
+                    err.append("%s: 이동할 화면 ID가 없습니다 — 미정 이동은 open_questions에 적습니다" % sc.get("id"))
+                elif to not in screen_ids:
+                    err.append("%s: 이동 대상 %s는 등록된 화면이 아닙니다 — 처리·조건은 flow에 적습니다"
+                               % (sc.get("id"), to))
                 if n.get("kind") not in (None, "exception"):
                     err.append("%s: 이동의 kind는 exception만 씁니다 (%r)" % (sc.get("id"), n.get("kind")))
         for n in fl.get("nodes") or []:
@@ -635,6 +661,13 @@ def validate(kind, data):
         for e in fl.get("edges") or []:
             if e.get("from") not in ids or e.get("to") not in ids:
                 err.append("흐름도 연결 %s → %s: 없는 노드" % (e.get("from"), e.get("to")))
+        for n in fl.get("nodes") or []:
+            outgoing = [e for e in fl.get("edges") or [] if e.get("from") == n.get("id")]
+            if n.get("type") == "decision":
+                if len(outgoing) < 2 or any(not str(e.get("label") or "").strip() for e in outgoing):
+                    warn.append("흐름도 %s: 조건 출구 또는 분기 라벨이 부족합니다 — 결과별 도착지를 검토합니다" % n.get("id"))
+            elif n.get("type") != "end" and not outgoing:
+                warn.append("흐름도 %s: 출구가 없습니다 — 종료·복귀·미정 여부를 검토합니다" % n.get("id"))
         lanes = {n.get("lane") for n in fl.get("nodes") or [] if n.get("lane")}
         if lanes and any(not n.get("lane") for n in fl.get("nodes") or []):
             err.append("흐름도: 레인을 쓰면 모든 노드에 lane을 적습니다")
