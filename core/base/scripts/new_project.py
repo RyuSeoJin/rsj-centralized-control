@@ -12,10 +12,10 @@
   {프로젝트 자리}/{제품}/{슬러그}/        프로젝트 자리 = workspace.json project_roots의 첫 항목
       {슬러그}-change-log.md · {슬러그}-remaining-work.md · {슬러그}-dictionary.md
       {슬러그}-modules.json          어느 모듈을 켰는가 (처음에는 비어 있습니다)
-      spec/design/ · spec/rationale/ · spec/archive/
-      analysis/ · reference/
-      rules/                         이 프로젝트에서만 통하는 규칙이 자라는 자리
-      docs/                          읽는 HTML이 놓이는 자리 (regen.py가 채웁니다)
+
+  폴더는 만들지 않습니다. spec/design/ · analysis/ 같은 자리는 이름만 규칙이 정해 두고,
+  첫 파일을 넣을 때 생깁니다. 켠 모듈이 쓰는 폴더는 모듈을 켤 때 module.py가 만들고,
+  docs/는 생성기가 처음 문서를 찍을 때 생깁니다.
 
   세 md는 base/design-template/project/의 서식을 복사해 `{프로젝트}`와 `{날짜}`만 채웁니다.
   문구를 이 코드 안에 두지 않는 이유는, 서식을 고치려고 도구를 열어야 하는 상태를 피하려는
@@ -42,10 +42,10 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from project_structure import load_structure, local_path  # noqa: E402
 from project_paths import validate_key, new_project_base  # noqa: E402
 
-#: 프로젝트면 반드시 갖는 폴더. 규칙 정본은 rules/project-scaffold.md이며,
+#: 새 프로젝트가 처음부터 갖는 폴더 — 없습니다. 쓰지 않는 빈 폴더가 프로젝트마다 쌓이므로
+#: 자리는 첫 파일을 넣을 때 생깁니다. 규칙 정본은 rules/project-scaffold.md이며,
 #: 여기 목록과 그 문서가 어긋나면 문서 쪽이 정본입니다
-DIRS = ("spec/design", "spec/rationale", "spec/archive",
-        "analysis", "reference", "rules", "docs")
+DIRS = ()
 
 #: (서식 파일, 만들 파일의 꼬리)
 DOCS = (("change-log.md", "-change-log.md"),
@@ -74,7 +74,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("slug", help="프로젝트 슬러그 (kebab-case). 폴더 이름이자 파일 접두입니다")
     ap.add_argument("--repo-root", default=None)
-    ap.add_argument("--structure", help="폴더 역할을 정의한 구조 JSON. 생략하면 기존 기본 구조를 만듭니다")
+    ap.add_argument("--structure", help="폴더 역할을 정의한 구조 JSON. 생략하면 관리 파일만 만듭니다")
     args = ap.parse_args()
     # 한글 출력이 콘솔 기본 인코딩으로 나가면, 다른 도구가 받아 읽을 때 깨집니다.
     # 오류는 stderr로 나가므로 둘 다 맞춥니다
@@ -110,16 +110,17 @@ def main():
             load_structure(candidate, require_files=False)
         if structure.get('jobs') or any(r['kind'] != 'directory' for r in structure['resources']):
             sys.exit('새 프로젝트 구조에는 폴더만 등록합니다. 내용과 생성기는 작성 후 등록합니다')
-        directories = tuple(dict.fromkeys(['rules', 'docs'] + [r['path'] for r in structure['resources']]))
+        directories = tuple(dict.fromkeys(r['path'] for r in structure['resources']))
 
     tpl_dir = os.path.join(core_root(), "base", "design-template", "project")
     today = datetime.date.today().isoformat()
 
     made = []
+    os.makedirs(proj)
     for d in directories:
         p = os.path.join(proj, *d.split("/"))
         os.makedirs(p, exist_ok=True)
-        # 빈 폴더는 git이 버리므로 자리를 지킬 파일을 하나 둔다
+        # 구조 설정에 등록한 폴더는 쓰기로 정한 자리다. 빈 폴더는 git이 버리므로 자리를 지킬 파일을 둔다
         io.open(os.path.join(p, ".gitkeep"), "w", encoding="utf-8").close()
         made.append(d + "/")
 

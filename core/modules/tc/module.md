@@ -16,7 +16,7 @@ UI 기획과 워크플로우만 정리하고 검증은 다른 팀이 하는 프�
 | 규칙 | `depth-and-tn` · `verification-types` · `case-expansion` · `tc-relations` · `tc-sheet-format` |
 | 서식 | `design-template/` — TC 시트 기준 서식 · 입력 골격 · xlsx 서식 정본. 목록은 `tc-template-catalog.md`이며, 고르는 법은 base 카탈로그가 정본입니다 |
 | 도구 | 골격 파서 · 커버리지 대조 · TC xlsx 생성 · 기능 골격/TC 시트/추적 매트릭스 HTML |
-| 프로젝트에 생기는 것 | `test-case/` |
+| 프로젝트에 생기는 것 | `test-case/` (모듈을 켤 때 `module.py`가 만듭니다) |
 | 용어 | `tc-dictionary.md` — 이 모듈의 용어 색인 |
 | 프로젝트가 정해야 하는 값 | `gate_states` · `state_default` — 이 서비스의 게이팅 상태 |
 

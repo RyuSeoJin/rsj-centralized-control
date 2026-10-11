@@ -1,0 +1,77 @@
+{
+  "meta": {
+    "title": "예시 앱 · 워크플로우 탐색기",
+    "lead": "도형을 선택하면 다음 행동이 보이고, 행동을 고르면 다음 유저 행동까지의 경로를 그립니다.",
+    "start": "S1",
+    "userLane": "u",
+    "footer": "workflow-explorer 입력 예시",
+    "guide": {
+      "title": "예시 · 흐름도 작성 규칙", "version": "1.0", "button": "작성 규칙",
+      "intro": [{"t": "p", "text": "도형·연결선의 뜻을 [연결선](#lines)에서 확인합니다."}],
+      "sections": [
+        {"id": "shapes", "title": "1. 도형", "blocks": [{"t": "table", "head": ["도형", "의미"], "rows": [["마름모", "조건 판단"], ["사각형", "행동·처리"]]}]},
+        {"id": "lines", "title": "2. 연결선", "blocks": [
+          {"t": "ul", "items": ["예는 **파랑**, 아니오는 **빨강**입니다."]},
+          {"t": "check", "items": ["마름모마다 예·아니오가 있는가?"]},
+          {"t": "code", "text": "<조건> ─ 예 → [처리]"}]}
+      ]
+    }
+  },
+  "lanes": [
+    {"key": "u", "label": "유저 구역"},
+    {"key": "s", "label": "시스템 구역"}
+  ],
+  "flows": [
+    {
+      "code": "S",
+      "title": "로그인",
+      "note": "예시 흐름입니다.",
+      "nodes": [
+        {"id": "S1", "type": "term", "lane": "u", "text": "앱 실행"},
+        {"id": "S2", "type": "decision", "lane": "s", "text": "로그인되어\n있는가?"},
+        {"id": "S3", "type": "output", "lane": "s", "text": "[화면]\n로그인 노출", "screens": [{"title": "로그인 화면", "source": "예시"}]},
+        {"id": "S4", "type": "input", "lane": "u", "text": "계정 정보 입력"},
+        {"id": "S5", "type": "action", "lane": "u", "text": "로그인 선택"},
+        {"id": "S6", "type": "decision", "lane": "s", "text": "계정 정보가\n맞는가?"},
+        {"id": "S7", "type": "output", "lane": "s", "text": "[화면 내 안내]\n입력 오류 노출"},
+        {"id": "S8", "type": "ref", "lane": "u", "text": "S4", "target": "S4"},
+        {"id": "S9", "type": "action", "lane": "s", "text": "로그인 상태 저장"}
+      ],
+      "edges": [
+        {"from": "S1", "to": "S2", "kind": "normal"},
+        {"from": "S2", "to": "S3", "kind": "no", "label": "아니오"},
+        {"from": "S3", "to": "S4", "kind": "normal"},
+        {"from": "S4", "to": "S5", "kind": "normal"},
+        {"from": "S5", "to": "S6", "kind": "normal"},
+        {"from": "S6", "to": "S9", "kind": "yes", "label": "예"},
+        {"from": "S6", "to": "S7", "kind": "no", "label": "아니오"},
+        {"from": "S7", "to": "S8", "kind": "normal", "label": "재입력"}
+      ]
+    },
+    {
+      "code": "H",
+      "title": "홈",
+      "note": "예시 흐름입니다.",
+      "nodes": [
+        {"id": "H1", "type": "output", "lane": "s", "text": "[화면]\n홈 노출", "screens": [{"title": "홈", "source": "예시"}]},
+        {"id": "H2", "type": "action", "lane": "u", "text": "설정 선택"},
+        {"id": "H3", "type": "output", "lane": "s", "text": "[시트]\n설정 노출"},
+        {"id": "H4", "type": "action", "lane": "u", "text": "로그아웃 선택"},
+        {"id": "H5", "type": "action", "lane": "s", "text": "로그인 상태 삭제"},
+        {"id": "H6", "type": "term", "lane": "s", "text": "로그아웃 완료"}
+      ],
+      "edges": [
+        {"from": "H1", "to": "H2", "kind": "normal"},
+        {"from": "H2", "to": "H3", "kind": "normal"},
+        {"from": "H3", "to": "H4", "kind": "normal"},
+        {"from": "H3", "to": "H1", "kind": "normal", "label": "닫기"},
+        {"from": "H4", "to": "H5", "kind": "normal"},
+        {"from": "H5", "to": "H6", "kind": "normal"}
+      ]
+    }
+  ],
+  "links": [
+    {"from": "S2", "to": "H1", "kind": "yes", "label": "예"},
+    {"from": "S9", "to": "H1", "kind": "normal"}
+  ]
+}

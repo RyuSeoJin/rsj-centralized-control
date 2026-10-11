@@ -1,0 +1,256 @@
+/* workflow-explorer — 마스터 토큰(--page·--surface·--ink·--accent …) 위에서만 색을 씁니다.
+   구역 색은 역할 이름(--wfx-user·--wfx-system)으로만 참조하고 값은 테마별로 갈아 끼웁니다. */
+:root{--wfx-subr:#7c3aed;--wfx-jump:#d97706;--wfx-user:#16a34a;--wfx-system:#2563eb;--wfx-section:#64748b;--wfx-section-edge:#334155;--wfx-yes:#2563eb;--wfx-no:#dc2626;--wfx-line:#1e1e1e;--wfx-path:#4f46e5}
+:root[data-theme="dark"]{--wfx-subr:#c4b5fd;--wfx-jump:#fbbf24;--wfx-user:#4ade80;--wfx-system:#60a5fa;--wfx-section:#94a3b8;--wfx-section-edge:#cbd5e1;--wfx-yes:#60a5fa;--wfx-no:#f87171;--wfx-line:#a1a1aa;--wfx-path:#a5b4fc}
+body.wfx-body{margin:0;background:var(--page);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI","Malgun Gothic",sans-serif}
+/* 9칸 배치 — 흐름도(1·2·4·5) · 화면·시뮬레이터(3·6·9, 세로 전체) · 행동·선택(7) · 경로 흐름도(8). 칸 경계는 고정입니다 */
+.wfx-app{--wfx-simcol:420px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) var(--wfx-simcol);grid-template-rows:auto 280px minmax(0,1fr);height:100vh;min-height:620px} /* 패널 줄(지금 할 수 있는 것 · 선택한 도형 · 경로 흐름도)은 흐름도 위 · 2026-10-02 */
+.wfx-top{grid-column:1/-1;display:flex;align-items:center;gap:16px;padding:10px 16px;border-bottom:1px solid var(--hair);background:var(--surface)}
+.wfx-top h1{font-size:17px;margin:0;white-space:nowrap}
+.wfx-top .wfx-lead{font-size:12.5px;color:var(--muted);margin:0;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.wfx-legend{display:flex;gap:10px;font-size:12px;color:var(--ink-2);align-items:center;flex-wrap:wrap}
+.wfx-legend i{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-2px;margin-right:4px}
+.wfx-legend .lg-u i{background:color-mix(in srgb,var(--wfx-user) 22%,transparent);border:1px solid var(--wfx-user)}
+.wfx-legend .lg-s i{background:color-mix(in srgb,var(--wfx-system) 22%,transparent);border:1px solid var(--wfx-system)}
+.wfx-legend .lg-yes i{height:3px;background:var(--wfx-yes)}.wfx-legend .lg-no i{height:3px;background:var(--wfx-no)}.wfx-legend .lg-path i{height:6px;background:var(--ink-2);border-radius:2px}
+.wfx-main{grid-row:3;grid-column:1/3;position:relative;min-width:0;min-height:0}
+#wfx-canvas{position:absolute;inset:0;overflow:hidden;background:var(--page)}
+.wfx-svg{display:block;cursor:grab;touch-action:none;user-select:none}.wfx-svg.is-dragging{cursor:grabbing}
+.wfx-tools{position:absolute;left:12px;top:12px;display:flex;gap:6px;align-items:flex-start;z-index:2}
+.wfx-tools .wfx-group{display:flex;background:var(--surface);border:1px solid var(--hair);border-radius:8px;overflow:hidden;box-shadow:var(--shadow)}
+.wfx-tools button,.wfx-btn{font:inherit;font-size:12.5px;border:0;background:var(--surface);color:var(--ink);padding:6px 10px;cursor:pointer}
+.wfx-tools button+button{border-left:1px solid var(--hair)}
+.wfx-tools button:hover,.wfx-btn:hover{background:var(--surface-2)}
+#wfx-zoom{font-size:12px;padding:6px 8px;color:var(--muted);min-width:42px;text-align:center}
+.wfx-find{position:relative}
+.wfx-find input{font:inherit;font-size:12.5px;width:200px;padding:6px 10px;border:1px solid var(--hair);border-radius:8px;background:var(--surface);color:var(--ink)}
+#wfx-results{position:absolute;top:34px;left:0;width:320px;max-height:320px;overflow:auto;background:var(--surface);border:1px solid var(--hair);border-radius:8px;box-shadow:var(--shadow)}
+#wfx-results:empty{display:none}
+#wfx-results button{display:block;width:100%;text-align:left;border:0;border-bottom:1px solid var(--grid);background:none;color:var(--ink);padding:7px 10px;font:inherit;font-size:12.5px;cursor:pointer}
+#wfx-results button:hover{background:var(--surface-2)}#wfx-results p{margin:8px 10px;font-size:12.5px;color:var(--muted)}
+.wfx-indexbox{position:absolute;right:12px;top:12px;z-index:2;background:var(--surface);border:1px solid var(--hair);border-radius:8px;box-shadow:var(--shadow);max-height:calc(100% - 24px);display:flex;flex-direction:column;width:230px}
+.wfx-indexbox summary{padding:7px 10px;font-size:12.5px;cursor:pointer;font-weight:600}
+#wfx-index{list-style:none;margin:0;padding:0 0 6px;overflow:auto;max-height:52vh}
+#wfx-index button{display:flex;gap:6px;width:100%;border:0;background:none;color:var(--ink);text-align:left;font:inherit;font-size:12px;padding:4px 10px;cursor:pointer}
+#wfx-index button:hover{background:var(--surface-2)}#wfx-index small{margin-left:auto;color:var(--muted)}
+/* 캔버스 */
+/* 섹션 테두리는 연결선(1.6px)과 헷갈리지 않게 진한 회청 4px · 하위 섹션은 3px 점선(2026-10-06 사용자 요청) */
+.wfx-section{fill:color-mix(in srgb,var(--wfx-section) 5%,var(--surface));stroke:var(--wfx-section-edge);stroke-width:4}
+.wfx-section-title{font-size:22px;font-weight:700;fill:var(--ink)}
+/* 하위 섹션(2026-10-02) — 화면에서 고를 수 있는 행동마다 섹션 안에 쌓는 작은 섹션. 점선 테두리 · 조금 진한 바탕 · 작은 제목 */
+.wfx-section.is-sub{fill:color-mix(in srgb,var(--wfx-section) 9%,var(--surface));stroke-width:3;stroke-dasharray:10 6}
+.wfx-section-title.is-sub{font-size:17px}
+.wfx-lane{stroke-width:1}
+.wfx-lane.lane-u{fill:color-mix(in srgb,var(--wfx-user) 8%,transparent);stroke:color-mix(in srgb,var(--wfx-user) 55%,transparent)}
+.wfx-lane.lane-s{fill:color-mix(in srgb,var(--wfx-system) 8%,transparent);stroke:color-mix(in srgb,var(--wfx-system) 55%,transparent)}
+.wfx-lane-title{font-size:13px;font-weight:700;fill:var(--ink-2)}
+.wfx-node{cursor:pointer;outline:none}
+.wfx-shape{fill:var(--surface);stroke:var(--ink-2);stroke-width:1.4}
+.wfx-node.type-decision .wfx-shape{fill:color-mix(in srgb,var(--wfx-system) 6%,var(--surface))}
+.wfx-node.type-ref .wfx-shape{fill:var(--surface-2)}
+.wfx-bar{stroke:var(--ink-2);stroke-width:1.2}
+.wfx-label{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;font-size:12.5px;line-height:1.3;color:var(--ink);overflow:hidden;word-break:keep-all;overflow-wrap:anywhere}
+.wfx-label b{font-size:11px;color:var(--muted);font-weight:600}
+.wfx-label span{white-space:pre-line}
+.wfx-label.is-ref{font-size:10.5px;font-weight:700}
+.wfx-node:hover .wfx-shape,.wfx-node:focus-visible .wfx-shape{stroke:var(--accent);stroke-width:2}
+.wfx-node.on-path .wfx-shape{stroke-width:3.5}
+.wfx-node.is-last .wfx-shape{fill:color-mix(in srgb,var(--ink) 6%,var(--surface))}
+.wfx-node.is-pos .wfx-shape{stroke-width:5;filter:drop-shadow(0 0 6px color-mix(in srgb,var(--ink) 45%,transparent))}
+.wfx-node.is-sel .wfx-shape{stroke-dasharray:5 3;stroke:var(--accent);stroke-width:2.6}
+.wfx-edge{fill:none;stroke-width:1.6}
+.wfx-edge.is-normal{stroke:var(--wfx-line)}.wfx-edge.is-yes{stroke:var(--wfx-yes)}.wfx-edge.is-no{stroke:var(--wfx-no)}
+.wfx-edge.on-path{stroke-width:4.5}
+.wfx-edge.is-last{stroke-width:6}
+.wfx-arrow.is-normal{fill:var(--wfx-line)}.wfx-arrow.is-yes{fill:var(--wfx-yes)}.wfx-arrow.is-no{fill:var(--wfx-no)}.wfx-arrow.is-path{fill:var(--wfx-path)}
+.wfx-edge-label{font-size:11px;font-weight:600;paint-order:stroke;stroke:var(--page);stroke-width:4px}
+.wfx-edge-label.is-normal{fill:var(--ink-2)}.wfx-edge-label.is-yes{fill:var(--wfx-yes)}.wfx-edge-label.is-no{fill:var(--wfx-no)}
+.wfx-chip{cursor:pointer}.wfx-chip rect,.wfx-chip polygon{fill:var(--surface);stroke:var(--wfx-line);stroke-width:1.5}.wfx-chip text{font-size:11px;font-weight:700;fill:var(--ink)}
+.wfx-chip.on-path rect,.wfx-chip.on-path polygon{stroke-width:3.5}.wfx-chip.on-path text{fill:var(--ink)}
+/* 오른쪽: 행동·상세·화면 */
+.wfx-side{grid-row:2;grid-column:1;display:flex;flex-direction:column;min-height:0;overflow:auto;background:var(--surface);border-bottom:1px solid var(--hair);border-right:1px solid var(--hair)}
+.wfx-simcol{grid-row:2/4;grid-column:3;display:flex;flex-direction:column;min-height:0;background:var(--surface);border-left:1px solid var(--hair)}
+.wfx-simcol>section{padding:12px 14px;border-bottom:1px solid var(--hair)}
+.wfx-simcol h2{font-size:12px;letter-spacing:.02em;color:var(--muted);margin:0 0 8px;display:flex;align-items:center;gap:8px}
+.wfx-simcol h2 .wfx-actions{margin-left:auto;display:flex;gap:4px}
+.wfx-simcol h2 button{font:inherit;font-size:11.5px;border:1px solid var(--hair);background:var(--surface);color:var(--ink);border-radius:6px;padding:3px 8px;cursor:pointer}
+.wfx-simsec{flex:1;min-height:0;display:flex;flex-direction:column;border-bottom:0}
+.wfx-simcol-toggle{display:none;font:inherit;font-size:12.5px;padding:5px 12px;border:1px solid var(--hair);border-radius:8px;background:var(--surface);color:var(--ink);cursor:pointer;white-space:nowrap}
+.wfx-side>section{padding:12px 14px;border-bottom:1px solid var(--hair)}
+.wfx-side h2{font-size:12px;letter-spacing:.02em;text-transform:none;color:var(--muted);margin:0 0 8px;display:flex;align-items:center;gap:8px}
+.wfx-side h2 .wfx-actions{margin-left:auto;display:flex;gap:4px}
+.wfx-side h2 button{font:inherit;font-size:11.5px;border:1px solid var(--hair);background:var(--surface);color:var(--ink);border-radius:6px;padding:3px 8px;cursor:pointer}
+.wfx-pos{margin:0 0 8px;font-size:13.5px;line-height:1.45}.wfx-pos small{display:block;color:var(--muted);font-size:11.5px;margin-top:2px}
+.wfx-opt{display:flex;gap:8px;align-items:flex-start;width:100%;text-align:left;font:inherit;font-size:13px;line-height:1.4;margin:0 0 6px;padding:8px 10px;border:1px solid var(--hair);border-left-width:4px;border-radius:8px;background:var(--surface);color:var(--ink);cursor:pointer}
+.wfx-opt:hover{background:var(--surface-2)}
+.wfx-opt i{font-style:normal;font-size:10.5px;font-weight:700;border-radius:4px;padding:1px 5px;white-space:nowrap;margin-top:1px}
+.wfx-opt.to-user{border-left-color:var(--wfx-user)}.wfx-opt.to-user i{background:color-mix(in srgb,var(--wfx-user) 16%,transparent);color:var(--ink)}
+.wfx-opt.to-system{border-left-color:var(--wfx-system)}.wfx-opt.to-system i{background:color-mix(in srgb,var(--wfx-system) 16%,transparent);color:var(--ink)}
+.wfx-opt.is-yes{border-left-color:var(--wfx-yes)}.wfx-opt.is-no{border-left-color:var(--wfx-no)}
+.wfx-opt em{margin-left:auto;font-style:normal;font-size:10.5px;color:var(--muted);white-space:nowrap}
+.wfx-empty{font-size:12.5px;color:var(--muted)}
+#wfx-detail h3{font-size:14px;margin:2px 0 8px;line-height:1.4}
+.wfx-kicker{font-size:11.5px;color:var(--muted);margin:0}
+#wfx-detail dl{display:grid;grid-template-columns:60px 1fr;gap:3px 8px;font-size:12.5px;margin:0 0 8px}
+#wfx-detail dt{color:var(--muted)}#wfx-detail dd{margin:0}
+.wfx-note{font-size:12.5px;margin:0 0 8px;color:var(--ink-2)}
+.wfx-flownote{font-size:12px;color:var(--ink-2);margin:0 0 8px}.wfx-flownote summary{cursor:pointer;color:var(--muted)}
+.wfx-btn{border:1px solid var(--hair);border-radius:6px}
+.wfx-screen-cap{font-size:12.5px;margin:0 0 6px}
+.wfx-screen-item{font-size:12.5px;padding:6px 8px;border:1px solid var(--hair);border-left:4px solid #eab308;border-radius:6px;margin:0 0 5px;display:flex;gap:8px}
+.wfx-screen-item small{margin-left:auto;color:var(--muted);font-size:10.5px}
+.wfx-simbar{display:flex;gap:8px;align-items:center;font-size:12px;color:var(--muted);margin:8px 0 6px}
+#wfx-sim-last{font-size:11.5px;color:var(--muted);word-break:break-all}
+#wfx-sim{border:1px solid var(--hair);border-radius:10px;overflow:hidden;background:var(--surface-2);flex:1;min-height:0;display:flex;align-items:center;justify-content:center;text-align:center;font-size:12.5px;color:var(--muted)}
+.wfx-sim-frame{width:100%;height:100%;border:0;background:#000}
+/* 아래: 경로 흐름도 */
+.wfx-tracebox{grid-column:2;grid-row:2;display:grid;grid-template-columns:96px minmax(0,1fr);border-bottom:1px solid var(--hair);background:var(--surface);min-height:0}
+#wfx-trace-lanes{display:grid;grid-template-rows:30px 1fr 1fr;border-right:1px solid var(--hair);font-size:11.5px;font-weight:700;color:var(--ink-2)}
+#wfx-trace-lanes::before{content:"경로";padding:8px 10px;color:var(--muted)}
+#wfx-trace-lanes span{display:flex;align-items:center;padding:0 10px;white-space:nowrap}
+#wfx-trace-lanes .lane-u{background:color-mix(in srgb,var(--wfx-user) 8%,transparent)}#wfx-trace-lanes .lane-s{background:color-mix(in srgb,var(--wfx-system) 8%,transparent)}
+#wfx-trace{display:flex;gap:10px;overflow:auto;padding:0 10px 8px}
+.wfx-seg{flex:none;display:grid;grid-template-rows:30px 1fr;opacity:.55}.wfx-seg.is-last{opacity:1}
+.wfx-seg h4{margin:0;font-size:12px;padding:8px 2px;white-space:nowrap;color:var(--ink-2)}
+.wfx-seg.is-last h4{color:var(--wfx-path)}
+.wfx-seg-grid{display:grid;grid-template-rows:1fr 1fr;border:1px solid var(--hair);border-radius:8px;overflow:hidden}
+.wfx-cell{padding:6px;display:flex;align-items:center;position:relative;min-width:120px}
+.wfx-cell.lane-u{background:color-mix(in srgb,var(--wfx-user) 8%,transparent)}.wfx-cell.lane-s{background:color-mix(in srgb,var(--wfx-system) 8%,transparent)}
+.wfx-cell+.wfx-cell{border-left:1px dashed var(--grid)}
+.wfx-card{display:flex;flex-direction:column;gap:2px;width:100%;text-align:left;font:inherit;font-size:11.5px;line-height:1.35;padding:6px 8px;border:1.5px solid var(--wfx-path);border-radius:7px;background:var(--surface);color:var(--ink);cursor:pointer}
+.wfx-card.type-decision{border-style:dashed}
+.wfx-card b{font-size:10px;color:var(--muted)}
+.wfx-card i{font-style:normal;font-size:10px;font-weight:700;color:var(--ink-2)}
+.wfx-card.is-yes i{color:var(--wfx-yes)}.wfx-card.is-no i{color:var(--wfx-no)}
+.wfx-more{font-size:11.5px;color:var(--muted);align-self:center;white-space:nowrap}
+/* 좁은 창 — 1200px 미만은 화면·시뮬레이터 칸을 오른쪽 서랍으로, 900px 미만은 흐름도·경로·행동을 세로로 쌓습니다 */
+@media (max-width:1199px){.wfx-app{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.wfx-simcol{position:fixed;top:var(--wfx-drawer-top,0px);right:0;bottom:0;width:min(420px,92vw);z-index:30;box-shadow:var(--shadow);transform:translateX(100%);transition:transform .2s}body.wfx-simcol-open .wfx-simcol{transform:none}.wfx-simcol-toggle{display:inline-block}}
+@media (max-width:900px){.wfx-app{grid-template-columns:1fr;grid-template-rows:auto 60vh 240px auto;height:auto}.wfx-main{grid-column:1}.wfx-side{grid-row:4;grid-column:1;border-right:0}.wfx-tracebox{grid-row:3;grid-column:1}.wfx-top .wfx-lead{display:none}}
+/* 작성 규칙 창(meta.guide) — 머리말 버튼 · 목차 + 본문 두 단 창 */
+.wfx-guide-btn{font:inherit;font-size:12.5px;padding:5px 12px;border:1px solid var(--wfx-section);border-radius:8px;background:color-mix(in srgb,var(--wfx-section) 10%,var(--surface));color:var(--ink);cursor:pointer;white-space:nowrap}
+.wfx-guide-btn:hover{background:color-mix(in srgb,var(--wfx-section) 18%,var(--surface))}
+.wfx-guide{width:min(1180px,94vw);height:min(88vh,1000px);padding:0;border:1px solid var(--hair);border-radius:14px;background:var(--surface);color:var(--ink);box-shadow:var(--shadow)}
+.wfx-guide[open]{display:flex;flex-direction:column}
+.wfx-guide::backdrop{background:#0006}
+.wfx-guide>header{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;padding:16px 20px;border-bottom:1px solid var(--hair)}
+.wfx-guide>header h2{margin:0;font-size:18px}
+.wfx-guide>header p{margin:4px 0 0;font-size:12.5px;color:var(--muted)}
+.wfx-guide>header button{font:inherit;font-size:16px;width:34px;height:34px;border:1px solid var(--hair);border-radius:8px;background:var(--surface);color:var(--ink);cursor:pointer}
+.wfx-guide-body{flex:1;min-height:0;display:grid;grid-template-columns:230px minmax(0,1fr)}
+.wfx-guide-body nav{overflow:auto;padding:14px 10px 14px 16px;border-right:1px solid var(--hair);font-size:13px}
+.wfx-guide-body nav ol{margin:0;padding:0;list-style:none}
+.wfx-guide-body nav li{margin:4px 0}
+.wfx-guide-body nav a{color:var(--ink);text-decoration:none}
+.wfx-guide-body nav a:hover{color:var(--accent);text-decoration:underline}
+.wfx-guide-body article{overflow:auto;padding:8px 28px 40px;font-size:14px;line-height:1.7}
+.wfx-guide-body article>p:first-child{margin-top:14px}
+.wfx-guide-body section{padding-top:6px}
+.wfx-guide-body section h2{font-size:17px;margin:26px 0 10px;padding-bottom:6px;border-bottom:2px solid color-mix(in srgb,var(--wfx-section) 55%,transparent)}
+.wfx-guide-body h3{font-size:15px;margin:20px 0 8px}
+.wfx-guide-body h4{font-size:14px;margin:16px 0 6px;color:var(--ink-2,var(--ink))}
+.wfx-guide-body code{font-size:12.5px;padding:1px 5px;border-radius:5px;background:color-mix(in srgb,var(--ink) 7%,transparent)}
+.wfx-guide-table{overflow-x:auto;margin:10px 0}
+.wfx-guide-table table{border-collapse:collapse;width:100%;font-size:13px}
+.wfx-guide-table th,.wfx-guide-table td{border:1px solid var(--hair);padding:6px 9px;text-align:left;vertical-align:top}
+.wfx-guide-table th{background:color-mix(in srgb,var(--ink) 5%,var(--surface));white-space:nowrap}
+.wfx-guide-check{list-style:none;padding-left:4px}
+.wfx-guide-check li:before{content:"☐";margin-right:8px;color:var(--muted)}
+.wfx-guide-code{overflow-x:auto;margin:10px 0;padding:12px 14px;border:1px solid var(--hair);border-radius:10px;background:color-mix(in srgb,var(--ink) 4%,var(--surface));font:12.5px/1.5 ui-monospace,Consolas,"D2Coding",monospace;white-space:pre}
+/* 흐름 사이 이동(→) 칩 — 연결마다 하나, 예·아니오 색을 따릅니다 */
+.wfx-chips .wfx-chip.is-yes rect,.wfx-chips .wfx-chip.is-yes polygon{stroke:var(--wfx-yes)}
+.wfx-chips .wfx-chip.is-no rect,.wfx-chips .wfx-chip.is-no polygon{stroke:var(--wfx-no)}
+/* 먼 복귀 연결자(2026-10-02 사용자 확정) — 작은 오각형 표식 「↩ 코드」. 평소에는 바탕 없이 흐린 점선·회색 글자(단계가 아니라 표식),
+   경로가 지나가면 실선·진한 글자로 또렷해집니다(색은 들어오는 선 예·아니오를 따름). 마우스를 올리면 도착 도형 테두리(is-peek)와 선 색 3px 점선(미리 보기), 누르면 도착 도형이 깜빡입니다(is-flash). */
+/* 오각형은 주황(--wfx-jump), 서브루틴은 보라(--wfx-subr)로 다른 도형과 구분합니다(2026-10-06 사용자 요청) */
+.wfx-link{cursor:pointer}.wfx-link .wfx-shape{fill:color-mix(in srgb,var(--wfx-jump) 12%,var(--surface));stroke:var(--wfx-jump);stroke-width:1.6;stroke-dasharray:4 3}
+.wfx-link-text{font-size:11px;font-weight:700;fill:color-mix(in srgb,var(--wfx-jump) 70%,var(--ink));dominant-baseline:middle}
+.wfx-link:hover .wfx-shape,.wfx-link:focus-visible .wfx-shape{stroke-dasharray:none;stroke-width:2}
+.wfx-link:hover .wfx-link-text,.wfx-link:focus-visible .wfx-link-text,.wfx-link.on-path .wfx-link-text{fill:var(--ink)}
+.wfx-link.on-path .wfx-shape{stroke-dasharray:none;stroke-width:3.5;stroke:var(--wfx-jump)}
+.wfx-link-ghost-g{pointer-events:none}.wfx-link-ghost-bg{fill:none;stroke:var(--surface);stroke-width:6;stroke-linecap:round}
+.wfx-link-ghost{fill:none;stroke:var(--wfx-line);stroke-width:3;stroke-dasharray:8 5}.wfx-link-ghost.is-yes{stroke:var(--wfx-yes)}.wfx-link-ghost.is-no{stroke:var(--wfx-no)}
+.wfx-node.is-peek .wfx-shape{stroke:var(--wfx-line);stroke-width:3.5;stroke-dasharray:none}.wfx-node.is-peek.peek-is-yes .wfx-shape{stroke:var(--wfx-yes)}.wfx-node.is-peek.peek-is-no .wfx-shape{stroke:var(--wfx-no)}
+@keyframes wfx-flash{0%,100%{filter:none}30%,70%{filter:drop-shadow(0 0 10px var(--accent))}}
+.wfx-node.is-flash .wfx-shape{animation:wfx-flash .7s ease-in-out 2}
+/* 플로우 패널 접기(2026-10-01 · 흐름도 위로 옮기고 처음에 펼침 2026-10-02) — 접으면 흐름도가 왼쪽 두 칸의 전체 높이를 씁니다. 900px 미만 세로 쌓기에서는 접지 않습니다. */
+@media (min-width:901px){.wfx-app.is-dock-closed{grid-template-rows:auto 0 minmax(0,1fr)}.wfx-app.is-dock-closed .wfx-main{grid-row:2/4}.wfx-app.is-dock-closed .wfx-side,.wfx-app.is-dock-closed .wfx-tracebox{display:none}}
+@media (max-width:900px){#wfx-dock{display:none}}
+/* 선 위에 얹은 라벨 상자(2026-10-01) — 선 색 테두리 · 바탕은 화면색이라 선이 상자를 지나가는 것처럼 보입니다 */
+.wfx-edge-label-bg{fill:var(--surface);stroke-width:1.5}.wfx-edge-label-bg.is-normal{stroke:var(--wfx-line)}.wfx-edge-label-bg.is-yes{stroke:var(--wfx-yes)}.wfx-edge-label-bg.is-no{stroke:var(--wfx-no)}
+.wfx-edge-label{paint-order:normal;stroke:none}
+.wfx-cond-empty{color:var(--muted);font-size:11.5px}
+/* UI 구역(2026-10-01) — 화면 썸네일. 배율 35% 미만(.is-far)에서는 그림을 감추고 자리만 둡니다 */
+.wfx-lane.lane-ui{fill:color-mix(in srgb,#eab308 7%,transparent);stroke:color-mix(in srgb,#eab308 45%,transparent)}
+.wfx-thumb{cursor:pointer}
+.wfx-thumb-frame{fill:var(--surface);stroke:var(--hair);stroke-width:1.5}
+.wfx-thumb:hover .wfx-thumb-frame,.wfx-thumb:focus-visible .wfx-thumb-frame{stroke:var(--wfx-path);stroke-width:3}
+.wfx-thumb.is-stale .wfx-thumb-frame{stroke:#d97706;stroke-dasharray:6 4;stroke-width:2.5}
+.wfx-thumb-code{font-size:13px;font-weight:700;fill:var(--ink)}
+.wfx-thumb.is-stale .wfx-thumb-code{fill:#b45309}
+.wfx-thumb-more{font-size:12px;fill:var(--muted)}
+.wfx-svg.is-far .wfx-thumb image{display:none}
+.wfx-shot{display:block;width:100%;max-width:220px;margin:6px auto;border-radius:10px;border:1px solid var(--hair)}
+.wfx-shot.is-stale{border:2px dashed #d97706}
+/* 선택하면 시뮬레이터도 이동(2026-10-01) */
+.wfx-follow{display:inline-flex;align-items:center;gap:4px;font-size:11.5px;color:var(--muted);margin-left:auto;cursor:pointer;white-space:nowrap}
+/* 진행 경로(2026-10-02) — 색은 원래 색(연결 종류 · 도형 테두리)을 두고 두께로 강조하며, 경로 밖 도형·선은 흐리게 둡니다 */
+.wfx-svg.has-path .wfx-node:not(.on-path):not(.is-sel),.wfx-svg.has-path .wfx-edge:not(.on-path){opacity:.4}
+/* 정지·연속(2026-10-02) — 시뮬레이터 칸의 보기 방식과 정지 때의 단계 막대 · 캡처 겹침 */
+.wfx-mode{display:inline-flex;border:1px solid var(--hair);border-radius:6px;overflow:hidden}
+.wfx-mode button{font:inherit;font-size:11.5px;border:0;background:var(--surface);color:var(--ink);padding:2px 8px;cursor:pointer}
+.wfx-mode button[aria-pressed=true]{background:var(--ink);color:var(--surface)}
+.wfx-stepbar{border:1px solid var(--hair);border-radius:8px;padding:8px 10px;margin:0 0 8px;font-size:12px;background:var(--surface)}
+.wfx-stepbar h3{font-size:12.5px;margin:0 0 6px;font-weight:600;line-height:1.4}
+.wfx-stepbar .wfx-step-opts{display:flex;flex-direction:column;gap:3px;max-height:120px;overflow:auto;margin:0 0 8px}
+.wfx-stepbar label{display:flex;gap:6px;align-items:flex-start;cursor:pointer;line-height:1.4}
+.wfx-stepbar label.is-off{opacity:.5;cursor:default}
+.wfx-stepbar label i{font-style:normal;font-size:10.5px;color:var(--muted);flex:none;min-width:28px}
+.wfx-stepbar label small{display:block;color:var(--muted);font-size:10.5px}
+.wfx-step-nav{display:flex;justify-content:space-between;gap:8px}
+.wfx-step-nav button{font:inherit;font-size:12px;border:1px solid var(--hair);background:var(--surface);color:var(--ink);border-radius:6px;padding:3px 10px;cursor:pointer}
+.wfx-step-nav button.is-primary{background:var(--ink);color:var(--surface);border-color:var(--ink)}
+.wfx-step-nav button:disabled{opacity:.4;cursor:default}
+#wfx-sim{position:relative}
+.wfx-freeze{position:absolute;inset:0;background:color-mix(in srgb,var(--ink) 70%,transparent);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;z-index:2;padding:10px}
+.wfx-freeze img{max-height:78%;max-width:90%;border-radius:12px;box-shadow:var(--shadow)}
+.wfx-freeze p{margin:0;color:#fff;font-size:12px;text-align:center;line-height:1.5}
+.wfx-freeze button{font:inherit;font-size:12px;border:0;border-radius:6px;padding:3px 10px;cursor:pointer}
+/* 현재 위치 패널(2026-10-02) — 직전 유저 행동 · 직전 동작([이동]) · 다음 가능 동작 */
+.wfx-prev{display:grid;grid-template-columns:auto 1fr;gap:4px 10px;margin:6px 0 10px;font-size:12.5px}
+.wfx-prev dt{color:var(--muted);font-size:11.5px;padding-top:3px;white-space:nowrap}
+.wfx-prev dd{margin:0;display:flex;align-items:center;gap:8px;min-width:0}
+.wfx-prev dd span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.wfx-prev dt.is-calc::after{content:' (계산)';color:var(--muted);font-weight:400}
+.wfx-go{font:inherit;font-size:11.5px;border:1px solid var(--hair);background:var(--surface);color:var(--ink);border-radius:6px;padding:2px 8px;cursor:pointer;flex:none}
+.wfx-next-title{font-size:12px;color:var(--muted);font-weight:600;margin:4px 0 6px;padding-top:8px;border-top:1px solid var(--hair)}
+.wfx-opt:disabled{opacity:.5;cursor:default}
+/* 화면 칸(2026-10-02) — 현재 위치 이름 · 조작 줄 · 캡처(불러오기 전) 또는 시뮬레이터 */
+.wfx-shot-title{font-size:13px;margin:0 0 8px;line-height:1.45}
+#wfx-sim{flex:1;min-height:0;display:flex;flex-direction:column}
+#wfx-sim .wfx-sim-frame{flex:1}
+.wfx-shot-view{flex:1;min-height:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:6px 0}
+.wfx-shot-big{max-width:100%;max-height:100%;min-height:0;object-fit:contain;border-radius:14px;border:1px solid var(--hair)}
+.wfx-shot-big.is-stale{border:2px dashed #d97706}
+.wfx-shot-note{margin:0;font-size:11.5px;color:#b45309}
+.wfx-shot-empty{margin:0;font-size:13px;color:var(--muted)}
+#wfx-sim-load{font:inherit;font-size:11.5px;border:1px solid var(--hair);background:var(--surface);color:var(--ink);border-radius:6px;padding:2px 8px;cursor:pointer;white-space:nowrap}
+
+/* 이전 오각형으로 돌아가기 버튼(2026-10-02) — 오각형·서브루틴으로 화면을 옮긴 뒤 흐름도 왼쪽 아래에 뜹니다 */
+.wfx-back{position:absolute;left:12px;bottom:12px;z-index:6;padding:8px 14px;border:1.5px solid var(--wfx-line);border-radius:999px;background:var(--surface);color:var(--ink);font:600 13px/1.2 inherit;cursor:pointer;box-shadow:0 2px 8px color-mix(in srgb,var(--ink) 18%,transparent)}
+.wfx-back:hover,.wfx-back:focus-visible{border-color:var(--accent);outline:none}
+.wfx-back[hidden]{display:none}
+.wfx-node.is-subr{cursor:pointer}
+/* 하위 섹션을 여는 서브루틴(2026-10-02) — 오른쪽 세로선 안쪽 ▸ · 마우스를 올리면 강조색 테두리 */
+.wfx-node.is-subr .wfx-shape{fill:color-mix(in srgb,var(--wfx-subr) 10%,var(--surface));stroke:var(--wfx-subr);stroke-width:1.8}.wfx-node.is-subr .wfx-bar{stroke:var(--wfx-subr);stroke-width:1.4}
+.wfx-node.is-subr .wfx-label b{color:var(--wfx-subr)}
+.wfx-subr-mark{font-size:26px;font-weight:700;fill:var(--wfx-subr);dominant-baseline:middle;pointer-events:none}
+.wfx-node.is-subr:hover .wfx-shape,.wfx-node.is-subr:focus-visible .wfx-shape,.wfx-node.is-subr.on-path .wfx-shape{stroke:var(--wfx-subr);stroke-width:3.2}
+/* 하위 섹션 제목 오른쪽 「↑ 여는 곳」 */
+.wfx-sub-up{cursor:pointer}.wfx-sub-up text{font-size:13px;font-weight:600;fill:var(--accent)}.wfx-sub-up:hover text,.wfx-sub-up:focus-visible text{text-decoration:underline}
+/* 이동 블록(2026-10-07) — 오각형 · 서브루틴에 마우스를 올리거나 초점이 가면 바로 도착지를 보입니다 */
+.wfx-movetip{position:fixed;z-index:60;max-width:340px;padding:8px 11px;border:1.5px solid var(--wfx-jump);border-radius:8px;background:var(--surface);color:var(--ink);box-shadow:0 4px 14px color-mix(in srgb,var(--ink) 18%,transparent);font-size:12.5px;line-height:1.45;pointer-events:none}
+.wfx-movetip[hidden]{display:none}
+.wfx-movetip-verb{display:inline-block;margin-bottom:4px;padding:1px 7px;border-radius:999px;background:color-mix(in srgb,var(--wfx-jump) 14%,var(--surface));color:color-mix(in srgb,var(--wfx-jump) 70%,var(--ink));font-size:11px;font-weight:700}
+.wfx-movetip-main b{margin-right:4px}
+.wfx-movetip-sec{margin-top:4px;color:var(--muted);font-size:11.5px}
+.wfx-movetip-label{margin-top:4px;padding-top:4px;border-top:1px solid var(--hair);color:var(--muted);font-size:11.5px}

@@ -50,6 +50,8 @@ class ProjectPathsTest(unittest.TestCase):
             result=subprocess.run([sys.executable,str(script),'product/work','--repo-root',tmp],capture_output=True)
             self.assertEqual(result.returncode,0,result.stderr)
             self.assertTrue((Path(tmp)/'projects/product/work/work-change-log.md').is_file())
+            # 폴더는 첫 파일을 넣을 때 생깁니다 — 새 프로젝트는 관리 파일만 갖습니다
+            self.assertEqual(sorted(p.name for p in (Path(tmp)/'projects/product/work').iterdir() if p.is_dir()),[])
             self.assertEqual(len(discover(tmp)),1)
             result=subprocess.run([sys.executable,str(script),'product/work','--repo-root',tmp],capture_output=True)
             self.assertNotEqual(result.returncode,0)

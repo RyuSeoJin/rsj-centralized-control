@@ -320,9 +320,8 @@ def page_project(args, rel):
       '프로젝트마다 자리가 조금씩 달라지고, 그러면 「어디를 보면 되는가」를 매번 다시 '
       '찾아야 합니다. 시작 모양을 하나로 고정해 두는 이유입니다.</p>')
     w('<div class="meta-row">'
-      '<span class="badge">만드는 폴더 <b>%d개</b></span>'
       '<span class="badge">만드는 문서 <b>%d개</b></span></div>'
-      % (len(new_project.DIRS), len(new_project.DOCS)))
+      % len(new_project.DOCS))
 
     # ── 명령
     w('<h3 id="run">한 줄로 만듭니다</h3>')
@@ -344,11 +343,12 @@ def page_project(args, rel):
            "지웁니다. 갱신 방향이 반대라 한 파일에 섞지 않습니다. <b>dictionary</b>는 그 "
            "프로젝트에서만 통하는 말을 모읍니다.",
            "앞의 둘은 작업 전 항상 먼저 읽습니다"))
-    w(card("빈 폴더도 만듭니다",
-           "조사를 하지 않는 프로젝트에서도 <code>analysis/</code>·<code>reference/</code>를 "
-           "만듭니다. <b>비어 있는 것이 곧 「이 프로젝트는 조사를 하지 않았다」는 기록</b>이기 "
-           "때문입니다. 자리를 조건부로 만들면 나중에 켤 때 자리를 새로 정하게 됩니다.",
-           "빈 폴더는 .gitkeep으로 자리를 지킵니다"))
+    w(card("폴더는 필요할 때 생깁니다",
+           "<code>spec/design/</code>·<code>analysis/</code> 같은 폴더는 이름과 역할만 규칙이 "
+           "정해 두고, 첫 파일을 넣을 때 만듭니다. 모든 프로젝트가 조사나 TC를 하지는 않으므로, "
+           "미리 만들면 쓰지 않는 빈 폴더가 쌓입니다. 폴더가 없으면 그 일을 아직 하지 않았다는 "
+           "뜻입니다.",
+           "모듈이 쓰는 폴더는 모듈을 켤 때 생깁니다"))
     w('</div>')
 
     # ── 안 만드는 것
