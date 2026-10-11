@@ -37,7 +37,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from slidekit import *  # noqa: E402,F401,F403
 from slidekit import SW, SH, MX, ALLOWED_FONTS, REGION_TYPES, STANDARD_EXCEPTIONS, UNKNOWN, STATUS, TOGGLE_STEP  # noqa: E402,F401
 from patterns import *  # noqa: E402,F401,F403
-from patterns import TOP, BOTTOM  # noqa: E402
+from patterns import TOP, BOTTOM, NUM_GAP, CARD_BODY, CARD_PAD  # noqa: E402
 
 T = TOGGLE_STEP                # ▼ 소제목 아래 내용의 들여쓰기
 
@@ -76,14 +76,21 @@ def build_overview(data, out):
     d.divider(1, "프로젝트 개요서", "이후 모든 문서의 기준점입니다. 팀이 같은 방향을 보는지 여기서 맞춥니다.")
     s = d.slide("기획 배경과 해결할 문제", "01 프로젝트 개요서")
     d.note("기획 배경", o.get("background"))
-    box(s, MX, 1.5, 5.9, 5.1, fill=TINT, round_=True, name="card-bg")
-    subhead(s, MX + 0.3, 1.7, 5.3, "기획 배경", size=16)
-    text(s, MX + 0.3 + T, 2.2, 5.3 - T, 4.2, v(o.get("background")), size=14, spacing=8)
-    subhead(s, 7.0, 1.7, 5.7, "해결할 문제", size=16)
     probs = lst(o.get("problems"))
     d.note("해결할 문제", probs)
-    for i, p in enumerate(probs[:5] or [UNKNOWN]):
-        numbered_item(s, 7.0 + T, 2.3 + i * 0.85, 5.75 - T, i + 1, p, size=14, d=0.38, h=0.8)
+    cw = (SW - 2 * MX - 0.4) / 2
+    # 좌우 두 카드는 같은 높이 — 높이는 더 긴 쪽 내용에 맞춥니다(빈 카드가 남지 않게)
+    need = max(est_text_height(v(o.get("background")), cw - 0.45 - T, 14, 8),
+               sum(est_text_height(p, cw - 0.9 - T, 14, 0) + NUM_GAP for p in probs[:5] or [UNKNOWN]) - NUM_GAP)
+    ch = min(BOTTOM - 1.5, CARD_BODY + need + CARD_PAD)
+    y0 = group_top(ch)
+    for i, t in enumerate(("기획 배경", "해결할 문제")):
+        x = MX + i * (cw + 0.4)
+        box(s, x, y0, cw, ch, fill=TINT, round_=True, name="card")
+        subhead(s, x + 0.3, y0 + 0.2, cw - 0.6, t, size=16)
+    text(s, MX + 0.3 + T, y0 + CARD_BODY, cw - 0.45 - T, ch - 0.9, v(o.get("background")), size=14, spacing=8)
+    x2 = MX + cw + 0.4 + 0.3 + T
+    numbered_list(s, x2, y0 + CARD_BODY, cw - 0.45 - T, probs[:5] or [UNKNOWN], size=14)
 
     personas = o.get("personas") or [{}]
     s = d.slide("타겟 사용자 — 페르소나", "01 프로젝트 개요서")
@@ -111,10 +118,12 @@ def build_overview(data, out):
     text(s, MX, 1.7, SW - 2 * MX, 1.6, "“%s”" % v(o.get("value")), size=28, bold=True, color=INK, anchor="m")
     scope = o.get("scope", {})
     for i, (t, key) in enumerate((("이번 범위", "in"), ("범위 밖", "out"))):
-        x = MX + i * 6.15
-        box(s, x, 3.7, 5.9, 2.9, fill=TINT, round_=True, name="scope-card")
-        subhead(s, x + 0.3, 3.85, 5.3, t, size=15)
-        text(s, x + 0.3 + T, 4.3, 5.3 - T, 2.2, bullets(scope.get(key) or []) or UNKNOWN, size=13)
+        cw = (SW - 2 * MX - 0.4) / 2
+        x = MX + i * (cw + 0.4)
+        need = max(est_text_height(bullets(scope.get(k) or []) or UNKNOWN, cw - 0.6 - T, 13) for k in ("in", "out"))
+        box(s, x, 3.7, cw, min(BOTTOM - 3.7, CARD_BODY + need + CARD_PAD), fill=TINT, round_=True, name="scope-card")
+        subhead(s, x + 0.3, 3.9, cw - 0.6, t, size=15)
+        text(s, x + 0.3 + T, 3.7 + CARD_BODY, cw - 0.6 - T, need + 0.1, bullets(scope.get(key) or []) or UNKNOWN, size=13)
 
     kpis = o.get("kpis") or []
     d.note("핵심 지표(KPI)", kpis)
@@ -140,7 +149,7 @@ def build_overview(data, out):
         s = d.slide("용어 정의" + (" (%d)" % (i + 1) if i else ""), "01 프로젝트 개요서")
         d.mark("glossary")
         table(s, MX, TOP, SW - 2 * MX, (1.6, 5, 3), ["용어", "정의", "예시"],
-              [[g.get("term"), g.get("definition"), g.get("example") or "—"] for g in chunk], size=11, row_h=0.42)
+              [[g.get("term"), g.get("definition"), g.get("example") or "—"] for g in chunk], size=11)
 
     # 02 IA
     d.divider(2, "정보 구조도 (IA)", "화면을 그리기 전에 메뉴 · 화면 계층을 펼쳐 빠진 화면과 끊긴 경로를 찾습니다.")
@@ -162,31 +171,33 @@ def build_overview(data, out):
                 {True: "필요", False: "불필요"}.get(n.get("login"), "?"),
                 ", ".join(owner.get(n.get("id"), [])) or "—",
                 STATUS.get(str(n.get("change", "")).upper(), ("—",))[0]] for n, path in chunk],
-              size=10, row_h=0.36)
+              size=10)
     flows = ia.get("flows") or []
     if flows:
         names = {n["id"]: n.get("name", n["id"]) for n in walk(tree)}
         for i, chunk in enumerate(paged(flows, 4)):
             s = d.slide("주요 흐름" + (" (%d)" % (i + 1) if i else ""), "02 정보 구조도 (IA)")
+            # 칸 폭은 이 장에서 가장 긴 흐름에 맞춰 가로 폭 전체로, 줄은 세로로 고르게 펼칩니다
+            n = max(1, min(max(len(f.get("path") or []) for f in chunk), 7))
+            gap = 0.45
+            cw = min(2.1, (SW - 2 * MX - T - gap * (n - 1)) / n)
+            step = min(1.75, (BOTTOM - TOP) / len(chunk))
             for j, f in enumerate(chunk):
-                y = 1.55 + j * 1.3
-                text(s, MX, y, 3, 0.35, v(f.get("name")), size=14, bold=True, color=ACCENT)
-                path = f.get("path") or []
-                n = max(1, min(len(path), 7))
-                cw = min(1.55, (SW - 2 * MX - 0.35 * (n - 1)) / n)
-                for k, sid in enumerate(path[:7]):
-                    x = MX + k * (cw + 0.35)
-                    box(s, x, y + 0.42, cw, 0.6, fill=WHITE, line=INK, round_=True,
-                        label="%s\n%s" % (sid, names.get(sid, "")), size=10, name="flow-step")
+                y = TOP + j * step
+                subhead(s, MX, y, SW - 2 * MX, v(f.get("name")), size=14)
+                for k, sid in enumerate((f.get("path") or [])[:7]):
+                    x = MX + T + k * (cw + gap)
+                    box(s, x, y + 0.48, cw, 0.8, fill=WHITE, line=INK, round_=True,
+                        label="%s\n%s" % (sid, names.get(sid, "")), size=11, name="flow-step")
                     if k:
-                        line(s, x - 0.33, y + 0.72, x - 0.02, y + 0.72, color=INK, arrow=True)
+                        line(s, x - gap + 0.06, y + 0.88, x - 0.04, y + 0.88, color=INK, arrow=True)
     policies = data.get("policies") or []
     for i, chunk in enumerate(paged(policies, 9) if policies else []):
         s = d.slide("공통 정책" + (" (%d)" % (i + 1) if i else ""), "02 정보 구조도 (IA)")
         d.mark("policies")
         table(s, MX, TOP, SW - 2 * MX, (1.1, 1.8, 5.5, 1.8), ["정책 ID", "항목", "규칙", "적용 화면"],
               [[p.get("id"), p.get("name"), p.get("rule"), v(p.get("screens"))] for p in chunk],
-              size=11, row_h=0.5)
+              size=11)
 
     # 03 기능 정의서
     d.divider(3, "기능 정의서", "큰 기능을 세부 동작 단위로 쪼갭니다. 견적 · 일정과 DB 설계의 근거입니다.")
@@ -200,7 +211,7 @@ def build_overview(data, out):
               ["기능 ID", "기능명", "화면", "세부 동작 요약", "정책", "외부 연동", "우선"],
               [[f.get("id"), f.get("name"), f.get("screen"), f.get("summary"), f.get("policy"),
                 f.get("integration") or "없음", f.get("priority") or f.get("moscow")] for f in chunk]
-              or [[UNKNOWN] * 7], size=10, row_h=0.6)
+              or [[UNKNOWN] * 7], size=10)
     if any(f.get("impact") and f.get("effort") for f in feats):
         s = d.slide("우선순위 — 영향 × 노력", "03 기능 정의서")
         d.mark("priority")
@@ -279,12 +290,11 @@ def build_feature(data, out):
     subhead(s, MX, 2.5, 6, "입력값", size=14)
     table(s, MX + T, 2.9, 6.0 - T, (1.4, 1, 2.6), ["항목", "형식", "규칙"],
           [[i.get("name"), i.get("type"), i.get("rule")] for i in (f.get("inputs") or [])[:7]] or [[UNKNOWN] * 3],
-          size=10, row_h=0.42)
+          size=10)
     subhead(s, 7.0, 2.5, 5.7, "처리 순서", size=14)
     steps = lst(f.get("process"))
     d.note("처리 순서", steps)
-    for i, st in enumerate(steps[:6] or [UNKNOWN]):
-        numbered_item(s, 7.0 + T, 3.0 + i * 0.6, 5.75 - T, i + 1, st, size=12, d=0.32, h=0.56)
+    numbered_list(s, 7.0 + T, 2.95, 5.75 - T, steps[:6] or [UNKNOWN], size=12)
 
     if f.get("story") or f.get("acceptance"):
         s = d.slide("사용자 스토리 · 수용 기준", "01 기능 정의")
@@ -295,19 +305,23 @@ def build_feature(data, out):
         d.note("수용 기준", acc)
         table(s, MX, TOP + 1.4, SW - 2 * MX, (0.6, 3, 3, 3), ["No", "상황 (Given)", "행동 (When)", "결과 (Then)"],
               [[i, a.get("given"), a.get("when"), a.get("then")] for i, a in enumerate(acc[:7], 1)]
-              or [[UNKNOWN] * 4], size=10, row_h=0.46)
+              or [[UNKNOWN] * 4], size=10)
 
     s = d.slide("조건 · 정책 · 외부 연동", "01 기능 정의")
     cols = (("조건", f.get("conditions")), ("정책", f.get("policies")), ("외부 연동", f.get("integrations")))
     cw = (SW - 2 * MX - 0.8) / 3
+    need = max(est_text_height(bullets(it or []) or UNKNOWN, cw - 0.35 - T, 13, 8) for _, it in cols)
+    ch = min(BOTTOM - 1.5, CARD_BODY + need + CARD_PAD)
+    y0 = group_top(ch)
     for i, (t, items) in enumerate(cols):
         x = MX + i * (cw + 0.4)
         raw, items = items or [], lst(items)
         if t != "외부 연동":
             d.note(t, items)
-        box(s, x, 1.5, cw, 5.1, fill=TINT, round_=True, name="rule-card")
-        subhead(s, x + 0.25, 1.7, cw - 0.5, t, size=16)
-        text(s, x + 0.25 + T, 2.2, cw - 0.5 - T, 4.2, bullets(raw)
+        box(s, x, y0, cw, ch, fill=TINT, round_=True, name="rule-card")
+        subhead(s, x + 0.25, y0 + 0.2, cw - 0.5, t, size=16)
+        # 글 상자는 카드 오른쪽 안쪽 여백(0.1in)까지 — 필요 없는 줄바꿈을 줄입니다
+        text(s, x + 0.25 + T, y0 + CARD_BODY, cw - 0.35 - T, ch - 0.8, bullets(raw)
              or ("없음" if t == "외부 연동" else UNKNOWN), size=13, spacing=8)
 
     flow = data.get("flow")
@@ -352,13 +366,13 @@ def build_feature(data, out):
         subhead(s, 4.1, SB_Y, 8.6, "영역 구성", size=14)
         table(s, 4.1 + T, SB_Y + 0.4, SW - MX - 4.1 - T, (0.5, 1.1, 3.2), ["No", "유형", "영역"],
               [[r.get("no", i), r.get("type"), r.get("label")] for i, r in enumerate(regions[:8], 1)]
-              or [[UNKNOWN] * 3], size=10, row_h=0.3)
+              or [[UNKNOWN] * 3], size=10, row_h=0.32)
         nx = sc.get("next") or []
-        y = SB_Y + 0.4 + 0.3 * (min(len(regions), 8) + 1) + 0.3
+        y = SB_Y + 0.4 + 0.32 * (min(len(regions), 8) + 1) + 0.3
         subhead(s, 4.1, y, 8.6, "이동 흐름", size=14)
         table(s, 4.1 + T, y + 0.4, SW - MX - 4.1 - T, (0.8, 2.5, 1.5), ["요소", "조건", "이동할 화면"],
               [[n.get("element"), n.get("when"), n.get("to")] for n in nx[:5]] or [["없음", "", ""]],
-              size=10, row_h=0.3)
+              size=10, row_h=0.32)
         # 화면설계서 — 번호 표식과 Description
         elems = sc.get("elements") or []
         d.note("%s 요소 동작" % title, elems)
@@ -386,8 +400,8 @@ def build_feature(data, out):
         s = d.slide("예외 처리 — " + title, "04 예외 처리")
         d.mark("ex:" + str(sc.get("id")))
         _header(s, sc, m)
-        table(s, MX, SB_Y, SW - 2 * MX, (1.3, 1.5, 3, 5), ["예외 ID", "상황", "사용자 메시지", "처리"],
-              rows[:9], size=11, row_h=0.48)
+        table(s, MX, SB_Y, SW - 2 * MX, (1.2, 1.3, 2.5, 6.0), ["예외 ID", "상황", "사용자 메시지", "처리"],
+              rows[:9], size=11)
 
     d.questions(data.get("open_questions"))
 
@@ -405,10 +419,10 @@ def build_feature(data, out):
         if i == 0:
             draw_toc(ts, sections, w=5.9, top=1.45, step=min(1.0, 5.3 / len(sections)))
         subhead(ts, 7.0, 1.45, 5.7, "화면별 쪽", size=14)
-        table(ts, 7.0 + T, 1.85, SW - MX - 7.0 - T, (2.6, 1.1, 1.1, 1.1), ["화면", "와이어프레임", "화면설계서", "예외 처리"],
+        table(ts, 7.0 + T, 1.85, SW - MX - 7.0 - T, (2.0, 1.35, 1.25, 1.15), ["화면", "와이어프레임", "화면설계서", "예외 처리"],
               [["%s %s" % (v(sc.get("id")), v(sc.get("name")))]
                + ["p. %s" % d.marks.get("%s:%s" % (k, sc.get("id")), "—") for k in ("wf", "sb", "ex")]
-               for sc in chunk] or [["화면 없음", "—", "—", "—"]], size=11, row_h=0.42)
+               for sc in chunk] or [["화면 없음", "—", "—", "—"]], size=11)
     d.save(out)
     return d
 

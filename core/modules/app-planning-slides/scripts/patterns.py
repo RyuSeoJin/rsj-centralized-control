@@ -14,19 +14,45 @@ TOP = 1.45                    # 본문이 시작하는 높이 — 제목 아래
 BOTTOM = SH - 0.6             # 본문이 끝나는 높이 — 푸터 위
 
 
+#: 카드 높이 = 본문 시작 위치(소제목 아래) + 내용 높이 + 아래 여백 — 카드마다 같은 공식이라 여백이 같습니다
+CARD_BODY = 0.72
+CARD_PAD = 0.3
+
+
+def group_top(height, top=1.5):
+    """내용 높이에 맞춘 카드 묶음의 위쪽 y — 남는 높이의 35%를 위에 둡니다.
+
+    카드를 내용에 맞춰 줄이면 위에 붙여 둘 때 아래가 크게 빕니다. 정가운데보다 조금 위에 두어야
+    제목과 이어져 읽힙니다.
+    """
+    return top + max(0.0, BOTTOM - top - height) * 0.35
+
+
 # ── 번호 목록 ─────────────────────────────────────────────────────────
 
-def numbered_item(slide, x, y, w, no, body, size=14, d=0.36, fill=INK, h=None, bold=False):
-    """번호 원 + 글. 글의 **첫 줄 세로 중심을 원의 중심에 맞춥니다**(slide-patterns.md §4).
+#: 번호 목록의 항목 사이 틈(in) — 글머리 목록과 비슷한 리듬으로, 고정 간격이 아니라 글 높이 + 이 틈입니다
+NUM_GAP = 0.16
 
-    글이 여러 줄이면 둘째 줄부터 아래로 내려갑니다. 원의 위가 아니라 가운데를 기준으로 삼아야
-    한 줄짜리도 여러 줄짜리도 같은 자리에서 시작해 보입니다.
+
+def numbered_list(slide, x, y, w, items, size=14, fill=INK):
+    """번호 원 + 글 목록. 원은 본문 한 줄 높이 정도이고, 원 뒤는 글머리처럼 짧은 간격입니다.
+
+    · 첫 항목의 글은 y에서 시작합니다 — 옆 카드의 본문과 같은 높이에 맞출 수 있습니다.
+    · 글의 첫 줄 세로 중심을 원의 중심에 맞춥니다(slide-patterns.md §4).
+    · 항목 간격은 글 높이 + NUM_GAP이라, 여러 줄 항목은 그만큼 내려가고 틈은 늘 같습니다.
+    마지막 항목 아래 끝 y를 돌려줍니다.
     """
-    circle(slide, x, y, d, fill, str(no), size=max(8, int(d * 30)))
-    top = first_line_top(y + d / 2.0, size)
-    gap = 0.18
-    text(slide, x + d + gap, top, w - d - gap, h or (line_height(size) * 3 + 0.1), body, size=size, bold=bold)
-    return top
+    lh = line_height(size)
+    d = round(lh * 0.82, 3)
+    gap = size * MARK_GAP / 72.0 + 0.04
+    tw = w - d - gap
+    for no, body in enumerate(items, 1):
+        mid = y + TEXT_MARGIN + lh / 2.0 - 0.025          # 한글 글자의 눈에 보이는 중심은 줄 상자 중심보다 조금 위
+        circle(slide, x, mid - d / 2.0, d, fill, str(no), size=max(8, int(size * 0.72)))
+        th = est_text_height(body, tw, size, 0)
+        text(slide, x + d + gap, y, tw, th + 0.05, body, size=size)
+        y += max(th, d) + NUM_GAP
+    return y - NUM_GAP
 
 
 # ── 목차 ──────────────────────────────────────────────────────────────
@@ -86,7 +112,7 @@ def _node(slide, x, y, w, h, n, k, has_children, fs):
     fill = INK if root else (TINT if has_children else (TAB_FILL if kind == "tab" else WHITE))
     box(slide, x, y, w, h, fill=fill,
         line=None if root else (INK if has_children else GRID),
-        shape="capsule" if kind == "tab" and not root else "round",
+        shape="round",
         dash=kind in ("popup", "external"), label=label.strip(), size=fs,
         color=WHITE if root else INK, bold=has_children, align="l", name="ia-node")
     if n.get("change"):
@@ -104,7 +130,7 @@ def ia_legend(slide, tree):
     for k in ("page", "tab", "popup", "external"):
         if k in kinds and (k != "page" or len(kinds) > 1):
             items.append((lambda s, x, y, k=k: box(s, x, y, 0.28, 0.18, fill=TAB_FILL if k == "tab" else WHITE,
-                                                   line=INK, shape="capsule" if k == "tab" else "round",
+                                                   line=INK, shape="round",
                                                    dash=k in ("popup", "external"),
                                                    label="↗" if k == "external" else None, size=7),
                           NODE_KINDS[k]))
@@ -131,12 +157,14 @@ def draw_tree(slide, tree):
     nh = max(0.26, min(0.5, slot * 0.78))
     fs = 10 if nh >= 0.34 else 8
     gap = 0.45
-    cw = min(2.4, (SW - 2 * MX - gap * (cols - 1)) / cols)
+    cw = min(2.9, (SW - 2 * MX - gap * (cols - 1)) / cols)
+    # 트리 전체를 가로 가운데에 둡니다 — 왼쪽에 몰리면 오른쪽 위가 크게 빕니다
+    x_off = (SW - 2 * MX - (cols * cw + gap * (cols - 1))) / 2.0
     cursor = [top]
 
     def place(n, k):
         ch = n.get("children") or []
-        x = MX + k * (cw + gap)
+        x = MX + x_off + k * (cw + gap)
         if ch:
             ys = [place(c, k + 1) for c in ch]
             y = (ys[0] + ys[-1]) / 2.0
@@ -163,7 +191,7 @@ def storyboard_header(slide, fields, change=None, y=1.3):
     fields: [(이름, 값, 폭 비율)]. 장마다 같은 자리 · 같은 칸이라 화면을 넘겨도 눈이 같은 곳을 봅니다.
     """
     x, h = MX, 0.36
-    right = SW - MX - (0.9 if change else 0)
+    right = SW - MX                                   # 배지가 있어도 띠 길이는 같습니다
     tot = sum(f[2] for f in fields)
     unit = (right - x - 0.75 * len(fields)) / tot
     for name, val, ratio in fields:
@@ -172,7 +200,10 @@ def storyboard_header(slide, fields, change=None, y=1.3):
         box(slide, x + 0.75, y, w, h, fill=WHITE, line=GRID, label=v(val), size=10, align="l")
         x += 0.75 + w
     if change:
-        badge(slide, right + 0.15, y + 0.07, change, size=8)
+        # 배지는 마지막 값 칸 안 오른쪽 — 띠 밖에 떠 있으면 띠 길이가 장마다 달라 보입니다
+        name, color = STATUS.get(str(change).upper(), (str(change), MUTED))
+        bw = 0.16 + 0.11 * len(name)
+        badge(slide, right - bw - 0.08, y + (h - 0.22) / 2, change, size=8)
 
 
 DESC_GAP = 0.14
@@ -180,8 +211,8 @@ DESC_GAP = 0.14
 
 def _desc_height(item, w):
     body = v(item.get("behavior"))
-    h = 0.3 + est_lines(body, w - 0.45, 11) * 0.2
-    h += sum(est_lines(s, w - 0.75, 10) * 0.19 for s in item.get("sub") or [])
+    h = 0.34 + est_lines(body, w - 0.45, 11) * 0.24
+    h += sum(est_lines(s, w - 0.75, 10) * 0.23 for s in item.get("sub") or [])
     return h
 
 
@@ -195,7 +226,21 @@ def paginate_desc(items, w, h):
             cur, used = [], 0.0
         cur.append(it)
         used += need
-    return pages + [cur] if cur else pages or [[]]
+    pages = pages + [cur] if cur else pages or [[]]
+    if len(pages) < 2:
+        return pages
+    # 마지막 장에 한두 개만 남으면 장마다 높이를 고르게 다시 나눕니다 — 한 장은 꽉 차고 다음 장은 비는 것을 막습니다
+    heights = [_desc_height(it, w) + DESC_GAP for it in items]
+    target = sum(heights) / len(pages)
+    out, cur, used = [], [], 0.0
+    for it, hh in zip(items, heights):
+        if cur and used + hh > target * 1.08 and len(out) < len(pages) - 1:
+            out.append(cur)
+            cur, used = [], 0.0
+        cur.append(it)
+        used += hh
+    out.append(cur)
+    return out if all(sum(_desc_height(i, w) + DESC_GAP for i in pg) <= h for pg in out) else pages
 
 
 def description_list(slide, x, y, w, items, title="Description"):
@@ -212,11 +257,11 @@ def description_list(slide, x, y, w, items, title="Description"):
             badge(slide, x + w - 0.62, cy + 0.04, it["change"], size=7)
         text(slide, x + 0.4, first_line_top(cy + 0.15, 12), w - 1.1, 0.28, name, size=12, bold=True)
         body = v(it.get("behavior"))
-        bh = est_lines(body, w - 0.45, 11) * 0.2
-        text(slide, x + 0.4, cy + 0.28, w - 0.45, bh + 0.05, body, size=11, color=INK, spacing=2)
-        sy = cy + 0.3 + bh
+        bh = est_lines(body, w - 0.45, 11) * 0.24
+        text(slide, x + 0.4, cy + 0.32, w - 0.45, bh + 0.05, body, size=11, color=INK, spacing=2)
+        sy = cy + 0.34 + bh
         for j, sub in enumerate(it.get("sub") or [], 1):
-            sh = est_lines(sub, w - 0.75, 10) * 0.19
+            sh = est_lines(sub, w - 0.75, 10) * 0.23
             text(slide, x + 0.4, sy, w - 0.45, sh + 0.04, "%s-%d) %s" % (no, j, sub), size=10, color=SUB,
                  spacing=1)
             sy += sh
@@ -268,7 +313,7 @@ def flowchart(slide, nodes, edges, x0=MX, y0=TOP, w=SW - 2 * MX, h=None):
             lanes.append(n["lane"])
     label_w = 1.0 if lanes else 0.0
     colw = (w - label_w) / ncol
-    nw = min(1.7, colw - 0.45)
+    nw = min(2.0, colw - 0.4)
     pos = {}
     if lanes:
         lh = h / len(lanes)
@@ -378,7 +423,7 @@ def journey_map(slide, journey, x0=MX, y0=TOP, w=SW - 2 * MX):
     cw = (w - lw) / n
     hh = 0.4
     rows = [r for r in JOURNEY_ROWS]
-    rh = (BOTTOM - y0 - hh) / len(rows)
+    rh = (BOTTOM - 0.2 - y0 - hh) / len(rows)       # 바닥글과 0.3in 이상 띄웁니다
     for i, st in enumerate(stages):
         box(slide, x0 + lw + i * cw, y0, cw, hh, fill=INK, line=WHITE, label=v(st.get("name")), size=11,
             bold=True, color=WHITE, shape="pentagon" if i < n - 1 else "rect")
@@ -396,7 +441,7 @@ def journey_map(slide, journey, x0=MX, y0=TOP, w=SW - 2 * MX):
             else:
                 val = st.get(key)
                 body = "\n".join(lst(val)) if isinstance(val, list) else v(val)
-                text(slide, cx + 0.06, y + 0.04, cw - 0.12, rh - 0.08, body, size=9, spacing=1)
+                text(slide, cx + 0.08, y + 0.04, cw - 0.16, rh - 0.08, body, size=10, spacing=1, anchor="m")
         if key == "emotion":
             line(slide, x0 + lw, y + rh / 2, x0 + w, y + rh / 2, color=LINE, width=0.5, dash=True)
             for a, b in zip(pts, pts[1:]):
@@ -413,9 +458,9 @@ QUADRANTS = (("high", "low", "빠른 성과", "먼저 합니다"), ("high", "hig
 
 def priority_matrix(slide, items, x0=MX + 0.5, y0=TOP + 0.1, w=7.6, h=None):
     """영향(세로) × 노력(가로) 2×2. 항목은 칩으로 사분면에 놓습니다(사분면당 6개까지)."""
-    h = h or (BOTTOM - y0 - 0.5)
+    h = h or (BOTTOM - y0 - 0.5) * 0.82
     qw, qh = w / 2, h / 2
-    text(slide, x0 - 0.5, y0 + h / 2 - 0.15, 0.45, 0.3, "영향", size=10, bold=True, color=SUB, align="c")
+    text(slide, x0 - 0.5, y0 + h / 2 - 0.15, 0.45, 0.3, "영향 ↑", size=10, bold=True, color=SUB, align="c")
     text(slide, x0, y0 + h + 0.05, w, 0.3, "노력  →", size=10, bold=True, color=SUB, align="c")
     for impact, effort, name, lead in QUADRANTS:
         qx = x0 + (qw if effort == "high" else 0)
@@ -431,7 +476,7 @@ def priority_matrix(slide, items, x0=MX + 0.5, y0=TOP + 0.1, w=7.6, h=None):
             cx = qx + 0.12 + (k % 2) * (qw / 2 - 0.06)
             cy = qy + 0.72 + (k // 2) * 0.4
             box(slide, cx, cy, qw / 2 - 0.2, 0.32, fill=WHITE, line=INK, shape="capsule",
-                label="%s %s" % (v(it.get("id")), v(it.get("name"))), size=8)
+                label="%s %s" % (v(it.get("id")), v(it.get("name"))), size=9)
     rest = [it for it in items if str(it.get("impact", "")).lower() not in ("high", "low")
             or str(it.get("effort", "")).lower() not in ("high", "low")]
     return rest
@@ -449,8 +494,15 @@ def moscow_board(slide, items, x0=MX, y0=TOP, w=SW - 2 * MX):
         box(slide, x, y0, cw, 0.55, fill=INK if key == "must" else TINT, line=None if key == "must" else GRID,
             label="%s · %s" % (name, lead), size=12, bold=True, color=WHITE if key == "must" else INK)
         mine = [it for it in items if str(it.get("moscow", "")).lower().replace("'", "") == key][:8]
+        # 칸 바탕을 아래까지 깔아 네 칸이 한 판으로 읽히게 합니다. 빈 칸은 비었다고 적습니다
+        most = max(1, max(len([it for it in items if str(it.get("moscow", "")).lower().replace("'", "") == k])
+                          for k, _, _ in MOSCOW))
+        box(slide, x, y0 + 0.65, cw, min(BOTTOM - y0 - 0.75, 0.3 + min(most, 8) * 0.56 + 0.2), fill=TINT,
+            round_=True, name="moscow-lane")
+        if not mine:
+            text(slide, x, y0 + 0.9, cw, 0.4, "해당 없음", size=11, color=MUTED, align="c")
         for k, it in enumerate(mine):
-            box(slide, x, y0 + 0.7 + k * 0.52, cw, 0.44, fill=WHITE, line=GRID, round_=True,
+            box(slide, x + 0.12, y0 + 0.8 + k * 0.56, cw - 0.24, 0.46, fill=WHITE, line=GRID, round_=True,
                 label="%s  %s" % (v(it.get("id")), v(it.get("name"))), size=10, align="l")
 
 
@@ -491,18 +543,19 @@ def roadmap(slide, rm, x0=MX, y0=TOP, w=SW - 2 * MX):
     if rm.get("today") is not None:
         tx = x0 + lw + float(rm["today"]) * pw
         line(slide, tx, top, tx, bottom, color=INK, width=1.25)
-        text(slide, tx - 0.4, bottom + 0.02, 0.8, 0.24, "오늘", size=9, bold=True, align="c")
+        text(slide, tx - 0.4, bottom + 0.1, 0.8, 0.26, "오늘", size=9, bold=True, align="c")
     for r, tr in enumerate(tracks):                       # ③ 막대
         y = top + hh + r * th
         for it in tr.get("items") or []:
             s0, e = float(it.get("start", 0)), float(it.get("end", it.get("start", 0)))
             bx = x0 + lw + s0 * pw + 0.05
-            bw = max(0.3, (e - s0 + 1) * pw - 0.1)
+            bw = max(0.3, min((e - s0 + 1) * pw - 0.1, x0 + w - 0.15 - bx))   # 표 끝에서 0.15in 안쪽
             box(slide, bx, y + 0.12, bw, th - 0.24, fill=INK if it.get("main") else SUB, round_=True,
                 label=v(it.get("label")), size=9, color=WHITE, bold=True)
     legend(slide, [(lambda s, x, y: box(s, x, y, 0.28, 0.18, fill=INK, round_=True), "주요 작업"),
                    (lambda s, x, y: box(s, x, y, 0.28, 0.18, fill=SUB, round_=True), "작업"),
-                   (lambda s, x, y: box(s, x + 0.05, y, 0.18, 0.18, fill=ACCENT, shape="diamond"), "마일스톤")])
+                   (lambda s, x, y: box(s, x + 0.05, y, 0.18, 0.18, fill=ACCENT, shape="diamond"), "마일스톤")],
+           y=min(SH - 0.85, bottom + 0.45))          # 범례는 차트 바로 아래
 
 
 # ── 비교 · 상태 ──────────────────────────────────────────────────────
@@ -510,14 +563,17 @@ def roadmap(slide, rm, x0=MX, y0=TOP, w=SW - 2 * MX):
 def compare(slide, left, right, x0=MX, y0=TOP, w=SW - 2 * MX):
     """두 칸 비교(현행 → 개선 등). 가운데 화살표가 방향을 보입니다. 칸마다 항목 6개까지."""
     cw = (w - 1.0) / 2
-    hgt = BOTTOM - y0 - 0.1
+    # 카드 높이는 내용에 맞춥니다 — 큰 카드에 글 몇 줄이면 비어 보입니다
+    need = max(est_text_height(bullets((sd.get("items") or [])[:6]), cw - 0.6, 13, 8) for sd in (left, right))
+    hgt = min(BOTTOM - y0 - 0.1, max(1.6, CARD_BODY + need + CARD_PAD))
+    y0 = group_top(hgt, y0)
     for i, side in enumerate((left, right)):
         x = x0 + i * (cw + 1.0)
         box(slide, x, y0, cw, hgt, fill=TINT if i == 0 else WHITE, line=GRID if i == 0 else INK,
             round_=True, name="compare-card")
         text(slide, x + 0.3, y0 + 0.2, cw - 0.6, 0.4, v(side.get("label")), size=16, bold=True,
              color=SUB if i == 0 else ACCENT)
-        text(slide, x + 0.3, y0 + 0.75, cw - 0.6, hgt - 0.9,
+        text(slide, x + 0.3, y0 + CARD_BODY, cw - 0.6, hgt - 0.9,
              bullets((side.get("items") or [])[:6]) or UNKNOWN, size=13, spacing=8)
     box(slide, x0 + cw + 0.2, y0 + hgt / 2 - 0.3, 0.6, 0.6, fill=ACCENT, shape="chevron")
 

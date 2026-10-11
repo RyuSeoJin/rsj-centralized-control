@@ -43,11 +43,13 @@ STATUS = {"NEW": ("신규", "2F7D59"), "UPDATE": ("수정", "B7791F"), "DELETE":
           "TODO": ("대기", "8A949C"), "DOING": ("진행", "2B6CB0"), "DONE": ("완료", "2F7D59"),
           "HOLD": ("보류", "B7791F")}
 WF_FRAME = "3D4851"
-WF_FILL = {"header": "C9CED3", "nav": "C9CED3", "tab": "DDE1E4", "button": "9AA3AA",
+WF_TEXT = "3D4851"              # 와이어프레임 안 글자 — 회색 바탕에서도 읽히는 짙은 슬레이트
+WF_SIZE = 9                    # 와이어프레임 안 글자 크기의 하한
+WF_FILL = {"header": "C9CED3", "nav": "C9CED3", "tab": "DDE1E4", "button": "6E7A85",
            "input": "FFFFFF", "list": "F1F3F4", "image": "E3E6E8", "text": "F7F8F9",
            "card": "ECEEF0", "banner": "D3D8DC", "other": "ECEEF0"}
 WF_DEFAULT_H = {"header": 8, "nav": 9, "tab": 7, "button": 7, "input": 7, "list": 28,
-                "image": 24, "text": 9, "card": 16, "banner": 13, "other": 10}
+                "image": 24, "text": 12, "card": 16, "banner": 13, "other": 10}
 REGION_TYPES = tuple(WF_FILL)
 
 #: 화면설계서에서 빠지면 안 되는 예외 — 비어 있으면 `?`로 찍어 미결로 드러냅니다
@@ -94,6 +96,13 @@ def _font(run, size, bold=False, color=INK):
             el = rpr.makeelement(qn(tag), {})
             rpr.append(el)
         el.set("typeface", FONT)
+    # 자간 — 글자 크기의 일정 비율(1/100pt 단위). Google Slides에는 자간 설정이 없어 변환하면 사라질 수 있어,
+    # 여유는 줄 간격(LINE_SPACING)이 함께 맡습니다
+    rpr.set("spc", str(int(round(size * LETTER_SPACING * 100))))
+    # 한국어로 표시해야 띄어쓰기 단위로 줄을 바꿉니다 — 언어가 없으면 한글을 글자 단위로 끊어
+    # 「모임 / 은」처럼 음절 하나가 다음 줄로 떨어집니다
+    rpr.set("lang", "ko-KR")
+    rpr.set("altLang", "en-US")
 
 
 def _plain(shape):
@@ -103,23 +112,31 @@ def _plain(shape):
         shape._element.remove(st)
 
 
-#: 글머리 기호 — 단계마다 **모양 자체를** 바꿔 깊이를 보입니다(1단 ■ · 2단 ◆ · 3단 ● · 4단 –).
-#: 채움만 다른 짝(◆ · ◇, ■ · □)은 작게 찍히면 구분되지 않아 쓰지 않습니다
-BULLET_MARKS = ("■", "◆", "●", "–")
-#: 기호마다 글자 대비 크기 — 대시는 가늘어 같은 비율이면 묻히므로 크게 찍습니다
-BULLET_SCALE = {"–": 1.0}
+#: 글머리 기호 — 단계마다 **모양 자체를** 바꿔 깊이를 보입니다(1단 ■ · 2단 ◆ · 3단 ● · 4단 －).
+#: 채움만 다른 짝(◆ · ◇, ■ · □)은 작게 찍히면 구분되지 않아 쓰지 않습니다.
+#: 기호는 **본문과 같은 크기**로 찍습니다 — Noto Sans KR의 도형 기호는 같은 크기일 때만 세로 중심이 한글과
+#: 같고(약 0.38em), 줄이면 기준선 쪽으로 처집니다. 4단은 가운데에 그려진 전각 하이픈(－)입니다.
+#: 모두 Noto Sans KR에 있는 기호라 Google Slides에서도 다른 글꼴로 바뀌지 않습니다
+BULLET_MARKS = ("■", "◆", "●", "－")
+BULLET_SCALE = {}
+MARK_SCALE = 1.0
 #: 소제목 표식 — 카드 안의 소제목 앞에 붙여 「아래가 이 묶음」임을 보입니다(토글처럼)
 HEAD_MARK = "▼"
 #: 토글 들여쓰기 — ▼ 뒤 글자와 소제목 아래 내용이 모두 이만큼 들어가 한 선에 맞습니다
-TOGGLE_STEP = 0.3
-#: Noto Sans KR의 한 줄 높이(글자 크기 대비). 첫 줄을 번호 표식 가운데에 맞출 때 씁니다
+TOGGLE_STEP = 0.28
+#: 자간(글자 크기 대비)과 줄 간격(배수). 글이 빽빽해 보이지 않게 둘 다 조금 넓힙니다
+LETTER_SPACING = 0.03
+LINE_SPACING = 1.2
+#: 기호 뒤 간격 — 공백 한 칸 너비(글자 크기 대비)
+MARK_GAP = 0.35
+#: Noto Sans KR의 한 줄 높이(글자 크기 대비, 줄 간격 1배 기준). 첫 줄을 번호 표식 가운데에 맞출 때 씁니다
 LINE_H = 1.45
 TEXT_MARGIN = 0.02
 
 
 def line_height(size):
-    """글자 크기(pt)의 한 줄 높이(in)."""
-    return size * LINE_H / 72.0
+    """글자 크기(pt)의 한 줄 높이(in) — 줄 간격을 넣은 높이입니다."""
+    return size * LINE_H * LINE_SPACING / 72.0
 
 
 def first_line_top(center_y, size):
@@ -141,9 +158,9 @@ def bullets(items, level=0):
     return out
 
 
-def _hang(para, size, level):
-    """내어쓰기 — 둘째 줄부터 글자 시작선이 첫 줄 글자와 맞습니다."""
-    step = size * 1.7 / 72.0
+def _hang(para, size, level, mark_scale=1.0):
+    """내어쓰기 — 기호 너비 + 공백 한 칸. 둘째 줄부터 글자 시작선이 첫 줄 글자와 맞습니다."""
+    step = size * (mark_scale + MARK_GAP) / 72.0
     pPr = para._p.get_or_add_pPr()
     pPr.set("marL", str(int(Inches(step * (level + 1)))))
     pPr.set("indent", str(int(-Inches(step))))
@@ -171,15 +188,17 @@ def text(slide, x, y, w, h, paras, size=14, bold=False, color=INK, align="l",
         para = tf.paragraphs[0] if i == 0 else tf.add_paragraph()
         para.alignment = {"l": PP_ALIGN.LEFT, "c": PP_ALIGN.CENTER, "r": PP_ALIGN.RIGHT}[align]
         para.space_after = Pt(spacing)
+        para.line_spacing = LINE_SPACING
         sz, c = o.get("size", size), o.get("color", color)
         lvl = o.get("bullet")
         if lvl is not None and lvl is not False:
             lvl = 0 if lvl is True else int(lvl)
-            _hang(para, sz, lvl)
+            mark = BULLET_MARKS[min(lvl, len(BULLET_MARKS) - 1)]
+            scale = BULLET_SCALE.get(mark, MARK_SCALE)
+            _hang(para, sz, lvl, scale)
             m = para.add_run()
-            m.text = BULLET_MARKS[min(lvl, len(BULLET_MARKS) - 1)] + "	"
-            mark = m.text[0]
-            _font(m, sz * BULLET_SCALE.get(mark, 0.72), False, ACCENT if lvl == 0 else MUTED)
+            m.text = mark + "	"
+            _font(m, sz * scale, False, ACCENT if lvl == 0 else MUTED)
         elif o.get("head"):
             # 글머리처럼 내어쓰기 — 소제목 글자가 TOGGLE_STEP에서 시작해, 아래 내용과 같은 선에 섭니다
             pPr = para._p.get_or_add_pPr()
@@ -187,14 +206,15 @@ def text(slide, x, y, w, h, paras, size=14, bold=False, color=INK, align="l",
             pPr.set("indent", str(int(-Inches(TOGGLE_STEP))))
             m = para.add_run()
             m.text = HEAD_MARK + "	"
-            _font(m, sz * 0.62, False, c)
+            # ▼만 강조색 — 소제목 글자는 짙은 잉크로 둬서 강조색이 한 장에 너무 많아지지 않게 합니다
+            _font(m, sz * MARK_SCALE, False, o.get("mark_color", ACCENT))
         r = para.add_run()
         r.text = s
         _font(r, sz, o.get("bold", bold), c)
     return tb
 
 
-def subhead(slide, x, y, w, label, size=15, color=ACCENT):
+def subhead(slide, x, y, w, label, size=15, color=INK):
     """카드 안 소제목 — ▼ 표식 + 굵은 글자. 아래 내용은 x + TOGGLE_STEP에서 시작합니다(토글처럼)."""
     return text(slide, x, y, w, line_height(size) + 0.1, [(label, {"head": True})], size=size, bold=True,
                 color=color)
@@ -298,7 +318,11 @@ def _border(cell, color=GRID, width=0.75, sides=None):
         tcPr.insert(i, ln)
 
 
-def table(slide, x, y, w, widths, header, rows, size=11, row_h=0.36):
+#: 표 행의 최소 높이 — 표마다 다르면 장을 넘길 때 리듬이 깨집니다. 글이 길면 행이 저절로 늘어납니다
+TABLE_ROW_H = 0.4
+
+
+def table(slide, x, y, w, widths, header, rows, size=11, row_h=TABLE_ROW_H):
     """widths는 비율. 머리줄은 잉크색, 몸통은 흰 바탕에 옅은 선입니다."""
     n = len(rows) + 1
     gf = slide.shapes.add_table(n, len(header), Inches(x), Inches(y), Inches(w), Inches(row_h * n))
@@ -324,6 +348,7 @@ def table(slide, x, y, w, widths, header, rows, size=11, row_h=0.36):
             cell.vertical_anchor = MSO_ANCHOR.MIDDLE
             tf = cell.text_frame
             tf.word_wrap = True
+            tf.paragraphs[0].line_spacing = LINE_SPACING
             run = tf.paragraphs[0].add_run()
             run.text = v(cells[c]) if r else str(cells[c])
             _font(run, size, r == 0, TABLE["head_text"] if r == 0 else TABLE["body_text"])
@@ -398,7 +423,7 @@ class Deck:
         qs = lst(extra)
         if not qs and not self.open:
             return
-        for i, chunk in enumerate(paged(qs + ["「?」 자리 — " + o for o in self.open], 9)):
+        for i, chunk in enumerate(paged(qs + ["미정 — " + o for o in self.open], 9)):
             s = self.slide("미결 사항" + (" (%d)" % (i + 1) if i else ""), "확정 전에 정할 것")
             self.mark("questions")
             text(s, MX, 1.5, SW - 2 * MX, 5.2,
@@ -452,20 +477,20 @@ def phone(slide, x, y, h, regions, markers=True, title=None):
         is_btn = kind == "button"
         box(slide, rx, ry, rw, rh, fill=WF_FILL.get(kind, WF_FILL["other"]),
             line="7F8A93" if kind in ("input", "card", "image") else None, round_=is_btn,
-            label=None if kind in ("image", "list", "text") else lbl, size=8,
-            color=WHITE if is_btn else SUB, name="wf-%s" % kind)
+            label=None if kind in ("image", "list", "text") else lbl, size=WF_SIZE,
+            color=WHITE if is_btn else WF_TEXT, name="wf-%s" % kind)
         if kind == "image":
             line(slide, rx, ry, rx + rw, ry + rh, color="B5BCC2", width=0.75)
             line(slide, rx, ry + rh, rx + rw, ry, color="B5BCC2", width=0.75)
-            text(slide, rx, ry + rh / 2 - 0.12, rw, 0.24, lbl, size=8, color=SUB, align="c")
+            text(slide, rx, ry + rh / 2 - 0.13, rw, 0.26, lbl, size=WF_SIZE, color=WF_TEXT, align="c")
         elif kind == "list":
             rows = max(2, min(5, int(rh / 0.32)))
             for k in range(1, rows):
                 yy = ry + rh * k / rows
                 line(slide, rx + 0.05, yy, rx + rw - 0.05, yy, color=LINE, width=0.75)
-            text(slide, rx + 0.05, ry + 0.02, rw - 0.1, 0.22, lbl, size=8, color=SUB)
+            text(slide, rx + 0.05, ry + 0.02, rw - 0.1, 0.24, lbl, size=WF_SIZE, color=WF_TEXT)
         elif kind == "text":
-            text(slide, rx + 0.03, ry + 0.02, rw - 0.06, rh - 0.04, lbl, size=8, color=SUB)
+            text(slide, rx + 0.03, ry + 0.02, rw - 0.06, rh - 0.04, lbl, size=WF_SIZE, color=WF_TEXT)
         if markers:
             # 표식은 틀 바깥 왼쪽에 둡니다 — 영역 안에 두면 영역 글자를 가립니다
             my = ry + min(rh, 0.4) / 2 - 0.11
@@ -501,7 +526,60 @@ def legend(slide, items, y=None, right=None):
         x += w + 0.2
 
 
+def _char_em(ch):
+    """Noto Sans KR의 글자 폭(em) 어림 — 글꼴에서 잰 값입니다(한글 0.92 · 공백 0.22 · 숫자 0.56)."""
+    o = ord(ch)
+    if 0xAC00 <= o <= 0xD7A3 or 0x3000 <= o <= 0x30FF or 0xFF00 <= o <= 0xFFEF or 0x4E00 <= o <= 0x9FFF:
+        return 1.0 if ch in "「」『』" else 0.92
+    if ch == " ":
+        return 0.224
+    if ch.isdigit():
+        return 0.555
+    if ch.isupper():
+        return 0.64
+    if ch.isalpha():
+        return 0.55
+    if ch in ".,:;'!|":
+        return 0.28
+    if ch in "()[]/-":
+        return 0.36
+    return 0.6 if o < 0x2000 else 0.9
+
+
 def est_lines(s, width_in, size):
-    """한 칸에 몇 줄로 접히는지 어림합니다. 한글 한 글자는 대략 글자 크기만큼 넓습니다."""
-    per = max(4, int(width_in * 72.0 / size * 0.92))
-    return sum(max(1, -(-len(part) // per)) for part in str(s).splitlines() or [""])
+    """한 칸에 몇 줄로 접히는지 어림합니다. 글자 폭 + 자간으로 띄어쓰기 단위 줄바꿈을 흉내 냅니다
+    (글자를 한국어로 표시해 PowerPoint가 단어 단위로 줄을 바꾸기 때문입니다)."""
+    limit = max(1.0, width_in * 72.0 / size)            # 한 줄에 들어가는 폭(em)
+    track = LETTER_SPACING
+    total = 0
+    for part in str(s).splitlines() or [""]:
+        lines, cur = 1, 0.0
+        for k, word in enumerate(part.split(" ")):
+            wl = sum(_char_em(c) + track for c in word)
+            add = wl + ((0.224 + track) if cur else 0.0)
+            if cur and cur + add > limit:
+                lines += 1
+                cur = wl
+                while cur > limit:                       # 칸보다 긴 단어는 글자 단위로 넘어갑니다
+                    lines += 1
+                    cur -= limit
+            else:
+                cur += add
+        total += lines
+    return total
+
+
+def est_text_height(paras, width_in, size, spacing=4):
+    """text()에 넘길 문단들이 차지할 높이(in) 어림 — 카드를 내용 높이에 맞출 때 씁니다."""
+    if isinstance(paras, str):
+        paras = [paras]
+    h = TEXT_MARGIN * 2
+    for p in paras:
+        s, o = (p, {}) if isinstance(p, str) else p
+        sz = o.get("size", size)
+        lvl = o.get("bullet")
+        indent = 0.0
+        if lvl is not None and lvl is not False:
+            indent = sz * (MARK_SCALE + MARK_GAP) / 72.0 * ((0 if lvl is True else int(lvl)) + 1)
+        h += est_lines(s, width_in - 0.08 - indent, sz) * line_height(sz) + spacing / 72.0
+    return h
