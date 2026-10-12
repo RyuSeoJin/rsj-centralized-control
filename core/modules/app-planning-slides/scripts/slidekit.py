@@ -249,7 +249,10 @@ SHAPES = {"rect": MSO_SHAPE.RECTANGLE, "round": MSO_SHAPE.ROUNDED_RECTANGLE,
           "capsule": MSO_SHAPE.ROUNDED_RECTANGLE, "diamond": MSO_SHAPE.DIAMOND,
           "para": MSO_SHAPE.PARALLELOGRAM, "oval": MSO_SHAPE.OVAL, "chevron": MSO_SHAPE.CHEVRON,
           "pentagon": MSO_SHAPE.PENTAGON,
-          "star": MSO_SHAPE.STAR_5_POINT}   # 로드맵 마일스톤 — ◆는 2단 글머리와 헷갈려 별을 씁니다
+          "star": MSO_SHAPE.STAR_5_POINT,   # 로드맵 마일스톤 — ◆는 2단 글머리와 헷갈려 별을 씁니다
+          # 기능 흐름도(워크플로우 탐색기 기호) — 공통 처리는 양옆 세로선, 이동 연결자는 아래가 뾰족한 오각형
+          "predefined": MSO_SHAPE.FLOWCHART_PREDEFINED_PROCESS,
+          "offpage": MSO_SHAPE.FLOWCHART_OFFPAGE_CONNECTOR}
 
 
 def box(slide, x, y, w, h, fill=None, line=None, round_=False, label=None, size=11,
@@ -642,7 +645,7 @@ def est_text_height(paras, width_in, size, spacing=4):
 # ── 꺾은선 연결선 ─────────────────────────────────────────────────────
 
 def _set_geom(conn, prst, adj=None):
-    """연결선의 모양(직선 · L자 · Z자)을 바꿉니다."""
+    """연결선의 모양(직선 · L자 · Z자 · 세 번 · 네 번 꺾기)을 바꿉니다. adj는 값 하나 또는 목록(adj1, adj2, …)입니다."""
     sp = conn._element
     geom = sp.spPr.find(qn("a:prstGeom"))
     geom.set("prst", prst)
@@ -653,8 +656,9 @@ def _set_geom(conn, prst, adj=None):
     for g in list(av):
         av.remove(g)
     if adj is not None:
-        gd = av.makeelement(qn("a:gd"), {"name": "adj1", "fmla": "val %d" % int(round(adj * 100000))})
-        av.append(gd)
+        for k, a in enumerate(adj if isinstance(adj, (list, tuple)) else [adj], 1):
+            gd = av.makeelement(qn("a:gd"), {"name": "adj%d" % k, "fmla": "val %d" % int(round(a * 100000))})
+            av.append(gd)
 
 
 def _set_xfrm(conn, x, y, w, h, rot=0, flip_h=False, flip_v=False):
@@ -772,6 +776,88 @@ def elbow(slide, sx, sy, ex, ey, first="h", mid=None, color=MUTED, width=1.0, ar
         cx, cy = (sx + ex) / 2.0, (sy + ey) / 2.0
         _set_geom(c, "bentConnector3", (mid - sy) / (ey - sy))
         _set_xfrm(c, cx - h / 2.0, cy - w / 2.0, h, w, rot=5400000, flip_h=ey < sy, flip_v=ex > sx)
+    if arrow:
+        ln = c.line._get_or_add_ln()
+        ln.append(ln.makeelement(qn("a:headEnd" if head else "a:tailEnd"),
+                                 {"type": "triangle", "w": "med", "len": "med"}))
+    _glue(c, start, end)
+    return c
+
+
+def _simple_pts(pts):
+    """겹친 점과 한 줄로 이어지는 점을 합칩니다 — 꺾임 수를 실제 모양대로 셉니다."""
+    out = []
+    for p in pts:
+        p = (float(p[0]), float(p[1]))
+        if out and abs(out[-1][0] - p[0]) < 1e-4 and abs(out[-1][1] - p[1]) < 1e-4:
+            continue
+        if len(out) >= 2:
+            a, b = out[-2], out[-1]
+            if (abs(a[0] - b[0]) < 1e-4 and abs(b[0] - p[0]) < 1e-4) or                     (abs(a[1] - b[1]) < 1e-4 and abs(b[1] - p[1]) < 1e-4):
+                out[-1] = p
+                continue
+        out.append(p)
+    return out
+
+
+def _seg_dir(a, b):
+    if abs(a[1] - b[1]) < 1e-4:
+        return "r" if b[0] > a[0] else "l"
+    return "d" if b[1] > a[1] else "u"
+
+
+def path_connector(slide, pts, color=MUTED, width=1.0, arrow=False, dash=False, start=None, end=None):
+    """가로 · 세로 선분으로 이어진 점 목록을 연결선 도형 **하나**로 그립니다 — 선을 여러 개 이어 붙이지 않습니다.
+
+    꺾임 0~2번은 elbow()(직선 · bentConnector2 · 3), 3번은 bentConnector4(가로 · 세로 · 가로 · 세로),
+    4번은 bentConnector5(가로 · 세로 · 가로 · 세로 · 가로)입니다. 세로로 시작하는 3번 꺾기는 거꾸로 그리고
+    화살표를 머리 쪽에 둡니다. start · end는 elbow()와 같고, 비우면 보이지 않는 앵커 도형에 붙입니다.
+    """
+    p = _simple_pts(pts)
+    for a, b in zip(p, p[1:]):
+        if abs(a[0] - b[0]) > 1e-4 and abs(a[1] - b[1]) > 1e-4:
+            raise ValueError("path_connector: 가로 · 세로 선분만 됩니다 %r → %r" % (a, b))
+    n = len(p) - 1
+    kw = dict(color=color, width=width, arrow=arrow, dash=dash, start=start, end=end)
+    if n < 1:
+        raise ValueError("path_connector: 점이 둘 이상 있어야 합니다")
+    first = "h" if abs(p[0][1] - p[1][1]) < 1e-4 else "v"
+    if n == 1:
+        return elbow(slide, p[0][0], p[0][1], p[1][0], p[1][1], **kw)
+    if n == 2:
+        return elbow(slide, p[0][0], p[0][1], p[2][0], p[2][1], first=first, **kw)
+    if n == 3:
+        mid = p[1][0] if first == "h" else p[1][1]
+        return elbow(slide, p[0][0], p[0][1], p[3][0], p[3][1], first=first, mid=mid, **kw)
+    if n > 5 or (first == "v" and n == 5):
+        raise ValueError("path_connector: 꺾임이 너무 많습니다(%d번)" % (n - 1))
+    if start is None:
+        start = _anchor(slide, p[0][0], p[0][1], _seg_dir(p[0], p[1]), True)
+    if end is None:
+        end = _anchor(slide, p[-1][0], p[-1][1], _seg_dir(p[-2], p[-1]), False)
+    head = False
+    if first == "v":                                      # 세로 먼저 3번 꺾기 = 끝에서 가로 먼저로 거꾸로
+        p = p[::-1]
+        start, end = end, start
+        head = True
+    (sx, sy), (ex, ey) = p[0], p[-1]
+    # 양 끝이 같은 열 · 같은 줄이면 비율을 셀 수 없어 끝을 아주 조금(0.01in) 비켜 둡니다
+    if abs(ex - sx) < 0.005:
+        ex = sx + 0.01
+    if abs(ey - sy) < 0.005:
+        ey = sy + 0.01
+
+    def fx(x):
+        return (x - sx) / (ex - sx)
+
+    def fy(y):
+        return (y - sy) / (ey - sy)
+    c = line(slide, sx, sy, ex, ey, color=color, width=width, dash=dash)
+    if n == 4:
+        _set_geom(c, "bentConnector4", [fx(p[1][0]), fy(p[2][1])])
+    else:
+        _set_geom(c, "bentConnector5", [fx(p[1][0]), fy(p[2][1]), fx(p[3][0])])
+    _set_xfrm(c, min(sx, ex), min(sy, ey), abs(ex - sx), abs(ey - sy), flip_h=ex < sx, flip_v=ey < sy)
     if arrow:
         ln = c.line._get_or_add_ln()
         ln.append(ln.makeelement(qn("a:headEnd" if head else "a:tailEnd"),

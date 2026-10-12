@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# v1.4 · 2026-10-12: 흐름 회귀 사례를 탐색기 어휘(A1-01 코드 · yes/no · term)로 옮기고 옛 형식 거절 · 반복 지점 검사 추가
 # v1.3 · 2026-10-12: 흐름 ID와 분기·복귀 구조 경고 회귀 검사 추가
 # v1.2 · 2026-10-12: 미등록 이동·처리 노드 혼입·연결 화면 ID 검사와 기존 예시 호환 점검 추가
 """app-planning-slides 모듈 자기 점검 — 도구가 뜨고 두 문서가 만들어지는지 봅니다
@@ -73,7 +74,7 @@ def main():
         if not b.validate("feature", bad)[0]:
             fails.append("알 수 없는 영역 유형을 통과시켰습니다")
         flow = copy.deepcopy(ft)
-        flow["flow"]["edges"].append({"from": "n1", "to": "nowhere"})
+        flow["flow"]["edges"].append({"from": "A1-01", "to": "nowhere"})
         if not b.validate("feature", flow)[0]:
             fails.append("흐름도의 없는 노드 연결을 통과시켰습니다")
         mark = copy.deepcopy(ov)
@@ -94,15 +95,15 @@ def main():
             fails.append("흐름 경로에 없는 예외 갈래를 통과시켰습니다")
 
         # 화면 사이 처리 노드를 화면처럼 그리던 실제 누락을 일반화한 회귀 사례입니다.
-        for target in ("n4", "UNREGISTERED", None, "", 7):
+        for target in ("A2-01", "UNREGISTERED", None, "", 7):
             move = copy.deepcopy(ft)
             move["screens"][0]["next"][0]["to"] = target
             errors, _ = b.validate("feature", move)
             if not any("이동" in e for e in errors):
                 fails.append("잘못된 화면 이동 대상을 통과시켰습니다: %r" % target)
         disguised = copy.deepcopy(ft)
-        disguised["linked_screens"].append({"id": "n4", "name": "처리 노드"})
-        disguised["screens"][0]["next"][0]["to"] = "n4"
+        disguised["linked_screens"].append({"id": "A2-01", "name": "처리 노드"})
+        disguised["screens"][0]["next"][0]["to"] = "A2-01"
         if not any("화면이 아닌" in e for e in b.validate("feature", disguised)[0]):
             fails.append("처리 노드를 연결 화면으로 등록해 검사를 우회했습니다")
         for sid in ("S2-02", "S1-01", None, ""):
@@ -111,28 +112,84 @@ def main():
             if not b.validate("feature", catalog)[0]:
                 fails.append("잘못된 연결 화면 ID를 통과시켰습니다: %r" % sid)
         shared = copy.deepcopy(ft)
-        shared["flow"]["nodes"].append({"id": "S2-02", "type": "screen", "label": "모임 상세", "lane": "앱"})
+        shared["flow"]["nodes"].append({"id": "S2-02", "type": "output", "text": "모임 상세", "lane": "s"})
         if b.validate("feature", shared)[0]:
             fails.append("실제 화면 노드의 기존 ID 재사용을 막았습니다")
-        for sid in ("n1", None, "", 7):
+        for sid in ("A1-01", None, "", 7):
             bad_id = copy.deepcopy(ft)
-            bad_id["flow"]["nodes"].append({"id": sid, "type": "process", "label": "검사", "lane": "앱"})
+            bad_id["flow"]["nodes"].append({"id": sid, "type": "action", "text": "검사", "lane": "s"})
             if not any("노드 ID" in e for e in b.validate("feature", bad_id)[0]):
                 fails.append("빈 값 또는 중복 흐름 ID를 통과시켰습니다: %r" % sid)
+        # 조건은 예(yes) · 아니오(no) 출구를 모두 가져야 합니다 — 한쪽을 빼거나 종류를 지우면 경고
         branch = copy.deepcopy(ft)
-        branch["flow"]["edges"] = [e for e in branch["flow"]["edges"] if not (e["from"] == "n2" and e.get("label") == "아니오")]
-        if not any("조건 출구" in w for w in b.validate("feature", branch)[1]):
+        branch["flow"]["edges"] = [e for e in branch["flow"]["edges"] if not (e["from"] == "A1-02" and e.get("kind") == "no")]
+        if not any("A1-02: 조건 출구" in w for w in b.validate("feature", branch)[1]):
             fails.append("조건 출구 누락을 알리지 않았습니다")
-        unlabeled = copy.deepcopy(ft)
-        for edge in unlabeled["flow"]["edges"]:
-            if edge["from"] == "n2": edge.pop("label", None)
-        if not any("분기 라벨" in w for w in b.validate("feature", unlabeled)[1]):
-            fails.append("분기 라벨 누락을 알리지 않았습니다")
+        unkinded = copy.deepcopy(ft)
+        for edge in unkinded["flow"]["edges"]:
+            if edge["from"] == "A1-02":
+                edge.pop("kind", None)
+        if not any("A1-02: 조건 출구" in w for w in b.validate("feature", unkinded)[1]):
+            fails.append("조건 출구의 예·아니오 종류 누락을 알리지 않았습니다")
         dead = copy.deepcopy(ft)
-        dead["flow"]["edges"] = [e for e in dead["flow"]["edges"] if e["from"] != "n4"]
+        dead["flow"]["edges"] = [e for e in dead["flow"]["edges"] if e["from"] != "A2-01"]
         warnings = b.validate("feature", dead)[1]
-        if not any("n4: 출구" in w for w in warnings) or any("n7: 출구" in w for w in warnings):
-            fails.append("처리 출구 누락과 정상 종료를 구분하지 못했습니다")
+        if not any("A2-01: 출구" in w for w in warnings) or any("A2-05: 출구" in w for w in warnings):
+            fails.append("처리 출구 누락과 정상 종료(term)를 구분하지 못했습니다")
+        for k, ref in (("type", "start"), ("lane", "앱"), ("label", "참가 신청 누름")):
+            old = copy.deepcopy(ft)
+            old["flow"]["nodes"][0][k] = ref
+            if k == "label":
+                old["flow"]["nodes"][0].pop("text")
+            if not any("옛 flow 형식" in e and "term" in e for e in b.validate("feature", old)[0]):
+                fails.append("옛 흐름 형식(%s %r)을 이전 안내 없이 통과시켰습니다" % (k, ref))
+        old = copy.deepcopy(ft)
+        old["flow"]["edges"][2]["kind"] = "exception"
+        if not any("옛 flow 형식" in e for e in b.validate("feature", old)[0]):
+            fails.append("옛 연결 종류 exception을 이전 안내 없이 통과시켰습니다")
+        for k, val in (("type", "hologram"), ("lane", "x")):
+            unk = copy.deepcopy(ft)
+            unk["flow"]["nodes"][1][k] = val
+            if not b.validate("feature", unk)[0]:
+                fails.append("흐름도의 알 수 없는 %s %r를 통과시켰습니다" % (k, val))
+        loop = copy.deepcopy(ft)
+        loop["flow"]["nodes"].append({"id": "A1-07", "type": "ref", "lane": "u", "text": "↩", "target": "nowhere"})
+        if not any("반복 지점" in e for e in b.validate("feature", loop)[0]):
+            fails.append("도착을 찾지 못한 반복 지점(ref)을 통과시켰습니다")
+
+        # 다른 기능으로 이동 — to가 기능 ID 꼴이면 노드가 아니어도 받고, 자기 기능 ID면 경고합니다
+        cross = copy.deepcopy(ft)
+        cross["flow"]["edges"].append({"from": "A2-04", "to": "F-MEET-03", "label": "대기 신청"})
+        if b.validate("feature", cross)[0]:
+            fails.append("다른 기능으로 가는 연결(to: F-MEET-03)을 없는 노드로 막았습니다")
+        own = copy.deepcopy(ft)
+        own["flow"]["edges"].append({"from": "A2-04", "to": ft["feature"]["id"]})
+        errors, warnings = b.validate("feature", own)
+        if errors or not any(ft["feature"]["id"] in w and "자신" in w for w in warnings):
+            fails.append("자기 기능 ID로 가는 연결을 알리지 않았습니다")
+        # 도형의 화면 쪽 링크 — 등록된 화면(screens · linked_screens)만 받습니다
+        for sid in ("S9-99", "A2-01", None, ""):
+            scr = copy.deepcopy(ft)
+            scr["flow"]["nodes"][2]["screen"] = sid
+            if not any("screen" in e for e in b.validate("feature", scr)[0]):
+                fails.append("등록되지 않은 화면 쪽 링크(screen %r)를 통과시켰습니다" % sid)
+        # 판정 기준 — 조건에만 쓰고, 객체면 path가 있어야 합니다
+        misplaced = copy.deepcopy(ft)
+        misplaced["flow"]["nodes"][0]["check"] = "누르면"
+        if not any("판정 기준" in w for w in b.validate("feature", misplaced)[1]):
+            fails.append("조건이 아닌 도형의 판정 기준(check)을 알리지 않았습니다")
+        for ck, ok in (({"path": "meeting.seatsLeft", "equals": 0}, True), ({"path": "user.loggedIn"}, True),
+                       ({"equals": True}, False), ({"path": " "}, False), (3, False)):
+            chk = copy.deepcopy(ft)
+            chk["flow"]["nodes"][1]["check"] = ck
+            if (not b.validate("feature", chk)[0]) != ok:
+                fails.append("판정 기준 check %r의 검사가 틀렸습니다" % (ck,))
+        for ck, want in (("토큰이 유효하면 예", "토큰이 유효하면 예"), ({"path": "user.loggedIn"}, "user.loggedIn"),
+                         ({"path": "meeting.seatsLeft", "equals": 0}, "meeting.seatsLeft = 0"),
+                         ({"path": "meeting.status", "equals": "open"}, "meeting.status = open"),
+                         ({"path": "user.verified", "equals": True}, "user.verified = true")):
+            if b.check_text(ck) != want:
+                fails.append("check_text(%r)가 %r입니다 (기대 %r)" % (ck, b.check_text(ck), want))
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
     return modcheck.done("app-planning-slides", fails)

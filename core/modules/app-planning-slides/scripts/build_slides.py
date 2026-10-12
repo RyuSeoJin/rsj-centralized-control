@@ -1,4 +1,8 @@
 # -*- coding: utf-8 -*-
+# v1.5 · 2026-10-12: 흐름도 — 다른 기능으로 이동(to: F-…), 도형의 화면 쪽 링크(screen), 조건의 판정 기준(check ·
+#                    check_text) 검사 · 링크 채우기 추가
+# v1.4 · 2026-10-12: flow 입력을 워크플로우 탐색기 어휘(term·action·input·output·decision·process·ref · 구역 u·s ·
+#                    code 섹션)로 바꿈 — 옛 형식은 이전 안내와 함께 오류, 흐름도는 섹션마다 한 장
 # v1.3 · 2026-10-12: 흐름 ID·분기 라벨·출구 누락 검사 추가
 # v1.2 · 2026-10-12: 화면 카탈로그와 이동 대상 검사 — 처리 노드를 화면으로 그리는 입력 차단
 """앱 기획 슬라이드 생성 — 입력(JSON)에서 Google Slides로 옮길 .pptx를 만듭니다
@@ -44,6 +48,32 @@ from patterns import TOP, BOTTOM, NUM_GAP, CARD_BODY, CARD_PAD, SECTION_GAP  # n
 HEAD_BODY = 0.36               # ▼ 소제목 위끝에서 그 아래 본문 위끝까지
 
 T = TOGGLE_STEP                # ▼ 소제목 아래 내용의 들여쓰기
+
+# 기능 흐름도 입력 — 어휘의 정본은 core/modules/workflow-explorer/rules/explorer.md §1 · §2입니다
+FLOW_TYPES = ("term", "action", "input", "output", "decision", "process", "ref")
+FLOW_SCREEN_TYPES = ("input", "output")        # 화면과 ID를 나눠 쓸 수 있는 도형(입력 · 출력)
+FLOW_KINDS = ("normal", "yes", "no")
+FLOW_LANES = [{"key": "u", "label": "유저 구역"}, {"key": "s", "label": "시스템 구역"}]
+FLOW_SECTION_MAX = globals().get("FLOW_MAX", 15)   # 한 장(섹션)에 권하는 도형 수 — 렌더러 값이 있으면 따릅니다
+# 옛 형식(v1.3까지)에서 새 형식으로 — 오류 메시지의 이전 안내에 씁니다
+FLOW_OLD_TYPES = {"start": "term", "end": "term", "screen": "output 또는 input", "io": "output 또는 input"}
+FLOW_OLD_LANES = {"사용자": "u", "앱": "s", "서버": "s"}
+FLOW_MIGRATION = ("옛 flow 형식입니다 — start·end → term, screen·io → output(노출) 또는 input(입력), "
+                  "process → action(또는 공통 처리는 process), 레인 사용자 → u · 앱·서버 → s, "
+                  "노드 label → text, 연결 kind exception → no(조건의 아니오) 또는 normal")
+FLOW_FEATURE_RE = re.compile(r"^F-[A-Z]+-\d+$")    # 연결의 to가 이 꼴이면 다른 기능으로 넘어가는 이동입니다
+
+
+def check_text(check):
+    """조건(decision)의 판정 기준을 보일 글로 — 문자열은 그대로, 탐색기 객체는 「path」 또는 「path = equals」."""
+    if isinstance(check, dict):
+        path = str(check.get("path") or "").strip()
+        if "equals" in check:
+            eq = check["equals"]
+            eq = json.dumps(eq, ensure_ascii=False) if not isinstance(eq, str) else eq
+            return "%s = %s" % (path, eq)
+        return path
+    return "" if check is None else str(check)
 
 
 # ── 프로젝트 전체 문서 ─────────────────────────────────────────────────
@@ -389,9 +419,21 @@ def build_feature(data, out):
     # 02 흐름 — 무슨 일이 어떤 순서로 일어나나
     d.divider(2, "흐름", "사용자가 무엇을 하면 시스템이 어떤 순서로 처리하고, 어느 화면으로 이어지는지 봅니다.")
     flow = data.get("flow")
+    flow_refs = []                                   # (흐름도 장, 렌더러가 돌려준 ref)
     if flow and flow.get("nodes"):
-        s = d.slide("기능 흐름도", "02 흐름")
-        flowchart(s, flow["nodes"], flow.get("edges") or [])
+        # 섹션(코드 앞부분 · A1-02의 A1)마다 한 장 — 섹션이 하나면 제목에 섹션을 붙이지 않습니다
+        secs = flow_sections(flow)
+        for sec in secs:
+            many = len(secs) > 1
+            s = d.slide("기능 흐름도" + (" — %s %s" % (sec["key"], v(sec.get("title"))) if many else ""), "02 흐름")
+            for nid in sec.get("ids") or []:
+                d.mark("flow:%s" % nid)                  # 섹션 밖 「→ 코드」 연결자의 링크 대상
+            fit = workflow_chart(s, flow, section=sec["key"] if many else None, feature_id=f.get("id"))
+            # 화면 쪽 표시(p. N) · 다른 기능 이동(→ F-…) — 쪽이 정해진 뒤 끝에서 채웁니다
+            flow_refs += [(s, ref) for ref in (fit or {}).get("refs") or []]
+            if (fit or {}).get("overflow"):
+                print("경고  기능 흐름도%s: 한 장에 다 들어가지 않습니다 (%s열 × %s행) — 섹션을 나눕니다"
+                      % (" " + str(sec["key"]) if many else "", fit.get("cols"), fit.get("rows")))
     # 화면 흐름은 늘 만듭니다 — 화면이 하나여도 어디서 들어와 어디로 나가는지(예외 포함)를 보입니다
     s = d.slide("화면 흐름", "02 흐름")
     screen_flow(s, screens, data.get("linked_screens"))
@@ -510,6 +552,19 @@ def build_feature(data, out):
             run = cell.text_frame.paragraphs[0].runs[0]
             run.text = "p. %s" % (page or "—")
             d.link(run, screen_slide, page)
+    # 흐름도의 화면 쪽 표시 — 이 기능의 화면은 와이어프레임 장, 다른 기능의 화면 · 다른 기능 이동은 「이 기능의 화면」 장
+    for flow_slide, ref in flow_refs:
+        run = ref.get("run")
+        if run is None:
+            continue
+        if ref.get("screen") is not None:
+            page = d.marks.get("wf:%s" % ref["screen"]) or d.marks.get("screens")
+            run.text = "p. %s" % (page or "—")
+        elif ref.get("node") is not None:            # 섹션 밖 「→ 코드」 — 그 도형이 그려진 흐름도 장
+            page = d.marks.get("flow:%s" % ref["node"])
+        else:                                        # feature — 「→ F-…」 글은 렌더러가 쓴 그대로 둡니다
+            page = d.marks.get("screens")
+        d.link(run, flow_slide, page)
     d.save(out)
     return d
 
@@ -635,16 +690,11 @@ def validate(kind, data):
             if not sc.get("name"):
                 warn.append("연결 화면 %s의 이름이 없습니다" % sc.get("id"))
         fl = data.get("flow") or {}
-        non_screens = {n.get("id") for n in fl.get("nodes") or []
-                       if n.get("type", "process") not in ("screen", "io")}
+        non_screens = {n.get("id") for n in fl.get("nodes") or [] if n.get("type") not in FLOW_SCREEN_TYPES}
         for sid in screen_ids & non_screens:
-            err.append("화면 %s: 처리·조건 등 화면이 아닌 흐름 노드와 ID가 겹칩니다" % sid)
-        node_ids = [n.get("id") for n in fl.get("nodes") or []]
-        ids = {sid for sid in node_ids if isinstance(sid, str) and sid.strip()}
-        if len(ids) != len(node_ids):
-            err.append("흐름도: 노드 ID는 비어 있지 않은 문자열이며 중복될 수 없습니다")
-        if len(ids) > FLOW_MAX:
-            warn.append("흐름도 노드는 %d개 이하를 권합니다 — 나눠 그립니다 (지금 %d)" % (FLOW_MAX, len(ids)))
+            err.append("화면 %s: 처리·조건 등 화면이 아닌 흐름 노드와 ID가 겹칩니다 — 화면과 ID를 나눠 쓰는 도형은 "
+                       "input · output뿐입니다" % sid)
+        validate_flow(fl, err, warn, screen_ids=screen_ids, feature_id=(data.get("feature") or {}).get("id"))
         for sc in data.get("screens", []):
             for n in sc.get("next") or []:
                 to = n.get("to")
@@ -655,25 +705,112 @@ def validate(kind, data):
                                % (sc.get("id"), to))
                 if n.get("kind") not in (None, "exception"):
                     err.append("%s: 이동의 kind는 exception만 씁니다 (%r)" % (sc.get("id"), n.get("kind")))
-        for n in fl.get("nodes") or []:
-            if n.get("type", "process") not in FLOW_SHAPES:
-                err.append("흐름도 %s: 알 수 없는 기호 %r (%s)" % (n.get("id"), n.get("type"), " · ".join(FLOW_SHAPES)))
-        for e in fl.get("edges") or []:
-            if e.get("from") not in ids or e.get("to") not in ids:
-                err.append("흐름도 연결 %s → %s: 없는 노드" % (e.get("from"), e.get("to")))
-        for n in fl.get("nodes") or []:
-            outgoing = [e for e in fl.get("edges") or [] if e.get("from") == n.get("id")]
-            if n.get("type") == "decision":
-                if len(outgoing) < 2 or any(not str(e.get("label") or "").strip() for e in outgoing):
-                    warn.append("흐름도 %s: 조건 출구 또는 분기 라벨이 부족합니다 — 결과별 도착지를 검토합니다" % n.get("id"))
-            elif n.get("type") != "end" and not outgoing:
-                warn.append("흐름도 %s: 출구가 없습니다 — 종료·복귀·미정 여부를 검토합니다" % n.get("id"))
-        lanes = {n.get("lane") for n in fl.get("nodes") or [] if n.get("lane")}
-        if lanes and any(not n.get("lane") for n in fl.get("nodes") or []):
-            err.append("흐름도: 레인을 쓰면 모든 노드에 lane을 적습니다")
-        if len(lanes) > 5:
-            warn.append("레인은 5개 이하를 권합니다")
     return err, warn
+
+
+def flow_section_key(n):
+    """도형의 섹션 — 코드(없으면 id)가 A1-02처럼 앞부분을 가지면 그 앞부분(A1), 아니면 None(흐름 전체)."""
+    code = str(n.get("code") or n.get("id") or "")
+    return code.rsplit("-", 1)[0] if "-" in code else None
+
+
+def validate_flow(fl, err, warn, screen_ids=None, feature_id=None):
+    """기능 흐름도(flow) 검사 — 워크플로우 탐색기 §2와 같은 기준입니다. 결과는 err · warn에 더합니다.
+
+    screen_ids: 등록된 화면 ID(screens + linked_screens) — 도형의 screen이 여기 있어야 합니다(None이면 건너뜀).
+    feature_id: 이 기능의 ID — 연결의 to가 자기 기능 ID면 경고합니다.
+    """
+    nodes = fl.get("nodes") or []
+    edges = fl.get("edges") or []
+    if not nodes and not edges:
+        return
+    before = len(err)
+    # 옛 형식이면 하나하나 따지지 않고 이전 안내 하나만 냅니다 — 같은 원인의 오류가 수십 줄 쌓이지 않게
+    old = sorted({"type %s" % n.get("type") for n in nodes if n.get("type") in FLOW_OLD_TYPES}
+                 | {"lane %s" % n.get("lane") for n in nodes if n.get("lane") in FLOW_OLD_LANES}
+                 | {"노드 label" for n in nodes if "label" in n and "text" not in n}
+                 | {"kind exception" for e in edges if e.get("kind") == "exception"})
+    if old:
+        err.append("흐름도: %s (발견: %s)" % (FLOW_MIGRATION, ", ".join(old)))
+        return
+    lanes = fl.get("lanes") or FLOW_LANES
+    lane_keys = [ln.get("key") for ln in lanes]
+    user = "u" if "u" in lane_keys else (lane_keys[0] if lane_keys else None)
+    node_ids = [n.get("id") for n in nodes]
+    ids = {i for i in node_ids if isinstance(i, str) and i.strip()}
+    if len(ids) != len(node_ids):
+        err.append("흐름도: 노드 ID는 비어 있지 않은 문자열이며 중복될 수 없습니다")
+    for n in nodes:
+        nid, t = n.get("id"), n.get("type")
+        if t not in FLOW_TYPES:
+            err.append("흐름도 %s: 알 수 없는 도형 %r (%s)" % (nid, t, " · ".join(FLOW_TYPES)))
+        if n.get("lane") not in lane_keys:
+            err.append("흐름도 %s: 알 수 없는 구역 %r (%s)" % (nid, n.get("lane"), " · ".join(map(str, lane_keys))))
+        if t == "ref" and n.get("target") not in ids:
+            err.append("흐름도 %s: 반복 지점의 target %r가 없는 도형입니다" % (nid, n.get("target")))
+        if not str(n.get("text") or "").strip():
+            warn.append("흐름도 %s: 문구(text)가 비어 있습니다" % nid)
+        # 화면 쪽 링크 — 이동 대상(next.to)과 같은 기준으로 등록된 화면만 받습니다
+        if "screen" in n and screen_ids is not None:
+            sc = n.get("screen")
+            if not isinstance(sc, str) or sc not in screen_ids:
+                err.append("흐름도 %s: screen %r는 등록된 화면이 아닙니다 — screens 또는 linked_screens에 적습니다"
+                           % (nid, sc))
+        # 판정 기준 — 조건(decision)에만 씁니다. 객체면 탐색기 형식 {"path", "equals"(선택)}
+        if "check" in n:
+            ck = n.get("check")
+            if t != "decision":
+                warn.append("흐름도 %s: 판정 기준(check)은 조건(decision)에만 씁니다 — 이 도형은 %s입니다" % (nid, t))
+            if isinstance(ck, dict):
+                if not isinstance(ck.get("path"), str) or not ck["path"].strip():
+                    err.append("흐름도 %s: check 객체에는 비어 있지 않은 문자열 path가 있어야 합니다" % nid)
+            elif not isinstance(ck, str):
+                err.append("흐름도 %s: check는 문자열 또는 {\"path\", \"equals\"} 객체입니다 (%r)" % (nid, ck))
+    for e in edges:
+        to = e.get("to")
+        cross = isinstance(to, str) and FLOW_FEATURE_RE.match(to) and to not in ids
+        if e.get("from") not in ids or (to not in ids and not cross):
+            err.append("흐름도 연결 %s → %s: 없는 노드" % (e.get("from"), to))
+        elif cross and to == feature_id:
+            warn.append("흐름도 연결 %s → %s: 이 기능 자신의 ID입니다 — 이 기능 안의 도형으로 잇습니다"
+                        % (e.get("from"), to))
+        if e.get("kind", "normal") not in FLOW_KINDS:
+            err.append("흐름도 연결 %s → %s: 알 수 없는 연결 종류 %r (%s)"
+                       % (e.get("from"), e.get("to"), e.get("kind"), " · ".join(FLOW_KINDS)))
+    if len(err) > before:                  # 구조가 깨졌으면 출구 · 구역 경고는 뜻이 없습니다
+        return
+    for n in nodes:
+        nid, t = n.get("id"), n.get("type")
+        outgoing = [e for e in edges if e.get("from") == nid]
+        if t == "decision":
+            kinds = {e.get("kind") for e in outgoing}
+            if len(outgoing) < 2 or not {"yes", "no"} <= kinds:
+                warn.append("흐름도 %s: 조건 출구가 부족합니다 — 예(kind yes)와 아니오(kind no) 연결을 모두 둡니다" % nid)
+        elif t not in ("term", "ref") and not outgoing:
+            warn.append("흐름도 %s: 출구가 없습니다 — 종료(term)·복귀(ref)·미정 여부를 검토합니다" % nid)
+        # 유저가 입력·선택하는 도형은 유저 구역, 판단·처리·노출은 시스템 구역입니다(explorer §1)
+        if t == "input" and n.get("lane") != user:
+            warn.append("흐름도 %s: 입력(input)은 유저 구역에 둡니다" % nid)
+        elif t in ("decision", "output", "process") and n.get("lane") == user:
+            warn.append("흐름도 %s: 판단·노출·공통 처리(%s)는 시스템 구역에 둡니다" % (nid, t))
+    for e in edges:
+        if e.get("kind") in ("yes", "no"):
+            src = next(n for n in nodes if n.get("id") == e.get("from"))
+            if src.get("type") != "decision":
+                warn.append("흐름도 연결 %s → %s: 예·아니오(kind %s)는 조건(decision)에서만 나갑니다"
+                            % (e.get("from"), e.get("to"), e.get("kind")))
+    names = fl.get("sections") or {}
+    count = {}
+    for n in nodes:
+        k = flow_section_key(n)
+        count[k] = count.get(k, 0) + 1
+    for k, c in sorted(count.items(), key=lambda kv: str(kv[0])):
+        where = "섹션 %s" % k if k else "흐름도"
+        if c > FLOW_SECTION_MAX:
+            warn.append("%s: 도형은 한 장에 %d개 이하를 권합니다 — 섹션(코드 앞부분)을 나눕니다 (지금 %d)"
+                        % (where, FLOW_SECTION_MAX, c))
+        if k and names and k not in names:
+            warn.append("섹션 %s: flow.sections에 이름이 없습니다" % k)
 
 
 def lint(path):

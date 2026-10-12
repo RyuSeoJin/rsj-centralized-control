@@ -277,156 +277,1089 @@ def description_list(slide, x, y, w, items, title="Description"):
         cy += _desc_height(it, w) + DESC_GAP
 
 
-# ── 순서도 · 스윔레인 ─────────────────────────────────────────────────
+# ── 기능 흐름도 — 워크플로우 탐색기 규칙 ──────────────────────────────
+#
+# 규칙 정본은 core/modules/workflow-explorer/rules/explorer.md §1 · §3 「흐름도」입니다. 탐색기는 좌표를 받지 않고
+# 흐름의 의미(도형 · 구역 · 연결)만 받아 배치를 계산합니다 — 같은 데이터면 탐색기와 슬라이드가 같은 그림이 되도록
+# 배치 원칙(열 · 행 · 구역 뒤집기 · 먼 복귀 연결자 · 통로)을 그대로 옮기고, 한 장에 맞게 크기만 줄입니다.
+# 입력: flow = {"lanes", "sections", "nodes": [{id, code, type, lane, text, target, screen, check}],
+#              "edges": [{from, to, kind, label}]} — to는 다른 기능 ID(F-XXX-NN)일 수도 있습니다.
 
-#: 순서도 기호 — 시작·종료 캡슐, 화면 사각형, 처리 둥근 사각, 입출력 평행사변형, 분기 마름모
-FLOW_SHAPES = {"start": "capsule", "end": "capsule", "screen": "rect", "process": "round",
-               "io": "para", "decision": "diamond"}
-FLOW_NAMES = {"start": "시작 · 종료", "screen": "화면", "process": "처리", "io": "안내 · 입력",
-              "decision": "분기"}
+import json as _json
+import re as _re
+from itertools import permutations as _perms
+
+from slidekit import _char_em, _font, path_connector, LETTER_SPACING  # noqa: F401
+
+#: 도형 종류 — 탐색기 shape()와 같은 기호입니다(슬라이드 도형 이름)
+FLOW_SHAPES = {"term": "capsule", "action": "round", "input": "para", "output": "para",
+               "decision": "diamond", "process": "predefined", "ref": "oval"}
+FLOW_NAMES = {"term": "시작 · 종료", "action": "행동 · 처리", "input": "입력 · 출력", "output": "입력 · 출력",
+              "decision": "조건 판단", "process": "공통 처리", "ref": "반복 지점"}
 FLOW_MAX = 15
 
+#: 연결 색 — 예 파랑 · 아니오 빨강 · 일반 진한 회색(--wfx-yes · --wfx-no · --wfx-line)
+WF_YES, WF_NO, WF_LINE = "2563EB", "DC2626", "1E1E1E"
+WF_COLORS = {"yes": WF_YES, "no": WF_NO, "normal": WF_LINE}
+#: 구역 색 — (글자 · 띠, 바탕 8%, 테두리) · 유저 초록(--wfx-user) · 시스템 파랑(--wfx-system)
+WF_LANE_USER = ("16A34A", "EEF8F1", "A7DCBA")
+WF_LANE_SYSTEM = ("2563EB", "EEF3FD", "ADC4F7")
+#: 이동 연결자 — 주황(--wfx-jump) 점선 테두리 · 옅은 주황 바탕 · 진한 주황 글자
+WF_JUMP, WF_JUMP_FILL, WF_JUMP_TEXT = "D97706", "FBEFE1", "A26217"
+WF_EDGE = "3D4851"             # 도형 테두리(--ink-2)
+WF_DECISION_FILL = "F2F6FE"    # 조건 도형 바탕 — 시스템 색 6%
+WF_WIDTH = 1.25                # 연결선 두께(pt)
 
-def _layers(nodes, edges):
-    """시작점에서 가장 긴 경로로 열을 정합니다. 되돌아가는 연결은 열 계산에서 뺍니다."""
-    ids = [n["id"] for n in nodes]
-    col = {i: 0 for i in ids}
-    incoming = {e["to"] for e in edges}
-    order = [i for i in ids if i not in incoming] or ids[:1]
-    seen, queue = set(order), list(order)
-    rank = {i: k for k, i in enumerate(ids)}
-    while queue:
-        cur = queue.pop(0)
-        for e in edges:
-            if e["from"] != cur or e["to"] not in col:
+WF_LANE_COL = 1.05             # 왼쪽 구역 이름 칸
+WF_W_MAX, WF_W_MIN = 1.75, 1.05
+WF_TRACK = 0.13                # 나란한 선 사이(탐색기 12px 이상)
+WF_TAIL = 0.22                 # 도형으로 들어가는 마지막 구간(MIN_TAIL)
+WF_NARROW = 0.32               # 곧은 선만 지나는 열 사이(GAP_MIN)
+WF_RG = 0.42                   # 행 사이 통로
+WF_PAD = 0.16                  # 구역 위 · 아래 여백
+WF_LINK_W, WF_LINK_H = 0.82, 0.4   # 이동 연결자(76×40)
+WF_SLANT = 0.1                 # 평행사변형 기울기
+WF_LABEL = 8                   # 선 라벨 글자 크기
+WF_LABEL_H = 0.2
+WF_MAX_COLS = 8
+FAR_BACK = 2                   # 두 열 이상 앞으로 돌아가면 선 대신 「↩ 코드」 연결자
+_SEC_RE = _re.compile(r"^([A-Za-z]+\d+)-\d+$")
+_FEATURE_RE = _re.compile(r"^F-[A-Z]+-\d+$")
+
+
+def _wf_sec(code):
+    m = _SEC_RE.match(str(code))
+    return m.group(1) if m else ""
+
+
+def _wf_norm(flow):
+    """입력을 다듬습니다 — code 기본값 id, 모르는 종류는 행동, 모르는 구역은 마지막 구역(시스템)."""
+    lanes = [dict(l) for l in (flow.get("lanes") or [])] or [{"key": "u", "label": "유저 구역"},
+                                                               {"key": "s", "label": "시스템 구역"}]
+    keys = [str(l.get("key")) for l in lanes]
+    nodes, order = {}, []
+    for raw in flow.get("nodes") or []:
+        if raw.get("id") is None or str(raw["id"]) in nodes:
+            continue
+        n = dict(raw)
+        n["id"] = str(n["id"])
+        n["code"] = str(n.get("code") or n["id"])
+        n["type"] = n.get("type") if n.get("type") in FLOW_SHAPES else "action"
+        n["lane"] = str(n.get("lane")) if str(n.get("lane")) in keys else keys[-1]
+        n["text"] = str(n.get("text") or n.get("label") or "")
+        nodes[n["id"]] = n
+        order.append(n["id"])
+    edges = []
+    for k, e in enumerate(flow.get("edges") or []):
+        a, b = str(e.get("from")), str(e.get("to"))
+        if a not in nodes:
+            continue
+        feat = b not in nodes and bool(_FEATURE_RE.match(b))
+        if b not in nodes and not feat:
+            continue
+        kind = e.get("kind") if e.get("kind") in WF_COLORS else "normal"
+        edges.append({"i": k, "from": a, "to": b, "kind": kind, "label": str(e.get("label") or ""),
+                      "feature": feat})
+    start = str(flow.get("start")) if str(flow.get("start")) in nodes else (order[0] if order else None)
+    return {"lanes": lanes, "keys": keys, "nodes": nodes, "order": order, "edges": edges,
+            "names": flow.get("sections") or {}, "start": start, "title": flow.get("title") or ""}
+
+
+def flow_sections(flow):
+    """섹션(코드 앞부분 · A1-02의 A1) 목록을 읽는 순서로 — 시작 섹션, 섹션을 건너는 연결로 처음 닿는 순서, 나머지.
+
+    돌려주는 값: [{"key", "title", "ids", "entry"}]. 코드에 앞부분이 없으면 섹션 하나("")입니다.
+    """
+    F = _wf_norm(flow)
+    secs = {}
+    for i in F["order"]:
+        secs.setdefault(_wf_sec(F["nodes"][i]["code"]), []).append(i)
+    if not secs:
+        return []
+    order, seen = [], set()
+
+    def grow(k0):
+        q = [k0]
+        seen.add(k0)
+        while q:
+            k = q.pop(0)
+            order.append(k)
+            for i in secs[k]:
+                for e in F["edges"]:
+                    if e["from"] != i or e["feature"]:
+                        continue
+                    k2 = _wf_sec(F["nodes"][e["to"]]["code"])
+                    if k2 not in seen:
+                        seen.add(k2)
+                        q.append(k2)
+    grow(_wf_sec(F["nodes"][F["start"]]["code"]))
+    for k in secs:
+        if k not in seen:
+            grow(k)
+    out = []
+    for k in order:
+        ids = secs[k]
+        # 들어오는 도형 — 시작 도형, 아니면 다른 섹션에서 처음 들어오는 도형, 아니면 첫 도형
+        entry = F["start"] if F["start"] in ids else next(
+            (e["to"] for e in F["edges"] if not e["feature"] and e["to"] in ids and e["from"] not in ids), ids[0])
+        out.append({"key": k, "title": F["names"].get(k) or (k or F["title"]), "ids": list(ids), "entry": entry})
+    return out
+
+
+def check_text(check):
+    """조건 도형의 판정 기준 → 「판정: …」 글. 문자열은 그대로, {"path", "equals"}는 「path = 값」입니다."""
+    if check is None or check == "":
+        return ""
+    if isinstance(check, dict):
+        s = str(check.get("path") or "")
+        if "equals" in check:
+            q = check["equals"]
+            s += " = " + (q if isinstance(q, str) else _json.dumps(q, ensure_ascii=False))
+    else:
+        s = str(check)
+    return "판정: " + s if s.strip() else ""
+
+
+def _wf_text_w(s, size):
+    """한 줄 글 폭(in) 어림."""
+    return sum(_char_em(c) + LETTER_SPACING for c in str(s)) * size / 72.0
+
+
+def _wf_label_w(s):
+    return _wf_text_w(s, WF_LABEL) + 0.14
+
+
+def _wf_pad(t, w, h):
+    """도형 안 글 (좌우 여백, 글이 실제로 쓰는 폭). 프리셋 도형은 글 영역이 이미 안쪽으로 들어가 있어
+    (마름모 가운데 절반 · 평행사변형 기울기 절반 · 공통 처리 세로선 안쪽 · 알약 둥근 끝 안쪽) 여백은 그 위에 더하는 몫입니다.
+    평행사변형은 기울어진 변에 닿지 않게 기울기만큼 + 여유를 둡니다(탐색기 SLANT + 9)."""
+    if t == "decision":
+        return 0.0, w * 0.5 - 0.04
+    if t in ("input", "output"):
+        m = WF_SLANT / 2.0 + 0.06
+        return m, w - 2 * (WF_SLANT + 0.06) - 0.04
+    if t == "process":
+        return 0.03, w * 0.75 - 0.1
+    if t == "term":
+        return 0.04, w - 2 * (0.15 * h + 0.04) - 0.04
+    return 0.07, w - 0.18
+
+
+def _wf_fz(size, sc):
+    """판을 줄였을 때의 글자 크기 — 0.5pt 단위, 7pt 아래로는 줄이지 않습니다."""
+    return size if sc >= 1.0 else max(7.0, round(size * sc * 2) / 2.0)
+
+
+def _wf_link_text(n):
+    # ↩ 뒤에 글자 표시 선택자(U+FE0E)를 붙입니다 — 없으면 PowerPoint가 색 그림 글자(이모지)로 바꿔 찍습니다
+    return "%s %s" % (n["sym"] + ("\ufe0e" if n["sym"] == "↩" else ""), n["code"])
+
+
+class _Track(object):
+    """통로 위의 선 한 줄 — 같은 통로 안 순서는 교차가 가장 적게 나중에 정합니다."""
+    __slots__ = ("group", "c", "pos")
+
+    def __init__(self, group, c):
+        self.group, self.c, self.pos = group, c, 0.0
+
+
+def _wf_layout(F, ids, entry, x0, y0, w, h, band_over=None):
+    band_over = band_over or {}
+    nodes, keys = F["nodes"], F["keys"]
+    nl = len(keys)
+    inV = set(ids)
+    outs = {i: [e for e in F["edges"] if e["from"] == i] for i in ids}
+    internal = {i: [e for e in outs[i] if e["to"] in inV] for i in ids}
+    inc = {i: [] for i in ids}
+    for i in ids:
+        for e in internal[i]:
+            inc[e["to"]].append(e)
+
+    # ① 열 — 들어오는 도형을 맨 앞 열에 두고, 되돌아가는 연결을 뺀 가장 긴 경로로 왼쪽→오른쪽 (layoutView)
+    roots = [entry] + [i for i in ids if i != entry and not [e for e in inc[i] if e["from"] != i]]
+    state, back, post = {}, set(), []
+
+    def dfs(i):
+        state[i] = 1
+        for e in internal[i]:
+            t = e["to"]
+            if state.get(t) == 1 or t == entry:
+                back.add(e["i"])
+            elif not state.get(t):
+                dfs(t)
+        state[i] = 2
+        post.append(i)
+    for r in roots + ids:
+        if not state.get(r):
+            dfs(r)
+    rank = {}
+    for i in reversed(post):
+        rank.setdefault(i, 0)
+        for e in internal[i]:
+            if e["i"] not in back:
+                rank[e["to"]] = max(rank.get(e["to"], 0), rank[i] + 1)
+    ncol = max(rank.values()) + 1
+
+    # ② 행 — 주 경로는 앞 도형의 행을 이어 곧게, 갈래는 빈 행으로. 구역이 바뀌면 앞 도형의 행 순서를 뒤집습니다
+    li = {i: keys.index(nodes[i]["lane"]) for i in ids}
+    slot, used, maxslot = {}, set(), [0] * nl
+    byrank = {}
+    for i in ids:
+        byrank.setdefault(rank[i], []).append(i)
+
+    def key(i):
+        best, start = None, 0
+        for e in inc[i]:
+            p = e["from"]
+            if e["i"] in back or p not in slot:
                 continue
-            nxt = e["to"]
-            if rank.get(nxt, 0) < rank.get(cur, 0) and nxt in seen:
-                continue                                   # 되돌아가는 연결
-            if col[nxt] < col[cur] + 1:
-                col[nxt] = col[cur] + 1
-            if nxt not in seen:
-                seen.add(nxt)
-                queue.append(nxt)
-    return col
+            same = li[p] == li[i]
+            k = (slot[p] if same else -slot[p], rank[p], internal[p].index(e))
+            if best is None or k[0] < best[0] or (k[0] == best[0] and (k[1] > best[1] or
+                                                                     (k[1] == best[1] and k[2] < best[2]))):
+                best, start = k, (slot[p] if same else 0)
+        return (best or (0, 0, ids.index(i))), start
+    for r in range(ncol):
+        col = [(i, key(i)) for i in byrank.get(r, [])]
+        col.sort(key=lambda c: (c[1][0][0], -c[1][0][1], c[1][0][2]))
+        for i, (_, s) in col:
+            while (li[i], s, r) in used:
+                s += 1
+            used.add((li[i], s, r))
+            slot[i] = s
+            maxslot[li[i]] = max(maxslot[li[i]], s + 1)
+    nrows = [max(1, m) for m in maxslot]
+    R = sum(nrows)
+
+    def mirrored(l):
+        return nl > 1 and l < nl - 1
+
+    def vrow_of(l, s):
+        off = sum(nrows[:l])
+        return off + (nrows[l] - 1 - s if mirrored(l) else s)
+    vr = {i: vrow_of(li[i], slot[i]) for i in ids}
+    occ = {(vr[i], rank[i]): i for i in ids}
+    lane_rows = [(sum(nrows[:l]), sum(nrows[:l + 1]) - 1) for l in range(nl)]
+
+    def row_clear(v, r1, r2):
+        return all((v, r) not in occ for r in range(r1, r2 + 1))
+
+    def col_clear(r, v1, v2):
+        return all((v, r) not in occ for v in range(min(v1, v2), max(v1, v2) + 1))
+
+    def outer_band(l):
+        return 0 if mirrored(l) else R
+    boundary = set(lane_rows[l][0] for l in range(1, nl))
+
+    def band_cands(c, vertex=None):
+        """가로 통로 후보 — 같은 구역끼리 잇는 선은 그 구역 안 통로만(자기 구역 지키기), 꼭짓점에서 내려가면 그 방향만."""
+        a, b = c["a"], c["b"]
+        if li[a] == li[b]:
+            f, l = lane_rows[li[a]]
+            ks = [k for k in range(f, l + 2) if not (k == l + 1 and k in boundary and mirrored(li[a]))]
+        else:
+            ks = list(range(R + 1))
+        if vertex == "d":
+            ks = [k for k in ks if k > vr[a] and all((v, rank[a]) not in occ for v in range(vr[a] + 1, k))]
+        elif vertex == "u":
+            ks = [k for k in ks if k <= vr[a] and all((v, rank[a]) not in occ for v in range(k, vr[a]))]
+        return ks
+
+    def pick(c, default, vertex=None):
+        c["bands"] = band_cands(c, vertex)
+        k = band_over.get(c["e"]["i"], default)
+        return k if k in c["bands"] or not c["bands"] else default
+
+    # ③ 연결 — 앞으로 · 가까운 복귀(통로) · 이동 연결자(먼 복귀 「↩」 · 섹션 밖 「→」 · 다른 기능 「→ F-…」)
+    C, links = [], {}
+    for i in ids:
+        for e in outs[i]:
+            t = e["to"]
+            c = {"e": e, "a": i, "kind": e["kind"], "label": e["label"]}
+            sym = None
+            if e["feature"]:
+                sym, code = "→", t
+            elif t not in inV:
+                sym, code = "→", nodes[t]["code"]
+            elif e["i"] in back and (t == i or rank[i] - rank[t] >= FAR_BACK):
+                sym, code = "↩", nodes[t]["code"]
+            elif e["i"] in back:
+                c.update(cls="back", b=t)
+            else:
+                c.update(cls="fwd", b=t)
+            if sym:
+                lid = "link:%d" % e["i"]
+                links[lid] = {"id": lid, "type": "link", "sym": sym, "code": code, "lane": nodes[i]["lane"],
+                              "feature": t if e["feature"] else None, "h": WF_LINK_H,
+                              # 섹션 밖 「→ 코드」는 그 도형이 그려진 장으로 링크합니다(빌드가 쪽을 채움)
+                              "node": t if (sym == "→" and not e["feature"] and t not in inV) else None}
+                links[lid]["w"] = max(WF_LINK_W, _wf_text_w(_wf_link_text(links[lid]), 9) + 0.26)
+                c.update(cls="link", b=lid)
+            C.append(c)
+    N = dict((i, dict(nodes[i])) for i in ids)
+    N.update(links)
+
+    # ④ 나가는 자리 — 조건은 오른쪽 · 아래 · 위 꼭짓점(같은 행 가장 가까운 도착이 오른쪽), 그 밖은 오른쪽 면
+    bysrc = {}
+    for c in C:
+        bysrc.setdefault(c["a"], []).append(c)
+    for a, cs in bysrc.items():
+        dec = N[a]["type"] == "decision"
+        outer = "u" if mirrored(li[a]) else "d"
+        lk = [c for c in cs if c["cls"] == "link"]
+        if dec:
+            free = {"r": True, "d": True, "u": True}
+            fw = [c for c in cs if c["cls"] == "fwd"]
+            same = [c for c in fw if vr[c["b"]] == vr[a]]
+            if same:
+                c0 = min(same, key=lambda c: rank[c["b"]])
+                c0["exit"], free["r"] = "r", False
+            for c in fw:
+                if "exit" in c:
+                    continue
+                dv = vr[c["b"]] - vr[a]
+                want = "u" if dv < 0 else ("d" if dv > 0 else outer)
+                for s in (want, "r", "d" if want == "u" else "u"):
+                    if free[s]:
+                        c["exit"], free[s] = s, False
+                        break
+                else:
+                    c["exit"] = "r"
+            for c in [c for c in cs if c["cls"] == "back"]:
+                clear = col_clear(rank[a], vr[a] + (1 if outer == "d" else -1),
+                                  R - 1 if outer == "d" else 0) if (0 <= vr[a] + (1 if outer == "d" else -1) < R) \
+                    else True
+                if free[outer] and clear:
+                    c["exit"], free[outer] = outer, False
+                else:
+                    c["exit"] = "r"
+                    free["r"] = False
+            inner_ = "d" if outer == "u" else "u"
+            for c in lk:
+                if free["r"]:
+                    c["exit"], c["attach"], free["r"] = "r", "r", False
+                elif free[outer]:
+                    c["exit"], c["attach"], free[outer] = outer, outer, False
+                elif free[inner_]:
+                    c["exit"], c["attach"], free[inner_] = inner_, inner_, False
+                else:
+                    c["exit"], c["attach"] = "r", "rs"
+        else:
+            sides = [outer, "d" if outer == "u" else "u"]
+            for c in cs:
+                if c["cls"] != "link":
+                    c["exit"] = "r"
+            for c in lk:
+                if len(cs) == 1:
+                    c["exit"], c["attach"] = "r", "r"
+                elif sides:
+                    sd = sides.pop(0)
+                    c["exit"], c["attach"] = sd, sd
+                else:
+                    c["exit"], c["attach"] = "r", "rs"
+    rcount, lcount, rlab, llab = {}, {}, {}, {}
+    for c in C:
+        if c["exit"] == "r":
+            rcount[c["a"]] = rcount.get(c["a"], 0) + 1
+            rlab[c["a"]] = rlab.get(c["a"], False) or bool(c["label"])
+        if c["cls"] != "link":
+            lcount[c["b"]] = lcount.get(c["b"], 0) + 1
+
+    # ⑤ 경로 모양 — 통로(열 사이 세로 · 행 사이 가로)를 어느 것을 쓰는지만 먼저 정합니다
+    for c in C:
+        a, b, ex = c["a"], c["b"], c["exit"]
+        if c["cls"] == "link":
+            c["plan"] = {"t": "link"}
+            continue
+        ra, rb, va, vb = rank[a], rank[b], vr[a], vr[b]
+        if c["cls"] == "back":
+            band = outer_band(li[a]) if (li[a] == li[b] and mirrored(li[a])) else R
+            band = pick(c, band, None if ex == "r" else ex)
+            c["plan"] = {"t": "zz", "g1": ra, "band": band, "g2": rb - 1} if ex == "r" else \
+                {"t": "vband", "band": band, "g2": rb - 1}
+            continue
+        if ex == "r":
+            straight_ok = (N[a]["type"] != "decision" and rcount.get(a) == 1) or lcount.get(b) == 1
+            mid_a, mid_b = row_clear(va, ra + 1, rb - 1), row_clear(vb, ra + 1, rb - 1)
+            if va == vb and mid_a and straight_ok:
+                c["plan"] = {"t": "straight"}
+            elif rb == ra + 1:
+                c["plan"] = {"t": "z", "g": ra}
+            elif mid_a:
+                c["plan"] = {"t": "z", "g": rb - 1}
+            elif mid_b:
+                c["plan"] = {"t": "z", "g": ra}
+            else:
+                band = va + 1 if vb > va else (va if vb < va else (va if mirrored(li[a]) else va + 1))
+                band = pick(c, band)
+                c["plan"] = {"t": "zz", "g1": ra, "band": band, "g2": rb - 1}
+            continue
+        down = ex == "d"
+        ok = (vb > va if down else vb < va) and col_clear(ra, va + (1 if down else -1), vb) and \
+            row_clear(vb, ra + 1, rb - 1)
+        c["plan"] = {"t": "L"} if ok else {"t": "vband", "band": pick(c, va + 1 if down else va, ex), "g2": rb - 1}
+
+    # ⑥ 열 사이 폭 — 곧은 선만 지나면 좁게, 통로가 필요하면 선 수만큼, 라벨 · 붙는 연결자 폭은 따로 더합니다
+    gaps = dict((g, {"zone": 0.12, "tr": [], "att": 0.0}) for g in range(-1, ncol))
+    for c in C:
+        p = c["plan"]
+        for k in ("g", "g1", "g2"):
+            if k in p:
+                t = _Track(("g", p[k]), c)
+                gaps[p[k]]["tr"].append(t)
+                c.setdefault("tracks", {})[k] = t
+        if "band" in p:
+            t = _Track(("b", p["band"]), c)
+            c.setdefault("tracks", {})["band"] = t
+        if c["label"] and c["exit"] == "r":
+            gaps[rank[c["a"]]]["zone"] = max(gaps[rank[c["a"]]]["zone"], _wf_label_w(c["label"]) + 0.18)
+        if c["cls"] == "link" and c["attach"] in ("r", "rs"):
+            stub = (_wf_label_w(c["label"]) + 0.2) if c["label"] else 0.3
+            c["stub"] = stub
+            g = gaps[rank[c["a"]]]
+            lw_ = links[c["b"]]["w"]
+            g["att"] += (stub + lw_) if not g["att"] else (lw_ + 0.12)
+        elif c["cls"] == "link":
+            c["stub"] = (WF_LABEL_H + 0.26) if c["label"] else 0.22
+    for g in gaps.values():
+        g["zone"] = max(g["zone"], g["att"] + 0.12 if g["att"] else 0)
+
+    def gap_need(g):
+        d, n = gaps[g], len(gaps[g]["tr"])
+        if g == -1:
+            return 0.14 + (n - 1) * WF_TRACK + WF_TAIL if n else 0.2
+        if g == ncol - 1:
+            return d["zone"] + n * WF_TRACK + 0.04 if (n or d["att"]) else 0.15
+        if n:
+            return d["zone"] + (n - 1) * WF_TRACK + WF_TAIL + 0.04
+        return max(WF_NARROW, d["zone"] + 0.12)
+    gw = dict((g, gap_need(g)) for g in gaps)
+    avail = w - WF_LANE_COL - sum(gw.values())
+    W = min(WF_W_MAX, avail / ncol)
+    overflow = ncol > WF_MAX_COLS or W < WF_W_MIN
+    W = max(0.6, W)                                       # 통로 폭은 줄이지 않습니다 — 줄이면 선이 도형 안으로 들어갑니다
+    left = avail - W * ncol
+    if left > 0 and ncol > 1:                             # 남는 폭은 열 사이에 나눠 숨통을 줍니다(열 간격 330 쪽으로)
+        add = min(left / (ncol - 1), max(0.0, 0.55 * W - min(gw[g] for g in range(ncol - 1))))
+        for g in range(ncol - 1):
+            gw[g] += add
+        left -= add * (ncol - 1)
+    xoff = max(0.0, left) / 2.0
+
+    # ⑦ 도형 크기 — 글자가 잘리면 높이를 늘리고(fitSize), 선이 여럿 드나드는 도형은 점 사이가 벌어지게 늘립니다
+    H = max(0.5, min(0.62, 0.36 * W))
+    fs = 10 if W >= 1.3 else 9
+    for i in ids:
+        n = N[i]
+        if n["type"] == "ref":
+            n["w"] = n["h"] = 0.62
+            continue
+        pad, tw = _wf_pad(n["type"], W, H)
+        th = est_lines(n["text"], tw * 0.9, fs) * line_height(fs) + line_height(9) + 0.06
+        k = max(rcount.get(i, 0) if n["type"] != "decision" else 1, lcount.get(i, 0))
+        step = 0.2 if (rlab.get(i) or any(c["label"] for c in C if c.get("b") == i)) else 0.15
+        spread = 0.2 + (k - 1) * step if k > 1 else 0
+        if n["type"] == "decision":
+            n["h"] = max(H * 1.39, th * 2.0 + 0.08, spread * 2)
+        else:
+            n["h"] = max(H, th + (0.16 if n["type"] in ("input", "output") else 0.06), spread)  # 평행사변형은 글 영역 위아래도 안쪽
+        n["w"], n["fs"], n["pad"] = W, fs, pad
+    rh = [H] * R
+    for i in ids:
+        rh[vr[i]] = max(rh[vr[i]], N[i]["h"])
+
+    # ⑧ 세로 — 행 사이 통로(band)마다 선 줄 수 · 붙는 연결자 자리만큼 높이를 잡습니다. 유저 구역은 경계에서 위로
+    bands = [{"tr": [], "zt": 0.0, "zb": 0.0} for _ in range(R + 1)]
+    for c in C:
+        t = (c.get("tracks") or {}).get("band")
+        if t:
+            bands[c["plan"]["band"]]["tr"].append(t)
+        if c["plan"]["t"] == "vband" and c["label"]:
+            k = c["plan"]["band"]
+            if c["exit"] == "d":
+                bands[k]["zt"] = max(bands[k]["zt"], WF_LABEL_H + 0.1)
+            else:
+                bands[k]["zb"] = max(bands[k]["zb"], WF_LABEL_H + 0.1)
+        if c["cls"] == "link" and c["attach"] != "r":
+            a = c["a"]
+            up = c["attach"] == "u" or (c["attach"] == "rs" and mirrored(li[a]))
+            # 위 · 아래 연결자는 행 사이 통로의 도형 쪽 자리(zone)에 둡니다 — 통로의 선 줄은 그 바깥으로 비켜 갑니다
+            k = vr[a] if up else vr[a] + 1
+            need = (c["stub"] if c["attach"] in "ud" else 0.08) + WF_LINK_H + 0.08
+            if up:
+                bands[k]["zb"] = max(bands[k]["zb"], need)
+            else:
+                bands[k]["zt"] = max(bands[k]["zt"], need)
+    def band_h(k, rg, pad):
+        b, n = bands[k], len(bands[k]["tr"])
+        tr = (0.2 + (n - 1) * WF_TRACK) if n else 0.0
+        if k in boundary:                                 # 구역 경계 — 위 절반은 유저 쪽 자리, 선 줄은 아래(시스템) 절반
+            b["half"] = max(pad, b["zt"] + 0.04)
+            return b["half"] + max(pad, b["zb"] + tr + (0.08 if n else 0))
+        base = pad if k in (0, R) else rg
+        return max(base, b["zt"] + b["zb"] + tr)
+    rg, pad = WF_RG, WF_PAD
+    total = sum(rh) + sum(band_h(k, rg, pad) for k in range(R + 1))
+    if total > h:                                         # 넘치면 통로 · 여백부터 줄입니다
+        rg, pad = 0.26, 0.1
+        total = sum(rh) + sum(band_h(k, rg, pad) for k in range(R + 1))
+        if total > h:
+            overflow = True
+    else:
+        inner = [k for k in range(1, R) if k not in boundary]
+        if inner:
+            rg = min(0.55, WF_RG + (h - total) / len(inner))
+        total = sum(rh) + sum(band_h(k, rg, pad) for k in range(R + 1))
+    y = y0 + max(0.0, h - total) * 0.3
+    bt, row_cy, border = [], [], {}
+    for k in range(R + 1):
+        bt.append(y)
+        hh = band_h(k, rg, pad)
+        if k in boundary:
+            border[k] = y + bands[k]["half"]
+        y += hh
+        bands[k]["top"], bands[k]["bot"] = bt[k], y
+        if k < R:
+            row_cy.append(y + rh[k] / 2.0)
+            y += rh[k]
+    lane_y = []
+    for l in range(nl):
+        f, last = lane_rows[l]
+        top = bt[0] if l == 0 else border[f]
+        bot = bands[R]["bot"] if l == nl - 1 else border[last + 1]
+        lane_y.append((top, bot))
+
+    # ⑨ 가로 좌표
+    gx = {-1: x0 + WF_LANE_COL + xoff}
+    colL = {}
+    x = gx[-1] + gw[-1]
+    for r in range(ncol):
+        colL[r] = x
+        x += W
+        gx[r] = x
+        x += gw[r]
+    for i in ids:
+        N[i]["cx"], N[i]["cy"] = colL[rank[i]] + W / 2.0, row_cy[vr[i]]
+        N[i]["rank"], N[i]["vr"], N[i]["li"] = rank[i], vr[i], li[i]
+
+    # ⑩ 이동 연결자 자리 — 오른쪽(나가는 선이 그것뿐) · 바깥쪽 위아래(유저는 위 · 시스템은 아래) · 오른쪽 아래(위)
+    rs_count = {}
+    for c in C:
+        if c["cls"] != "link":
+            continue
+        a, L = N[c["a"]], N[c["b"]]
+        att = c["attach"]
+        if att == "r":
+            L["cx"], L["cy"] = a["cx"] + a["w"] / 2.0 + c["stub"] + L["w"] / 2.0, a["cy"]
+        elif att == "d":
+            L["cx"], L["cy"] = a["cx"], a["cy"] + a["h"] / 2.0 + c["stub"] + WF_LINK_H / 2.0
+        elif att == "u":
+            L["cx"], L["cy"] = a["cx"], a["cy"] - a["h"] / 2.0 - c["stub"] - WF_LINK_H / 2.0
+        else:
+            k = rs_count.get(c["a"], 0)
+            rs_count[c["a"]] = k + 1
+            up = mirrored(li[c["a"]])
+            L["cx"] = a["cx"] + W / 2.0 + c["stub"] + L["w"] / 2.0 + k * (L["w"] + 0.12)
+            edge = row_cy[vr[c["a"]]] + (-1 if up else 1) * rh[vr[c["a"]]] / 2.0
+            L["cy"] = edge + (-1 if up else 1) * (0.08 + WF_LINK_H / 2.0)
+            L["up"] = up
+
+    # ⑪ 점 — 나가는 선은 향하는 높이 순, 들어오는 선은 다가오는 높이 순으로 면을 나눕니다
+    def band_mid(k):
+        return (bands[k]["top"] + bands[k]["bot"]) / 2.0
+
+    def toward(c):
+        p, b = c["plan"], N[c["b"]]
+        if p["t"] in ("zz", "vband"):
+            return band_mid(p["band"])
+        if p["t"] == "link":
+            if c["attach"] == "rs":
+                return b["cy"] + (-50 if b.get("up") else 50)
+            return b["cy"]
+        return b["cy"]
+
+    def approach(c):
+        p, a = c["plan"], N[c["a"]]
+        if p["t"] in ("zz", "vband"):
+            return band_mid(p["band"])
+        return a["cy"]
+
+    def spread(n, k, j, labeled):
+        if k == 1:
+            return 0.0
+        step = min(0.2 if labeled else 0.15, (n["h"] * (0.5 if n["type"] == "decision" else 1) - 0.12) / (k - 1))
+        return (j - (k - 1) / 2.0) * step
+
+    def side_x(n, side, dy):
+        hw = n["w"] / 2.0
+        if n["type"] == "decision":
+            hw *= max(0.0, 1 - abs(dy) / (n["h"] / 2.0))
+        if n["type"] in ("input", "output"):
+            t = max(0.0, min(1.0, (dy + n["h"] / 2.0) / n["h"]))
+            return n["cx"] + hw - WF_SLANT * t if side == "r" else n["cx"] - hw + WF_SLANT * (1 - t)
+        if n["type"] == "ref":
+            r = n["w"] / 2.0
+            hw = (max(0.0, r * r - dy * dy)) ** 0.5
+        return n["cx"] + hw if side == "r" else n["cx"] - hw
+    for a in set(c["a"] for c in C):
+        n = N[a]
+        rs = sorted([c for c in C if c["a"] == a and c["exit"] == "r"], key=lambda c: (toward(c), rank.get(c["b"], 99)))
+        lab = any(c["label"] for c in rs)
+        for j, c in enumerate(rs):
+            dy = 0.0 if n["type"] == "decision" and len(rs) == 1 else spread(n, len(rs), j, lab)
+            c["P"] = (side_x(n, "r", dy), n["cy"] + dy)
+        for c in C:
+            if c["a"] == a and c["exit"] in ("u", "d"):
+                c["P"] = (n["cx"], n["cy"] + (n["h"] / 2.0 if c["exit"] == "d" else -n["h"] / 2.0))
+    for b in ids:
+        n = N[b]
+        ins = sorted([c for c in C if c.get("b") == b and c["cls"] != "link"], key=lambda c: (approach(c), -rank[c["a"]]))
+        lab = any(c["label"] for c in ins)
+        for j, c in enumerate(ins):
+            dy = spread(n, len(ins), j, lab)
+            c["Q"] = (side_x(n, "l", dy), n["cy"] + dy)
+    for c in C:
+        if c["cls"] != "link":
+            continue
+        L, att = N[c["b"]], c["attach"]
+        if att == "r":
+            c["P"] = (c["P"][0], L["cy"]) if N[c["a"]]["type"] == "decision" else c["P"]
+            L["cy"] = c["P"][1]
+            c["Q"] = (L["cx"] - L["w"] / 2.0, L["cy"])
+        elif att == "d":
+            c["Q"] = (L["cx"], L["cy"] - WF_LINK_H / 2.0)
+        elif att == "u":
+            c["Q"] = (L["cx"], L["cy"] + WF_LINK_H / 2.0)
+        else:
+            c["Q"] = (L["cx"], L["cy"] + (WF_LINK_H / 2.0 if L.get("up") else -WF_LINK_H / 2.0))
+    # 곧은 선 — 한쪽 끝만 여럿이면 다른 쪽 끝을 그 높이로 맞춥니다
+    for c in C:
+        if c["plan"]["t"] != "straight":
+            continue
+        a, b = N[c["a"]], N[c["b"]]
+        if a["type"] != "decision" and rcount.get(c["a"]) == 1 and abs(c["Q"][1] - a["cy"]) < a["h"] / 2.0 - 0.06:
+            c["P"] = (side_x(a, "r", c["Q"][1] - a["cy"]), c["Q"][1])
+        elif lcount.get(c["b"]) == 1:
+            c["Q"] = (side_x(b, "l", c["P"][1] - b["cy"]), c["P"][1])
+
+    # ⑫ 통로 위치 — 같은 통로 안 순서는 교차가 가장 적은 순서
+    groups = {}
+    for c in C:
+        for t in (c.get("tracks") or {}).values():
+            groups.setdefault(t.group, []).append(t)
+
+    def gap_span(g):
+        lo = gx[g] + (0.14 if g == -1 else gaps[g]["zone"])
+        hi = colL[g + 1] - WF_TAIL if g + 1 < ncol else gx[g] + gw[g]
+        return lo, hi
+
+    def band_span(k):
+        b = bands[k]
+        lo = (border[k] + 0.12) if k in boundary else b["top"] + b["zt"] + 0.1
+        hi = b["bot"] - b["zb"] - 0.1
+        return lo, hi
+
+    def place(group, order):
+        lo, hi = gap_span(group[1]) if group[0] == "g" else band_span(group[1])
+        n = len(order)
+        span = (n - 1) * WF_TRACK
+        if group[0] == "g" and group[1] == ncol - 1:
+            s = lo
+        elif group[0] == "b" and group[1] == R:
+            s = lo                                        # 맨 아래 통로는 도형 쪽부터
+        elif group[0] == "b" and group[1] == 0:
+            s = hi - span
+        else:
+            s = lo + max(0.0, (hi - lo - span) / 2.0)
+        for k, t in enumerate(order):
+            t.pos = s + k * WF_TRACK
+
+    def pts_of(c):
+        p, P, Q = c["plan"], c["P"], c["Q"]
+        T = c.get("tracks") or {}
+        a = N[c["a"]]
+        if p["t"] == "straight" or (p["t"] == "link" and c["attach"] in ("r", "d", "u")):
+            return [P, Q]
+        if p["t"] == "link":
+            return [P, (Q[0], P[1]), Q]
+        if p["t"] == "z":
+            x = T["g"].pos
+            return [P, (x, P[1]), (x, Q[1]), Q]
+        if p["t"] == "L":
+            return [P, (a["cx"], Q[1]), Q]
+        if p["t"] == "zz":
+            x1, yb, x2 = T["g1"].pos, T["band"].pos, T["g2"].pos
+            return [P, (x1, P[1]), (x1, yb), (x2, yb), (x2, Q[1]), Q]
+        yb, x2 = T["band"].pos, T["g2"].pos
+        return [P, (P[0], yb), (x2, yb), (x2, Q[1]), Q]
+    boxes = [(N[i]["cx"] - N[i]["w"] / 2.0, N[i]["cy"] - N[i]["h"] / 2.0, N[i]["cx"] + N[i]["w"] / 2.0,
+              N[i]["cy"] + N[i]["h"] / 2.0, i) for i in N]
+
+    def segs(c):
+        p = c["pts"]
+        return [(p[k], p[k + 1]) for k in range(len(p) - 1)]
+
+    def cost():
+        S = []
+        for c in C:
+            c["pts"] = pts_of(c)
+            for s in segs(c):
+                S.append((c, s))
+        bad = 0
+        for k, (c1, (a1, b1)) in enumerate(S):
+            h1 = abs(a1[1] - b1[1]) < 1e-6
+            for b in boxes:                               # 선이 도형을 지나면 큰 감점
+                if b[4] in (c1["a"], c1["b"]):
+                    continue
+                if h1 and b[1] - 0.03 < a1[1] < b[3] + 0.03 and min(a1[0], b1[0]) < b[2] and max(a1[0], b1[0]) > b[0]:
+                    bad += 100
+                if not h1 and b[0] - 0.03 < a1[0] < b[2] + 0.03 and min(a1[1], b1[1]) < b[3] and max(a1[1], b1[1]) > b[1]:
+                    bad += 100
+            for c2, (a2, b2) in S[k + 1:]:
+                if c2 is c1:
+                    continue
+                h2 = abs(a2[1] - b2[1]) < 1e-6
+                if h1 != h2:
+                    hs, vs = ((a1, b1), (a2, b2)) if h1 else ((a2, b2), (a1, b1))
+                    xv, yh = vs[0][0], hs[0][1]
+                    if min(hs[0][0], hs[1][0]) + 0.01 < xv < max(hs[0][0], hs[1][0]) - 0.01 and \
+                            min(vs[0][1], vs[1][1]) + 0.01 < yh < max(vs[0][1], vs[1][1]) - 0.01:
+                        bad += 1
+                else:
+                    ax = 1 if h1 else 0
+                    o = 0 if h1 else 1
+                    if abs(a1[ax] - a2[ax]) < WF_TRACK * 0.6 and \
+                            min(max(a1[o], b1[o]), max(a2[o], b2[o])) - max(min(a1[o], b1[o]), min(a2[o], b2[o])) > 0.01:
+                        bad += 30                         # 나란한 두 선이 겹침
+        return bad
+    for g, ts in groups.items():
+        ts.sort(key=lambda t: t.c["P"][1])
+        place(g, ts)
+    best = cost()
+    for _ in range(2):
+        for g, ts in groups.items():
+            if len(ts) < 2:
+                continue
+            cands = list(_perms(ts)) if len(ts) <= 4 else [ts, ts[::-1]]
+            for order in cands:
+                place(g, list(order))
+                cst = cost()
+                if cst < best:
+                    best, groups[g] = cst, list(order)
+            place(g, groups[g])
+    cost()
+    return {"N": N, "C": C, "ids": ids, "ncol": ncol, "R": R, "W": W, "overflow": overflow, "lane_y": lane_y,
+            "rank": rank, "bad": best, "boxes": boxes, "bands": bands, "height": total}
 
 
-def flowchart(slide, nodes, edges, x0=MX, y0=TOP, w=SW - 2 * MX, h=None):
-    """순서도. 노드에 lane이 있으면 가로 레인(스윔레인)으로 나눠 그립니다. 예외 경로는 점선입니다."""
-    h = h or (BOTTOM - y0 - 0.45)
-    col = _layers(nodes, edges)
-    ncol = max(col.values()) + 1 if col else 1
+def _wf_shape(slide, n):
+    """탐색기 shape() · label() — 코드(굵게) 첫 줄 + 문구. 이동 연결자는 「↩ 코드」 · 「→ 코드」 한 줄."""
+    t = n["type"]
+    x, y, w, h = n["cx"] - n["w"] / 2.0, n["cy"] - n["h"] / 2.0, n["w"], n["h"]
+    if t == "link":
+        shp = box(slide, x, y, w, h, fill=WF_JUMP_FILL, line=WF_JUMP, width=1.25, dash=True, shape="offpage",
+                  name="flow-link")
+        tf = shp.text_frame
+        tf.margin_left = tf.margin_right = tf.margin_top = 0
+        tf.margin_bottom = Inches(h * 0.18)
+        tf.word_wrap = False
+        p = tf.paragraphs[0]
+        p.alignment = PP_ALIGN.CENTER
+        r = p.add_run()
+        r.text = _wf_link_text(n)
+        _font(r, _wf_fz(9, n["sc"]), True, WF_JUMP_TEXT)
+        return shp, r
+    fill = WF_DECISION_FILL if t == "decision" else (TINT if t == "ref" else WHITE)
+    shp = box(slide, x, y, w, h, fill=fill, line=WF_EDGE, width=1.0, shape=FLOW_SHAPES[t], name="flow-%s" % t)
+    if t == "action":
+        shp.adjustments[0] = min(0.5, 0.05 / max(0.01, min(w, h)))      # 탐색기 rx 4 — 작은 반경
+    elif t in ("input", "output"):
+        shp.adjustments[0] = WF_SLANT * n["sc"] / max(0.01, min(w, h))
+    tf = shp.text_frame
+    tf.word_wrap = True
+    tf.margin_top = tf.margin_bottom = 0
+    if t == "ref":
+        tf.margin_left = tf.margin_right = 0
+        p = tf.paragraphs[0]
+        p.alignment = PP_ALIGN.CENTER
+        r = p.add_run()
+        r.text = n.get("target_code") or n["text"]
+        _font(r, _wf_fz(9, n["sc"]), True, INK)
+        tf.word_wrap = False
+        return shp, None
+    tf.margin_left = tf.margin_right = Inches(n["pad"])
+    if t == "decision":
+        tf.word_wrap = True
+    p = tf.paragraphs[0]
+    p.alignment = PP_ALIGN.CENTER
+    p.line_spacing = LINE_SPACING
+    r = p.add_run()
+    r.text = n["code"]
+    _font(r, _wf_fz(9, n["sc"]), True, SUB)
+    if n["text"]:
+        p2 = tf.add_paragraph()
+        p2.alignment = PP_ALIGN.CENTER
+        p2.line_spacing = LINE_SPACING
+        r2 = p2.add_run()
+        r2.text = n["text"]
+        _font(r2, _wf_fz(n["fs"], n["sc"]), False, INK)
+    return shp, None
+
+
+def _wf_site(n, pt):
+    """점이 도형 연결점(위 0 · 왼쪽 1 · 아래 2 · 오른쪽 3)의 한가운데면 그 번호, 아니면 None(앵커로 붙임)."""
+    if n["type"] in ("input", "output", "ref"):
+        return None
+    l, r = n["cx"] - n["w"] / 2.0, n["cx"] + n["w"] / 2.0
+    t, b = n["cy"] - n["h"] / 2.0, n["cy"] + n["h"] / 2.0
+    for idx, (sx, sy) in enumerate(((n["cx"], t), (l, n["cy"]), (n["cx"], b), (r, n["cy"]))):
+        if abs(pt[0] - sx) < 0.005 and abs(pt[1] - sy) < 0.005:
+            return idx
+    return None
+
+
+def _wf_overlap(a, b, m=0.0):
+    return a[0] < b[2] + m and a[2] > b[0] - m and a[1] < b[3] + m and a[3] > b[1] - m
+
+
+def _wf_seg_hits(rect, segs, m=0.03):
+    for (p, q) in segs:
+        if rect[0] - m < max(p[0], q[0]) and rect[2] + m > min(p[0], q[0]) and \
+                rect[1] - m < max(p[1], q[1]) and rect[3] + m > min(p[1], q[1]):
+            return True
+    return False
+
+
+def workflow_chart(slide, flow, section=None, feature_id=None, x0=MX, y0=TOP, w=SW - 2 * MX, h=None,
+                   show_legend=True):
+    """기능 흐름도 한 장 — 섹션 하나(section: 키 또는 flow_sections()의 항목) 또는 흐름 전체(None).
+
+    위 유저 구역 · 아래 시스템 구역을 가로 띠로 두고, 탐색기 배치 규칙대로 도형을 놓고 선마다 연결선 도형
+    하나로 잇습니다. 섹션 밖 · 다른 기능으로 가는 연결과 두 열 이상 되돌아가는 연결은 출발 도형 곁의
+    이동 연결자(「→ 코드」 · 「↩ 코드」)입니다.
+    돌려주는 값: {"cols", "rows", "overflow", "refs"} — refs는 덱 조립이 쪽 링크를 걸 글 조각
+    ({"run", "screen"} 화면 쪽 표시 「p. ?」 · {"run", "feature"} 다른 기능 연결자 글)입니다.
+    """
+    F = _wf_norm(flow)
+    if not F["order"]:
+        return {"cols": 0, "rows": 0, "overflow": False, "refs": []}
+    if section is None:
+        ids, entry = list(F["order"]), F["start"]
+    else:
+        sec = section if isinstance(section, dict) else next(
+            (s for s in flow_sections(flow) if s["key"] == section), None)
+        if sec is None:
+            raise ValueError("흐름도: 섹션 %r이 없습니다" % (section,))
+        ids, entry = list(sec["ids"]), sec.get("entry") or sec["ids"][0]
+    checks = [i for i in ids if F["nodes"][i]["type"] == "decision" and check_text(F["nodes"][i].get("check"))]
+    h = (h or (BOTTOM - y0 - 0.45)) - 0.22 * len(checks)     # 판정 각주 자리
+    # 열이 많아 도형 폭이 WF_W_MIN보다 좁아지면, 그 폭이 되는 넓은 판에 배치한 뒤 판째로 줄여 본문에 맞춥니다
+    # (통로 · 글 크기가 함께 줄어 어긋나지 않습니다). 이때는 overflow로 알려 덱 조립이 경고합니다
+    sc = 1.0
+    vw, vh = w, h
+    L = _wf_layout(F, ids, entry, x0, y0, vw, vh)
+    if L["W"] < WF_W_MIN:
+        vw = w + (WF_W_MIN - L["W"]) * L["ncol"]
+        sc = w / vw
+        vh = h / sc
+        L = _wf_layout(F, ids, entry, x0, y0, vw, vh)
+    over = {}
+    for _ in range(2):                                    # 가로 통로 후보를 하나씩 바꿔 보고 나아질 때만 씁니다
+        changed = False
+        for ei, cur, ks in [(c["e"]["i"], c["plan"].get("band"), c.get("bands") or []) for c in L["C"]]:
+            for k in ks:
+                if k == cur or L["bad"] == 0:
+                    continue
+                trial = dict(over)
+                trial[ei] = k
+                L2 = _wf_layout(F, ids, entry, x0, y0, vw, vh, trial)
+                if L2["bad"] < L["bad"]:
+                    L, over, cur, changed = L2, trial, k, True
+        if not changed:
+            break
+    N, C = L["N"], L["C"]
+    if sc < 1.0:
+        def tr(pt):
+            return (x0 + (pt[0] - x0) * sc, y0 + (pt[1] - y0) * sc)
+        for n in N.values():
+            n["cx"], n["cy"] = tr((n["cx"], n["cy"]))
+            n["w"], n["h"] = n["w"] * sc, n["h"] * sc
+            if "pad" in n:
+                n["pad"] *= sc
+        for c in C:
+            c["pts"] = [tr(pt) for pt in c["pts"]]
+        L["lane_y"] = [(tr((0, t))[1], tr((0, b))[1]) for t, b in L["lane_y"]]
+        L["boxes"] = [(n["cx"] - n["w"] / 2.0, n["cy"] - n["h"] / 2.0, n["cx"] + n["w"] / 2.0, n["cy"] + n["h"] / 2.0, i)
+                      for i, n in N.items()]
+    for n in N.values():
+        n["sc"] = sc
+    user_key = F["keys"][0]
+    refs = []
+
+    # 구역 띠 — 옅은 구역색 바탕, 왼쪽 이름 칸에 구역색 세로 띠와 글자
+    for l, lane in enumerate(F["lanes"]):
+        top, bot = L["lane_y"][l]
+        col, fill, edge = WF_LANE_USER if lane["key"] == user_key else WF_LANE_SYSTEM
+        box(slide, x0, top, w, bot - top, fill=fill, line=edge, width=0.75, name="flow-lane")
+        box(slide, x0, top, 0.07, bot - top, fill=col, name="flow-lane-bar")
+        line(slide, x0 + WF_LANE_COL * sc, top, x0 + WF_LANE_COL * sc, bot, color=edge, width=0.75)
+        text(slide, x0 + 0.1, top, WF_LANE_COL * sc - 0.12, bot - top, v(lane.get("label")), size=_wf_fz(10, sc), bold=True,
+             color=col, anchor="m")
+    # 도형
+    shapes = {}
+    for i in N:
+        n = N[i]
+        if n["type"] == "ref":
+            t = F["nodes"].get(str(n.get("target")))
+            n["target_code"] = t["code"] if t else None
+        shp, run = _wf_shape(slide, n)
+        shapes[i] = shp
+        if run is not None and n.get("feature"):
+            refs.append({"run": run, "feature": n["feature"]})
+        elif run is not None and n.get("node"):
+            refs.append({"run": run, "node": n["node"]})
+    # 선 — 선마다 연결선 도형 하나, 끝은 연결점이면 도형에, 아니면 보이지 않는 앵커에 붙입니다
+    segs = []
+    for c in C:
+        a, b = N[c["a"]], N[c["b"]]
+        p = c["pts"]
+        sa, sb = _wf_site(a, p[0]), _wf_site(b, p[-1])
+        path_connector(slide, p, color=WF_COLORS[c["kind"]], width=WF_WIDTH, arrow=True,
+                       start=(shapes[c["a"]], sa) if sa is not None else None,
+                       end=(shapes[c["b"]], sb) if sb is not None else None)
+        segs += [(p[k], p[k + 1]) for k in range(len(p) - 1)]
+    taken = [(b[0], b[1], b[2], b[3]) for b in L["boxes"]]
+    borders = []
+    for top, bot in L["lane_y"]:
+        borders += [((x0, top), (x0 + w, top)), ((x0, bot), (x0 + w, bot))]
+    # 선 라벨 — 선이 시작되는 쪽 첫 선분 위에 얹은 상자(선 색 테두리 · 흰 바탕)
+    for c in C:
+        if not c["label"]:
+            continue
+        p0, p1 = c["pts"][0], c["pts"][1]
+        lw, lh = _wf_label_w(c["label"]) * sc, WF_LABEL_H * sc
+        if abs(p0[1] - p1[1]) < 1e-6:
+            sgn = 1 if p1[0] > p0[0] else -1
+            cx, cy = p0[0] + sgn * (0.06 + lw / 2.0), p0[1]
+        else:
+            sgn = 1 if p1[1] > p0[1] else -1
+            cx, cy = p0[0], p0[1] + sgn * (0.05 + lh / 2.0)
+        col = WF_COLORS[c["kind"]]
+        lb = box(slide, cx - lw / 2.0, cy - lh / 2.0, lw, lh, fill=WHITE, line=col, width=0.75, label=c["label"],
+                 size=_wf_fz(WF_LABEL, sc), color=col, bold=True, name="flow-edge-label")
+        tf = lb.text_frame
+        tf.margin_left = tf.margin_right = tf.margin_top = tf.margin_bottom = 0
+        tf.word_wrap = False
+        taken.append((cx - lw / 2.0, cy - lh / 2.0, cx + lw / 2.0, cy + lh / 2.0))
+
+    def free_spot(cands, ww, hh):
+        for (x, y) in cands:
+            r = (x, y, x + ww, y + hh)
+            if r[0] < x0 + WF_LANE_COL * sc or r[2] > x0 + w or r[1] < y0 - 0.05 or r[3] > y0 + h + 0.3:
+                continue
+            if any(_wf_overlap(r, t, 0.02) for t in taken) or _wf_seg_hits(r, segs + borders, 0.02):
+                continue
+            return r
+        return None
+    # 화면 쪽 표시 「p. ?」 — 도형 오른쪽 아래(안 되면 왼쪽 아래 · 오른쪽 위 · 왼쪽 위) 빈자리
+    for i in ids:
+        scr = F["nodes"][i].get("screen")
+        if not scr:
+            continue
+        n = N[i]
+        pw, ph = 0.42, 0.2
+        l, r = n["cx"] - n["w"] / 2.0, n["cx"] + n["w"] / 2.0
+        t, b = n["cy"] - n["h"] / 2.0, n["cy"] + n["h"] / 2.0
+        spot = free_spot([(r - pw, b + 0.02), (l, b + 0.02), (r - pw, t - ph - 0.02), (l, t - ph - 0.02),
+                          (r + 0.03, b - ph + 0.06), (r - pw - 0.25, b + 0.02), (l + 0.25, b + 0.02)], pw, ph)
+        if spot is None:
+            spot = (r - pw, b + 0.02, r, b + 0.02 + ph)
+        tb = text(slide, spot[0], spot[1], pw, ph, "p. ?", size=8, color=SUB, align="c", name="flow-screen-page")
+        tb.text_frame.margin_top = tb.text_frame.margin_bottom = 0
+        taken.append(spot)
+        refs.append({"run": tb.text_frame.paragraphs[0].runs[0], "screen": str(scr)})
+    # 판정 기준 — 조건 도형 위 · 아래 빈자리에 작게, 자리가 없으면 ※ 표식 + 아래 각주
+    notes = []
+    for i in checks:
+        n = N[i]
+        s = check_text(F["nodes"][i].get("check"))
+        cw = min(2.6, max(1.2, L["W"] + 0.5))
+        lines = est_lines(s, cw - 0.08, 8)
+        ch = lines * line_height(8) + 0.06
+        if lines > 2:
+            spot = None
+        else:
+            t, b = n["cy"] - n["h"] / 2.0, n["cy"] + n["h"] / 2.0
+            xs = [n["cx"] - cw / 2.0, n["cx"] - cw - 0.05, n["cx"] + 0.05]
+            spot = free_spot([(x, t - ch - 0.02) for x in xs] + [(x, b + 0.02) for x in xs], cw, ch)
+        if spot:
+            text(slide, spot[0], spot[1], cw, ch, s, size=8, color=SUB, align="c", name="flow-check")
+            taken.append(spot)
+        else:
+            k = len(notes) + 1
+            mk = "※%d" % k
+            mw = _wf_text_w(mk, 8) + 0.12
+            l, t = n["cx"] - n["w"] / 2.0, n["cy"] - n["h"] / 2.0
+            spot = free_spot([(l + n["w"] * 0.62, t - 0.02), (l + n["w"] * 0.1, t - 0.02),
+                              (l + n["w"] * 0.62, t + n["h"] - 0.18), (l + n["w"] * 0.1, t + n["h"] - 0.18)], mw, 0.2)
+            spot = spot or (l + n["w"] * 0.62, t - 0.02, l + n["w"] * 0.62 + mw, t + 0.18)
+            text(slide, spot[0], spot[1], mw, 0.2, mk, size=8, bold=True, color=SUB, name="flow-check-mark")
+            taken.append(spot)
+            notes.append("%s %s · %s" % (mk, F["nodes"][i]["code"], s))
+    items = _wf_legend_items(N, C) if show_legend else []
+    if items:
+        legend(slide, items)
+    fy = max(b for _, b in L["lane_y"]) + 0.06           # 각주 — 구역 띠 바로 아래
+    for k, s in enumerate(notes):
+        text(slide, x0, fy + k * 0.22, w, 0.24, s, size=8, color=SUB, name="flow-check-note")
+    return {"cols": L["ncol"], "rows": L["R"], "overflow": L["overflow"], "refs": refs}
+
+
+def _wf_legend_sample(t):
+    def draw(s, x, y):
+        if t == "link":
+            box(s, x, y - 0.02, 0.28, 0.22, fill=WF_JUMP_FILL, line=WF_JUMP, dash=True, shape="offpage")
+        elif t in WF_COLORS:
+            line(s, x, y + 0.09, x + 0.28, y + 0.09, color=WF_COLORS[t], width=WF_WIDTH, arrow=True)
+        else:
+            shp = box(s, x, y, 0.28, 0.18, fill=WF_DECISION_FILL if t == "decision" else (TINT if t == "ref" else WHITE),
+                      line=WF_EDGE, shape=FLOW_SHAPES[t] if t != "ref" else "oval")
+            if t == "action":
+                shp.adjustments[0] = 0.15
+            elif t in ("input", "output"):
+                shp.adjustments[0] = 0.3
+    return draw
+
+
+def _wf_legend_items(N, C):
+    """범례 — 쓰인 도형 종류 · 선 종류 · 이동 연결자만."""
+    used = set(n["type"] for n in N.values())
+    items, names = [], []
+    for t in ("term", "action", "input", "output", "decision", "process", "ref"):
+        if t in used and FLOW_NAMES[t] not in names:
+            names.append(FLOW_NAMES[t])
+            items.append((_wf_legend_sample(t), FLOW_NAMES[t]))
+    if "link" in used:
+        items.append((_wf_legend_sample("link"), "이동 연결자"))
+    kinds = set(c["kind"] for c in C)
+    for k, name in (("yes", "예"), ("no", "아니오"), ("normal", "일반")):
+        if k in kinds:
+            items.append((_wf_legend_sample(k), name))
+    return items
+
+
+def flowchart(slide, nodes, edges, **kw):
+    """이전 순서도 입력(start · end · screen · process · io · decision)을 기능 흐름도로 그립니다 — 호환용 얇은 감싸개."""
+    old = {"start": "term", "end": "term", "screen": "output", "process": "action", "io": "input"}
     lanes = []
     for n in nodes:
         if n.get("lane") and n["lane"] not in lanes:
             lanes.append(n["lane"])
-    label_w = 1.0 if lanes else 0.0
-    colw = (w - label_w) / ncol
-    nw = min(2.0, colw - 0.4)
-    pos = {}
-    if lanes:
-        lh = h / len(lanes)
-        for i, ln in enumerate(lanes):
-            ly = y0 + i * lh
-            box(slide, x0, ly, w, lh, fill=TINT if i % 2 == 0 else WHITE, line=GRID, name="lane")
-            box(slide, x0, ly, label_w, lh, fill=INK, label=ln, size=10, bold=True, color=WHITE)
-        groups = {}
-        for n in nodes:
-            groups.setdefault((col[n["id"]], n.get("lane", lanes[0])), []).append(n)
-        for (c, ln), ns in groups.items():
-            li = lanes.index(ln)
-            for k, n in enumerate(ns):
-                cy = y0 + li * lh + lh * (k + 1) / (len(ns) + 1)
-                pos[n["id"]] = (x0 + label_w + c * colw + (colw - nw) / 2, cy)
-    else:
-        groups = {}
-        for n in nodes:
-            groups.setdefault(col[n["id"]], []).append(n)
-        for c, ns in groups.items():
-            for k, n in enumerate(ns):
-                cy = y0 + h * (k + 1) / (len(ns) + 1)
-                pos[n["id"]] = (x0 + c * colw + (colw - nw) / 2, cy)
-    size = {}
-    for n in nodes:
-        t = n.get("type", "process")
-        nh = 0.78 if t == "decision" else 0.56
-        size[n["id"]] = (nw, nh)
-    types = {n["id"]: n.get("type", "process") for n in nodes}
-    # 도형을 먼저 만들고 선을 붙입니다 — 연결선 끝을 도형의 연결점에 붙여 편집기에서 옮겨도 따라오게
-    shapes = {}
-    for n in nodes:
-        t = n.get("type", "process")
-        (x, cy), (bw, bh) = pos[n["id"]], size[n["id"]]
-        root = t in ("start", "end")
-        shp = box(slide, x, cy - bh / 2, bw, bh, fill=INK if root else WHITE, line=INK,
-                  shape=FLOW_SHAPES.get(t, "round"), label=v(n.get("label")),
-                  size=9 if t in ("decision", "io") else 10, color=WHITE if root else INK, bold=root,
-                  name="flow-%s" % t)
-        if t in ("decision", "io"):
-            # 마름모 · 평행사변형은 안쪽 글 영역이 좁습니다 — 여백을 없애 짧은 질문이 두 줄로 꺾이지 않게
-            tf = shp.text_frame
-            tf.margin_left = tf.margin_right = tf.margin_top = tf.margin_bottom = 0
-        shapes[n["id"]] = shp
-
-    def site(nid, idx):
-        # 사각형 · 둥근 사각형 · 마름모만 연결점 번호가 0 위 · 1 왼쪽 · 2 아래 · 3 오른쪽입니다(평행사변형은 붙이지 않음)
-        return None if types[nid] == "io" else (shapes[nid], idx)
-
-    for e in edges:
-        if e["from"] not in pos or e["to"] not in pos:
-            continue
-        a, b = e["from"], e["to"]
-        (ax, ay), (bx, by) = pos[a], pos[b]
-        (aw, ah), (bw, bh) = size[a], size[b]
-        exc = e.get("kind") == "exception"
-        kw = dict(color=ACCENT if exc else INK, width=1.0, arrow=True, dash=exc)
-        c = kw["color"]
-        same_row = abs(ay - by) < 0.01
-        if abs(bx - ax) < 0.01 and not same_row:          # 같은 열 위아래 — 곧은 세로 화살표
-            sx = ax + aw / 2
-            down = by > ay
-            sy, ey = (ay + ah / 2, by - bh / 2) if down else (ay - ah / 2, by + bh / 2)
-            elbow(slide, sx, sy, sx, ey, start=site(a, 2 if down else 0), end=site(b, 0 if down else 2), **kw)
-            lx, ly = sx + 0.06, (sy + ey) / 2 - 0.12
-        elif bx > ax and same_row:                         # 같은 줄 앞으로 — 오른쪽 변에서 왼쪽 변으로
-            elbow(slide, ax + aw, ay, bx, by, start=site(a, 3), end=site(b, 1), **kw)
-            lx, ly = ax + aw + 0.02, ay - 0.27
-        elif bx > ax and types[a] == "decision":           # 분기의 위 · 아래 갈래 — 위 · 아래 꼭짓점에서 L자로
-            sx = ax + aw / 2
-            up = by < ay
-            sy = ay - ah / 2 if up else ay + ah / 2
-            elbow(slide, sx, sy, bx, by, first="v", start=site(a, 0 if up else 2), end=site(b, 1), **kw)
-            lx, ly = sx + 0.04, (sy - 0.3 if up else sy + 0.02)
-        elif bx > ax:                                      # 다른 줄 앞으로 — Z자로 꺾어 들어갑니다
-            mx = ax + aw + 0.2
-            elbow(slide, ax + aw, ay, bx, by, first="h", mid=mx, start=site(a, 3), end=site(b, 1), **kw)
-            lx, ly = mx + 0.04, (ay + by) / 2 - 0.12
-        elif same_row:                                     # 같은 줄 되돌아감 — 위로 돌아 대상의 위 변으로(ㄷ자)
-            tx, ty, top = bx + bw / 2, by - bh / 2, by - bh / 2 - 0.3
-            elbow(slide, ax + aw / 2, ay - ah / 2, tx, ty, first="v", mid=top, start=site(a, 0), end=site(b, 0),
-                  **kw)
-            lx, ly = (ax + tx) / 2, top - 0.26
-        else:
-            # 다른 줄 되돌아감 — 출발 상자의 위 · 아래 변에서 L자로 대상의 오른쪽 변에 들어갑니다.
-            # 분기의 위 · 아래 꼭짓점은 앞으로 가는 갈래가 쓰므로 비워 둡니다
-            sx = ax + aw / 2
-            down = by > ay
-            sy = ay + ah / 2 if down else ay - ah / 2
-            elbow(slide, sx, sy, bx + bw, by, first="v", start=site(a, 2 if down else 0), end=site(b, 3), **kw)
-            lx, ly = sx + 0.04, (sy + by) / 2 - 0.12
-        if e.get("label"):
-            text(slide, lx, ly, 0.9, 0.24, e["label"], size=9, bold=True, color=c)
-    kinds = []
-    for n in nodes:
-        t = "start" if n.get("type") in ("start", "end") else n.get("type", "process")
-        if t not in kinds:
-            kinds.append(t)
-    items = [(lambda s, x, y, t=t: box(s, x, y, 0.28, 0.18, fill=INK if t == "start" else WHITE, line=INK,
-                                      shape=FLOW_SHAPES[t]), FLOW_NAMES[t]) for t in kinds if t in FLOW_NAMES]
-    if any(e.get("kind") == "exception" for e in edges):
-        items.append((lambda s, x, y: line(s, x, y + 0.09, x + 0.28, y + 0.09, color=ACCENT, dash=True),
-                      "예외 경로"))
-    legend(slide, items)
+    flow = {"lanes": [{"key": l, "label": l} for l in lanes] or None,
+            "nodes": [dict(n, type=old.get(n.get("type"), n.get("type")), text=n.get("text") or n.get("label"))
+                      for n in nodes],
+            "edges": [dict(e, kind="no" if e.get("kind") == "exception" else e.get("kind")) for e in edges]}
+    return workflow_chart(slide, flow, **kw)
 
 
 # ── 저니맵 ───────────────────────────────────────────────────────────
@@ -747,18 +1680,43 @@ def _guide_feature(slide):
         (lambda x, y: text(slide, x - 0.08, y - 0.02, 0.7, 0.3, "{이름}", size=11, color=SUB, align="c"),
          "{동적 데이터}", "실제 값으로 바뀌어 보이는 자리"),
     ]
+    # 오른쪽 열 — 기능 흐름도 기호(워크플로우 탐색기와 같은 기호 · patterns.workflow_chart)
+    def fl_shape(kind, x, y, w=0.5, h=0.26):
+        shp = box(slide, x, y, w, h, fill=WF_DECISION_FILL if kind == "decision" else WHITE, line=WF_EDGE,
+                  shape=FLOW_SHAPES[kind])
+        if kind == "action":
+            shp.adjustments[0] = 0.15
+        elif kind == "input":
+            shp.adjustments[0] = 0.35
+        return shp
+
+    def decision(x, y):                                   # 마름모 + 예 파랑 · 아니오 빨강 선
+        fl_shape("decision", x - 0.04, y - 0.04, 0.36, 0.34)
+        line(slide, x + 0.32, y + 0.04, x + 0.56, y + 0.04, color=WF_YES, width=WF_WIDTH, arrow=True)
+        line(slide, x + 0.32, y + 0.22, x + 0.56, y + 0.22, color=WF_NO, width=WF_WIDTH, arrow=True)
+
+    def lanes(x, y):
+        box(slide, x - 0.04, y - 0.04, 0.6, 0.17, fill=WF_LANE_USER[1], line=WF_LANE_USER[2])
+        box(slide, x - 0.04, y - 0.04, 0.05, 0.17, fill=WF_LANE_USER[0])
+        box(slide, x - 0.04, y + 0.13, 0.6, 0.17, fill=WF_LANE_SYSTEM[1], line=WF_LANE_SYSTEM[2])
+        box(slide, x - 0.04, y + 0.13, 0.05, 0.17, fill=WF_LANE_SYSTEM[0])
+
+    def jump(x, y):
+        shp = box(slide, x - 0.06, y - 0.03, 0.66, 0.32, fill=WF_JUMP_FILL, line=WF_JUMP, dash=True,
+                  shape="offpage", label="→ A2", size=8, bold=True, color=WF_JUMP_TEXT)
+        tf = shp.text_frame
+        tf.margin_left = tf.margin_right = tf.margin_top = 0
+        tf.word_wrap = False
+
     rows_r = [
-        (lambda x, y: box(slide, x, y, 0.5, 0.26, fill=INK, shape="capsule"),
-         "시작 · 종료", "흐름도의 처음과 끝"),
-        (lambda x, y: box(slide, x + 0.06, y - 0.04, 0.38, 0.34, fill=WHITE, line=INK, shape="diamond"),
-         "분기", "질문 하나 — 나가는 선에 「예 · 아니오」"),
-        (lambda x, y: (box(slide, x, y, 0.22, 0.26, fill=WHITE, line=INK),
-                       box(slide, x + 0.28, y, 0.22, 0.26, fill=WHITE, line=INK, round_=True)),
-         "화면 · 처리", "네모는 화면, 둥근 네모는 시스템이 하는 일"),
-        (lambda x, y: box(slide, x, y, 0.5, 0.26, fill=WHITE, line=INK, shape="para"),
-         "안내 · 입력", "사용자에게 보이는 시트 · 알림 · 입력창"),
-        (lambda x, y: line(slide, x, y + 0.13, x + 0.5, y + 0.13, color=ACCENT, dash=True),
-         "예외 경로", "정상 흐름에서 벗어나는 길 — 점선"),
+        (lambda x, y: fl_shape("term", x, y), "시작 · 종료", "흐름의 처음과 끝"),
+        (decision, "조건 판단", "질문 하나 — 나가는 선이 예는 파랑, 아니오는 빨강, 그 밖은 검정"),
+        (lambda x, y: (fl_shape("action", x - 0.04, y, 0.26), fl_shape("process", x + 0.28, y, 0.26)),
+         "행동 · 처리 / 공통 처리", "네모는 한 단계, 양옆 세로선은 여러 흐름이 함께 쓰는 처리"),
+        (lambda x, y: fl_shape("input", x, y), "입력 · 출력", "유저가 넣는 값 · 화면에 보이는 시트 · 안내"),
+        (jump, "이동 연결자 「→ 코드」 · 「↩\ufe0e 코드」",
+         "다른 섹션 · 다른 기능(F-…)으로 가거나 앞 단계로 돌아가는 곳"),
+        (lanes, "유저 · 시스템 구역", "위 띠는 유저가 하는 일, 아래 띠는 시스템의 판단 · 처리 · 노출"),
         _guide_page_link(slide),
     ]
     return rows_l, rows_r
