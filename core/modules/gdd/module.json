@@ -1,1 +1,19 @@
-{ "creates": ["gdd"] }
+{
+  "scope": "project",
+  "group": "planning",
+  "creates": [
+    "gdd"
+  ],
+  "pairs": [
+    {
+      "name": "ue-doc",
+      "why": "UE 프로젝트면 구현 문서용으로 함께 켬"
+    }
+  ],
+  "instead": [
+    {
+      "name": "app-planning-slides",
+      "why": "앱 기획 문서를 슬라이드로 공유하는 것이 목적일 때"
+    }
+  ]
+}

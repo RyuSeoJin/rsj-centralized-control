@@ -1,1 +1,16 @@
-{ "scope": "project" }
+{
+  "scope": "project",
+  "group": "app-experience",
+  "pairs": [
+    {
+      "name": "workflow-explorer",
+      "why": "탐색기 안에서 시뮬레이터를 불러 흐름을 따라감"
+    }
+  ],
+  "instead": [
+    {
+      "name": "app-preview",
+      "why": "화면 데이터를 여러 기기 크기에서 나란히 비교할 때"
+    }
+  ]
+}

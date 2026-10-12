@@ -1,1 +1,4 @@
-{ "scope": "workspace" }
+{
+  "scope": "workspace",
+  "group": "doc-site"
+}

@@ -1,1 +1,10 @@
-{ "scope": "project" }
+{
+  "scope": "project",
+  "group": "game-ue",
+  "pairs": [
+    {
+      "name": "gdd",
+      "why": "구현 전에 기획을 문서로 합의하면 함께 켬"
+    }
+  ]
+}

@@ -33,15 +33,7 @@ python core/base/scripts/sync_core.py --from https://github.com/RyuSeoJin/rsj-ce
 python core/base/scripts/module.py list
 ```
 
-| 모듈 | 무엇 |
-|---|---|
-| `ue-doc` | 언리얼 엔진 문서 — 지식 위키 · 프로젝트 트랙, 에셋 분석 · 아키텍처 · 로드맵 · 데이터 지도 템플릿 |
-| `gdd` | 코드 전 시스템 기획서 · 콘텐츠 총괄표 · 기획서 → 프로토타입 → 구현 순서 |
-| `ue-build` | UE C++ 명령 빌드 · 게임 창 조작 점검 절차와 함정 |
-| `ue-localization` | 시트 원본 → UE 표준 번역 |
-| `qa-site` | QA · 역분석 문서를 인디고 마스터와 셸로 엮는 사이트 (워크스페이스 모듈) |
-| `tc` · `automation` · `sut` · `llm` | 테스트 케이스 설계 · 자동화 · 검증 대상 제작 · LLM 출력 검증 |
-| `html-design-kit` · `app-preview` | 부품 조립형 HTML · 앱 화면 흐름 미리보기 |
-| `android-emulator` | Android 에뮬레이터 설치 · 점검 (호스트 모듈) |
-| `pixel-art` | 등신대 픽셀 캐릭터 — 스타일 규칙 · 그림 → 픽셀 변환 절차 · 검수 · 공유 Spine 뼈대 |
-| `aseprite` | Aseprite 배치 실행 · MCP 연결 점검 (호스트 모듈) |
+목록은 분야별로 묶여 나옵니다. 하는 일에서 켤 모듈을 찾을 때는 [모듈 지도](core/modules/module-map.md)(분야별
+질문 · 함께 쓰는 모듈 · 둘 중 하나를 고르는 기준)를 봅니다 — `regen.py`가 다시 만드는 생성물입니다.
+모듈 하나하나의 소개는 그 모듈 폴더의 `module.md`에 있습니다. 모듈이 늘 때마다 어긋나지 않도록 이 파일에는
+모듈 목록을 따로 적지 않습니다.

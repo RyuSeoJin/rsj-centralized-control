@@ -1,0 +1,14 @@
+{
+  "scope": "project",
+  "group": "app-experience",
+  "instead": [
+    {
+      "name": "app-simulator",
+      "why": "프로토타입 앱 하나를 기기 틀과 개발용 조작으로 돌려 볼 때"
+    },
+    {
+      "name": "workflow-explorer",
+      "why": "흐름의 갈래와 주체(유저 · 시스템)를 따라가며 읽을 때"
+    }
+  ]
+}

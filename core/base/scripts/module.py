@@ -14,7 +14,7 @@
 
 사용법
 ------
-    python core/base/scripts/module.py list [슬러그]
+    python core/base/scripts/module.py list [슬러그]      분야(groups.json)별로 묶어 봅니다
     python core/base/scripts/module.py on {슬러그} {모듈}
     python core/base/scripts/module.py off {슬러그} {모듈}
 """
@@ -37,41 +37,111 @@ def repo_root():
     return workspace.repo_root()
 
 
-def module_json(name):
-    """module.json — 적용 범위(scope)와 켜면 만들 폴더(creates). 없으면 빈 dict입니다."""
-    path = os.path.join(core_root(), "modules", name, "module.json")
+def modules_dir(core=None):
+    """모듈 폴더 — core를 주면 그 아래를 봅니다(시험용 임시 폴더)."""
+    return os.path.join(core or core_root(), "modules")
+
+
+def module_json(name, core=None):
+    """module.json — 적용 범위(scope) · 분야(group) · 켜면 만들 폴더(creates) · 짝(pairs · instead).
+
+    없거나 깨졌으면 빈 dict입니다.
+    """
+    path = os.path.join(modules_dir(core), name, "module.json")
     try:
         with io.open(path, encoding="utf-8") as f:
-            return json.load(f)
+            data = json.load(f)
     except (OSError, ValueError):
         return {}
+    return data if isinstance(data, dict) else {}
 
 
-def creates(name):
+def groups(core=None):
+    """groups.json의 분야 목록 — 배열 순서가 표시 순서입니다.
+
+    각 항목은 id · label · ask를 가진 dict입니다. 파일이 없거나 깨졌으면 빈 목록이고,
+    id가 없는 항목은 버립니다.
+    """
+    path = os.path.join(modules_dir(core), "groups.json")
+    try:
+        with io.open(path, encoding="utf-8") as f:
+            data = json.load(f)
+    except (OSError, ValueError):
+        return []
+    items = data.get("groups", []) if isinstance(data, dict) else []
+    out = []
+    for g in items if isinstance(items, list) else []:
+        if isinstance(g, dict) and g.get("id"):
+            out.append({"id": str(g["id"]), "label": str(g.get("label") or g["id"]),
+                        "ask": str(g.get("ask") or "")})
+    return out
+
+
+def module_group(name, core=None):
+    """모듈이 속한 분야 id. 적지 않았으면 빈 문자열이고 「분류 없음」으로 떨어집니다."""
+    g = module_json(name, core).get("group", "")
+    return g if isinstance(g, str) else ""
+
+
+def _links(name, key, core=None):
+    out = []
+    items = module_json(name, core).get(key) or ()
+    for x in items if isinstance(items, list) else ():
+        if isinstance(x, dict) and x.get("name"):
+            out.append((str(x["name"]), str(x.get("why") or "")))
+        elif isinstance(x, str) and x:
+            out.append((x, ""))
+    return out
+
+
+def pairs(name, core=None):
+    """함께 쓰는 모듈 — [(이름, 이유), ...]."""
+    return _links(name, "pairs", core)
+
+
+def instead(name, core=None):
+    """둘 중 하나를 고르는 모듈 — [(이름, 언제 저쪽이 맞는가), ...]."""
+    return _links(name, "instead", core)
+
+
+def creates(name, core=None):
     """모듈을 켜면 프로젝트에 생기는 폴더. 정본은 각 모듈의 module.json · module.md입니다.
 
     base가 모듈 이름을 적지 않도록, 목록을 여기 두지 않고 모듈이 스스로 알립니다.
     """
-    return tuple(module_json(name).get("creates", ()))
+    return tuple(module_json(name, core).get("creates", ()))
 
 
-def modules():
+def modules(core=None):
     """core/modules/를 훑어 (이름, 한 줄 설명, 언제 켜나, 전제 이름, 전제 사유)를 모은다."""
-    root = os.path.join(core_root(), "modules")
+    root = modules_dir(core)
     out = []
     if not os.path.isdir(root):
         return out
     for name in sorted(os.listdir(root)):
+        # groups.json · module-map.md처럼 폴더가 아닌 것은 모듈이 아닙니다
+        if not os.path.isdir(os.path.join(root, name)) or name.startswith((".", "_")):
+            continue
         md = os.path.join(root, name, "module.md")
         title, when, needs, why = "", "", "", ""
         if os.path.exists(md):
-            lines = io.open(md, encoding="utf-8").read().split("\n")
+            with io.open(md, encoding="utf-8") as f:
+                lines = f.read().split("\n")
             for i, l in enumerate(lines):
                 if l.startswith("# ") and not title:
                     title = l[2:].split(" — ", 1)[-1].strip()
                 if l.startswith("## 언제 켜나"):
-                    raw = next((x.strip() for x in lines[i + 1:i + 4] if x.strip()), "")
-                    when = raw.replace("**", "").strip()
+                    # 첫 문단을 통째로 읽습니다 — 줄바꿈에서 자르면 문장이 중간에 끊깁니다
+                    para = []
+                    for x in lines[i + 1:]:
+                        if x.startswith("#"):
+                            break
+                        if not x.strip():
+                            if para:
+                                break
+                            continue
+                        para.append(x.strip())
+                    when = " ".join(para).replace("**", "").strip()
                 if l.startswith("## 전제 모듈"):
                     # 한 문단을 통째로 읽습니다 — 사유가 줄바꿈으로 이어지면 잘립니다
                     para = []
@@ -91,19 +161,19 @@ def modules():
     return out
 
 
-def module_scope(name):
+def module_scope(name, core=None):
     """모듈 적용 범위 — project(기본) · workspace · host."""
-    scope = module_json(name).get("scope", "project")
+    scope = module_json(name, core).get("scope", "project")
     return scope if scope in ("project", "workspace", "host") else "project"
 
 
-def prereq_chain(name):
+def prereq_chain(name, core=None):
     """켜야 하는 순서대로 전제를 늘어놓는다 — 맨 아래 것이 먼저다.
 
     한 단만 보면 「먼저 켜세요」를 여러 번 만나야 사슬의 길이를 알 수 있습니다. 한 번에
     끝까지 보여 주려고 따라 올라갑니다.
     """
-    need_of = dict((m[0], m[3]) for m in modules())
+    need_of = dict((m[0], m[3]) for m in modules(core))
     chain, seen = [], set()
     cur = need_of.get(name, "")
     while cur and cur not in seen:
@@ -112,6 +182,58 @@ def prereq_chain(name):
         cur = need_of.get(cur, "")
     chain.reverse()          # 아래에서부터 켠다
     return chain
+
+
+#: group이 없거나 groups.json에 없는 id를 적은 모듈이 모이는 자리
+UNGROUPED = {"id": "", "label": "분류 없음", "ask": ""}
+
+
+def order_in_group(mods):
+    """한 분야 안의 순서 — 전제가 먼저, 나머지는 이름 순.
+
+    같은 분야 안의 전제를 나무로 보고 앞에서부터 훑습니다(전제 → 그것을 전제로 삼는 것).
+    그래야 한 사슬이 끊기지 않고 이어서 보입니다. mods는 modules()의 튜플 목록입니다.
+    """
+    by_name = dict((m[0], m) for m in mods)
+    kids, roots = {}, []
+    for m in sorted(mods):
+        parent = m[3]
+        if parent and parent in by_name and parent != m[0]:
+            kids.setdefault(parent, []).append(m[0])
+        else:
+            roots.append(m[0])
+    out, seen = [], set()
+
+    def walk(n):
+        if n in seen:
+            return
+        seen.add(n)
+        out.append(by_name[n])
+        for k in kids.get(n, ()):
+            walk(k)
+
+    for r in roots:
+        walk(r)
+    for m in sorted(mods):          # 전제가 돌고 도는 경우에 남은 것
+        walk(m[0])
+    return out
+
+
+def grouped(core=None):
+    """[(분야 dict, [모듈 튜플, ...]), ...] — groups.json 순서이고, 모듈이 없는 분야는 뺍니다.
+
+    group이 없거나 groups.json에 없는 id를 적은 모듈은 맨 끝 「분류 없음」으로 모읍니다.
+    """
+    gs = groups(core)
+    buckets = dict((g["id"], []) for g in gs)
+    rest = []
+    for m in modules(core):
+        g = module_group(m[0], core)
+        (buckets[g] if g in buckets else rest).append(m)
+    out = [(g, order_in_group(buckets[g["id"]])) for g in gs if buckets[g["id"]]]
+    if rest:
+        out.append((dict(UNGROUPED), order_in_group(rest)))
+    return out
 
 
 def state_path(root, slug):
@@ -137,23 +259,36 @@ def write_state(root, slug, st):
 def cmd_list(root, slug):
     on = set(read_state(root, slug)["on"]) if slug else set()
     ws = set(workspace.workspace_modules(root))
-    for name, title, when, needs, why in modules():
-        scope = module_scope(name)
-        if scope == "host":
-            mark = "◆"
-        elif scope == "workspace":
-            mark = "■" if name in ws else "□"
-        else:
-            mark = ("●" if name in on else "○") if slug else " "
-        print("%s %-16s %s" % (mark, name, title))
-        if scope == "host":
-            print("       적용 범위 — 컴퓨터 공통 환경. 프로젝트 활성화 대상이 아닙니다")
-        if scope == "workspace":
-            print("       적용 범위 — 저장소 전체. workspace.json의 modules에서 켭니다")
-        if when:
-            print("       언제 켜나 — %s" % when)
-        if needs:
-            print("       전제 — `%s` %s" % (needs, why))
+    for gi, (group, mods) in enumerate(grouped()):
+        if gi:
+            print("")
+        print("── %s ──" % group["label"])
+        for name, title, when, needs, why in mods:
+            scope = module_scope(name)
+            if scope == "host":
+                mark = "◆"
+            elif scope == "workspace":
+                mark = "■" if name in ws else "□"
+            else:
+                mark = ("●" if name in on else "○") if slug else " "
+            print("%s %-16s %s" % (mark, name, title))
+            if scope == "host":
+                print("       적용 범위 — 컴퓨터 공통 환경. 프로젝트 활성화 대상이 아닙니다")
+            if scope == "workspace":
+                print("       적용 범위 — 저장소 전체. workspace.json의 modules에서 켭니다")
+            if when:
+                print("       언제 켜나 — %s" % when)
+            if needs:
+                print("       전제 — `%s` %s" % (needs, why))
+            # 이유는 지도에 둡니다 — 목록은 이름만으로 「다른 것도 볼까」를 알리면 됩니다
+            together = [n for n, _w in pairs(name)]
+            if together:
+                print("       함께 — %s" % " · ".join(together))
+            other = [n for n, _w in instead(name)]
+            if other:
+                print("       대신 — %s" % " · ".join(other))
+    if os.path.isfile(os.path.join(modules_dir(), "module-map.md")):
+        print("\n분야별 질문 · 함께 쓰는 이유 · 고르는 기준은 core/modules/module-map.md에 있습니다.")
     if slug:
         print("\n● 켜짐 / ○ 꺼짐 — 정본은 %s" % os.path.relpath(state_path(root, slug), root))
     return 0

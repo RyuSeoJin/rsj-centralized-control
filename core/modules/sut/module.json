@@ -1,1 +1,8 @@
-{ "creates": ["sut", "spec/sut-design"] }
+{
+  "scope": "project",
+  "group": "qa",
+  "creates": [
+    "sut",
+    "spec/sut-design"
+  ]
+}

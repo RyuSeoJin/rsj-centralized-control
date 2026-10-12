@@ -1,1 +1,4 @@
-{ "scope": "project" }
+{
+  "scope": "project",
+  "group": "game-ue"
+}

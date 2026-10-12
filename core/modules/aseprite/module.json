@@ -1,3 +1,10 @@
 {
-  "scope": "host"
+  "scope": "host",
+  "group": "host-env",
+  "pairs": [
+    {
+      "name": "pixel-art",
+      "why": "Aseprite로 그리는 픽셀 아트의 그림 규칙을 맡음"
+    }
+  ]
 }

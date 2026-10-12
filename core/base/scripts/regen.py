@@ -10,6 +10,7 @@
 무엇을 다시 만드나
 -----------------
   base           읽기 게이트 두 자리(AGENTS.md · CLAUDE.md 참조 규칙)
+                 모듈 지도(모듈 폴더에 groups.json이 있을 때 — 폴더를 훑어 만듭니다)
                  프로젝트 구조 설정({폴더}-structure.json)에 등록된 생성 작업
   켠 모듈        그 모듈의 jobs.py가 내놓는 작업 — 워크스페이스 모듈은 저장소 전체에,
                  프로젝트 모듈은 켠 프로젝트에만
@@ -48,6 +49,10 @@ CORE = workspace.core_root()
 ROOT = workspace.repo_root()
 
 
+#: --check에서 수정 시각 대신 생성기의 --check로 내용을 보는 작업(설명의 머리)
+BY_CONTENT = ("읽기 게이트", "모듈 지도")
+
+
 def rel(p):
     return os.path.relpath(p, ROOT).replace(os.sep, "/")
 
@@ -84,7 +89,29 @@ def base_jobs():
             ("claude", os.path.join(ROOT, "CLAUDE.md"), "읽기 게이트 — CLAUDE.md 참조 규칙")):
         out.append((label, [gates, gen_g], out_path,
                     [sys.executable, gen_g, "--repo-root", ROOT, "--target", target]))
+    out += module_map_job()
     return out
+
+
+def module_map_job():
+    """모듈 지도 — 모듈 폴더와 groups.json이 있을 때만 넣습니다.
+
+    모듈 이름은 적지 않고 폴더를 훑습니다. core/base/만 받은 저장소에는 모듈 폴더가 없으니
+    작업도 생기지 않습니다.
+    """
+    mods = os.path.join(CORE, "modules")
+    groups = os.path.join(mods, "groups.json")
+    if not os.path.isfile(groups):
+        return []
+    scripts = os.path.join(CORE, "base", "scripts")
+    gen = os.path.join(scripts, "gen_module_map.py")
+    srcs = [groups, gen, os.path.join(scripts, "module.py")]
+    for name in sorted(os.listdir(mods)):
+        d = os.path.join(mods, name)
+        if os.path.isdir(d):
+            srcs += [os.path.join(d, "module.json"), os.path.join(d, "module.md")]
+    return [("모듈 지도 — core/modules/module-map.md", srcs,
+             os.path.join(mods, "module-map.md"), [sys.executable, gen])]
 
 
 def structure_jobs(folder):
@@ -161,11 +188,12 @@ def main():
     old = [j for j in todo if stale(j[1], j[2])]
     if args.check:
         # 읽기 게이트는 수정 시각이 아니라 내용으로 봅니다 — CLAUDE.md는 손으로 고치는
-        # 부분이 있어 시각만 보면 늘 낡은 것으로 잡힙니다
-        old = [j for j in old if not j[0].startswith("읽기 게이트")]
+        # 부분이 있어 시각만 보면 늘 낡은 것으로 잡힙니다. 모듈 지도도 내용으로 봅니다 —
+        # 모듈 폴더를 지우는 일은 남은 파일의 수정 시각에 드러나지 않습니다
+        old = [j for j in old if not j[0].startswith(BY_CONTENT)]
         gate_fail = []
         for name, _s, out_path, cmd in todo:
-            if name.startswith("읽기 게이트"):
+            if name.startswith(BY_CONTENT):
                 r = subprocess.run(cmd + ["--check"], capture_output=True, text=True,
                                    encoding="utf-8", errors="replace")
                 if r.returncode:

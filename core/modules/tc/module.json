@@ -1,1 +1,7 @@
-{ "creates": ["test-case"] }
+{
+  "scope": "project",
+  "group": "qa",
+  "creates": [
+    "test-case"
+  ]
+}

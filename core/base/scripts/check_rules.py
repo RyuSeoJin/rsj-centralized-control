@@ -249,6 +249,129 @@ def check_module_checks(root):
     return hits
 
 
+MODULE_SCOPES = ("project", "workspace", "host")
+
+
+def module_prereq(mods, name):
+    """`module.md` 「전제 모듈」 절 첫 문단의 첫 백틱 — 모듈 도구와 같은 규칙으로 읽습니다."""
+    p = os.path.join(mods, name, "module.md")
+    if not os.path.exists(p):
+        return ""
+    lines = io.open(p, encoding="utf-8").read().split("\n")
+    for i, l in enumerate(lines):
+        if not l.startswith("## 전제 모듈"):
+            continue
+        para = []
+        for x in lines[i + 1:]:
+            if not x.strip():
+                if para:
+                    break
+                continue
+            para.append(x.strip())
+        m = re.search(r"`([a-z][a-z0-9-]*)`", " ".join(para))
+        return m.group(1) if m else ""
+    return ""
+
+
+def check_module_meta(root):
+    """모듈의 module.json이 범위 · 분야 · 관계를 바르게 적었는지 봅니다.
+
+    모듈이 늘면 목록만으로는 무엇을 함께 켜고 무엇 중 하나를 고르는지 읽기 어렵습니다.
+    그래서 각 모듈이 자기 분야(`group`)와 관계(`pairs` · `instead`)를 적고, 여기서는
+    그 값이 실제 모듈 · 분야를 가리키는지, 고르는 관계가 양쪽에 다 적혔는지, 전제 모듈을
+    「함께 쓰면 좋은 모듈」로 겹쳐 적지 않았는지를 봅니다. 분야 목록(`groups.json`)이
+    없는 저장소는 건너뜁니다.
+    """
+    mods = os.path.join(root, "core", "modules")
+    gpath = os.path.join(mods, "groups.json")
+    if not os.path.isdir(mods) or not os.path.exists(gpath):
+        return []
+    grel = "core/modules/groups.json"
+    hits = []
+    try:
+        with io.open(gpath, encoding="utf-8") as f:
+            groups = json.load(f).get("groups", [])
+    except (ValueError, AttributeError) as e:
+        return [(grel, 0, "모듈 분야", "json을 읽을 수 없습니다 — %s" % e)]
+    ids = []
+    for g in groups if isinstance(groups, list) else []:
+        if not isinstance(g, dict):
+            hits.append((grel, 0, "모듈 분야", "분야 항목은 객체입니다"))
+            continue
+        for k in ("id", "label", "ask"):
+            if not str(g.get(k, "")).strip():
+                hits.append((grel, 0, "모듈 분야",
+                             "`%s`이(가) 빈 분야가 있습니다 — id · label · ask를 다 적습니다" % k))
+        gid = g.get("id")
+        if gid in ids:
+            hits.append((grel, 0, "모듈 분야", "분야 id `%s`이(가) 겹칩니다" % gid))
+        elif gid:
+            ids.append(gid)
+    if not ids:
+        hits.append((grel, 0, "모듈 분야", "`groups` 목록이 비어 있습니다"))
+
+    names = sorted(n for n in os.listdir(mods) if os.path.isdir(os.path.join(mods, n))
+                   and not n.startswith((".", "_")))
+    meta = {}
+    for name in names:
+        rel = "core/modules/%s/module.json" % name
+        p = os.path.join(mods, name, "module.json")
+        if not os.path.exists(p):
+            hits.append((rel, 0, "모듈 정보", "파일이 없습니다 — scope · group을 적습니다"))
+            continue
+        try:
+            with io.open(p, encoding="utf-8") as f:
+                meta[name] = json.load(f)
+        except ValueError as e:
+            hits.append((rel, 0, "모듈 정보", "json을 읽을 수 없습니다 — %s" % e))
+            continue
+        if not isinstance(meta[name], dict):
+            hits.append((rel, 0, "모듈 정보", "최상위는 객체입니다"))
+            meta[name] = {}
+    for name, mj in sorted(meta.items()):
+        rel = "core/modules/%s/module.json" % name
+        if "scope" not in mj:
+            hits.append((rel, 0, "모듈 정보",
+                         "scope가 없습니다 — %s 중 하나를 적습니다" % " · ".join(MODULE_SCOPES)))
+        elif mj["scope"] not in MODULE_SCOPES:
+            hits.append((rel, 0, "모듈 정보",
+                         "모르는 scope `%s` — %s 중 하나입니다" % (mj["scope"], " · ".join(MODULE_SCOPES))))
+        if not mj.get("group"):
+            hits.append((rel, 0, "모듈 정보", "group이 없습니다 — groups.json의 id 중 하나를 적습니다"))
+        elif mj["group"] not in ids:
+            hits.append((rel, 0, "모듈 정보",
+                         "모르는 group `%s` — groups.json의 id 중 하나입니다" % mj["group"]))
+        prereq = module_prereq(mods, name)
+        for key in ("pairs", "instead"):
+            items = mj.get(key, [])
+            if not isinstance(items, list):
+                hits.append((rel, 0, "모듈 관계", "`%s`은(는) 목록입니다" % key))
+                continue
+            for it in items:
+                if not isinstance(it, dict):
+                    hits.append((rel, 0, "모듈 관계", "`%s`의 항목은 name · why를 가진 객체입니다" % key))
+                    continue
+                other = it.get("name", "")
+                if other == name:
+                    hits.append((rel, 0, "모듈 관계", "`%s`에 자기 자신을 적었습니다" % key))
+                elif other not in names:
+                    hits.append((rel, 0, "모듈 관계", "`%s`의 `%s`은(는) 없는 모듈입니다" % (key, other)))
+                if not str(it.get("why", "")).strip():
+                    hits.append((rel, 0, "모듈 관계",
+                                 "`%s`의 `%s`에 why가 비어 있습니다 — 한 줄 이유를 적습니다" % (key, other)))
+                if key == "pairs" and other and other == prereq:
+                    hits.append((rel, 0, "모듈 관계",
+                                 "`%s`은(는) 전제 모듈입니다 — pairs에 겹쳐 적지 않습니다" % other))
+                if key == "instead" and other in meta:
+                    back = [x.get("name") for x in meta[other].get("instead", []) or []
+                            if isinstance(x, dict)]
+                    if name not in back:
+                        hits.append((rel, 0, "모듈 관계",
+                                     "`%s`을(를) instead로 적었지만 그쪽 instead에 `%s`이(가) "
+                                     "없습니다 — 고르는 관계는 양쪽에 적습니다" % (other, name)))
+    return hits
+
+
 def check_project_layout(root):
     """등록된 프로젝트의 경로·설정 파일 접두·관리 파일을 검사합니다."""
     from project_paths import discover, validate_key
@@ -333,7 +456,7 @@ def main():
             pass
     root = repo_root()
     found = 0
-    for rel, line, kind, text in check_workspace(root) + check_module_templates(root) + check_module_checks(root) + check_project_layout(root):
+    for rel, line, kind, text in check_workspace(root) + check_module_templates(root) + check_module_checks(root) + check_module_meta(root) + check_project_layout(root):
         print("%s:%d  [%s] %s" % (rel, line, kind, text))
         found += 1
     for p in style_targets(root):

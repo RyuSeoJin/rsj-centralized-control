@@ -1,4 +1,15 @@
 {
   "scope": "project",
-  "creates": ["source", "sprites", "export"]
+  "group": "art",
+  "creates": [
+    "source",
+    "sprites",
+    "export"
+  ],
+  "pairs": [
+    {
+      "name": "aseprite",
+      "why": "Aseprite 실행 · 배치 모드 환경 점검을 맡음"
+    }
+  ]
 }

@@ -1,1 +1,13 @@
-{ "creates": ["planning"] }
+{
+  "scope": "project",
+  "group": "planning",
+  "creates": [
+    "planning"
+  ],
+  "instead": [
+    {
+      "name": "gdd",
+      "why": "구현 전 시스템 하나를 깊게 합의하는 HTML 기획서가 목적일 때"
+    }
+  ]
+}

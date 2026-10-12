@@ -33,6 +33,10 @@
 python core/base/scripts/module.py list {프로젝트}
 ```
 
+목록은 분야별로 묶여 나옵니다 — 분야와 그 순서는 모듈 폴더의 groups.json이 정합니다. 하는 일에서
+출발해 찾으려면 모듈 폴더의 module-map.md(분야별 질문 · 함께 쓰는 모듈 · 둘 중 하나를 고르는 기준)를
+봅니다. 이 지도는 `gen_module_map.py`가 찍어 내는 생성물이라 손으로 고치지 않습니다.
+
 ## 2. 다섯 갈래
 
 ### ① 이미 있는 것을 고쳐야 하는 경우 (base · 켜진 모듈)
@@ -91,7 +95,7 @@ python core/base/scripts/module.py list {프로젝트}
 ```
 core/modules/{모듈}/
 ├─ module.md        자기소개 — 언제 켜나 · 켜면 따라오는 것 · 전제 모듈
-├─ module.json      적용 범위(scope) · 켜면 프로젝트에 만들 폴더(creates) — 필요할 때만
+├─ module.json      적용 범위(scope) · 분야(group) · 켜면 만들 폴더(creates) · 짝(pairs · instead)
 ├─ rules/           규칙
 ├─ scripts/         도구 — 있으면 check.py를 반드시 둡니다
 ├─ check.py         모듈 자기 점검 (modcheck.py로 몇 줄)

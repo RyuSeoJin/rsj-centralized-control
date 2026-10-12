@@ -1,1 +1,16 @@
-{ "scope": "project" }
+{
+  "scope": "project",
+  "group": "app-experience",
+  "pairs": [
+    {
+      "name": "app-simulator",
+      "why": "탐색기 안에서 시뮬레이터를 불러 흐름을 따라감"
+    }
+  ],
+  "instead": [
+    {
+      "name": "app-preview",
+      "why": "화면 크기별 전환 비교가 목적일 때"
+    }
+  ]
+}
