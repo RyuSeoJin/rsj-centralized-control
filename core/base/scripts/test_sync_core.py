@@ -1,4 +1,5 @@
-"""중앙 받기 도구 — 주소로 받기 · 태그 고르기 · 받은 뒤 손댄 파일 감지를 검사합니다."""
+"""중앙 받기 도구 — 주소로 받기 · 태그 고르기 · 받은 뒤 손댄 파일 감지 · 줄바꿈 무시를 검사합니다."""
+import hashlib
 import json
 import os
 import subprocess
@@ -64,6 +65,35 @@ class SyncCoreTest(unittest.TestCase):
         r = run('--from', self.url, '--repo-root', str(self.repo), '--discard-local')
         self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
         self.assertEqual(self.rule(), 'v2\n')
+
+    def test_crlf_is_not_a_local_edit(self):
+        # 중앙 폴더에 CRLF로 체크아웃된 파일이 있어도 LF로 받습니다
+        (self.central / 'core' / 'base' / 'rules' / 'a.md').write_bytes(b'v2\r\n')
+        r = run('--from', str(self.central), '--repo-root', str(self.repo))
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        mine = self.repo / 'core' / 'base' / 'rules' / 'a.md'
+        self.assertEqual(mine.read_bytes(), b'v2\n')
+        # 받은 뒤 줄바꿈만 CRLF로 바뀐 파일은 손댄 파일이 아닙니다
+        mine.write_bytes(b'v2\r\n')
+        r = run('--local', '--repo-root', str(self.repo))
+        self.assertNotIn('a.md', r.stdout)
+        r = run('--from', str(self.central), '--repo-root', str(self.repo), '--check')
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        self.assertIn('바뀜 0', r.stdout)
+
+    def test_old_record_with_raw_crlf_hash(self):
+        # 줄바꿈을 맞추기 전의 받은 기록(CRLF 바이트의 해시)도 손댄 파일로 잡지 않습니다
+        run('--from', self.url, '--repo-root', str(self.repo))
+        mine = self.repo / 'core' / 'base' / 'rules' / 'a.md'
+        mine.write_bytes(b'v2\r\n')
+        src_path = self.repo / 'core' / '.source.json'
+        src = json.loads(src_path.read_text(encoding='utf-8'))
+        src['files']['base/rules/a.md'] = hashlib.sha256(b'v2\r\n').hexdigest()
+        src_path.write_text(json.dumps(src), encoding='utf-8')
+        r = run('--from', self.url, '--repo-root', str(self.repo))
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        src = json.loads(src_path.read_text(encoding='utf-8'))
+        self.assertEqual(src['files']['base/rules/a.md'], hashlib.sha256(b'v2\n').hexdigest())
 
     def test_bad_url_and_ref_on_folder(self):
         r = run('--from', self.url, '--ref', 'no-such-tag', '--repo-root', str(self.repo))

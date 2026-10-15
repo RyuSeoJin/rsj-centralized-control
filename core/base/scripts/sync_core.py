@@ -39,8 +39,20 @@ SKIP_DIRS = ("__pycache__", ".git", "node_modules")
 SOURCE = ".source.json"
 
 
-def files(core):
-    """core/ 아래 파일의 상대 경로 → sha256. 받은 기록 파일과 캐시는 뺍니다."""
+def lf(data):
+    """글 파일이면 줄바꿈을 LF로 맞춥니다. NUL 바이트가 있으면 이진 파일로 보고 그대로 둡니다.
+
+    git의 core.autocrlf 설정이나 편집기에 따라 같은 내용이 CRLF로 체크아웃되는 일이 흔합니다.
+    줄바꿈만 다른 파일을 「손댄 파일」로 잡으면 받기가 까닭 없이 멈춥니다.
+    """
+    return data if b"\0" in data else data.replace(b"\r\n", b"\n")
+
+
+def files(core, raw=False):
+    """core/ 아래 파일의 상대 경로 → sha256(줄바꿈을 LF로 맞춘 내용). 받은 기록 파일과 캐시는 뺍니다.
+
+    raw=True면 맞추지 않은 바이트의 해시입니다 — 줄바꿈을 맞추기 전에 쓴 받은 기록과 견줄 때 씁니다.
+    """
     out = {}
     for cur, dirs, names in os.walk(core):
         dirs[:] = sorted(d for d in dirs if d not in SKIP_DIRS)
@@ -50,7 +62,8 @@ def files(core):
             p = os.path.join(cur, n)
             rel = os.path.relpath(p, core).replace(os.sep, "/")
             with open(p, "rb") as f:
-                out[rel] = hashlib.sha256(f.read()).hexdigest()
+                data = f.read()
+            out[rel] = hashlib.sha256(data if raw else lf(data)).hexdigest()
     return out
 
 
@@ -68,7 +81,10 @@ def local_changes(core, src):
     if not before:
         return []
     now = files(core)
-    out = [("수정", p) for p in sorted(now) if p in before and now[p] != before[p]]
+    # 옛 받은 기록은 맞추지 않은 바이트의 해시라, 그 해시와 같아도 손대지 않은 것으로 봅니다
+    old = files(core, raw=True)
+    out = [("수정", p) for p in sorted(now)
+           if p in before and before[p] not in (now[p], old[p])]
     out += [("추가", p) for p in sorted(now) if p not in before]
     out += [("삭제", p) for p in sorted(before) if p not in now]
     return out
@@ -214,7 +230,12 @@ def receive(args, root, core, src, changed, central, url):
     for p in add + mod:
         dst = os.path.join(core, *p.split("/"))
         os.makedirs(os.path.dirname(dst), exist_ok=True)
-        shutil.copy2(os.path.join(c_core, *p.split("/")), dst)
+        src_path = os.path.join(c_core, *p.split("/"))
+        with open(src_path, "rb") as f:
+            data = f.read()
+        with open(dst, "wb") as f:
+            f.write(lf(data))
+        shutil.copymode(src_path, dst)
     record = {
         "source": url or central.replace(os.sep, "/"),
         "commit": head,

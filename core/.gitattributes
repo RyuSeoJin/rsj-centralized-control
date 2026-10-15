@@ -1,0 +1,13 @@
+# core/ 사본의 줄바꿈을 LF로 고정합니다 — core.autocrlf 설정과 상관없이 받은 그대로 체크아웃되게 합니다.
+# 받아 가는 저장소에도 core/와 함께 따라갑니다(rules/central-sync.md §2).
+* text=auto eol=lf
+
+*.xlsx binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.pdf binary
+*.ico binary
+*.woff2 binary
+*.ttf binary
