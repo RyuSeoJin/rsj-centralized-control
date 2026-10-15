@@ -19,6 +19,8 @@
     python core/base/scripts/sync_core.py --from {중앙 저장소} --discard-local
                                                                           손댄 파일을 버리고 받는다
     python core/base/scripts/sync_core.py --local                         받은 뒤 손댄 파일만 본다
+    python core/base/scripts/sync_core.py --check                         지난번 받은 자리에서 본다
+                                                                          (작업 시작 때의 확인)
 """
 import argparse
 import datetime
@@ -156,7 +158,13 @@ def main():
         return 1
 
     if not args.central:
-        sys.exit("--from {중앙 저장소 경로 또는 주소}가 필요합니다")
+        # 생략하면 지난번 받은 자리에서 봅니다 — 작업 시작 때의 확인을 명령 하나로 하기 위함
+        args.central = src.get("source")
+        if not args.central:
+            sys.exit("--from {중앙 저장소 경로 또는 주소}가 필요합니다 — 받은 기록에 자리가 없습니다")
+        if not is_url(args.central) and not os.path.isdir(args.central):
+            sys.exit("받은 기록의 중앙 저장소 폴더가 이 컴퓨터에 없습니다: %s\n"
+                     "--from {중앙 저장소 경로 또는 주소}로 다시 실행합니다" % args.central)
     tmp = None
     if is_url(args.central):
         tmp = tempfile.mkdtemp(prefix="central-")

@@ -95,6 +95,22 @@ class SyncCoreTest(unittest.TestCase):
         src = json.loads(src_path.read_text(encoding='utf-8'))
         self.assertEqual(src['files']['base/rules/a.md'], hashlib.sha256(b'v2\n').hexdigest())
 
+    def test_from_defaults_to_recorded_source(self):
+        r = run('--check', '--repo-root', str(self.repo))
+        self.assertNotEqual(r.returncode, 0)  # 받은 기록이 없으면 --from이 필요합니다
+        run('--from', self.url, '--ref', 'core-v1.0.0', '--repo-root', str(self.repo))
+        r = run('--check', '--repo-root', str(self.repo))
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        self.assertIn('바뀜 1', r.stdout)
+        self.assertEqual(self.rule(), 'v1\n')
+        # 받은 기록의 폴더가 없으면 멈춥니다
+        src_path = self.repo / 'core' / '.source.json'
+        src = json.loads(src_path.read_text(encoding='utf-8'))
+        src['source'] = str(self.repo / 'no-such-folder')
+        src_path.write_text(json.dumps(src), encoding='utf-8')
+        r = run('--check', '--repo-root', str(self.repo))
+        self.assertNotEqual(r.returncode, 0)
+
     def test_bad_url_and_ref_on_folder(self):
         r = run('--from', self.url, '--ref', 'no-such-tag', '--repo-root', str(self.repo))
         self.assertNotEqual(r.returncode, 0)

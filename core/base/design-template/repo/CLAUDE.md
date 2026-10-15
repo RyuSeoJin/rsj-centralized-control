@@ -9,6 +9,8 @@
 다시 받습니다. 열 수 없으면 `repo-remaining-work.md`의 「중앙에 되돌려 보낼 것」에 적어 둡니다
 (`core/base/rules/central-sync.md` §3).
 
+- **작업을 시작할 때** `python core/base/scripts/sync_core.py --check`로 중앙 규칙이 바뀌었는지 먼저
+  봅니다. 바뀌었으면 받을지 묻고, 승인 뒤에만 받습니다(`core/base/rules/central-sync.md` §2-1).
 - 문서 제작 요청 → `core/base/doc-playbook.md`를 처음부터 끝까지 따릅니다. **확인 ① · ②를 받기
   전에는 본문을 쓰지 않습니다.**
 - 요청 범위 밖의 수정은 제안만 합니다(`core/base/rules/change-scope.md`).

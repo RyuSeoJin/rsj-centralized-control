@@ -74,6 +74,10 @@ python core/base/scripts/sync_core.py --from https://github.com/RyuSeoJin/rsj-ce
 
 자세한 절차는 `core/base/rules/central-sync.md` §2입니다.
 
+**언제 확인하나** — 받는 저장소에서 작업을 시작할 때마다 AI가 먼저 `sync_core.py --check`를 돌립니다
+(`--from`을 생략하면 지난번 받은 자리에서 봅니다). 바뀐 것이 있으면 받을지 묻고, 승인 뒤에만 받습니다.
+받는 저장소 진입점 서식(`core/base/design-template/repo/CLAUDE.md`)에 이 규칙이 들어 있습니다.
+
 ## 프로젝트와 모듈
 
 ```bash
