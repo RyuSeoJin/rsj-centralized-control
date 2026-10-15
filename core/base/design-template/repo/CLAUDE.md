@@ -5,8 +5,9 @@
 ## 중앙 규칙
 
 규칙의 정본은 `core/`이며 **중앙 저장소에서 받아 온 사본입니다**(받은 기록: `core/.source.json`).
-이 저장소에서 `core/`를 고치지 않습니다 — 고칠 것은 `repo-remaining-work.md`의 「중앙에 되돌려
-보낼 것」에 적고 중앙 저장소에서 고칩니다(`core/base/rules/central-sync.md`).
+이 저장소에서 `core/`를 고치지 않습니다 — 중앙 저장소를 함께 열어 두었으면 그 자리에서 중앙을 고치고
+다시 받습니다. 열 수 없으면 `repo-remaining-work.md`의 「중앙에 되돌려 보낼 것」에 적어 둡니다
+(`core/base/rules/central-sync.md` §3).
 
 - 문서 제작 요청 → `core/base/doc-playbook.md`를 처음부터 끝까지 따릅니다. **확인 ① · ②를 받기
   전에는 본문을 쓰지 않습니다.**

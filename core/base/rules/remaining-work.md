@@ -22,7 +22,8 @@ remaining-work는 항상 「지금 남은 것」만 보여 줍니다.
 | 받아 가는 저장소의 설정 · 구조 | 그 저장소 루트 `repo-remaining-work.md` |
 | 프로젝트 | 프로젝트 폴더의 remaining-work (이름은 `change-log-writing.md` §5) |
 
-받아 가는 저장소에서 중앙 규칙의 문제를 발견하면, 고치지 않고 `repo-remaining-work.md`에 「중앙에
+받아 가는 저장소에서 중앙 규칙의 문제를 발견하면 그 저장소의 `core/`는 고치지 않습니다. 중앙 저장소를
+함께 열어 두었으면 그 자리에서 중앙을 고치고, 열 수 없을 때만 `repo-remaining-work.md`에 「중앙에
 되돌려 보낼 것」으로 적습니다. 되돌려 보내는 절차는 `central-sync.md` §되돌려 보내기입니다.
 
 ## 3. 구조 — 세 절
