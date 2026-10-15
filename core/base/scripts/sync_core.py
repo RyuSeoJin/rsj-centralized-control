@@ -110,17 +110,37 @@ def git_head(repo):
 ENTRY = re.compile(r"^###\s+(\d{4}-\d{2}-\d{2})(?:\s+(\d{2}:\d{2}))?\s+—\s+(.+)$")
 
 
-def new_entries(central, since):
-    """지난번 받은 날 이후의 중앙 이력 항목 제목."""
+def entries(central):
+    """중앙 이력 항목 — (날짜, 시각 또는 None, 제목 줄) 목록. 파일 순서(최신이 위)대로입니다."""
     p = os.path.join(central, "center-change-log.md")
     if not os.path.exists(p):
         return []
     out = []
     for line in io.open(p, encoding="utf-8").read().split("\n"):
         m = ENTRY.match(line.strip())
-        if m and (not since or m.group(1) >= since[:10]):
-            out.append(line.strip()[4:])
+        if m:
+            out.append((m.group(1), m.group(2), line.strip()[4:]))
     return out
+
+
+def new_entries(central, src):
+    """지난번 받은 뒤 새로 생긴 중앙 이력 항목 제목.
+
+    받은 기록에 그때 맨 위 항목(last_entry)이 있으면 그 위의 항목만 고릅니다 — 중앙에서 항목을
+    적은 시각과 push한 시각이 어긋나도 빠뜨리지 않습니다. 없거나 찾지 못하면 받은 시각과 견줍니다.
+    시각이 있는 항목은 시각까지, 날짜만 있는 옛 항목은 날짜로 견줍니다. 같은 분이면 새 항목으로
+    봅니다 — 처리한 항목을 한 번 더 보이는 편이 새 항목을 놓치는 것보다 낫기 때문입니다.
+    """
+    items = entries(central)
+    last = src.get("last_entry")
+    titles = [t for _d, _t, t in items]
+    if last in titles:
+        return titles[:titles.index(last)]
+    since = src.get("synced")
+    if not since:
+        return titles
+    return [title for d, t, title in items
+            if (d + " " + t >= since[:16] if t else d >= since[:10])]
 
 
 def main():
@@ -213,10 +233,10 @@ def receive(args, root, core, src, changed, central, url):
     for label, items in (("더함", add), ("바뀜", mod), ("지움", rem)):
         for p in items[:200]:
             print("   %s  core/%s" % (label, p))
-    entries = new_entries(central, src.get("synced"))
-    if entries:
+    fresh = new_entries(central, src)
+    if fresh:
         print("\n새 중앙 이력 항목 — 태그를 처리합니다 (rules/change-log-writing.md §6)")
-        for e in entries:
+        for e in fresh:
             print("   " + e)
 
     if changed and not args.discard_local:
@@ -250,6 +270,7 @@ def receive(args, root, core, src, changed, central, url):
         "tag": tag,
         "dirty": dirty,
         "synced": datetime.datetime.now().strftime("%Y-%m-%d %H:%M"),
+        "last_entry": next((t for _d, _t, t in entries(central)), None),
         "files": files(core),
     }
     with io.open(os.path.join(core, SOURCE), "w", encoding="utf-8", newline="\n") as f:

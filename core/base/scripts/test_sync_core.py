@@ -111,6 +111,37 @@ class SyncCoreTest(unittest.TestCase):
         r = run('--check', '--repo-root', str(self.repo))
         self.assertNotEqual(r.returncode, 0)
 
+    def write_log(self, *titles):
+        log = self.central / 'center-change-log.md'
+        log.write_text('# log\n\n' + ''.join('### %s\n\n본문\n\n' % t for t in titles),
+                       encoding='utf-8')
+
+    def test_new_entries_by_last_entry_and_time(self):
+        self.write_log('2026-10-15 13:15 — 둘째', '2026-10-15 11:47 — 첫째', '2026-10-14 — 옛')
+        r = run('--from', str(self.central), '--repo-root', str(self.repo))
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        src_path = self.repo / 'core' / '.source.json'
+        src = json.loads(src_path.read_text(encoding='utf-8'))
+        self.assertEqual(src['last_entry'], '2026-10-15 13:15 — 둘째')
+        # 받은 뒤 맨 위에 더해진 항목만 새 항목입니다 — 시각이 받은 시각보다 앞서도 고릅니다
+        self.write_log('2026-10-15 09:00 — 셋째', '2026-10-15 13:15 — 둘째',
+                       '2026-10-15 11:47 — 첫째', '2026-10-14 — 옛')
+        r = run('--from', str(self.central), '--repo-root', str(self.repo), '--check')
+        self.assertIn('셋째', r.stdout)
+        self.assertNotIn('둘째', r.stdout)
+        # 맨 위 항목 기록이 없으면 받은 시각과 시각까지 견줍니다 — 같은 날 앞선 항목은 빼고,
+        # 같은 분 항목과 날짜만 있는 같은 날 항목은 넣습니다
+        del src['last_entry']
+        src['synced'] = '2026-10-15 13:15'
+        src_path.write_text(json.dumps(src), encoding='utf-8')
+        self.write_log('2026-10-15 14:00 — 넷째', '2026-10-15 13:15 — 둘째',
+                       '2026-10-15 11:47 — 첫째', '2026-10-15 — 날짜만', '2026-10-14 — 옛')
+        r = run('--from', str(self.central), '--repo-root', str(self.repo), '--check')
+        for title in ('넷째', '둘째', '날짜만'):
+            self.assertIn(title, r.stdout)
+        for title in ('첫째', '옛'):
+            self.assertNotIn(title, r.stdout)
+
     def test_bad_url_and_ref_on_folder(self):
         r = run('--from', self.url, '--ref', 'no-such-tag', '--repo-root', str(self.repo))
         self.assertNotEqual(r.returncode, 0)
