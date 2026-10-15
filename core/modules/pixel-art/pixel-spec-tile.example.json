@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "view": "three_quarter",
+  "tile": {"width": 16, "height": 16},
+  "character_box": [32, 32],
+  "light": "top-left",
+  "palette": {
+    "outline": "#2E2A3A",
+    "shared": {"spec": "pixel-spec-field.example.json", "ramps": ["LEATHER", "METAL"], "outline": false},
+    "ramps": {
+      "BG_GRASS": ["#C2D69A", "#9DBB7C", "#7A9A66", "#5A7656"],
+      "BG_DIRT": ["#D8C3A0", "#B89D80", "#937A68", "#6C5A56"],
+      "BG_STONE": ["#C9C7CC", "#A3A1AE", "#7F7D8F", "#5D5B70"],
+      "BG_WATER": ["#B8DCE6", "#8CBFD4", "#6898B8", "#4D7096"],
+      "BG_WOOD": ["#D2B48E", "#AE8C6E", "#8A6A58", "#644C48"]
+    }
+  },
+  "limits": {"colors_max": 48, "translucent": false},
+  "sheet": {"margin": 0, "spacing": 0, "extrude": 1, "columns": 8},
+  "autotile": {
+    "method": "blob47",
+    "order": "mask_ascending",
+    "terrains": {
+      "grass": {"over": "dirt", "origin": [0, 0]},
+      "water": {"over": "grass", "origin": [0, 6]}
+    }
+  },
+  "seamless": [["0:12", "1:12", "2:12", "3:12"]],
+  "variants": {"grass_fill": {"tiles": ["0:12", "1:12", "2:12", "3:12"], "weights": [70, 10, 10, 10]}},
+  "animated": {
+    "water_surface": {"tiles": ["0:13", "1:13", "2:13", "3:13"], "ms": 200, "loop": true}
+  },
+  "layers": {
+    "near": {"saturation": 1.0, "contrast": 1.0},
+    "far": {"saturation": 0.6, "contrast": 0.5, "repeat_width": 320},
+    "sky": {"saturation": 0.4, "contrast": 0.3, "repeat_width": 320}
+  }
+}

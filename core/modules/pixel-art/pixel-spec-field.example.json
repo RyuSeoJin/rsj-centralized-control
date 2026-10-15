@@ -24,7 +24,7 @@
   },
   "limits": {"colors_max": 32},
   "animations": {
-    "idle": {"frames": 4, "ms": [260, 200, 260, 200], "loop": true,
+    "idle": {"frames": 4, "ms": [250, 200, 250, 200], "loop": true,
              "offsets": {"head": [[0, 0], [0, 0], [0, 1], [0, 1]],
                          "body": [[0, 0], [0, 0], [0, 1], [0, 1]],
                          "hand_R": [[0, 0], [0, 0], [0, 1], [0, 1]]}},

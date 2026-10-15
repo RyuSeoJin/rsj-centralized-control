@@ -45,6 +45,10 @@
 | `body_box` | 캐릭터 상자 `[x0, y0, x1, y1]` — 몸 · 머리 · 머리카락의 고정 범위 (`pixel-style.md` §9-1) |
 | `facing` | 기준 방향 — `left`(기본) · `right` · `front`. 반대 방향은 좌우 반전 (`pixel-anim.md` §2) |
 | `animations` | 프레임 애니메이션일 때만 — 태그 → 프레임 수 · ms · 반복 · 앵커 이동량 (`pixel-anim.md` §3 · §4-2) |
+| `lint` | (선택) `single_ok_ramps` — 외톨이로 세지 않을 램프 · `off` — 끌 경고 이름 (`pixel-style.md` §7-1) |
+| `render` · `motion` | (선택) 기준 해상도 · 대상 화면 · 배율 방식 · 카메라 · 이동 속도 · 히트 스톱 — 화면 전체에 걸린 값이라 사양 파일 한 곳에만 둡니다 (`pixel-render.md` · `pixel-motion.md`) |
+| `view` · `tile` · `sheet` · `autotile` · `seamless` · `variants` · `animated` · `layers` | 타일 · 배경 사양일 때만 — `pixel-tile.md` §14 |
+| `ui` · `fx` · `objects` | UI · 이펙트 · 오브젝트 사양일 때만 — `pixel-ui.md` · `pixel-fx.md` |
 
 ## 0-1. 캐릭터 팔레트 제안
 
@@ -118,6 +122,10 @@ python core/modules/pixel-art/scripts/lineup.py --spec spec/design/pixel-spec.js
 
 실패가 0건이 될 때까지 ③으로 돌아갑니다. 라인업 시트에서 기준선이 어긋난 캐릭터가 있으면 비율부터
 고칩니다.
+
+- 경고(외톨이 픽셀 · 이중 외곽선 · 계단 불규칙 · 베개 셰이딩 · 밴딩)는 종료 코드를 바꾸지 않습니다. 목록의
+  좌표를 1배로 보고 의도하지 않은 것만 고칩니다. 검사 목록과 예외 · 끄는 법은 `pixel-style.md` §7-1입니다.
+- 기계 검사가 통과하면 사람이 실루엣 · 명도 · 배경 위 읽힘을 봅니다(`pixel-style.md` §7-2 ~ §7-4).
 
 ## 5. 파츠 나누기
 

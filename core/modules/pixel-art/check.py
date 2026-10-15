@@ -84,6 +84,30 @@ def flow():
         if not pal["ramps"]:
             fails.append("팔레트 제안이 램프를 만들지 못했습니다")
         fails += anim_flow(tmp)
+    fails += self_tests()
+    return fails
+
+
+def self_tests():
+    """검사 도구 넷이 결함 그림을 잡고 깨끗한 그림을 통과시키는지 — 각 도구의 자기 시험을 돌립니다."""
+    import contextlib
+    import io
+    import icon_check
+    import lint
+    import scale_plan
+    import tile_check
+    fails = []
+    with contextlib.redirect_stdout(io.StringIO()):
+        if lint.selftest():
+            fails.append("lint 자기 시험 — 결함 그림을 놓치거나 깨끗한 그림을 잡았습니다")
+        if icon_check.selftest() != 0:
+            fails.append("icon_check 자기 시험 실패")
+        if scale_plan.self_test() != 0:
+            fails.append("scale_plan 자기 시험 실패")
+        fails += ["타일 검사 — " + f for f in tile_check.self_test()]
+    r = scale_plan.fit((384, 216), (2532, 1170))
+    if (r["scale"], r["bars"]) != (5, (612, 90)):
+        fails.append("scale_plan — 384×216 → 2532×1170 배율 · 띠 %s" % ((r["scale"], r["bars"]),))
     return fails
 
 
