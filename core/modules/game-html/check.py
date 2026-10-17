@@ -4,7 +4,7 @@
   ① scripts/game_html_check.py를 불러 봅니다.
   ② design-template/game-shell.html이 점검에서 걸림 · 주의 없이 통과하는지 봅니다 —
      서식이 규칙을 어기면 받아 쓰는 모든 프로토타입이 같이 어기게 됩니다.
-  ③ 일부러 어긴 작은 HTML이 걸리는지 봅니다(외부 파일 · CHANGELOG 없음 · rAF만 있음).
+  ③ 일부러 어긴 작은 HTML이 걸리는지 봅니다(외부 파일 · CHANGELOG 없음 · rAF만 있음 · 함수 이름 겹침).
 """
 import io
 import os
@@ -33,6 +33,12 @@ def main():
     for word in ("CHANGELOG", "실시간 루프", "CONFIG"):
         if not any(word in x for x in w):
             fails.append("%s 주의를 못 잡았습니다" % word)
+
+    dup = ('<html><script>\nfunction feed(a, b) {}\n</script>\n'
+           '<script>\nfunction feed(text) {}\n</script></html>')
+    f, _, _ = g.check(dup)
+    if not any("함수 이름 겹침 — feed (줄 2 · 5)" in x for x in f):
+        fails.append("함수 이름 겹침을 못 잡았습니다")
     return modcheck.done("game-html", fails)
 
 

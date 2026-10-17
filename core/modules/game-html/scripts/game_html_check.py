@@ -8,12 +8,13 @@
   걸림(종료 코드 1)
     ① 스크립트 문법      node가 있으면 인라인 스크립트마다 `new Function`으로 봅니다(없으면 건너뜀 · 알림)
     ② 외부 파일          `<script src>` · `<link href>` · `<img src>`가 http(s)를 가리킴 — 한 파일로 열려야 합니다
+    ③ 함수 이름 겹침     줄 맨 앞의 `function 이름(` 선언이 같은 이름으로 둘 이상 — 뒤의 것이 앞의 것을 조용히 덮습니다
   주의(종료 코드 0, 알림만)
-    ③ CHANGELOG          파일 앞부분 주석에 CHANGELOG가 없음
-    ④ 저장 키 판 번호    `SAVE_KEY`가 없거나 `-v숫자`로 끝나지 않음
-    ⑤ 저장 try           `localStorage` 읽기 · 쓰기 줄 근처(앞 3줄)에 try가 없음
-    ⑥ 실시간 루프        `requestAnimationFrame`만 있고 타이머(`setInterval`)가 없음 — 가려진 탭에서 멈춥니다
-    ⑦ 수치 한곳          `CONFIG`가 없음
+    ④ CHANGELOG          파일 앞부분 주석에 CHANGELOG가 없음
+    ⑤ 저장 키 판 번호    `SAVE_KEY`가 없거나 `-v숫자`로 끝나지 않음
+    ⑥ 저장 try           `localStorage` 읽기 · 쓰기 줄 근처(앞 3줄)에 try가 없음
+    ⑦ 실시간 루프        `requestAnimationFrame`만 있고 타이머(`setInterval`)가 없음 — 가려진 탭에서 멈춥니다
+    ⑧ 수치 한곳          `CONFIG`가 없음
 
   판단이 필요한 것(화면이 넘치는지, 옛 저장이 열리는지)은 브라우저에서 봅니다(§9).
 """
@@ -30,10 +31,25 @@ if hasattr(sys.stdout, "reconfigure"):
 
 SCRIPT = re.compile(r"<script(?P<attr>[^>]*)>(?P<body>.*?)</script>", re.S | re.I)
 EXTERNAL = re.compile(r"<(?:script|link|img)\b[^>]*\b(?:src|href)\s*=\s*[\"']https?://", re.I)
+FUNC_DECL = re.compile(r"^(?:async\s+)?function\s*\*?\s*([A-Za-z_$][\w$]*)\s*\(", re.M)
 
 
 def inline_scripts(html):
     return [m.group("body") for m in SCRIPT.finditer(html) if "src=" not in m.group("attr").lower()]
+
+
+def duplicate_functions(html):
+    """인라인 스크립트에서 줄 맨 앞의 함수 선언을 모아, 이름이 겹치는 것을 [(이름, [줄 번호…])]로 돌려줍니다.
+    줄 번호는 HTML 파일 기준입니다."""
+    seen = {}
+    for m in SCRIPT.finditer(html):
+        if "src=" in m.group("attr").lower():
+            continue
+        base = html.count("\n", 0, m.start("body")) + 1
+        body = m.group("body")
+        for f in FUNC_DECL.finditer(body):
+            seen.setdefault(f.group(1), []).append(base + body.count("\n", 0, f.start()))
+    return [(name, lines) for name, lines in seen.items() if len(lines) > 1]
 
 
 def syntax_errors(scripts):
@@ -67,6 +83,8 @@ def check(html):
         fails += ["문법 — %s" % e for e in errs]
     for m in EXTERNAL.finditer(html):
         fails.append("외부 파일 — %s" % m.group(0)[:80])
+    for name, nums in duplicate_functions(html):
+        fails.append("함수 이름 겹침 — %s (줄 %s)" % (name, " · ".join(str(n) for n in nums)))
     js = "\n".join(scripts)
     if "CHANGELOG" not in html[:4000]:
         warns.append("CHANGELOG — 파일 앞부분 주석에 버전 · 날짜 · 바뀐 것을 둡니다(§1)")
