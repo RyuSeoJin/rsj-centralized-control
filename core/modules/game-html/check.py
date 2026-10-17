@@ -5,6 +5,7 @@
   ② design-template/game-shell.html이 점검에서 걸림 · 주의 없이 통과하는지 봅니다 —
      서식이 규칙을 어기면 받아 쓰는 모든 프로토타입이 같이 어기게 됩니다.
   ③ 일부러 어긴 작은 HTML이 걸리는지 봅니다(외부 파일 · CHANGELOG 없음 · rAF만 있음 · 함수 이름 겹침).
+  ④ 숙련도별 봇 서식(persona-bot.js)에 네 페르소나 · 섞은 10명 묶음 · 페르소나 평균 함수가 있는지 봅니다.
 """
 import io
 import os
@@ -39,6 +40,11 @@ def main():
     f, _, _ = g.check(dup)
     if not any("함수 이름 겹침 — feed (줄 2 · 5)" in x for x in f):
         fails.append("함수 이름 겹침을 못 잡았습니다")
+    # ④ 숙련도별 봇 서식 — 네 페르소나와 섞은 10명 묶음이 그대로 있는지
+    bot = io.open(os.path.join(here, "design-template", "persona-bot.js"), encoding="utf-8").read()
+    for key in ("novice:", "casual:", "skilled:", "optimal:", "window.PANEL", "__perPersona"):
+        if key not in bot:
+            fails.append("persona-bot.js에 %s이(가) 없습니다" % key)
     return modcheck.done("game-html", fails)
 
 

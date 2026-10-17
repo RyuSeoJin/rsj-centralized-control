@@ -3,6 +3,7 @@
 | 서식 | 쓰는 때 | 받아 쓰는 법 |
 |---|---|---|
 | `game-shell.html` | HTML 게임 프로토타입을 처음 만들 때 | 프로젝트 루트에 `_prototype.html`로 복사하고 `{게임 이름}` · `{길드 이름}` · `{game}` · `{YYYY-MM-DD}`를 채웁니다 |
+| `persona-bot.js` | 숙련도별 플레이 봇으로 균형을 볼 때(`../rules/playtest-bots.md`) | 프로젝트 `analysis/`에 복사하고, 페르소나 숫자 · `__turn()`(한 턴의 판단) · `snapshot()` · `outcome()` · 게임의 턴 넘기기 함수 이름을 채웁니다 |
 
 `game-shell.html`에 들어 있는 것 — 규칙(`../rules/game-html.md`)의 절 번호를 주석에 달아 두었습니다.
 
