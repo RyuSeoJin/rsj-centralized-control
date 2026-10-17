@@ -1,0 +1,12 @@
+{
+  "scope": "project",
+  "group": "game-proto",
+  "creates": [],
+  "pairs": [
+    {
+      "name": "gdd",
+      "why": "기획서로 합의한 규칙을 이 모듈의 프로토타입으로 확인할 때 함께 켬"
+    }
+  ],
+  "instead": []
+}

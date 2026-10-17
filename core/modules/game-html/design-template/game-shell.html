@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<!--
+  {게임 이름} — HTML 게임 프로토타입 (game-html 모듈 서식)
+  규칙: core/modules/game-html/rules/game-html.md
+
+  CHANGELOG
+     v0.1 · {YYYY-MM-DD}
+       - (추가) 서식에서 시작 — 맨 위 바 · 탭 · 본문 · 맨 아래 바, 상태 · 그리기 · 저장 · 턴 진행 · 결정 창 · 툴팁
+-->
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{게임 이름} 프로토타입</title>
+<style>
+/* 토큰 — 색 · 간격은 여기서만 정합니다 (§3) */
+:root {
+  --bg: #1d1712; --panel: #2a211a; --panel-2: #342920; --line: #4a3a2c; --text: #efe3cf; --muted: #b3a089; --dim: #7d6c5a;
+  --accent: #e0aa48; --good: #7fd06a; --warn: #f0b04a; --bad: #e65a4f; --radius: 8px; --gap: 12px;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; }
+body { background: var(--bg); color: var(--text); font: 14px/1.5 system-ui, sans-serif; display: flex; flex-direction: column; }
+button { font: inherit; color: var(--text); background: var(--panel-2); border: 1px solid var(--line); border-radius: 6px; padding: 6px 12px; cursor: pointer; }
+button.primary { background: var(--accent); color: #2a1a08; border-color: var(--accent); font-weight: 700; }
+button:disabled { opacity: .45; cursor: not-allowed; }
+button.on { border-color: var(--accent); color: var(--accent); }
+.muted { color: var(--muted); } .dim { color: var(--dim); } .small { font-size: 12px; } .down { color: var(--bad); } .up { color: var(--good); }
+/* 맨 위 바 — 정체성 · 최종 목표까지 남은 시간 · 재화 */
+header { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: var(--gap); padding: 8px 14px; border-bottom: 1px solid var(--line); background: var(--panel); }
+.hl { display: flex; align-items: center; gap: 8px; min-width: 0; } .hl b { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hc { text-align: center; } .goal { width: 260px; max-width: 50vw; height: 10px; border-radius: 5px; background: var(--panel-2); overflow: hidden; margin: 4px auto 0; }
+.goal i { display: block; height: 100%; background: var(--bad); }
+.hr { display: flex; justify-content: flex-end; gap: 6px; flex-wrap: wrap; } .cur { padding: 3px 10px; border: 1px solid var(--line); border-radius: 6px; white-space: nowrap; }
+/* 탭 */
+nav { display: flex; gap: 4px; padding: 6px 14px 0; } nav button { flex: 1; border-radius: 6px 6px 0 0; }
+/* 본문 */
+main { flex: 1; overflow: auto; padding: var(--gap) 14px; }
+.cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: var(--gap); }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px; }
+.card h3 { margin: 0 0 8px; font-size: 15px; color: var(--accent); }
+.line { padding: 6px 0; border-bottom: 1px dashed var(--line); }
+/* 맨 아래 바 — 가운데가 턴을 넘기는 큰 버튼 */
+footer { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: var(--gap); padding: 8px 14px; border-top: 1px solid var(--line); background: var(--panel); }
+footer .end { justify-self: end; } footer .next { padding: 10px 40px; font-size: 16px; }
+/* 창 · 툴팁 · 알림 */
+#modal { position: fixed; inset: 0; background: rgba(0,0,0,.6); display: none; align-items: center; justify-content: center; padding: 16px; z-index: 10; }
+#modal.open { display: flex; } #modal .box { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; width: min(520px, 100%); max-height: 90vh; overflow: auto; }
+#tip { position: fixed; pointer-events: none; background: #120e0a; border: 1px solid var(--line); border-radius: 6px; padding: 6px 8px; font-size: 12px; white-space: pre-line; max-width: 280px; display: none; z-index: 20; }
+#toast { position: fixed; left: 50%; bottom: 72px; transform: translateX(-50%); background: var(--panel-2); border: 1px solid var(--line); border-radius: 6px; padding: 8px 14px; display: none; z-index: 20; }
+.cmp { width: 100%; border-collapse: collapse; } .cmp th, .cmp td { padding: 6px 8px; border-bottom: 1px solid var(--line); text-align: left; } .cmp th { color: var(--muted); font-weight: 500; font-size: 12px; }
+@media (max-width: 600px) { header { grid-template-columns: 1fr; } .hr { justify-content: flex-start; } footer .next { padding: 10px 18px; } }
+</style>
+</head>
+<body>
+<header id="top"></header>
+<nav id="tabs"></nav>
+<main id="main"></main>
+<footer id="bottom"></footer>
+<div id="modal"><div class="box" id="modalBox"></div></div>
+<div id="tip"></div><div id="toast"></div>
+<script>
+/* ============================================================
+   수치 — 모두 임시값. 기획서 수치표와 1 : 1로 맞춥니다 (§4)
+   ============================================================ */
+const CONFIG = {
+  startGold: 10000,
+  goalWeek: 30,          // 최종 목표 턴 (임시)
+};
+/* 콘텐츠 표 — 새 콘텐츠는 여기에 한 줄 (§4) */
+const TABS = [['hub', '대시보드'], ['list', '목록'], ['shop', '시장']];
+
+/* ============================================================
+   상태 · 저장 (§4 · §6)
+   ============================================================ */
+const SAVE_KEY = '{game}-proto-v1';   // 구조가 크게 바뀌면 판 번호를 올립니다
+let S = null;                          // 게임 상태 — 저장되는 전부
+let UI = { tab: 'hub' };               // 화면 상태 — 저장 안 함
+function newGame() { S = { week: 1, gold: CONFIG.startGold, log: [] }; }
+function save() { try { localStorage.setItem(SAVE_KEY, JSON.stringify(S)); } catch (e) { toast('저장하지 못했습니다'); } }
+function load() {
+  try {
+    const raw = localStorage.getItem(SAVE_KEY); if (!raw) return false;
+    S = JSON.parse(raw);
+    if (!S.log) S.log = [];          // 이주 — 새로 생긴 필드는 기본값으로 채웁니다
+    return true;
+  } catch (e) { return false; }
+}
+
+/* ============================================================
+   도움 함수
+   ============================================================ */
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const tipAttr = t => `data-tip="${esc(t)}"`;
+const gold = n => `🪙 ${Math.round(n).toLocaleString()}`;
+function weighted(ws) { let t = ws.reduce((a, b) => a + b, 0), r = Math.random() * t; for (let i = 0; i < ws.length; i++) if ((r -= ws[i]) < 0) return i; return 0; }
+function toast(t) { const el = document.getElementById('toast'); el.textContent = t; el.style.display = 'block'; clearTimeout(toast.h); toast.h = setTimeout(() => el.style.display = 'none', 1800); }
+function modal(html) { document.getElementById('modalBox').innerHTML = html; document.getElementById('modal').classList.add('open'); }
+function closeModal() { document.getElementById('modal').classList.remove('open'); }
+let pending = null;
+// 확인 창 — 되돌리기 어려운 행동 (§4)
+function ask(title, body, ok, fn) {
+  pending = fn;
+  modal(`<h2>${title}</h2><div>${body}</div><div style="display:flex;justify-content:flex-end;gap:6px;margin-top:14px"><button onclick="closeModal()">취소</button><button class="primary" onclick="askOk()">${ok}</button></div>`);
+}
+function askOk() { const f = pending; pending = null; closeModal(); f && f(); }
+// 결정 창 — 지금 → 다음 비교표 + 비용 + 「안 함」 · 「한다」. 설정과 상관없이 늘 띄웁니다 (§4)
+function decide(title, rows, cost, fn) {
+  pending = fn; const ok = S.gold >= cost;
+  modal(`<h2>${title}</h2><table class="cmp"><tr><th>항목</th><th>지금</th><th></th><th>다음</th></tr>${rows.map(([n, a, b]) => `<tr><td>${n}</td><td>${a}</td><td class="dim">→</td><td class="${a === b ? '' : 'up'}"><b>${b}</b></td></tr>`).join('')}</table>
+    <p>비용 <b>${gold(cost)}</b> · <span class="${ok ? '' : 'down'}">보유 ${gold(S.gold)} → ${ok ? gold(S.gold - cost) : '부족'}</span></p>
+    <div style="display:flex;justify-content:flex-end;gap:6px"><button onclick="closeModal()">안 함</button><button class="primary" onclick="askOk()" ${ok ? '' : 'disabled'}>한다</button></div>`);
+}
+
+/* ============================================================
+   턴 진행 — 한 함수, 순서 고정 (§5-1)
+   ① 결과 판정 → ② 수입 · 지출 → ③ 턴 +1 → ④ 새 턴 시작(도착 · 이벤트) → ⑤ 목록 새로 고침 → ⑥ 결산 창
+   ============================================================ */
+function endWeek() {
+  const notes = [];
+  // ① ② — 이 자리에 판정 · 주급 등을 더합니다
+  S.week++;
+  // ④ — 도착하는 것 · 특수 이벤트 굴림
+  S.log.push({ w: S.week - 1, notes });
+  save(); render();
+  modal(`<h2>${S.week - 1}주차 결산</h2>${notes.length ? notes.map(n => `<div class="line">${esc(n)}</div>`).join('') : '<div class="muted">특별한 일이 없었습니다</div>'}<div style="text-align:right;margin-top:12px"><button class="primary" onclick="closeModal()">다음 주 시작</button></div>`);
+}
+
+/* ============================================================
+   그리기 — 상태를 읽어 전체를 다시 그립니다 (§4)
+   ============================================================ */
+function render() {
+  const left = CONFIG.goalWeek - S.week;
+  document.getElementById('top').innerHTML = `<div class="hl">🛡️ <b>{길드 이름}</b> <span class="small muted">Lv 1</span></div>
+    <div class="hc" ${tipAttr(`최종 목표까지 ${left}주`)}><b>⚠️ 목표까지 ${left}주</b><div class="goal"><i style="width:${Math.min(100, S.week / CONFIG.goalWeek * 100)}%"></i></div></div>
+    <div class="hr"><span class="cur">${gold(S.gold)}</span><button onclick="openMenu()">메뉴</button></div>`;
+  document.getElementById('tabs').innerHTML = TABS.map(([k, n]) => `<button class="${UI.tab === k ? 'on' : ''}" onclick="UI.tab='${k}';render()">${n}</button>`).join('');
+  document.getElementById('main').innerHTML = ({ hub: vHub, list: vList, shop: vShop })[UI.tab]();
+  document.getElementById('bottom').innerHTML = `<button onclick="openLog()">주간 결산</button><button class="primary next" onclick="endWeek()">다음 주 진행 ▶</button><button class="end">알림</button>`;
+}
+function vHub() {
+  return `<div class="cols"><div class="card"><h3>이번 주 소식</h3><div class="line muted">소식이 여기에</div></div>
+    <div class="card"><h3>이번 목표</h3><div class="line muted">목표가 여기에</div></div>
+    <div class="card"><h3>할 일</h3><button onclick="upgradeDemo()">⬆ 결정 창 예시</button></div></div>`;
+}
+function vList() { return `<div class="card"><h3>목록</h3><div class="muted">카드 목록이 여기에</div></div>`; }
+function vShop() { return `<div class="card"><h3>시장</h3><div class="muted">시장 가치 · 지금 가격을 나란히</div></div>`; }
+function upgradeDemo() { decide('⬆ 등급 1 → 2', [['칸', '1칸', '2칸'], ['산출', '100%', '125%']], 2000, () => { S.gold -= 2000; render(); }); }
+function openLog() { modal(`<h2>지난 결산</h2>${S.log.slice(-5).reverse().map(l => `<div class="line">${l.w}주차 · ${l.notes.length}건</div>`).join('') || '<div class="muted">아직 없습니다</div>'}<div style="text-align:right"><button onclick="closeModal()">닫기</button></div>`); }
+function openMenu() { ask('새 게임', '저장을 지우고 처음부터 시작할까요?', '새 게임', () => { newGame(); save(); render(); }); }
+
+/* 툴팁 — data-tip 하나로 전역에서 (§4) */
+document.addEventListener('mouseover', e => { const t = e.target.closest('[data-tip]'), tip = document.getElementById('tip');
+  if (!t) { tip.style.display = 'none'; return; } tip.textContent = t.getAttribute('data-tip'); tip.style.display = 'block'; });
+document.addEventListener('mousemove', e => { const tip = document.getElementById('tip'); tip.style.left = Math.min(innerWidth - 290, e.clientX + 12) + 'px'; tip.style.top = (e.clientY + 14) + 'px'; });
+document.getElementById('modal').addEventListener('click', e => { if (e.target.id === 'modal') closeModal(); });
+
+if (!load()) newGame();
+render();
+</script>
+</body>
+</html>
