@@ -38,3 +38,5 @@
 | 저작권 게이트 | 커밋 전과 push 전에 도는 점검 넷. 도구는 사람을 불러야 하는 변경인지만 가릅니다 | `rules/git-rules.md` §5 |
 | 판단 사다리 | 규칙끼리 어긋날 때 위에서부터 보는 여섯 단의 기준 | `rules/rule-conflict.md` |
 | 요청 범위 | 요청을 완수하는 데 필요한 수정과 거기 기계적으로 따라오는 동기화까지. 그 밖은 제안만 합니다 | `rules/change-scope.md` |
+| 나눠 맡기기 | 긴 작업을 파일 단위로 에이전트에 맡기고, 공용 파일은 메인이 모아 쓰고, 에이전트 보고는 확인 뒤 전하는 것 | `rules/agent-delegation.md` |
+| 사람 확인 묶음 | 화면 확인처럼 사람이 볼 것을 remaining-work 한 항목에 모아 두고 요청 때 한 번에 하는 것 | `rules/agent-delegation.md` §5 |

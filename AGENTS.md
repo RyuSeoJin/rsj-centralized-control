@@ -27,6 +27,7 @@
 | 중앙 규칙을 받거나 되돌려 보낼 때 | `core/base/rules/central-sync.md` · `repo-change-log.md` · `repo-remaining-work.md` | 받기는 사용자 승인 뒤에만 합니다. 이 저장소에서 `core/`를 고치지 않습니다 |
 | 중앙 저장소에서 `core/`를 바꿀 때 | `center-change-log.md` · `center-remaining-work.md` | 이력의 태그를 정하기 전에는 커밋을 제안하지 않습니다 |
 | 규칙끼리 어긋날 때 | `core/base/rules/rule-conflict.md` | 승인 전에는 어느 쪽도 적용하지 않습니다 |
+| 일을 여러 에이전트에 나눠 맡길 때 | `core/base/rules/agent-delegation.md` | 같은 파일을 두 에이전트에 동시에 맡기지 않습니다. 사용자 결정에 쓰일 에이전트 보고는 직접 확인하기 전에는 사실로 전하지 않습니다 |
 | 작업 단위 하나가 끝났을 때 | `core/base/rules/git-rules.md` §2 · §4 | 검사 셋을 돌리고 「커밋 시점 같습니다」를 제안합니다. 단위를 쌓아 두지 않습니다 — 쌓이면 원인이 섞여 나중에 커밋을 나눌 수 없습니다. 승인 없이 커밋하지 않습니다 |
 | 커밋 · push | `core/base/rules/git-rules.md` | 검사와 저작권 게이트를 통과하고 승인을 받기 전에는 하지 않습니다 |
 

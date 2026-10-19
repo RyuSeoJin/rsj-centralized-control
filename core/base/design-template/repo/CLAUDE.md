@@ -15,6 +15,8 @@
   전에는 본문을 쓰지 않습니다.**
 - 요청 범위 밖의 수정은 제안만 합니다(`core/base/rules/change-scope.md`).
 - 코드를 보여 줄 때(채팅 포함) → `core/base/rules/code-example.md`.
+- 일을 여러 에이전트에 나눠 맡길 때 → `core/base/rules/agent-delegation.md`(파일 단위로 맡기기 · 에이전트 보고는
+  확인 뒤 전하기 · 사람 확인은 모아서).
 - 커밋 · push는 요청과 승인이 있을 때만 합니다(`core/base/rules/git-rules.md`).
 
 ## 이 저장소

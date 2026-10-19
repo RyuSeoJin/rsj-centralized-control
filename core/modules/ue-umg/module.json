@@ -1,0 +1,14 @@
+{
+  "scope": "project",
+  "group": "game-ue",
+  "pairs": [
+    {
+      "name": "ue-build",
+      "why": "코드로 만든 UI를 빌드하고 자동 시험 · 화면 사진으로 확인할 때 함께 켬"
+    },
+    {
+      "name": "ue-localization",
+      "why": "여러 언어의 글자 폭 · 번역 없음을 UI 칸과 함께 볼 때 함께 켬"
+    }
+  ]
+}
