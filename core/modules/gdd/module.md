@@ -14,7 +14,7 @@ UE 프로젝트라면 구현 문서를 위해 ue-doc 모듈도 함께 켭니다.
 | | |
 |---|---|
 | 규칙 | `rules/gdd-workflow.md` — 기획서 → 프로토타입 → 구현 순서 · 규칙 번호 · 상태 표기 · 미결 · 빌드 |
-| 서식 | `design-template/` — 05-A 시스템 기획서 · 05-B 콘텐츠 총괄표. 목록은 `gdd-template-catalog.md` |
+| 서식 | `design-template/` — 05-A 시스템 기획서 · 05-B 콘텐츠 총괄표 · 06 게임 기획서. 목록은 `gdd-template-catalog.md` |
 | 도구 | `scripts/build_gdd.sh` — 기획서 조립 · 검사 · 글꼴 내장 |
 | 마스터 | base 마스터를 그대로 씁니다 |
 | 프로젝트에 생기는 것 | `gdd/` |
