@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>디자인 마스터 (비주얼) — UE 문서 디자인 시스템 v1.13</title>
+<title>디자인 마스터 (비주얼) — UE 문서 디자인 시스템 v1.14</title>
 <link rel="stylesheet" href="design-guide-ue-master.css">
 <!-- ============================================================
      CHANGELOG — design-guide-ue-master-visual.html
@@ -11,6 +11,9 @@
      이관 · 2026-09-27 (버전 변경 없음)
        - (변경) 중앙 저장소 core/base/로 옮김 — 템플릿 · 문서 허브로 가는 링크를 글자로 바꿈.
          템플릿은 켠 모듈의 design-template/에 있고, base는 모듈 자리를 가리키지 않는다
+     v1.14 · 2026-10-19
+       - (추가) 04 섹션에 「본문 링크」 데모 — master.css v1.14의 --link 토큰 · .content a(옅은 밑줄 · 마우스 올림 · 방문 후 같은 색)
+       - (변경) 버전 표기 v1.13 → v1.14 (헤더·hero·footer)
      v1.13 · 2026-09-16
        - (문서화) master.css v1.12 반영 — .pill 에 white-space: nowrap 추가(좁은 표 칸에서 배지 글자가
          두 줄로 쪼개지던 것 방지). 신규 컴포넌트·색 없어 별도 데모 없이 11 섹션 상태 pill 설명에 한 줄 보강.
@@ -103,7 +106,7 @@
 </nav>
 
 <div class="hero">
-  <div class="hero-eyebrow">Design System · v1.13 · Master Visual</div>
+  <div class="hero-eyebrow">Design System · v1.14 · Master Visual</div>
   <h1>UE 디자인<br><span>마스터</span></h1>
   <p class="hero-sub">
     모든 언리얼 문서(에셋 분석 · 아키텍처 설계)가 공유하는 디자인 마스터입니다. 컬러·타이포·레이아웃·기본 컴포넌트를 한 곳에 고정합니다. 스타일 원본은 <code>design-guide-ue-master.css</code> 한 파일이며, 이 문서는 그 시각 레퍼런스입니다.
@@ -255,6 +258,12 @@
     <div class="section-label">04 — 공통 기본 컴포넌트</div>
     <h2>모든 문서가 공유하는 블록</h2>
     <p>아래는 에셋·아키텍처 문서 모두에서 쓰이는 범용 컴포넌트입니다. 에셋 전용(트리·에셋 카드)은 <strong>01 에셋 분석</strong>, 아키텍처 전용(관계도·코드 탭·결정표)은 <strong>02 아키텍처</strong>를 보세요.</p>
+
+    <h3>본문 링크 <span style="font-size:12px;color:var(--text-muted);font-weight:500">[v1.14]</span></h3>
+    <div class="demo"><div class="demo-head">Live</div><div class="demo-body">
+      <p style="margin:0">목차 · 용어 · 다른 절을 가리키는 글자 링크는 <a href="#base">이렇게 밝은 강조색</a>으로 보이고, 마우스를 올리면 밑줄이 진해집니다. 방문한 뒤에도 색이 바뀌지 않습니다.</p>
+    </div></div>
+    <p>색은 토큰 <code>--link</code>(#8E9CFF)입니다. <code>--accent</code>는 어두운 배경과의 대비가 낮아 작은 글자 링크에는 쓰지 않습니다. 맨 위 내비게이션 링크는 따로 <code>.nav-links a</code>가 정합니다.</p>
 
     <h3>섹션 라벨 + 제목</h3>
     <div class="demo"><div class="demo-head">Live</div><div class="demo-body">
@@ -877,7 +886,7 @@
 </div>
 
 <footer>
-  <span>UE 문서 디자인 시스템 · Master v1.13</span>
+  <span>UE 문서 디자인 시스템 · Master v1.14</span>
   <span>기준 디자인: Dark · Indigo Minimal · Editorial</span>
 </footer>
 
