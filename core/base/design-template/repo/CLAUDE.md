@@ -17,6 +17,9 @@
 - 코드를 보여 줄 때(채팅 포함) → `core/base/rules/code-example.md`.
 - 일을 여러 에이전트에 나눠 맡길 때 → `core/base/rules/agent-delegation.md`(파일 단위로 맡기기 · 에이전트 보고는
   확인 뒤 전하기 · 사람 확인은 모아서).
+- 「끝났다」고 보고하거나 change-log에 검증을 적을 때 → `core/base/rules/completion-evidence.md`(검증 등급 ·
+  DOM 검사는 시각 검수가 아님 · 돌리지 못한 검사는 이름을 들어 남김).
+- 외부 도구의 반출본을 들이거나 외부 AI에 정본 묶음을 보낼 때 → `core/base/rules/external-material.md`.
 - 커밋 · push는 요청과 승인이 있을 때만 합니다(`core/base/rules/git-rules.md`).
 
 ## 이 저장소

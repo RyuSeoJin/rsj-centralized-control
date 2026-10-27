@@ -13,11 +13,29 @@
    다른 시트(`Key | {언어 이름}…`)도 읽게 합니다. 산출물: 도구 + `check.py`
 3. **창 조작 점검 도구 일반화** — 빌드 · 실행 · 스크린샷 · 앞 창 확인 입력을 경로 자리 표시자로
    바꿔 `ue-build/scripts/`로 올립니다. 산출물: 도구 + `check.py`
+4. **범위 물결표 도구** — `doc-write-style.md` 「Markdown 범위 물결표는 `\~`로 씁니다」를 도구로 받칩니다.
+   되돌리기(`unescape_tilde` — 코드 표시 · 코드 블록 · 주석 밖에서만), 산출물 누출 검사(`find_tilde_leaks`),
+   원문 점검(`find_unescaped_range_tildes`)을 document-site · app-planning-slides 생성기와 `check_rules.py`에
+   둡니다. 해시는 원본 바이트로 계산합니다. 구현 명세는 전달 문서 `tool-specs/tilde-escape.md`. 산출물: 함수 + 시험
+5. **제품 공통 모듈 설정 읽기** — `site-structure.md` 「프로젝트 묶음」의 `{제품}-module-config.json`을
+   `module.py` · `regen.py` · 셸 메뉴(`shell.navigation_entries`)가 읽게 합니다(업무 설정과의 합집합 ·
+   중복 등록 거절). 들어오면 「현재 도구 지원 범위」 표를 고칩니다. 구현 명세는 전달 문서 `tool-specs/product-group.md`. 산출물: 도구 + 시험
+
 
 ## 사용자 결정 대기
 
 - **중앙 버전 태그** — 이번 병합 상태에 `core-v2.0.0`을 달지. 옛 판이 `v1.0.0`이고 구조 · base 디자인이
   바뀌어 주 버전이 오릅니다. 달면 `change-log-writing.md` §7에 따라 보관 이력을 자르는 시점입니다.
+- **독자용 산출물 문체의 기본값** — `doc-write-style.md` 「독자용 산출물 문체」를 지금처럼 프로젝트가
+  고르는 선택지로 둘지, 독자용 산출물의 기본값으로 올릴지.
+- **파일 CHANGELOG 모양** — 2026-10-27에 고친 base · 모듈 문서 상단에 버전 블록형 기록(v1.1)을 더했습니다. 기존
+  하단 한 줄 기록과 둘 중 하나로 통일할지.
+- **제품 공통 모듈의 `creates` 폴더** — 제품에서 켠 모듈의 폴더를 묶음의 모든 업무에 만들지.
+  `project-scaffold.md` 「폴더는 필요할 때 생깁니다」와 부딪칩니다.
+- **소개 페이지 규칙 묶음** — document-site `gen_intro_html.py`의 `RULE_GROUPS`에 `completion-evidence.md`
+  (「무엇을 어떤 순서로 하는가」) · `external-material.md`(「문서를 어떻게 쓰고 어디에 두는가」)를 넣을지.
+  지금은 「그 밖에」로 떨어집니다.
+
 
 ## 백로그
 
@@ -59,3 +77,5 @@
   Spine에 실제로 불러 스킨 교체와 애니메이션 공유가 되는지 확인한 뒤 리깅 규약을 고칩니다.
 - **aseprite 설치 도구 실측** — 새 컴퓨터에서 `aseprite_setup.py`를 처음부터 끝까지 돌려 본 적이
   없습니다. 처음 돌릴 때 걸린 것을 도구와 알려진 함정에 더합니다. macOS · Linux 경로도 아직 미확인입니다.
+- **증거 보관본 해시 확인 도구** — `site-structure.md` 「증거 자료는 원문 그대로 보관합니다」의 확인(인용 표시 벗기기
+  → 원문 줄바꿈으로 되돌리기 → 해시 비교)을 도구로 만들지. 지금은 규칙 문장만 있습니다.
