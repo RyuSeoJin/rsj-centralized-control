@@ -1,5 +1,7 @@
 # app-planning-slides — 앱 기획 문서를 프롬프트로 채워 Google Slides로 냅니다
 
+<!-- v1.2 · 2026-10-27: (변경) 「켜면 따라오는 것」의 규칙 행에 요약본에서 만드는 발표물 · 장 나눔 · 도형 링크 · 생성 후 대조를 더함 -->
+
 <!-- v1.1 · 2026-10-12: (변경) 공유본 편집의 정본 자동 전환을 없애고 등록 정본 대조와 명시 승인 절차로 읽기 게이트 정비 -->
 
 앱 기획의 다섯 문서(프로젝트 개요서 · 정보 구조도 · 기능 정의서 · 와이어프레임 · 화면설계서)를
@@ -16,7 +18,7 @@
 
 | 구분 | 내용 |
 |---|---|
-| 규칙 | `rules/planning-slides.md` — 두 문서의 구성, 정본과 공유본, 프롬프트로 채우는 순서, 입력 형식, Google Slides 변환 규칙 · `rules/slide-patterns.md` — 화면설계서 프레임, 장 구성 순서, 패턴 카탈로그, 가독성 · 일관성 규칙, 참고 자료 |
+| 규칙 | `rules/planning-slides.md` — 두 문서의 구성, 정본과 공유본, 독자용 요약본에서 만드는 발표물, 프롬프트로 채우는 순서, 입력 형식, Google Slides 변환 규칙 · `rules/slide-patterns.md` — 화면설계서 프레임, 장 구성 순서, 패턴 카탈로그, 가독성 · 일관성 규칙(장 나눔 · 도형 링크 · 생성 후 대조 포함), 참고 자료 |
 | 서식 | `design-template/` — 입력 예시 둘과 프롬프트 안내. 목록은 `app-planning-slides-template-catalog.md`이며, 고르는 법은 base 카탈로그가 정본입니다 |
 | 도구 | `scripts/build_slides.py` — 입력 검증 · .pptx 생성 · 기능 ID 대조 · 변환 위험 점검(`lint`) · 견본 덱(`gallery`). 패턴은 `scripts/patterns.py`, 부품은 `scripts/slidekit.py` |
 | 점검 | `check.py` — 도구가 뜨는가, 예시 둘로 만들어지는가, 변환 위험 요소가 없는가, 잘못된 입력을 막는가 |

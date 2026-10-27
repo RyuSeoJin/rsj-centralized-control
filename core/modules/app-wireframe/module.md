@@ -1,5 +1,6 @@
 # app-wireframe — 시뮬레이터를 키트 기반 Figma 와이어프레임으로 정리합니다
 
+<!-- v1.1 · 2026-10-27: (변경) 규칙 범위와 프로젝트 결과에 렌더 캡처 교체 · 대응 대장 · 보드 배치 추가 -->
 <!-- CHANGELOG · 2026-10-14: Community 키트 고정·화면 대응·검수 모듈 추가 -->
 
 ## 언제 켜나
@@ -10,12 +11,12 @@
 
 | 항목 | 내용 |
 |---|---|
-| 규칙 | `rules/wireframe.md`의 키트 선택·가져오기·화면 제작·갱신·검수 절차 |
+| 규칙 | `rules/wireframe.md`의 키트 선택·가져오기·화면 제작·갱신·검수 절차, 렌더 캡처 교체, 정본 출력 노드 대응 대장, 보드 배치 |
 | 도구 | `scripts/wireframe.py`의 입력 검사와 제작 계획 출력. Figma API를 직접 호출하지 않음 |
 | 점검 | `check.py`의 정상 입력·대상 종류·중복 ID·키트 미연결 차단 검사 |
 | 프로젝트 폴더 | `wireframes/` |
 | 프로젝트 입력 | `wireframes/manifest.json`: 키트 후보·기준 키트·작업 파일·화면·연결·컴포넌트 대응 |
-| 프로젝트 결과 | `wireframes/plan.json`: 생성 계획, `wireframes/node-map.json`: 실제 반환 노드와 검수 기록 |
+| 프로젝트 결과 | `wireframes/plan.json`: 생성 계획, `wireframes/node-map.json`: 실제 반환 노드와 검수 기록, `wireframes/coverage.json`: 정본 출력 노드 대응 대장(이름은 프로젝트가 정함), 렌더 캡처 교체를 쓰면 화면별 결과 보고서 |
 
 ## 전제 모듈
 

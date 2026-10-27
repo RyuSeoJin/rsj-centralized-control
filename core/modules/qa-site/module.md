@@ -1,5 +1,6 @@
 # qa-site — QA 분석 서식과 메뉴를 공통 문서 사이트에 더합니다
 
+<!-- CHANGELOG · v2.1 · 2026-10-27: (추가) 측정 기록 보관 · 비교 규칙(rules/measurement-records.md)과 읽기 게이트 -->
 <!-- v2.0 · 2026-10-12: (변경) 공통 디자인·셸·생성 도구를 document-site 책임으로 분리하고 QA 서식·메뉴만 유지 -->
 
 역분석 · 기획서 분석 · 기능 골격과 TC 관계도처럼 **테스트 관점으로 읽는 문서**에 씁니다.
@@ -18,6 +19,7 @@
 | 서식 | `design-template/01-feature-tree.html` · `02-reverse-analysis.html` · `03-spec-analysis.html` — 기능 골격·TC 관계도, QA 역분석, 테스트 관점의 기획서 분석 |
 | 선택 기준 | `design-template/qa-site-template-catalog.md` — QA 서식의 용도와 작업 유형 판별 |
 | QA 메뉴 | `navigation.json` — 공통 문서 사이트에서 사용하는 QA 메뉴 정의 |
+| 규칙 | `rules/measurement-records.md` — 성능 · 품질 측정 기록의 조건 기록, 비교 범위, 재측정 보관 |
 | 공통 디자인 참조 | `../document-site/design-guide/`와 `../document-site/rules/document-design.md` — 마스터·컴포넌트·테마·셸의 기준 |
 | 공통 도구 참조 | `document-site`의 셸·진입 페이지·프로젝트 용어집 생성 도구와 재생성 작업 |
 
@@ -45,5 +47,6 @@ QA 서식에 넣었다는 이유로 새 정본을 만들지 않습니다. 책임
 |---|---|---|
 | QA 서식을 고르거나 문서를 만들 때 | `design-template/qa-site-template-catalog.md` · `../document-site/module.md` · `../document-site/rules/document-design.md` | 등록 정본의 책임 범위와 승인 상태를 확인하지 못하면 기대값을 확정하지 않습니다 |
 | 기능 사양 자체를 작성하거나 바꿀 때 | `../planning-spec/module.md` | 기획 모듈 활성화와 등록 정본을 확인하고 해당 모듈의 읽기 게이트를 따릅니다 |
+| 측정 기록을 보관 · 정정하거나 수치를 비교할 때 | `rules/measurement-records.md` | 조건이 다르거나 「미확인」인 기록끼리는 개선 전후 비교로 합치지 않습니다 |
 
 <!-- CHANGELOG · 2026-10-12: (변경) 참조를 항목 제목과 작업 유형 이름으로 표기 -->

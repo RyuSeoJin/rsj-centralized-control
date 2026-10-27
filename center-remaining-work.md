@@ -20,6 +20,39 @@
 5. **제품 공통 모듈 설정 읽기** — `site-structure.md` 「프로젝트 묶음」의 `{제품}-module-config.json`을
    `module.py` · `regen.py` · 셸 메뉴(`shell.navigation_entries`)가 읽게 합니다(업무 설정과의 합집합 ·
    중복 등록 거절). 들어오면 「현재 도구 지원 범위」 표를 고칩니다. 구현 명세는 전달 문서 `tool-specs/product-group.md`. 산출물: 도구 + 시험
+6. **요약본 대조 검사기** — planning-spec 「요약본과 정본을 자동으로 대조합니다」의 다섯 검사(실행 노드 덮음 ·
+   없는 ID · 깨진 상대 링크 · 외부 디자인 링크 · 정본 해시)를 `planning-spec/scripts/check_briefs.py`와 `check.py`로
+   둡니다. 원본 정본은 「정본 대조」 표의 첫 행으로 찾습니다. 구현 명세는 전달 문서 `tool-specs/brief-check.md`. 산출물: 도구 + `check.py`
+7. **슬라이드 쪽 나눔 · 생성 후 대조** — app-planning-slides 「넘치는 내용을 다음 장으로 나눕니다」 · 「링크는 도형에
+   겁니다」 · 「만든 뒤 원본과 대조합니다」를 kit 함수(`group_blocks` · `paginate` · `split_table_rows` ·
+   `Deck.page_marks` · `Deck.link_shape` · `verify_deck`)로 둡니다. 구현 명세는 전달 문서 `tool-specs/slide-pagination.md`. 산출물: 함수 + 점검 케이스
+8. **정본 입력 계약 검사 도구** — app-simulator 「정본 입력 계약 검사」(ID · 개정 머리 줄 · 노드 중복 · 없는 도착점 ·
+   상태 키별 이동 구현 · 입력 지문 `--check`)를 도구로 둡니다. `read_node_table`이 있는 workflow-explorer
+   쪽을 제안합니다. 구현 명세는 전달 문서 `tool-specs/planning-contract.md`. 산출물: 도구 + 시험
+9. **탐색기 직각 우회** — 길 찾기에 실패하면 실행기가 `var fb=first||[S,T]`로 대각선을 그립니다. 직각 우회로
+   바꾸고, 그때까지 쓰는 「대각선 선분 0 검사」를 점검에 둡니다. 구현 명세는 전달 문서 `tool-specs/explorer-orthogonal-fallback.md`. 산출물: 런타임 + `check.py` 케이스
+10. **탐색기 구역 경계선 폭** — `buildLanes`가 기본 상자의 구역 경계선을 하위 섹션까지 포함한 전체 폭(`_wT`)으로
+   등록해, 오른쪽 하위 섹션 안의 가로선이 그 높이와 겹치면 길 찾기가 거절되고 섹션이 끝없이 넓어집니다.
+   기본 상자 폭(`_w`)으로 등록합니다. 구현 명세는 전달 문서 `tool-specs/explorer-lane-border-width.md`. 산출물: 런타임 + 케이스
+11. **탐색기 캡처의 흐름별 개정** — 캡처 낡음을 시뮬레이터 파일 전체 해시로 판정해 한 화면만 고쳐도 모두 다시
+   찍어야 합니다. 흐름 코드별 개정(bump · stamp · apply · `--stale`)을 `capture_ui.py` ·
+   `project_data.attach_thumbs`의 선택 기능으로 둡니다. 구현 명세는 전달 문서 `tool-specs/explorer-capture-scope.md`. 산출물: 도구 + 시험
+12. **탐색기 도착 면 지정** — 배치 지정에 나가는 꼭짓점(`exit`)만 있고 들어갈 면이 없습니다. `exit`와 같은 형식의
+   `enter`([출발, 도착, u/d/l])를 둡니다. 구현 명세는 전달 문서 `tool-specs/explorer-enter-side.md`. 산출물: 런타임 + 규칙 · 케이스
+13. **와이어프레임 보드 배치 도구** — app-wireframe 「보드 배치 — 설명 상자 쌓기」(실제 바닥 기준으로 쌓기 · 행 안
+   띠별 위끝 맞춤 · 연결 표식 함께 이동 · 겹침 0 확인)를 도구로 둡니다. 구현 명세는 전달 문서 `tool-specs/wireframe-board-layout.md`. 산출물: 도구
+14. **원문 행 골격 도구** — tc 「기획 원문 표에서 골격을 만드는 선택지」의 생성 · `--check` · `--stamp`(행 해시
+   `basis`)를 tc 도구로 둡니다. 구현 명세는 전달 문서 `tool-specs/tc-basis.md`. 산출물: 도구 + 시험
+15. **tc 기능 골격 HTML 생성기 경로** — `gen_feature_tree_html.py`가 `dirname`을 세 번만 올라가 `core/modules/modules/
+   document-site/…`를 찾고 실패합니다(같은 실행의 다른 작업도 멈춤). 파일 기준 상대 경로로 고치고 `check.py`에
+   골격 HTML 생성 한 번을 더합니다. 구현 명세는 전달 문서 `tool-specs/tc-feature-tree-path-fix.md`. 산출물: 수정 + 케이스
+16. **용어집 생성기의 상단 주석** — document-site `gen_dictionary_html.py`가 md 첫 줄의 파일 CHANGELOG 주석을
+   머리말 문단에 글자로 보입니다. `parse()`가 주석을 먼저 지우게 합니다. 같은 갈래의 결함(번호 없는 `##`에서
+   멈춤 · 주석을 h1로 씀)을 공용 렌더러를 들일 때 함께 막습니다. 구현 명세는 전달 문서 `tool-specs/document-site-generator-fixes.md`. 산출물: 수정 + 케이스
+17. **묶음 허브 생성기** — document-site 「묶음 허브 — 통합 허브와 업무별 허브」의 생성기를 둡니다. 구현 명세는 전달 문서 `tool-specs/product-hub.md`.
+   산출물: 도구 + 시험
+18. **app-wireframe 규칙의 서비스 용어** — `wireframe.md` 「화면과 상태를 배치합니다」 · 「순서도 배치」에 특정 서비스의
+   첫 체험 흐름 이름이 남아 있습니다. 「첫 체험 · 일반」처럼 일반 표현으로 바꿉니다.
 
 
 ## 사용자 결정 대기
@@ -35,6 +68,26 @@
 - **소개 페이지 규칙 묶음** — document-site `gen_intro_html.py`의 `RULE_GROUPS`에 `completion-evidence.md`
   (「무엇을 어떤 순서로 하는가」) · `external-material.md`(「문서를 어떻게 쓰고 어디에 두는가」)를 넣을지.
   지금은 「그 밖에」로 떨어집니다.
+- **발표물 목차 링크** — app-planning-slides는 목차 · 쪽 칸만 글자 링크(밑줄을 누름 표시로)로 남기고 나머지를
+  도형 링크로 정했습니다. 목차도 도형 링크로 통일할지(`Deck.link` 변경). 공유본으로 바꾼 뒤 도형 링크가
+  동작하는지는 확인하지 못했습니다.
+- **탐색기 구역 상자 폭** — 구역 상자를 기본 상자 폭으로 줄이면 하위 섹션 위 빈 띠가 구역 색 없이 보입니다. 이
+  모양을 받아들일지.
+- **분기 값과 보충 설명** — 지금은 라벨 하나에 「값 · 설명」으로 적습니다. 두 상자로 나눠 그리는 필드(`note` 등)를
+  실행기에 둘지.
+- **정본 입력 계약의 자리** — 규칙은 app-simulator, 도구는 workflow-explorer를 제안했습니다. 도구가 들어오면 규칙
+  본문도 `explorer.md`로 옮기고 app-simulator가 가리키게 할지.
+- **산출물 크기 경고** — app-simulator 「산출물 크기 예산」의 경고를 프로젝트 조립 스크립트에 맡길지,
+  `build_simulator.write_or_check(..., warn_bytes=)`로 모듈 도구에 넣을지.
+- **허브 규칙 파일** — document-site의 허브 규칙을 `document-design.md`에 둘지 별도 규칙 파일(예: document-hub.md)로 뗄지.
+- **묶음 허브 생성기의 기반** — html-design-kit 위에 지을지(document-site에 그 전제가 생김), document-site 셸 위에
+  다시 지을지. 원본 생성기는 모듈 합집합에서 저장소 모듈을 빼고 계산했습니다 — base 「프로젝트 묶음」과 다릅니다.
+- **원문 행 해시 알고리즘** — `basis`를 SHA-1 앞 10자리로 유지할지. 바꾸면 받는 쪽에 기록된 `basis`가 모두
+  「재검수 필요」가 되므로 변환 명령이 필요합니다.
+- **묶음 단위 생성 작업** — `jobs.py`가 묶음(제품) 단위 작업을 받는 자리를 base에 둘지.
+- **근거 단위 해시의 공통 원리** — tc 원문 행 `basis`와 탐색기 캡처 흐름별 개정을 「근거 단위 해시로 낡음 판정」
+  한 원리로 묶어 base에 둘지.
+- **용어 「독자용 요약본」** — 중앙 용어집에 등록할지.
 
 
 ## 백로그
@@ -58,9 +111,6 @@
 
 - app-planning-slides 기능별 예시의 `A2-04`(마감 · 대기 제안 시트 · 이전 형식의 `n8`) 노드 다음 경로를 정합니다. 새 검사가 출구 누락을 경고합니다. 대기 신청 정책이 미결이므로 종료·복귀·다음 기능 이동 중 실제 의도를 확인한 뒤 예시 입력과 견본을 함께 갱신합니다.
 
-- `tc`의 기능 골격 HTML 생성기가 마스터를 base의 `design-guide/` 자리(인디고 마스터 파일 이름)에서 읽는데, 병합 뒤
-  그 자리에는 인디고 마스터가 없습니다(`qa-site` 모듈로 옮겨짐). 생성할 때 파일을 못 찾을 수 있어
-  자리를 `qa-site`로 고칠지 확인이 필요합니다(`change-scope.md` §3 — 이번 이식 범위 밖이라 제안만).
 - `qa-site`의 진입 페이지 생성기에 있는 「`base/design-guide/` — 형식의 정본」 카드는 이제 base 마스터
   (UE 마스터)를 가리킵니다. 문구가 사용자 확정 문구라 바꾸지 않았고, 그 저장소 사용자에게 확인이
   필요합니다(`change-scope.md` §3).
@@ -79,3 +129,9 @@
   없습니다. 처음 돌릴 때 걸린 것을 도구와 알려진 함정에 더합니다. macOS · Linux 경로도 아직 미확인입니다.
 - **증거 보관본 해시 확인 도구** — `site-structure.md` 「증거 자료는 원문 그대로 보관합니다」의 확인(인용 표시 벗기기
   → 원문 줄바꿈으로 되돌리기 → 해시 비교)을 도구로 만들지. 지금은 규칙 문장만 있습니다.
+- **md ↔ 스프레드시트 보기본** — md 정본을 시트로 보일 때 숨긴 열에 행마다 되읽기 열쇠를 두고 서식까지 담은
+  xlsx 한 장으로 가져오는 방식이 한 프로젝트에서 쓰였습니다. 시트 → md 되읽기가 한 번도 돌지 않았고 근거가
+  하나라 모듈로 올리지 않았습니다. 두 번째 프로젝트가 쓰거나 되읽기를 실제로 돌리면 올립니다
+  (구현 명세는 전달 문서 `tool-specs/md-sheet-view.md`).
+- **렌더 캡처 도구** — app-wireframe 「렌더 캡처 교체」의 정적 HTML 굳히기 · 기존 프레임 안 교체 · 아이콘
+  대응을 모듈 도구로 올릴지. 지금은 규칙만 있습니다.
