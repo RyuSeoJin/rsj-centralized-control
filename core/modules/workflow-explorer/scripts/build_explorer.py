@@ -12,6 +12,7 @@
 
 프로젝트 생성기는 자기 원본을 이 형식으로 바꾼 뒤 build()를 부릅니다.
 """
+# CHANGELOG · 2026-10-12: CLI와 build API에서 생성 전 부모 검사
 import argparse
 import io
 import json
@@ -22,8 +23,8 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 MODULE = os.path.dirname(HERE)
 CORE = os.path.dirname(os.path.dirname(MODULE))
 sys.path.insert(0, os.path.join(CORE, "base", "scripts"))
-# 셸과 마스터는 qa-site 모듈의 것입니다 — 이 모듈은 qa-site를 전제합니다(module.md §전제 모듈)
-sys.path.insert(0, os.path.join(CORE, "modules", "qa-site", "scripts"))
+# 셸과 마스터는 document-site 모듈의 것입니다 — 이 모듈은 document-site를 전제합니다(module.md §전제 모듈)
+sys.path.insert(0, os.path.join(CORE, "modules", "document-site", "scripts"))
 import shell  # noqa: E402
 
 TYPES = ("term", "action", "process", "input", "output", "decision", "ref")
@@ -181,11 +182,13 @@ def body(data, warns):
            sim_html, guide_dialog))
 
 
-def build(data, out_path):
+def build(data, out_path, project=None):
+    from module import require_output_module
+    require_output_module("workflow-explorer", out_path, project)
     errors, warns = validate(data)
     if errors:
         raise SystemExit("워크플로우 데이터 오류 %d건\n  " % len(errors) + "\n  ".join(errors))
-    css, js = shell.assets(os.path.join(CORE, "modules", "qa-site", "design-guide", "design-guide-master.css"))
+    css, js = shell.assets(os.path.join(CORE, "modules", "document-site", "design-guide", "design-guide-master.css"))
     rt_css = shell.read(os.path.join(MODULE, "runtime", "workflow-explorer.css"))
     rt_js = shell.read(os.path.join(MODULE, "runtime", "workflow-explorer.js"))
     payload = json.dumps(data, ensure_ascii=False, separators=(",", ":")).replace("<", "\\u003c")
@@ -203,6 +206,7 @@ def main():
     ap.add_argument("data")
     ap.add_argument("out", nargs="?")
     ap.add_argument("--check", action="store_true")
+    ap.add_argument("--project", help="출력의 소유 프로젝트 키")
     a = ap.parse_args()
     with io.open(a.data, encoding="utf-8") as f:
         data = json.load(f)
@@ -213,7 +217,7 @@ def main():
         for m in warns:
             print("경고", m)
         sys.exit(1 if errors else 0)
-    warns = build(data, a.out)
+    warns = build(data, a.out, project=a.project)
     print("workflow-explorer: %s (경고 %d건)" % (a.out, len(warns)))
 
 

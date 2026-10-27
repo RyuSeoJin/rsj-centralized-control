@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# CHANGELOG · 2026-10-12: 공통 셸을 document-site에서 참조하고 TC 집계를 tc 도구로 분리합니다.
 """QA 리포트 생성 — 흩어진 산출물을 한 장으로 모읍니다 (automation 모듈의 리포트 규칙)
 
 무엇을 담는가 (§6 필수 3항)
@@ -24,7 +25,7 @@
 
 차트 라이브러리를 왜 안 쓰나
 ---------------------------
-  가이드(`modules/qa-site/rules/qa-report-design.md`)는 Chart.js 인라인을 권하지만, 이 리포트의 데이터는
+  가이드(`modules/document-site/rules/document-design.md`)는 Chart.js 인라인을 권하지만, 이 리포트의 데이터는
   검증유형 4종·영역 10개·매트릭스 5×10으로 작다. 이 규모에서는 표와 CSS 막대가 더 정확히
   읽히고, 외부 라이브러리를 저장소에 들이지 않아도 자기완결이 성립한다. 계열이 늘어 표로
   읽기 어려워지면 그때 인라인한다.
@@ -46,13 +47,13 @@ import xml.etree.ElementTree as ET
 
 _HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, _HERE)
-# sut 모듈은 base와 tc 모듈 위에서 돕니다 — 검증 대상을 직접 만드는 프로젝트는
-# TC도 함께 만들기 때문입니다
+# 자동화 리포트는 base와 tc 도구를 사용합니다. TC 집계는 tc가 소유합니다.
 sys.path.insert(0, os.path.join(_HERE, "..", "..", "..", "base", "scripts"))
-# 셸(사이드바·상단 바)은 qa-site 모듈이 가집니다 — tc가 qa-site를 전제하는 이유입니다
-sys.path.insert(0, os.path.join(_HERE, "..", "..", "qa-site", "scripts"))
+# 공통 셸은 document-site가 제공합니다. QA 서식과 메뉴는 qa-site를 따릅니다.
+sys.path.insert(0, os.path.join(_HERE, "..", "..", "document-site", "scripts"))
 sys.path.insert(0, os.path.join(_HERE, "..", "..", "tc", "scripts"))
 import shell  # noqa: E402
+from tc_metrics import check_items  # noqa: E402
 from check_tc_coverage import tree_leaves, blueprint_testids  # noqa: E402
 
 VT_FULL = ("결정적", "금칙")          # 완전 검증 — 통과/실패가 그대로 사실
@@ -224,12 +225,12 @@ def main():
       '실행한 결과입니다. 이 문서가 답하려는 것은 둘입니다 — <strong>빠짐없이 봤는가</strong>'
       '(커버리지)와 <strong>봤을 때 알아채는가</strong>(결함 주입 매트릭스). 통과 건수만으로는 '
       '뒤엣것을 알 수 없기 때문에 두 축을 따로 둡니다.</p>'
-      % (len(tcs), shell.check_items(tcs),
+      % (len(tcs), check_items(tcs),
          sum(1 for t in tcs if t[7] != "사람 전용")))
     w('<div class="meta-row">')
     for k, v in (("대상", "%s (%s)" % (S, build)), ("기능 골격", "v" + tree_version),
                  ("테스트 케이스",
-                  "%d개(확인 항목 %d개)" % (len(tcs), shell.check_items(tcs))),
+                  "%d개(확인 항목 %d개)" % (len(tcs), check_items(tcs))),
                  ("자동화", "%d개" % (len(auto) + smoke)),
                  ("이슈", "%d건" % len(issues))):
         w('<span class="badge">%s <b>%s</b></span>' % (esc(k), esc(v)))

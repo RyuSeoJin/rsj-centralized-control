@@ -6,6 +6,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+from unittest.mock import patch
 
 root = Path(__file__).resolve().parent
 for relative in ('module.md', 'rules/explorer.md', 'runtime/workflow-explorer.js', 'runtime/workflow-explorer.css',
@@ -24,8 +25,29 @@ broken = json.loads(json.dumps(sample))
 broken['links'].append({'from': 'S9', 'to': 'Z9', 'kind': 'normal'})
 assert build_explorer.validate(broken)[0], '끊긴 연결을 오류로 잡지 못했습니다'
 with tempfile.TemporaryDirectory() as tmp:
-    out = Path(tmp) / 'sample.html'
-    build_explorer.build(sample, str(out))
+    import module as module_control
+    fixture = Path(tmp)
+    project = fixture / 'projects' / 'sample'
+    project.mkdir(parents=True)
+    (fixture / 'workspace.json').write_text('{"modules": ["document-site"]}', encoding='utf-8')
+    state = project / 'sample-modules.json'
+    state.write_text('{"on": ["workflow-explorer"]}', encoding='utf-8')
+    out = project / 'sample.html'
+    with patch.object(module_control, 'repo_root', return_value=str(fixture)):
+        try:
+            build_explorer.build(sample, str(out))
+            raise AssertionError('기획 부모 없이 생성했습니다')
+        except ValueError:
+            assert not out.exists()
+        state.write_text('{"on": ["workflow-explorer", "planning-spec"]}', encoding='utf-8')
+        build_explorer.build(sample, str(out))
+        original = out.read_bytes()
+        (fixture / 'workspace.json').write_text('{"modules": []}', encoding='utf-8')
+        try:
+            build_explorer.build(sample, str(out))
+            raise AssertionError('공통 사이트 부모 없이 생성했습니다')
+        except ValueError:
+            assert out.read_bytes() == original
     text = out.read_text(encoding='utf-8')
     assert 'id="wfx-data"' in text
     assert 'id="wfx-dock"' in text, '플로우 패널 접기 버튼이 조립되지 않았습니다'

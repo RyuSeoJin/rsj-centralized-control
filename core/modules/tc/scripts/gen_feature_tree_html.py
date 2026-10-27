@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# CHANGELOG · 2026-10-12: 공통 셸을 document-site에서 참조하고 TC 집계를 tc 도구로 분리합니다.
 """feature-tree.md (정본) -> feature-tree.html (파생, 자기완결 단일 파일)
 
 파이프라인에서의 위치
@@ -27,11 +28,11 @@ import sys
 
 _HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, _HERE)
-# 모듈 도구는 base의 공용 부품(shell.py·norm.py)을 씁니다. 모듈은 base 위에서만 돕니다 —
+# 모듈 도구는 base의 공용 부품(norm.py 등)을 씁니다. 모듈은 base 위에서만 돕니다 —
 # 반대 방향(base가 모듈을 부르는 것)은 두지 않습니다
 sys.path.insert(0, os.path.join(_HERE, "..", "..", "..", "base", "scripts"))
-# 셸(사이드바·상단 바)은 qa-site 모듈이 가집니다 — tc가 qa-site를 전제하는 이유입니다
-sys.path.insert(0, os.path.join(_HERE, "..", "..", "qa-site", "scripts"))
+# 공통 셸은 document-site가 제공합니다. QA 서식과 메뉴는 qa-site를 따릅니다.
+sys.path.insert(0, os.path.join(_HERE, "..", "..", "document-site", "scripts"))
 import shell  # noqa: E402
 from parse_feature_tree import parse  # noqa: E402
 
@@ -111,10 +112,10 @@ def main():
 
     # scripts → tc → modules → core. 이름이 repo면 저장소 루트로 읽혀 다음 이동에서 조용히 틀린다
     core = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-    css_path = os.path.join(core, "base", "design-guide", "design-guide-master.css")
+    css_path = os.path.join(core, "modules", "document-site", "design-guide", "design-guide-master.css")
     with io.open(css_path, encoding="utf-8") as f:
         css = f.read()
-    js_path = os.path.join(core, "base", "design-guide", "design-guide-master.js")
+    js_path = os.path.join(core, "modules", "document-site", "design-guide", "design-guide-master.js")
     js = io.open(js_path, encoding="utf-8").read() if os.path.exists(js_path) else ""
     css_ver = "v1.0"
     for line in css.splitlines():

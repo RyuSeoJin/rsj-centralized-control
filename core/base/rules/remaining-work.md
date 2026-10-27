@@ -20,7 +20,7 @@ remaining-work는 항상 「지금 남은 것」만 보여 줍니다.
 |---|---|
 | 중앙 규칙(`core/`) | 중앙 저장소 루트 `center-remaining-work.md` |
 | 받아 가는 저장소의 설정 · 구조 | 그 저장소 루트 `repo-remaining-work.md` |
-| 프로젝트 | 프로젝트 폴더의 remaining-work (이름은 `change-log-writing.md` §5) |
+| 프로젝트 | 프로젝트 폴더의 remaining-work (이름은 `change-log-writing.md` 「관리 파일의 이름」) |
 
 받아 가는 저장소에서 중앙 규칙의 문제를 발견하면 그 저장소의 `core/`는 고치지 않습니다. 중앙 저장소를
 함께 열어 두었으면 그 자리에서 중앙을 고치고, 열 수 없을 때만 `repo-remaining-work.md`에 「중앙에
@@ -48,3 +48,5 @@ remaining-work는 항상 「지금 남은 것」만 보여 줍니다.
 
 **작업 전 항상 먼저 읽는 파일은 change-log와 remaining-work 둘입니다** — change-log로 현재
 상태를, remaining-work로 다음 걸음을 파악합니다. 읽기 게이트(`read-gates.md`)가 이 규칙을 담습니다.
+
+<!-- CHANGELOG · 2026-10-12: (변경) 참조를 항목 제목과 작업 유형 이름으로 표기 -->

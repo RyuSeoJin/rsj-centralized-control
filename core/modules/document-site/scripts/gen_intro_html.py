@@ -8,17 +8,13 @@
   수치와 표를 다시 서술하지 않고, 판단과 이유를 적은 뒤 상세는 산출물로 보냅니다.
   같은 내용을 두 곳에 적으면 한쪽만 고쳤을 때 갈라집니다.
 
-수치는 전부 정본에서 읽는다
---------------------------
-  기능 단위·화면 요소·TC 건수는 트리와 청사진·TC 입력에서, 자동화 건수는 테스트 파일에서,
-  결함 주입 결과는 커밋된 매트릭스 표에서 읽습니다. **junit을 읽지 않습니다** — 원자료는
-  `.gitignore` 대상이라 환경이 없는 곳에서 재생성하면 0으로 떨어집니다.
+저장소 구조와 프로젝트 시작 안내를 생성합니다. QA 집계는 담당 QA 생성기가 수행합니다.
 
 사용법
 ------
     python gen_intro_html.py --page landing --repo-root . \
         --project-dir projects/{프로젝트} --slug {프로젝트} \
-        --css core/modules/qa-site/design-guide/design-guide-master.css -o index.html
+        --css core/modules/document-site/design-guide/design-guide-master.css -o index.html
 """
 import argparse
 import io

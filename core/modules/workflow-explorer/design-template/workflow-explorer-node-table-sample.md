@@ -1,6 +1,6 @@
 # 노드 표 예시
 
-`scripts/project_data.py`의 `read_node_table`이 읽는 형식입니다(→ `rules/explorer.md` §6-1). 모듈 점검(`check.py`)이 이 표를 읽어 봅니다.
+`scripts/project_data.py`의 `read_node_table`이 읽는 형식입니다(→ `rules/explorer.md` 「노드 표 (`scripts/project_data.py` `read_node_table`)」). 모듈 점검(`check.py`)이 이 표를 읽어 봅니다.
 
 **워크플로우 노드 · 흐름 S**
 
@@ -10,3 +10,5 @@
 | S1-02 | 시스템 | 조건 | 로그인되어 있는가? | 예 → S1-03 / 아니오 → S1-04 · 로그인 필요 | — | `user.signedIn` | — | 예시 |
 | S1-03 | 시스템 | 출력 | [화면] 홈 | → T1 | — | — | home | 예시 |
 | S1-04 | 시스템 | 출력 | [화면] 로그인 / 계정 선택 | → S1-02 | sign-in | — | — | 예시 |
+
+<!-- CHANGELOG · 2026-10-12: (변경) 참조를 항목 제목과 작업 유형 이름으로 표기 -->

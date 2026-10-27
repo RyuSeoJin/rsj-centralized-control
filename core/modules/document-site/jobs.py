@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""qa-site 모듈의 산출물 — regen.py가 켠 모듈의 이 파일을 훑어 돌립니다
+"""document-site 모듈의 산출물 — regen.py가 켠 모듈의 이 파일을 훑어 돌립니다
 
   워크스페이스   루트 index.html (진입 층 — 중앙 규칙 구조 · 프로젝트 생성 방식)
   프로젝트       {접두}-dictionary.html (정본 dictionary md가 있을 때만)
@@ -17,7 +17,7 @@ def _rule_sources(core):
         for cur, _d, names in os.walk(os.path.join(core, kind)):
             if "__pycache__" in cur:
                 continue
-            out += [os.path.join(cur, n) for n in names if n.endswith((".md", ".py"))]
+            out += [os.path.join(cur, n) for n in names if n.endswith((".md", ".py", ".json", ".css", ".js"))]
     return out
 
 

@@ -560,7 +560,11 @@ function findRoute(c,full,retry,wide){
     var rx=a._cx+a._w/2+(Lm?Lm+26:12)+mates.indexOf(c)*16;
     if(rx<=T[0]-MIN_TAIL&&ok(S,[rx,S[1]])&&ok([rx,S[1]],[rx,T[1]])&&ok([rx,T[1]],T)){if(take([S,[rx,S[1]],[rx,T[1]],T]))return fin();if(best){c.lab=best.lab;c._sc=best.sc;return best.p;}}} // 교차가 하나 있어도 멀리 돌아가지 않고 바로 옆 길을 씁니다(교차는 다리로 그림)
   var needV=c.lw?40:8,needH=c.lw?c.lw+26:6,H0s=[S[1]];
-  if(c.dir!=='r'){H0s=[];v._gaps.forEach(function(g){[0,-STEP,STEP,-2*STEP,2*STEP].forEach(function(d){var y=g+d;if(c.dir==='d'?(y>=S[1]+needV&&y<S[1]+v._rg+60):(y<=S[1]-needV&&y>S[1]-v._rg-60))H0s.push(y);});});H0s=near(H0s,S[1]);}
+  if(c.dir!=='r'){H0s=[];v._gaps.forEach(function(g){[0,-STEP,STEP,-2*STEP,2*STEP].forEach(function(d){var y=g+d;if(c.dir==='d'?(y>=S[1]+needV&&y<S[1]+v._rg+60):(y<=S[1]-needV&&y>S[1]-v._rg-60))H0s.push(y);});});
+    /* 꼭짓점에서 길게(longExit · 2026-10-16 사용자 요청) — 조건의 위·아래 꼭짓점에서 나가는 첫 세로 구간을 가까운 행 사이 통로에서 끊지 않고,
+       도착 높이에 가까운 행 사이 통로까지 곧게 올리거나 내려 그 뒤에 꺾습니다. 열 사이 통로로 비켜 가느라 생기던 꺾임을 줄일 때만 지정합니다. */
+    if(c.e.longExit){v._gaps.forEach(function(g){[0,-STEP,STEP].forEach(function(d){var y=g+d;if((c.dir==='d'?y>=S[1]+needV:y<=S[1]-needV)&&H0s.indexOf(y)<0)H0s.push(y);});});H0s=near(H0s,T[1]);}
+    else H0s=near(H0s,S[1]);}
   var aHi=a._rank<v._maxRank?colL(v,a._rank+1):v._x+v._w-6,gapA=chans(Math.max(colR(v,a._rank),S[0]),aHi);
   var gapB;if(c.line)gapB=chans(v._x+v._wT+12,c.bv._x-12);else if(c.end==='l')gapB=chans(b._rank>0?colR(c.bv,b._rank-1):c.bv._x+24,T[0]-MIN_TAIL+CLEAR);else gapB=gapA;
   var ys=(full||wide)?near(v._gaps,(S[1]+T[1])/2):near(v._gaps,(S[1]+T[1])/2).slice(0,14),gA=full?gapA.slice(0,40):gapA.slice(0,10),gB=full?gapB.slice(0,40):gapB.slice(0,10); // 후보 수 제한(넓힘으로 해결 · 넓힌 섹션도 통로 후보는 가운데부터 40개까지 — 열 사이가 아주 넓어지면 전체를 보느라 멈추던 것 막음) · 섹션 아래 통로는 늘 후보
@@ -573,7 +577,7 @@ function findRoute(c,full,retry,wide){
     if(c.dir!=='r'&&!ok(S,[X0,H0]))continue;
     var minX=X0+(c.dir==='r'?needH:6);
     if(c.end==='l'){
-      for(var i=0;i<gapB.length;i++){var cb=gapB[i];if(cb<minX)continue;
+      for(var i=0;i<gapB.length;i++){var cb=gapB[i];if(cb<minX&&!(c.e.longExit&&c.dir!=='r'))continue; // longExit은 곧게 올린 뒤 왼쪽(되돌아가는 도착)으로도 바로 꺾습니다
         if(ok([X0,H0],[cb,H0])&&ok([cb,H0],[cb,T[1]])&&ok([cb,T[1]],T)){var p=st.concat([[cb,H0],[cb,T[1]],T]);if(!first)first=p;if(take(p))return fin();}}
       for(var i2=0;i2<gA.length;i2++){var ca=gA[i2];if(ca<minX||!ok([X0,H0],[ca,H0]))continue;
         for(var j=0;j<ys.length;j++){var y=ys[j];if(!ok([ca,H0],[ca,y]))continue;

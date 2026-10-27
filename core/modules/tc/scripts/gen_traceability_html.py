@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# CHANGELOG · 2026-10-12: 공통 셸을 document-site에서 참조하고 TC 집계를 tc 도구로 분리합니다.
 """추적 매트릭스 생성 — 기능 단위 → TC → 자동화 함수 → 이슈를 한 줄로 잇습니다
 
 무엇을 증명하려는 문서인가
@@ -36,12 +37,13 @@ import xml.etree.ElementTree as ET
 
 _HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, _HERE)
-# 모듈 도구는 base의 공용 부품(shell.py·norm.py)을 씁니다. 모듈은 base 위에서만 돕니다 —
+# 모듈 도구는 base의 공용 부품(norm.py 등)을 씁니다. 모듈은 base 위에서만 돕니다 —
 # 반대 방향(base가 모듈을 부르는 것)은 두지 않습니다
 sys.path.insert(0, os.path.join(_HERE, "..", "..", "..", "base", "scripts"))
-# 셸(사이드바·상단 바)은 qa-site 모듈이 가집니다 — tc가 qa-site를 전제하는 이유입니다
-sys.path.insert(0, os.path.join(_HERE, "..", "..", "qa-site", "scripts"))
+# 공통 셸은 document-site가 제공합니다. QA 서식과 메뉴는 qa-site를 따릅니다.
+sys.path.insert(0, os.path.join(_HERE, "..", "..", "document-site", "scripts"))
 import shell  # noqa: E402
+from tc_metrics import check_items  # noqa: E402
 from check_tc_coverage import tree_leaves  # noqa: E402
 
 VT_CHIP = {"결정적": "det", "확률적": "prob", "루브릭": "rub", "금칙": "ban"}
@@ -140,7 +142,7 @@ def main():
     w('<div class="meta-row">')
     for k, v in (("기능 골격", "v" + tree_version), ("구현 기능 단위", "%d개" % len(leaves)),
                  ("테스트 케이스",
-                  "%d개(확인 항목 %d개)" % (len(tcs), shell.check_items(tcs))),
+                  "%d개(확인 항목 %d개)" % (len(tcs), check_items(tcs))),
                  ("자동화", "%d개" % len(auto)), ("이슈", "%d건" % len(issues))):
         w('<span class="badge">%s <b>%s</b></span>' % (esc(k), esc(v)))
     w('</div></div>')

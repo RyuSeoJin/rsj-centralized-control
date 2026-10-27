@@ -6,9 +6,9 @@ tc 모듈을 켠 프로젝트에서 쓰는 용어입니다. 정의를 새로 쓰
 | 용어 | 한 줄 요약 | 정본 |
 |---|---|---|
 | Depth | 기능 트리의 계층. 화면 → 영역 → 구성 요소 → 세부 순으로 내려가며, 의미 있는 깊이까지만 씁니다 | `rules/depth-and-tn.md` |
-| 도달 경로 뎁스 | 뎁스를 기능 분류가 아니라 앱 진입부터의 화면 도달 경로로 쓰는 방식 | `rules/depth-and-tn.md` §도달 경로 뎁스 |
-| 상태 축 | 게이팅 · 세션 상태처럼 여러 기능 단위를 가로지르는 횡단 축 | `rules/depth-and-tn.md` §상태 축 |
-| 기생 상태 | 자기 기능 단위가 없어 트리에 집이 없는 상태. 동작이 갈리는 기능 단위마다 선언합니다 | `rules/depth-and-tn.md` §상태 축 |
+| 도달 경로 뎁스 | 뎁스를 기능 분류가 아니라 앱 진입부터의 화면 도달 경로로 쓰는 방식 | `rules/depth-and-tn.md` 「도달 경로 뎁스」 |
+| 상태 축 | 게이팅 · 세션 상태처럼 여러 기능 단위를 가로지르는 횡단 축 | `rules/depth-and-tn.md` 「상태 축」 |
+| 기생 상태 | 자기 기능 단위가 없어 트리에 집이 없는 상태. 동작이 갈리는 기능 단위마다 선언합니다 | `rules/depth-and-tn.md` 「상태 축」 |
 | 케이스 (TC) | 세는 단위이자 결과를 읽는 단위. TC ID 하나가 케이스 하나입니다 | `rules/depth-and-tn.md` · `rules/tc-sheet-format.md` |
 | 확인 항목 | 실제로 확인해야 하는 문장 하나. TC 시트의 한 행입니다 | `rules/tc-sheet-format.md` |
 | TN | 한 케이스 안의 스텝 번호. 세어서 보여 주는 수치가 아닙니다 | `rules/depth-and-tn.md` |
@@ -23,6 +23,8 @@ tc 모듈을 켠 프로젝트에서 쓰는 용어입니다. 정의를 새로 쓰
 | Blocked · NI | 확인할 수 없는 상태 · 미구현. Pass율 분모에서 뺍니다 | `rules/tc-sheet-format.md` |
 | Total Result | 그 행의 Result를 Fail 우선으로 요약하는 수식 열 | `rules/tc-sheet-format.md` |
 | 명세서 시트 | `tc-sheet-master.xlsx` 안의 서식 규칙 정본 시트 | `design-template/tc-template-catalog.md` |
-| 기능 골격 | 기능을 Depth 계층으로 정규화한 트리. 정본은 하나뿐입니다 | `rules/tc-pipeline.md` §1 |
-| 골격 이력 | 골격 변경만 모은 이력. 기본 참조 금지입니다 | `rules/tc-pipeline.md` §1 |
-| 미확인 목록 | 정본 안의 `?` 항목 모음. 실측으로 확정하는 대기열 | `rules/tc-pipeline.md` §1 |
+| 기능 골격 | 기능을 Depth 계층으로 정규화한 트리. 정본은 하나뿐입니다 | `rules/tc-pipeline.md` 「기능 골격 작업」 |
+| 골격 이력 | 골격 변경만 모은 이력. 기본 참조 금지입니다 | `rules/tc-pipeline.md` 「기능 골격 작업」 |
+| 미확인 목록 | 정본 안의 `?` 항목 모음. 실측으로 확정하는 대기열 | `rules/tc-pipeline.md` 「기능 골격 작업」 |
+
+<!-- CHANGELOG · 2026-10-12: (변경) 참조를 항목 제목과 작업 유형 이름으로 표기 -->

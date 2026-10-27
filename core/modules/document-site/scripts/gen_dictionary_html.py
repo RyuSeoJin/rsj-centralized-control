@@ -16,7 +16,7 @@
 
 사용법:
     python gen_dictionary_html.py projects/{프로젝트}/{프로젝트}-dictionary.md \
-        --css core/modules/qa-site/design-guide/design-guide-master.css -o {같은 폴더}/{프로젝트}-dictionary.html
+        --css core/modules/document-site/design-guide/design-guide-master.css -o {같은 폴더}/{프로젝트}-dictionary.html
 """
 import argparse
 import datetime
@@ -39,7 +39,7 @@ BASE_DIR = [None]
 
 def md_href(href):
     """Pages는 .md를 원본 텍스트로 내보내므로 md 링크는 저장소 절대 URL로 건다
-    (규칙: modules/qa-site/rules/qa-report-design.md §Pages 링크). 그 밖의 링크는 그대로 둔다."""
+    (규칙: modules/document-site/rules/document-design.md §Pages 링크). 그 밖의 링크는 그대로 둔다."""
     if not href.endswith(".md") or "://" in href:
         return href
     base = BASE_DIR[0]

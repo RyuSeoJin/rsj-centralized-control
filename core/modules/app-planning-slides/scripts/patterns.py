@@ -7,6 +7,8 @@
 모든 패턴은 본문 영역(y 1.45 ~ SH-0.6, x MX ~ SW-MX) 안에 그리고, 범례는 오른쪽 아래 같은 자리에
 둡니다. 최대 개수를 넘는 입력은 패턴이 자르지 않고, 덱 조립 쪽이 장을 나눕니다.
 """
+# CHANGELOG · 2026-10-13: 표시번호 없는 이동·복귀 연결자의 도착 문구와 복귀 링크 대상 유지
+# CHANGELOG · 2026-10-13: 흐름도 가운데 정렬·대칭 여백·빈 코드 문단 제거
 from slidekit import *  # noqa: F401,F403
 from slidekit import SW, SH, MX, UNKNOWN, TOGGLE_STEP  # noqa: F401
 
@@ -580,9 +582,9 @@ def _wf_layout(F, ids, entry, x0, y0, w, h, band_over=None):
             if e["feature"]:
                 sym, code = "→", t
             elif t not in inV:
-                sym, code = "→", nodes[t]["code"]
+                sym, code = "→", str(nodes[t]["code"]).strip() or nodes[t]["text"]
             elif e["i"] in back and (t == i or rank[i] - rank[t] >= FAR_BACK):
-                sym, code = "↩", nodes[t]["code"]
+                sym, code = "↩", str(nodes[t]["code"]).strip() or nodes[t]["text"]
             elif e["i"] in back:
                 c.update(cls="back", b=t)
             else:
@@ -591,8 +593,8 @@ def _wf_layout(F, ids, entry, x0, y0, w, h, band_over=None):
                 lid = "link:%d" % e["i"]
                 links[lid] = {"id": lid, "type": "link", "sym": sym, "code": code, "lane": nodes[i]["lane"],
                               "feature": t if e["feature"] else None, "h": WF_LINK_H,
-                              # 섹션 밖 「→ 코드」는 그 도형이 그려진 장으로 링크합니다(빌드가 쪽을 채움)
-                              "node": t if (sym == "→" and not e["feature"] and t not in inV) else None}
+                              # 이동·복귀 모두 실제 도착 도형이 있는 장으로 링크합니다(빌드가 쪽을 채움)
+                              "node": t if not e["feature"] else None}
                 links[lid]["w"] = max(WF_LINK_W, _wf_text_w(_wf_link_text(links[lid]), 9) + 0.26)
                 c.update(cls="link", b=lid)
             C.append(c)
@@ -1061,7 +1063,8 @@ def _wf_shape(slide, n):
                   name="flow-link")
         tf = shp.text_frame
         tf.margin_left = tf.margin_right = tf.margin_top = 0
-        tf.margin_bottom = Inches(h * 0.18)
+        tf.margin_bottom = 0
+        tf.vertical_anchor = MSO_ANCHOR.MIDDLE
         tf.word_wrap = False
         p = tf.paragraphs[0]
         p.alignment = PP_ALIGN.CENTER
@@ -1078,6 +1081,7 @@ def _wf_shape(slide, n):
     tf = shp.text_frame
     tf.word_wrap = True
     tf.margin_top = tf.margin_bottom = 0
+    tf.vertical_anchor = MSO_ANCHOR.MIDDLE
     if t == "ref":
         tf.margin_left = tf.margin_right = 0
         p = tf.paragraphs[0]
@@ -1090,19 +1094,18 @@ def _wf_shape(slide, n):
     tf.margin_left = tf.margin_right = Inches(n["pad"])
     if t == "decision":
         tf.word_wrap = True
-    p = tf.paragraphs[0]
-    p.alignment = PP_ALIGN.CENTER
-    p.line_spacing = LINE_SPACING
-    r = p.add_run()
-    r.text = n["code"]
-    _font(r, _wf_fz(9, n["sc"]), True, SUB)
+    code = str(n.get("code") or "").strip()
+    entries = ([(code, True, 9, SUB)] if code else [])
     if n["text"]:
-        p2 = tf.add_paragraph()
-        p2.alignment = PP_ALIGN.CENTER
-        p2.line_spacing = LINE_SPACING
-        r2 = p2.add_run()
-        r2.text = n["text"]
-        _font(r2, _wf_fz(n["fs"], n["sc"]), False, INK)
+        entries.append((n["text"], False, n["fs"], INK))
+    for i, (label, bold, size, color) in enumerate(entries):
+        paragraph = tf.paragraphs[0] if i == 0 else tf.add_paragraph()
+        paragraph.alignment = PP_ALIGN.CENTER
+        paragraph.line_spacing = LINE_SPACING
+        paragraph.space_before = paragraph.space_after = Pt(0)
+        run = paragraph.add_run()
+        run.text = label
+        _font(run, _wf_fz(size, n["sc"]), bold, color)
     return shp, None
 
 

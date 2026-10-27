@@ -1,0 +1,28 @@
+{
+  "project_items": [
+    {
+      "id": "tree",
+      "label": "기능 골격",
+      "path": "projects/{slug}/docs/{prefix}-feature-tree.html",
+      "order": 10
+    },
+    {
+      "id": "tcsheet",
+      "label": "TC 시트 구성",
+      "path": "projects/{slug}/docs/{prefix}-tc-sheet.html",
+      "order": 20
+    },
+    {
+      "id": "report",
+      "label": "자동화 QA 리포트",
+      "path": "projects/{slug}/docs/{prefix}-report.html",
+      "order": 40
+    },
+    {
+      "id": "trace",
+      "label": "추적 매트릭스",
+      "path": "projects/{slug}/docs/{prefix}-traceability.html",
+      "order": 50
+    }
+  ]
+}

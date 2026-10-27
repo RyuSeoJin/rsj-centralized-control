@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# CHANGELOG · 2026-10-12: 공통 셸을 document-site에서 참조하고 TC 집계를 tc 도구로 분리합니다.
 """TC 시트 구성 생성 — xlsx를 받지 않고도 워크북 다섯 시트를 화면에서 읽습니다
 
 왜 만드는가
@@ -37,11 +38,11 @@ import sys
 
 _HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, _HERE)
-# 모듈 도구는 base의 공용 부품(shell.py·norm.py)을 씁니다. 모듈은 base 위에서만 돕니다 —
+# 모듈 도구는 base의 공용 부품(norm.py 등)을 씁니다. 모듈은 base 위에서만 돕니다 —
 # 반대 방향(base가 모듈을 부르는 것)은 두지 않습니다
 sys.path.insert(0, os.path.join(_HERE, "..", "..", "..", "base", "scripts"))
-# 셸(사이드바·상단 바)은 qa-site 모듈이 가집니다 — tc가 qa-site를 전제하는 이유입니다
-sys.path.insert(0, os.path.join(_HERE, "..", "..", "qa-site", "scripts"))
+# 공통 셸은 document-site가 제공합니다. QA 서식과 메뉴는 qa-site를 따릅니다.
+sys.path.insert(0, os.path.join(_HERE, "..", "..", "document-site", "scripts"))
 import shell  # noqa: E402
 from build_tc_template_xlsx import (  # noqa: E402
     DEFAULT_LISTS, ISSUE_HEADERS, ISSUE_KEYS, expected_by_step, normalize_tc, spec_rows)
@@ -299,7 +300,7 @@ def main():
     w('<div class="callout">[TC 시트 내려받기 (xlsx)] 버튼을 클릭 시 GitHub 사이트가 '
       '열리며, <b>Download</b> 버튼을 통해 다운받으실 수 있습니다.</div>')
     # 안내 사진 — 없으면 통째로 건너뜁니다. 사진이 빠져도 위 문장만으로 성립해야 한다는
-    # 규칙(qa-report-design.md 대원칙 1 래스터 이미지)을 코드로도 지키는 자리입니다.
+    # 규칙(document-design.md 대원칙 1 래스터 이미지)을 코드로도 지키는 자리입니다.
     # 자기완결 예외라 base64가 아니라 상대 경로로 겁니다
     shot = os.path.join(P, "docs", "tc-xlsx-download.png")
     if os.path.exists(shot):

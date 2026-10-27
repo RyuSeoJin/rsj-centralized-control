@@ -20,7 +20,7 @@ C++ 문서에서 더 지키는 것**만 정합니다.
 
 클래스 위저드 · Build.cs · 컴파일 규칙처럼 **모든 문서가 공유하는 반복 절차는 블록에서 되풀이하지
 않습니다.** 그 절차는 지식 위키의 공통 절차 문서가 맡고, 블록에서는 그 문서를 **이름으로만**
-언급합니다(본문 상대 링크 금지 — `core/base/rules/html-output.md` §5). 코드가 없는 개념 · 설계
+언급합니다(본문 상대 링크 금지 — `core/base/rules/html-output.md` 「링크 — 문서 사이 이동은 탐색 층이 맡습니다」). 코드가 없는 개념 · 설계
 문서는 이 블록을 생략할 수 있습니다.
 
 ## 2. 책임 배치 결정표 (02-B 기능 구현 명세)
@@ -32,7 +32,7 @@ GameMode · GameState · PlayerController · Pawn · GameInstance · SaveGame ·
 
 ## 3. 주석에서 꼭 적는 것 (UE 예)
 
-`code-example.md` §4의 「의미 있는 모든 줄에 · 왜 중심으로」를 언리얼 코드에 적용하면 이렇습니다.
+`code-example.md` 「예제 코드의 주석」의 「의미 있는 모든 줄에 · 왜 중심으로」를 언리얼 코드에 적용하면 이렇습니다.
 
 - **매크로 · 지정자의 뜻** — `UPROPERTY()`가 가비지 컬렉션 추적에 미치는 효과, `BlueprintType`의
   노출 범위, `EditAnywhere`와 `VisibleAnywhere`의 차이.
@@ -44,4 +44,6 @@ GameMode · GameState · PlayerController · Pawn · GameInstance · SaveGame ·
 ## 4. 하이라이팅
 
 C++ 하이라이팅은 생성 시점에 `hljs-*` `<span>`으로 구워 넣고, 주석은 `hljs-comment`로 넣습니다
-(`core/base/rules/html-output.md` §4). `.h`와 `.cpp` 탭 모두 같은 기준입니다.
+(`core/base/rules/html-output.md` 「코드 — 하이라이팅을 구워 넣습니다」). `.h`와 `.cpp` 탭 모두 같은 기준입니다.
+
+<!-- CHANGELOG · 2026-10-12: (변경) 참조를 항목 제목과 작업 유형 이름으로 표기 -->

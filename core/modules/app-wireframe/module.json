@@ -1,0 +1,7 @@
+{
+  "scope": "project",
+  "group": "app-experience",
+  "creates": [
+    "wireframes"
+  ]
+}

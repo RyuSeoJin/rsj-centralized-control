@@ -39,10 +39,10 @@ python core/base/scripts/sync_core.py --check                        # 지난번
 1. **`--check`로 먼저 봅니다.** 더해지는 · 바뀌는 · 지워지는 파일과, 지난번 받은 뒤 새로 생긴 중앙
    이력 항목이 나옵니다.
 2. **받은 뒤 이 저장소에서 `core/`를 손댄 파일이 있으면 도구가 멈춥니다.** 덮어쓰면 그 수정이
-   사라지기 때문입니다. 그 수정은 §3으로 중앙에 먼저 되돌려 보낸 뒤 다시 받습니다. 버려도 되는
+   사라지기 때문입니다. 그 수정은 「되돌려 보내기」으로 중앙에 먼저 되돌려 보낸 뒤 다시 받습니다. 버려도 되는
    수정이라는 사용자 확인이 있을 때만 `--discard-local`로 덮어씁니다.
 3. 받은 뒤 **새 중앙 이력 항목의 태그를 처리합니다** — 번호 없는 태그를 먼저 읽고, 번호 목록의
-   작업을 위에서부터 합니다(`change-log-writing.md` §6). 미루는 작업은 `repo-remaining-work.md`에
+   작업을 위에서부터 합니다(`change-log-writing.md` 「중앙 이력의 태그」). 미루는 작업은 `repo-remaining-work.md`에
    적습니다.
 4. `python core/base/scripts/regen.py`와 `python core/base/scripts/check_rules.py`를 돌립니다.
 5. `repo-change-log.md`에 받은 커밋 · 처리한 태그를 한 항목으로 적습니다.
@@ -101,5 +101,7 @@ python core/base/scripts/sync_core.py --check                        # 지난번
 ## 4. 중앙 버전
 
 중앙 저장소는 받아 가는 기준점에 `core-v{주}.{부}.{수}` 태그를 답니다. 버전 제안 조건과 확정
-절차는 `git-rules.md` §7이 정합니다. 받아 가는 저장소는 태그가 있으면 태그를, 없으면 커밋을
+절차는 `git-rules.md` 「태그 (버전 좌표)」이 정합니다. 받아 가는 저장소는 태그가 있으면 태그를, 없으면 커밋을
 `core/.source.json`에 남깁니다.
+
+<!-- CHANGELOG · 2026-10-12: (변경) 참조를 항목 제목과 작업 유형 이름으로 표기 -->

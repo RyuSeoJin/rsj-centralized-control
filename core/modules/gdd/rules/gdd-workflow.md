@@ -59,5 +59,7 @@ bash core/modules/gdd/scripts/build_gdd.sh {프로젝트 폴더} {slug} {작업 
 ```
 
 도구가 하는 일은 넷입니다 — ① 머리 + 마스터 CSS + 본문 조립, ② 마스터에 없는 클래스 검사(있으면
-Case B 신호), ③ 쓰지 않기로 한 용어 검사(`gdd/banned-terms.txt`가 있을 때), ④ 태그 균형 · 번호
-마커 목록 출력, 그리고 마지막에 **묶음 전체의 글꼴 내장**입니다(`core/base/rules/html-output.md` §2).
+마스터 갱신 신호), ③ 쓰지 않기로 한 용어 검사(`gdd/banned-terms.txt`가 있을 때), ④ 태그 균형 · 번호
+마커 목록 출력, 그리고 마지막에 **묶음 전체의 글꼴 내장**입니다(`core/base/rules/html-output.md` 「네트워크 요청 0건 — 글꼴도 파일에 담습니다」).
+
+<!-- CHANGELOG · 2026-10-12: (변경) 참조를 항목 제목과 작업 유형 이름으로 표기 -->

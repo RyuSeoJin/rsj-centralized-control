@@ -1,6 +1,6 @@
 # gdd-template-catalog — gdd 모듈이 더하는 기획서 템플릿 목록
 
-**고르는 법과 Case A/B/C의 정본은 `core/base/design-template/template-catalog.md`**이고, 이 문서는
+**고르는 법과 기존 템플릿 사용 · 마스터 갱신 · 신규 템플릿 제작의 정본은 `core/base/design-template/template-catalog.md`**이고, 이 문서는
 판별에 쓰는 목록과 섹션 구조를 담습니다. 순서 · 표기 규칙은 `../rules/gdd-workflow.md`입니다.
 
 ## 판별 기준
@@ -58,3 +58,5 @@
 - **v1.0 · 2026-09-27**
   - (이관) 저장소의 `TEMPLATE-CATALOG.md` v1.9에서 05-A · 05-B를 옮겨 gdd 모듈 카탈로그로 세움.
     템플릿 번호는 바꾸지 않음.
+
+<!-- CHANGELOG · 2026-10-12: (변경) 참조를 항목 제목과 작업 유형 이름으로 표기 -->

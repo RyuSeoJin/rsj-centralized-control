@@ -3,7 +3,7 @@
 규칙: rules/explorer.md §6. 프로젝트 생성기는 원본 경로·흐름 목록·배치 지정 값만 갖고, 읽기와 붙이기는 여기서 합니다.
 
 - read_node_table(text, code, name) — 기획서의 「워크플로우 노드 · 흐름 {코드}」 표 → (도형 목록, 연결 목록)
-- apply_layout(flows, links, layout) — 배치 지정 값(below · rowFirst · under · colAfter · exit · passBelow · chip · order)을 도형·연결에 붙입니다
+- apply_layout(flows, links, layout) — 배치 지정 값(below · rowFirst · under · colAfter · exit · passBelow · longExit · chip · order)을 도형·연결에 붙입니다
 - attach_thumbs(flows, ui_dir, simulator_html) — 캡처 목록(manifest.json)의 그림을 도형 썸네일로 넣습니다
 - section_names(rules) — 흐름도 작성 규칙 데이터에서 「섹션 · 이름」 표를 찾아 {섹션: 이름}으로 돌려줍니다
 """
@@ -80,11 +80,13 @@ def apply_layout(flows, links, layout):
 
     below · rowFirst — 도형 id 집합 / under · colAfter — {도형: 기준 도형}
     exit — {(출발, 도착): 'r'|'d'|'u'} / passBelow — {(출발, 도착): [도형, …]} / chip — {(출발, 도착)}
+    longExit — {(출발, 도착)} (조건 꼭짓점에서 나가는 첫 세로 구간을 도착 높이 가까이까지 곧게)
     order — {출발 도형: [도착 순서]} (나가는 연결 순서를 바꿉니다)
     """
     get = lambda key, empty: layout.get(key) or empty
     below, row_first, under, col_after = get('below', set()), get('rowFirst', set()), get('under', {}), get('colAfter', {})
     exit_, pass_below, chip, order = get('exit', {}), get('passBelow', {}), get('chip', set()), get('order', {})
+    long_exit = get('longExit', set())
     for f in flows:
         for n in f['nodes']:
             if n['id'] in below:
@@ -101,6 +103,8 @@ def apply_layout(flows, links, layout):
                 e['exit'] = exit_[pair]
             if pair in pass_below:
                 e['passBelow'] = pass_below[pair]
+            if pair in long_exit:
+                e['longExit'] = True
             if pair in chip:  # 같은 흐름 안 섹션을 건너는 연결도 칩으로
                 e['chip'] = True
         es = f.get('edges', [])

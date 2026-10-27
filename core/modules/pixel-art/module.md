@@ -68,3 +68,5 @@ python core/modules/pixel-art/check.py
 예시 사양으로 「변환 → 검사 → Lua → Spine 뼈대」 한 벌을 돌려 보고, 검사 도구 넷(`lint` · `tile_check` ·
 `icon_check` · `scale_plan`)의 자기 시험을 돌립니다. Aseprite 실행은 컴퓨터
 환경이라 점검에 넣지 않습니다.
+
+<!-- CHANGELOG · 2026-10-12: (변경) 참조를 항목 제목과 작업 유형 이름으로 표기 -->

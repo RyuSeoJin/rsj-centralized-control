@@ -43,7 +43,7 @@
 | `anchors` | 기준선 이름 → y 좌표. `sole`(발바닥)과 `ground`(지면)는 필수 |
 | `palette` | `outline` 한 색과 `ramps`(재질 이름 → 밝은 색부터 `#RRGGBB` 목록) |
 | `limits` | `colors_max` — 캐릭터 한 명이 쓸 수 있는 색 수 |
-| `slots` | 표준 슬롯 이름, 뒤에서 앞 순서 (`pixel-rig.md` §2) |
+| `slots` | 표준 슬롯 이름, 뒤에서 앞 순서 (`pixel-rig.md` 「표준 슬롯」) |
 | `bones` | 뼈 이름 → [부모, x, y] (캔버스 좌표) |
 | `slot_bone` | 슬롯 → 붙는 뼈 |
 | `body_box` | 캐릭터 상자 `[x0, y0, x1, y1]` — 몸 · 머리 · 머리카락의 고정 범위 (`pixel-style.md` §9-1) |
@@ -75,7 +75,7 @@ python core/modules/pixel-art/scripts/palette_suggest.py source/{캐릭터}/full
   - 배경은 투명합니다. 단색 배경이면 변환 때 `--bg-key auto`로 지웁니다(가장자리에서 이어지는
     배경색만 지우므로 인물 안의 같은 색은 남습니다).
   - 해상도는 목표 키의 8배 이상입니다(키 102px이면 세로 820px 이상).
-  - 기본 자세는 `pixel-rig.md` §4를 따릅니다.
+  - 기본 자세는 `pixel-rig.md` 「기본 자세」를 따릅니다.
   - 파츠를 레이어로 나눠 그렸다면 레이어마다 PNG로 따로 내보내 둡니다. ⑤가 쉬워집니다.
 - **저작권:** 남의 그림을 입력으로 쓰지 않습니다. 도구 시험용으로 잠깐 쓴 결과도 저장소에 남기지 않습니다.
 
@@ -102,7 +102,7 @@ python core/modules/pixel-art/scripts/pixelize.py source/{캐릭터}/full.png \
 Aseprite에서 초안을 열고 아래 순서로 고칩니다. 앞의 것이 뒤의 판단을 바꾸므로 순서를 지킵니다.
 
 1. **실루엣** — 1배로 보고 몸 윤곽이 읽히는지 봅니다. 튀어나온 픽셀 · 끊긴 윤곽을 먼저 정리합니다.
-2. **얼굴** — 눈 · 입 · 코를 `pixel-style.md` §6 기준으로 **다시 그립니다.** 자동 변환된 얼굴은 거의
+2. **얼굴** — 눈 · 입 · 코를 `pixel-style.md` 「얼굴 · 눈 · 손」 기준으로 **다시 그립니다.** 자동 변환된 얼굴은 거의
    항상 뭉개져 있습니다.
 3. **손** — 손가락 덩어리를 다시 나눕니다.
 4. **외곽선** — 뭉침 · 불규칙 계단 · 끊긴 선을 고칩니다.
@@ -135,7 +135,7 @@ python core/modules/pixel-art/scripts/lineup.py --spec spec/design/pixel-spec.js
 
 다듬은 그림을 `pixel-rig.md`의 표준 슬롯으로 나눠 `source/{캐릭터}/parts/{슬롯}.png`에 둡니다.
 각 파일은 **캔버스 크기 그대로**이고 자기 파츠만 칠해져 있습니다. 관절 자리는 2~3px 겹치게
-그립니다(`pixel-rig.md` §5).
+그립니다(`pixel-rig.md` 「파츠 겹침」).
 
 ## 6. Aseprite 파일 만들기
 
@@ -173,3 +173,5 @@ python core/modules/pixel-art/scripts/spine_rig.py --spec spec/design/pixel-spec
 
 Aseprite에서 다듬은 뒤에는 `.aseprite`가 정본입니다. 그 뒤로 ②를 다시 돌리면 손으로 고친 것이
 사라지므로, 변환을 다시 할 때는 새 초안을 따로 만들어 비교합니다.
+
+<!-- CHANGELOG · 2026-10-12: (변경) 참조를 항목 제목과 작업 유형 이름으로 표기 -->

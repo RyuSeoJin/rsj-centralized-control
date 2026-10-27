@@ -32,6 +32,7 @@ jobs.py의 모양 (모듈 폴더 바로 밑, 필요한 함수만 둡니다)
     python core/base/scripts/regen.py            다시 만든다
     python core/base/scripts/regen.py --check    낡은 것만 알려준다 (만들지 않음)
 """
+# CHANGELOG · 2026-10-12: 작업 수집 전 전체 모듈 전제 검사
 import argparse
 import importlib.util
 import io
@@ -141,6 +142,8 @@ def structure_jobs(folder):
 
 def jobs():
     """(설명, 정본 목록, 산출물, 명령) 목록. 정본이 없는 것은 모듈이 넣지 않는다."""
+    from module import validate_workspace
+    validate_workspace(ROOT)
     out = base_jobs()
     ctx = {"root": ROOT, "core": CORE, "python": sys.executable}
     for name in workspace.workspace_modules(ROOT):
@@ -180,7 +183,11 @@ def main():
         except AttributeError:
             pass
 
-    todo = jobs()
+    try:
+        todo = jobs()
+    except (ValueError, OSError) as error:
+        print("재생성 전 모듈 검사 실패: " + str(error))
+        return 1
     if not todo:
         print("다시 만들 것이 없습니다.")
         return 0

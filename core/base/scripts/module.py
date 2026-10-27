@@ -18,6 +18,7 @@
     python core/base/scripts/module.py on {슬러그} {모듈}
     python core/base/scripts/module.py off {슬러그} {모듈}
 """
+# CHANGELOG · 2026-10-12: 다중 전제 탐색과 활성화·해제 검사
 import argparse
 import io
 import json
@@ -123,7 +124,7 @@ def modules(core=None):
         if not os.path.isdir(os.path.join(root, name)) or name.startswith((".", "_")):
             continue
         md = os.path.join(root, name, "module.md")
-        title, when, needs, why = "", "", "", ""
+        title, when, needs, why = "", "", (), {}
         if os.path.exists(md):
             with io.open(md, encoding="utf-8") as f:
                 lines = f.read().split("\n")
@@ -143,20 +144,15 @@ def modules(core=None):
                         para.append(x.strip())
                     when = " ".join(para).replace("**", "").strip()
                 if l.startswith("## 전제 모듈"):
-                    # 한 문단을 통째로 읽습니다 — 사유가 줄바꿈으로 이어지면 잘립니다
-                    para = []
+                    parents = []
                     for x in lines[i + 1:]:
-                        if not x.strip():
-                            if para:
-                                break
-                            continue
-                        para.append(x.strip())
-                    raw = " ".join(para)
-                    # 전제 절의 **첫 백틱**이 바로 위 모듈이다. 그 위는 도구가 따라간다
-                    m = re.search(r"`([a-z][a-z0-9-]*)`", raw)
-                    needs = m.group(1) if m else ""
-                    # 백틱 뒤의 설명이 「왜 그 모듈이 필요한가」다
-                    why = re.sub(r"^`[^`]*`\s*[-—]*\s*", "", raw).strip()
+                        if x.startswith("## "):
+                            break
+                        match = re.match(r"^\s*(?:-\s+)?`([a-z][a-z0-9-]*)`\s*[-—]?\s*(.*)", x)
+                        if match:
+                            parents.append((match.group(1), match.group(2).strip()))
+                    needs = tuple(n for n, reason in parents)
+                    why = dict(parents)
         out.append((name, title, when, needs, why))
     return out
 
@@ -173,14 +169,23 @@ def prereq_chain(name, core=None):
     한 단만 보면 「먼저 켜세요」를 여러 번 만나야 사슬의 길이를 알 수 있습니다. 한 번에
     끝까지 보여 주려고 따라 올라갑니다.
     """
-    need_of = dict((m[0], m[3]) for m in modules(core))
-    chain, seen = [], set()
-    cur = need_of.get(name, "")
-    while cur and cur not in seen:
-        seen.add(cur)
-        chain.append(cur)
-        cur = need_of.get(cur, "")
-    chain.reverse()          # 아래에서부터 켠다
+    need_of = {m[0]: m[3] for m in modules(core)}
+    chain, done, active = [], set(), []
+    def visit(cur):
+        if cur in active:
+            raise ValueError("모듈 전제 순환: " + " -> ".join(active + [cur]))
+        if cur not in need_of:
+            raise ValueError("없는 전제 모듈: " + cur)
+        if cur in done:
+            return
+        active.append(cur)
+        for parent in need_of[cur]:
+            visit(parent)
+        active.pop()
+        done.add(cur)
+        if cur != name:
+            chain.append(cur)
+    visit(name)
     return chain
 
 
@@ -197,8 +202,9 @@ def order_in_group(mods):
     by_name = dict((m[0], m) for m in mods)
     kids, roots = {}, []
     for m in sorted(mods):
-        parent = m[3]
-        if parent and parent in by_name and parent != m[0]:
+        # 전제가 여럿이면 같은 분야에 있는 첫 전제 아래에 둡니다
+        parent = next((n for n in m[3] if n in by_name and n != m[0]), "")
+        if parent:
             kids.setdefault(parent, []).append(m[0])
         else:
             roots.append(m[0])
@@ -234,6 +240,53 @@ def grouped(core=None):
     if rest:
         out.append((dict(UNGROUPED), order_in_group(rest)))
     return out
+
+
+def validate_enabled(root, slug=None, required=()):
+    """설정에 등록된 모듈의 범위와 모든 부모 활성화를 검사합니다."""
+    known = {m[0] for m in modules()}
+    def read_list(path, field):
+        with open(path, encoding="utf-8") as stream:
+            values = json.load(stream).get(field, [])
+        if not isinstance(values, list) or any(not isinstance(v, str) for v in values):
+            raise ValueError("모듈 목록 형식 오류: " + str(path))
+        return set(values)
+    ws = read_list(os.path.join(root, "workspace.json"), "modules")
+    project = read_list(state_path(root, slug), "on") if slug else set()
+    for names, scope in ((ws, "workspace"), (project, "project")):
+        for name in names:
+            if name not in known or module_scope(name) != scope:
+                raise ValueError("모듈 이름 또는 적용 범위 오류: " + name)
+    have = ws | project
+    for name in sorted(have | set(required)):
+        if name not in have:
+            raise ValueError("활성화되지 않은 모듈: " + name)
+        missing = [parent for parent in prereq_chain(name) if parent not in have]
+        if missing:
+            raise ValueError(name + "에 필요한 부모가 꺼져 있습니다: " + ", ".join(missing))
+
+
+def validate_workspace(root):
+    """재생성 전에 저장소와 등록된 프로젝트의 전제를 검사합니다."""
+    from project_paths import discover
+    validate_enabled(root)
+    for key, folder in discover(root):
+        validate_enabled(root, key)
+
+
+def require_output_module(name, output, project=None):
+    """출력 대상 프로젝트와 부모 모듈이 켜져 있는지 검사합니다."""
+    from pathlib import Path
+    from project_paths import discover
+    root = repo_root()
+    if project is None:
+        target = Path(output).resolve()
+        matches = [(len(folder.parts), key) for key, folder in discover(root)
+                   if target.is_relative_to(folder.resolve())]
+        if not matches:
+            raise ValueError("출력의 소유 프로젝트를 찾을 수 없습니다. project 인수를 지정하세요")
+        project = max(matches)[1]
+    validate_enabled(root, project, required=(name,))
 
 
 def state_path(root, slug):
@@ -278,8 +331,8 @@ def cmd_list(root, slug):
                 print("       적용 범위 — 저장소 전체. workspace.json의 modules에서 켭니다")
             if when:
                 print("       언제 켜나 — %s" % when)
-            if needs:
-                print("       전제 — `%s` %s" % (needs, why))
+            for parent in needs:
+                print("       전제 — `%s` %s" % (parent, why.get(parent, "")))
             # 이유는 지도에 둡니다 — 목록은 이름만으로 「다른 것도 볼까」를 알리면 됩니다
             together = [n for n, _w in pairs(name)]
             if together:
@@ -308,9 +361,6 @@ def cmd_on(root, slug, name):
         sys.exit("그런 프로젝트가 없습니다: projects/%s" % slug)
 
     st = read_state(root, slug)
-    if name in st["on"]:
-        print("이미 켜져 있습니다: %s" % name)
-        return 0
 
     # 전제 모듈 — 꺼진 것이 있으면 멈춥니다. 자동으로 켜지 않는 이유는 「무엇이 켜지는지」를
     # 유저가 알고 동의해야 하기 때문입니다(rules/feature-request.md §3). 대신 사슬 전체를
@@ -325,15 +375,15 @@ def cmd_on(root, slug, name):
         print("")
         for i, m in enumerate(chain, 1):
             title = info.get(m, ("", ""))[0]
-            # 「왜 필요한가」는 그 모듈을 전제로 삼는 쪽이 압니다 — 사슬에서 한 칸 위입니다
-            requirer = chain[i] if i < len(chain) else name
-            why = info.get(requirer, ("", ""))[1]
+            # 각 직접 자식의 선언에서 필요한 이유를 가져옵니다
+            requirers = [(child, info[child][1][m]) for child in chain + [name]
+                         if m in info[child][1]]
             mark = "● 활성" if m in have else "○ 비활성"
             print("  %d. %-12s %s" % (i, m, mark))
             if title:
                 print("     %s" % title)
-            if why:
-                print("     → `%s`에 필요합니다 — %s" % (requirer, why))
+            for requirer, reason in requirers:
+                print("     → `%s`에 필요합니다 — %s" % (requirer, reason))
             print("")
         print("모듈은 저절로 활성화되지 않습니다. 필요한 모듈은 직접 활성화해주세요.")
         print("")
@@ -343,6 +393,10 @@ def cmd_on(root, slug, name):
             else:
                 print("  python core/base/scripts/module.py on %s %s" % (slug, m))
         return 1
+
+    if name in st["on"]:
+        print("이미 켜져 있습니다: %s (전제 검사 통과)" % name)
+        return 0
 
     made = []
     for d in creates(name):

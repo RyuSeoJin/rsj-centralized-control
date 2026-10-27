@@ -21,6 +21,10 @@
 
 ## 백로그
 
+- **§번호 참조를 항목 제목으로** — 원격 미배포 작업을 옮길 때 원격이 같은 자리를 새로 쓴 곳은 원격 문장을 따라
+  §번호 참조가 남았습니다: `central-sync.md` 「되돌려 보내기」와 그것을 가리키는 `remaining-work.md` · 저장소 서식
+  `repo-remaining-work.md`, pixel-art 규칙 · 용어집, ue-build 함정 표. `doc-write-style.md` 「참조는 문서 이름과 항목
+  제목으로 씁니다」에 맞춰 바꿉니다.
 - **pixel-art 사양 종류 구분** — `spec.py`의 읽기 함수는 `canvas` · `anchors`를 필수로 요구해 타일 · UI 사양을 읽지
   못합니다. 지금은 `tile_check.py` · `icon_check.py`가 JSON을 따로 읽습니다. 사양 파일에 `kind`(캐릭터 · 타일 · UI ·
   이펙트)를 두고 읽기 함수가 종류별 필수 키를 보게 할지 정합니다. `render` 절을 둘 사양 파일 자리도 함께 정합니다.

@@ -22,10 +22,13 @@ UE 프로젝트라면 구현 문서를 위해 ue-doc 모듈도 함께 켭니다.
 
 ## 전제 모듈
 
-없습니다.
+`planning-spec` — 기획 정본의 책임과 작성 항목은 이 모듈이 정하고, 현재 모듈은 출력 형식과 제작 절차를 맡습니다.
 
 ## 읽기 게이트
 
 | 상황 | 읽는 파일 | 멈추는 자리 |
 |---|---|---|
+| 기획 내용을 작성하거나 파생물에 반영할 때 | `../../base/rules/canonical-source.md` · `../planning-spec/rules/planning-spec.md` · 프로젝트 등록대장과 해당 정본 | 기획 규칙은 참조하고 출력용 규칙으로 다시 정의하지 않습니다 |
 | 기획서 작성 · 개정 | `rules/gdd-workflow.md` · `design-template/gdd-template-catalog.md` | 「제안」·「미정」을 확정처럼 구현 문서에 옮기지 않습니다 |
+
+<!-- CHANGELOG · 2026-10-12: planning-spec 전제와 base 정본 읽기 게이트 연결 -->

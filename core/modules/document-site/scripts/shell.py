@@ -1,5 +1,6 @@
+# v2.0 · 2026-10-12: 공통 셸을 분리하고 분야별 메뉴를 활성 모듈의 데이터에서 읽습니다.
 # -*- coding: utf-8 -*-
-"""shell.py — 산출물 공통 셸(사이드바·상단 바·테마 토글)을 한 곳에서 발행
+"""산출물 공통 셸 — 사이드바·상단 바·테마 토글을 한 곳에서 제공합니다
 
 왜 모듈인가
 -----------
@@ -7,7 +8,7 @@
   항목이 매트릭스에는 없는 식입니다. 항목은 여기 한 곳에 두고, 생성기는 「지금 어느
   문서인가」와 「이 문서의 절 목록」만 넘깁니다.
 
-  스타일 정본은 `modules/qa-site/design-guide/design-guide-master.css`, 동작 정본은 같은 폴더의
+  스타일 정본은 `modules/document-site/design-guide/design-guide-master.css`, 동작 정본은 같은 폴더의
   `design-guide-master.js`입니다. 산출물은 그 둘을 생성 시점 사본으로 inline해
   네트워크 요청 0건인 단일 파일이 됩니다.
 
@@ -79,7 +80,7 @@ REPO_LINK = ("저장소 깃허브 링크", REPO, "git")
 #: 사이드바에서 워크스페이스 이야기와 프로젝트 이야기를 가르는 기준.
 #: 앞은 프로젝트가 늘어도 그대로이고, 뒤는 프로젝트마다 한 벌씩 생긴다
 WORKSPACE_INTRO = ("central", "project")
-PROJECT_INTRO = ("tree", "tcsheet", "dict", "report", "trace")
+PROJECT_INTRO = ("dict",)
 
 def project_cfg(slug):
     """프로젝트별 표시 설정. **없는 것이 기본**이다.
@@ -123,11 +124,7 @@ def project_prefix(slug):
 INTRO = (
     ("central", "중앙 규칙 구조", "index.html"),
     ("project", "프로젝트 생성 방식", "index.html#project-guide"),
-    ("tree", "기능 골격", "projects/{slug}/docs/{prefix}-feature-tree.html"),
-    ("tcsheet", "TC 시트 구성", "projects/{slug}/docs/{prefix}-tc-sheet.html"),
     ("dict", "용어집", "projects/{slug}/docs/{prefix}-dictionary.html"),
-    ("report", "자동화 QA 리포트", "projects/{slug}/docs/{prefix}-report.html"),
-    ("trace", "추적 매트릭스", "projects/{slug}/docs/{prefix}-traceability.html"),
 )
 
 
@@ -215,6 +212,38 @@ def sidebar_from(groups, head_href, head_title, head_sub, foot=""):
     return "".join(o)
 
 
+def navigation_entries(slug):
+    """켠 모듈의 navigation.json에서 문서 메뉴를 합칩니다."""
+    enabled = set(WS.get("modules", []))
+    try:
+        folder = resolve(ROOT, slug)
+        state = folder / (folder.name + "-modules.json")
+        if state.exists():
+            enabled.update(json.loads(state.read_text(encoding="utf-8")).get("on", []))
+    except ValueError:
+        pass
+    entries = [(k, label, path, 30) for k, label, path in INTRO]
+    ids = {row[0] for row in entries}
+    modules_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    for name in sorted(enabled):
+        if not re.fullmatch(r"[a-z][a-z0-9-]*", name):
+            raise ValueError("잘못된 모듈 이름: " + str(name))
+        path = os.path.join(modules_root, name, "navigation.json")
+        if not os.path.exists(path):
+            continue
+        with io.open(path, encoding="utf-8") as stream:
+            rows = json.load(stream).get("project_items", [])
+        for row in rows:
+            key, label, target = row["id"], row["label"], row["path"]
+            if key in ids:
+                raise ValueError("메뉴 ID 중복: " + key)
+            if "\\" in target or not target.startswith("projects/") or ".." in target.split("/"):
+                raise ValueError("프로젝트 메뉴 경로 오류: " + target)
+            ids.add(key)
+            entries.append((key, label, target, row.get("order", 30)))
+    return tuple((key, label, path) for key, label, path, order in sorted(entries, key=lambda row: row[3]))
+
+
 def intro_all(slug):
     """INTRO의 경로에서 `{slug}`·`{prefix}` 자리를 그 프로젝트 값으로 채운 목록."""
     pre = project_prefix(slug)
@@ -223,7 +252,7 @@ def intro_all(slug):
     except ValueError:
         pass
     return tuple((k, l, p.replace("{slug}", slug).replace("{prefix}", pre))
-                 for k, l, p in INTRO)
+                 for k, l, p in navigation_entries(slug))
 
 
 def intro_group(current, root, slug, exists=None, keys=None, title="소개", subs=None):
@@ -319,7 +348,7 @@ def sidebar(slug, current, rel, foot="", out_path=None, exists=None, subs=None):
         if has_project(slug):
             groups.append(("@프로젝트: %s" % project_label(slug), ()))
             doc_title, doc_items = intro_group(current, root, slug, exists=exists,
-                                               keys=PROJECT_INTRO, title="문서")
+                                               keys=tuple(k for k, _, _ in intro_all(slug) if k not in WORKSPACE_INTRO), title="문서")
             groups.append((doc_title, doc_items))
     # 「내려받기」는 GitHub으로 나가므로 전부 새 탭이다.
     # 비었으면 묶음을 만들지 않습니다 — nav_group은 항목 수와 무관하게 머리말을 찍으므로
@@ -349,16 +378,6 @@ def open_body(slug, current, rel, crumb_doc, foot="", out_path=None):
 
 def close_body():
     return '</div></div></div><div class="backdrop"></div></body></html>'
-
-
-def check_items(tcs):
-    """확인 항목 수 — 시트의 한 행이 확인 항목 하나입니다.
-
-    케이스(TC ID) 수와 다릅니다. 한 케이스가 확인 항목을 여럿 갖기 때문입니다.
-    두 수를 한 자리에서 세는 이유는, 문서마다 따로 세면 「문서는 153인데 시트는
-    297」처럼 갈라지기 때문입니다(2026-08-05 확정).
-    """
-    return sum(sum(max(1, len(e)) for e in t[5]) for t in tcs)
 
 
 #: 저장소 밖으로 나가는 링크를 가리는 기준 — GitHub으로 나가는 링크다.
