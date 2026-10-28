@@ -1,0 +1,10 @@
+{
+  "scope": "host",
+  "group": "host-env",
+  "pairs": [
+    {
+      "name": "reverse-analysis",
+      "why": "REA로 역분석하는 절차 · 허가 범위 · 근거 기록 규칙을 맡음"
+    }
+  ]
+}

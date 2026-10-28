@@ -14,6 +14,7 @@
 | base | 안 켜면 워크스페이스가 성립하지 않는 중앙 규칙. 항상 읽습니다 | `rules/site-structure.md` §1-1 |
 | 모듈 | 골라 켜는 중앙 규칙 · 서식 · 도구의 묶음. 켜지 않으면 읽지 않습니다 | `rules/feature-request.md` §3 |
 | 워크스페이스 모듈 | 저장소 전체에 켜는 모듈(`scope: workspace`). `workspace.json`의 `modules`에 적습니다 | `rules/feature-request.md` §3 |
+| 모듈 용어집 | 켠 모듈의 용어 색인. 그 모듈 폴더의 `{모듈}-dictionary.md`에 있고, 이 색인에는 모듈 용어를 옮겨 적지 않습니다 — 화면 부품 이름처럼 모듈이 정하는 용어는 그 모듈을 켰을 때 거기서 찾습니다 | `rules/site-structure.md` §7 |
 | 호스트 모듈 | 한 컴퓨터의 환경을 다루는 모듈(`scope: host`). 프로젝트에 켜지 않습니다 | `rules/feature-request.md` §3 |
 | 저장소 이름표 | 저장소마다 달라지는 값을 담는 루트 `workspace.json` | `rules/site-structure.md` §3 |
 | 중앙 받기 | 중앙 저장소의 `core/`를 받아 오는 절차. 받은 뒤 손댄 파일이 있으면 멈춥니다 | `rules/central-sync.md` §2 |

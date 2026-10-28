@@ -1,7 +1,8 @@
+<!-- CHANGELOG v1.1 · 2026-10-19 — (변경) 제작 경로 선택과 공통 승인·보존·검수 규칙 연결 -->
 # pixel-art — 픽셀 아트 그림을 같은 규칙으로 만들고 화면에 매끄럽게 올립니다
 
 캐릭터를 한 장씩 따로 그리면 등신 · 눈높이 · 선 처리 · 색이 캐릭터마다 조금씩 갈리고, 그렇게
-갈린 캐릭터들은 같은 애니메이션 뼈대에 얹을 수 없습니다. 이 모듈은 **방법**(비율 재는 법 · 팔레트
+갈린 캐릭터들은 같은 화면에서 다른 스타일로 보이고 공통 뼈대도 공유하기 어렵습니다. 이 모듈은 **방법**(비율 재는 법 · 팔레트
 구조 · 외곽선과 셰이딩 규칙 · 제작 절차 · 검수 · 리깅 규약)과 그 방법을 도는 **도구**를 담고,
 캔버스 크기 · 등신 · 팔레트 색 · 관절 좌표 같은 **값**은 켠 프로젝트의 사양 파일이 정합니다.
 
@@ -17,7 +18,7 @@
 
 | 갈래 | 무엇 |
 |---|---|
-| 규칙 | `rules/pixel-style.md`(스타일 · 치비 §9 · 레퍼런스 세트 §10) · `rules/pixel-pipeline.md`(제작 절차) · `rules/pixel-rig.md`(Spine 리깅) · `rules/pixel-anim.md`(프레임 애니메이션) · `rules/pixel-motion.md`(움직임 원리) · `rules/pixel-render.md`(화면에 올리기 · 카메라) · `rules/pixel-tile.md`(타일 · 배경) · `rules/pixel-ui.md`(UI · 아이콘 · 글꼴) · `rules/pixel-fx.md`(이펙트 · 오브젝트) |
+| 규칙 | `rules/pixel-production.md`(입력 · 승인 · 보존 · 검수 · 배포) · `rules/pixel-style.md`(스타일 · 치비 §9 · 레퍼런스 세트 §10) · `rules/pixel-pipeline.md`(제작 절차) · `rules/pixel-rig.md`(Spine 리깅) · `rules/pixel-anim.md`(프레임 애니메이션) · `rules/pixel-motion.md`(움직임 원리) · `rules/pixel-render.md`(화면에 올리기 · 카메라) · `rules/pixel-tile.md`(타일 · 배경) · `rules/pixel-ui.md`(UI · 아이콘 · 글꼴) · `rules/pixel-fx.md`(이펙트 · 오브젝트) |
 | 용어 | `pixel-art-dictionary.md` |
 | 도구 | `scripts/`의 변환(`pixelize.py`) · 팔레트 제안(`palette_suggest.py`) · 레이어 쌓기(`sprite_build.py`) · 동작 합성(`anim_build.py`) · 검사(`lint.py`) · 라인업 시트(`lineup.py`) · Spine 뼈대(`spine_rig.py`) · 타일셋 검사(`tile_check.py`) · 아이콘 시트 검사(`icon_check.py`) · 기준 해상도 배율 계획(`scale_plan.py`). 검사 도구는 결함을 일부러 넣은 그림으로 스스로를 시험합니다 |
 | 프로젝트 폴더 | `source/`(입력 그림) · `sprites/`(원본 `.aseprite`) · `export/`(다시 만들 수 있는 파생물). 타일은 각 폴더의 `tiles/` 아래, 이펙트 · 오브젝트는 `export/fx/` · `export/objects/` |
@@ -46,10 +47,11 @@ python core/modules/aseprite/scripts/aseprite_env.py
 
 | 상황 | 읽는 파일 | 멈추는 자리 |
 |---|---|---|
-| 이 모듈로 작업을 시작할 때 (세션마다 한 번) | `core/modules/aseprite/module.md` — 위 점검 명령을 돌립니다 | 점검이 실패하면 그 문서의 「새 컴퓨터 설치」를 먼저 끝냅니다. 설치는 컴퓨터를 바꾸는 일이라 사용자 승인 뒤에만 합니다 |
+| 제작 규칙을 정리하거나 제작 · 수정 · 전달할 때 | `rules/pixel-production.md` · 프로젝트 현행 기준 · 사양 · 현재 제작 상태 | 승인 입력과 이번 수정 범위를 확인합니다. 규칙 정리만 할 때는 제작 도구 실행이 필요하지 않습니다 |
+| 이 모듈로 그림 제작을 시작할 때 (세션마다 한 번) | `core/modules/aseprite/module.md` — 위 점검 명령을 돌립니다 | 점검이 실패하면 그 문서의 「새 컴퓨터 설치」를 먼저 끝냅니다. 설치는 컴퓨터를 바꾸는 일이라 사용자 승인 뒤에만 합니다 |
 | 캐릭터를 새로 만들거나 다듬을 때 | `rules/pixel-style.md` · `rules/pixel-pipeline.md` · 프로젝트의 사양 파일 | 사양 파일이 없으면 값을 추측하지 않고 사양부터 확정받습니다 |
 | 파츠를 나누거나 Spine으로 보낼 때 | `rules/pixel-rig.md` | 사양 파일의 슬롯 · 뼈대를 캐릭터마다 바꾸지 않습니다 |
-| 동작(프레임 애니메이션)을 만들 때 | `rules/pixel-anim.md` | 동작은 공통 몸체에만 그리고, 캐릭터별로 동작 프레임을 새로 그리지 않습니다 |
+| 동작(프레임 애니메이션)을 만들 때 | `rules/pixel-anim.md` | 프로젝트가 채택한 제작 경로와 방향 처리 방식을 먼저 확인합니다. 공통 몸체 합성 경로에서만 공통 몸체 절차를 적용합니다 |
 | 동작의 타이밍 · 이동 속도 · 타격감을 정할 때 | `rules/pixel-motion.md` (나눠 얹는 규약은 `rules/pixel-anim.md`) | 오래 유지되는 이동 속도가 §7-1 표의 「좋음 · 쓸 만함」 밖이면 멈추고 확인받습니다 |
 | 게임 화면 · 카메라 · 해상도를 정하거나 떨림을 고칠 때 | `rules/pixel-render.md` · 사양 파일의 `render` 절 | 기준 해상도와 `scale_mode`가 정해지지 않았으면 값을 추측하지 않고 `scripts/scale_plan.py` 표를 보여 확정받습니다. 소수배(`fractional`)는 change-log 현행 기준에 예외로 적힌 경우에만 씁니다 |
 | 타일 · 배경 · 패럴랙스용 그림을 만들 때 | `rules/pixel-tile.md` · 프로젝트의 타일 사양 파일 · 캐릭터 사양(캐릭터 상자 · 광원 · 공유 램프) | 타일 사양이 없으면 타일 크기 · 시점을 추측하지 않고 사양부터 확정받습니다. 이미 쓰는 시트 칸은 옮기지 않습니다 |

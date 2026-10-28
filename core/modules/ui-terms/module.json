@@ -1,0 +1,24 @@
+{
+  "scope": "project",
+  "group": "planning",
+  "creates": [],
+  "pairs": [
+    {
+      "name": "gdd",
+      "why": "기획서에 화면을 적을 때 부품 이름을 이 용어집으로 맞춤"
+    },
+    {
+      "name": "app-planning-slides",
+      "why": "앱 기획 문서의 화면 설명을 이 용어집의 이름으로 씀"
+    },
+    {
+      "name": "game-html",
+      "why": "HTML 프로토타입의 화면을 AI에게 요청할 때 용어 + 동작 + 조건으로 씀"
+    },
+    {
+      "name": "app-simulator",
+      "why": "앱 프로토타입의 화면을 요청 · 검토할 때 부품 이름을 맞춤"
+    }
+  ],
+  "instead": []
+}

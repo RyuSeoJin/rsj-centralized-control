@@ -1,0 +1,332 @@
+{
+  "version": 1,
+  "grid": {
+    "cols": 3,
+    "rows": 3
+  },
+  "rooms": [
+    {
+      "id": "write",
+      "name": "작성실",
+      "col": 0,
+      "row": 0,
+      "floor": "#82694e",
+      "roof": "#596c87",
+      "tile": "wood",
+      "furniture": [
+        {
+          "type": "window",
+          "x": 17,
+          "y": 24
+        },
+        {
+          "type": "shelf",
+          "x": 129,
+          "y": 24
+        },
+        {
+          "type": "desk",
+          "x": 30,
+          "y": 50,
+          "owner": "claude"
+        },
+        {
+          "type": "plant",
+          "x": 134,
+          "y": 68
+        }
+      ]
+    },
+    {
+      "id": "review",
+      "name": "검토실",
+      "col": 1,
+      "row": 0,
+      "floor": "#647477",
+      "roof": "#58777a",
+      "tile": "stone",
+      "furniture": [
+        {
+          "type": "shelf",
+          "x": 130,
+          "y": 24
+        },
+        {
+          "type": "desk",
+          "x": 30,
+          "y": 50,
+          "owner": "codex"
+        },
+        {
+          "type": "plant",
+          "x": 133,
+          "y": 68
+        }
+      ]
+    },
+    {
+      "id": "library",
+      "name": "자료실",
+      "col": 2,
+      "row": 0,
+      "floor": "#80694f",
+      "roof": "#6b6883",
+      "tile": "wood",
+      "furniture": [
+        {
+          "type": "shelf",
+          "x": 20,
+          "y": 29
+        },
+        {
+          "type": "shelf",
+          "x": 66,
+          "y": 29
+        },
+        {
+          "type": "shelf",
+          "x": 112,
+          "y": 29
+        },
+        {
+          "type": "desk",
+          "x": 62,
+          "y": 69
+        },
+        {
+          "type": "plant",
+          "x": 143,
+          "y": 76
+        }
+      ]
+    },
+    {
+      "id": "plan",
+      "name": "기획실",
+      "col": 0,
+      "row": 1,
+      "floor": "#826b56",
+      "roof": "#7e657c",
+      "tile": "wood",
+      "furniture": [
+        {
+          "type": "board",
+          "x": 58,
+          "y": 25
+        },
+        {
+          "type": "desk",
+          "x": 28,
+          "y": 50
+        },
+        {
+          "type": "desk",
+          "x": 103,
+          "y": 50
+        }
+      ]
+    },
+    {
+      "id": "meeting",
+      "name": "회의실",
+      "col": 1,
+      "row": 1,
+      "floor": "#6d7475",
+      "roof": "#686f8b",
+      "tile": "stone",
+      "furniture": [
+        {
+          "type": "table",
+          "x": 40,
+          "y": 42
+        },
+        {
+          "type": "chair",
+          "x": 49,
+          "y": 26
+        },
+        {
+          "type": "chair",
+          "x": 95,
+          "y": 26
+        },
+        {
+          "type": "chair",
+          "x": 49,
+          "y": 79
+        },
+        {
+          "type": "chair",
+          "x": 95,
+          "y": 79
+        },
+        {
+          "type": "plant",
+          "x": 146,
+          "y": 76
+        }
+      ]
+    },
+    {
+      "id": "lounge",
+      "name": "라운지",
+      "col": 2,
+      "row": 1,
+      "floor": "#856c4e",
+      "roof": "#7c7252",
+      "tile": "wood",
+      "furniture": [
+        {
+          "type": "sofa",
+          "x": 20,
+          "y": 34
+        },
+        {
+          "type": "cabinet",
+          "x": 86,
+          "y": 36
+        },
+        {
+          "type": "machine",
+          "x": 132,
+          "y": 26
+        },
+        {
+          "type": "plant",
+          "x": 136,
+          "y": 80
+        }
+      ]
+    },
+    {
+      "id": "garden",
+      "name": "정원",
+      "col": 0,
+      "row": 2,
+      "floor": "#527c49",
+      "roof": "#4e7150",
+      "tile": "grass",
+      "furniture": [
+        {
+          "type": "bench",
+          "x": 22,
+          "y": 34
+        },
+        {
+          "type": "pond",
+          "x": 64,
+          "y": 38
+        },
+        {
+          "type": "plant",
+          "x": 134,
+          "y": 21
+        },
+        {
+          "type": "plant",
+          "x": 13,
+          "y": 74
+        }
+      ]
+    },
+    {
+      "id": "archive",
+      "name": "공유 보관함",
+      "col": 1,
+      "row": 2,
+      "floor": "#78654f",
+      "roof": "#5e7583",
+      "tile": "wood",
+      "furniture": [
+        {
+          "type": "shelf",
+          "x": 20,
+          "y": 31
+        },
+        {
+          "type": "shelf",
+          "x": 121,
+          "y": 31
+        },
+        {
+          "type": "screen",
+          "x": 63,
+          "y": 38
+        },
+        {
+          "type": "plant",
+          "x": 142,
+          "y": 77
+        }
+      ]
+    },
+    {
+      "id": "rest",
+      "name": "휴게실",
+      "col": 2,
+      "row": 2,
+      "floor": "#82684f",
+      "roof": "#777052",
+      "tile": "wood",
+      "furniture": [
+        {
+          "type": "couch",
+          "x": 20,
+          "y": 40,
+          "color": "#b48b7e"
+        },
+        {
+          "type": "couch",
+          "x": 110,
+          "y": 40,
+          "color": "#8e99b0"
+        },
+        {
+          "type": "lowtable",
+          "x": 78,
+          "y": 69
+        },
+        {
+          "type": "plant",
+          "x": 138,
+          "y": 78
+        }
+      ]
+    }
+  ],
+  "places": {
+    "claudeDesk": "write",
+    "codexDesk": "review",
+    "reading": "library",
+    "mcp": "plan",
+    "meeting": "meeting",
+    "rest": "rest",
+    "waiting": "garden",
+    "resting": "rest"
+  },
+  "agentRooms": {
+    "*": [
+      "plan",
+      "meeting",
+      "library",
+      "archive",
+      "write",
+      "review"
+    ]
+  },
+  "characters": {
+    "claude": {
+      "name": "Claude",
+      "shirt": "#dca276",
+      "hair": "#744932",
+      "skin": "#f1c59d"
+    },
+    "codex": {
+      "name": "Codex",
+      "shirt": "#88b9a6",
+      "hair": "#344c4b",
+      "skin": "#edc9a0"
+    },
+    "agentTypes": {}
+  }
+}
