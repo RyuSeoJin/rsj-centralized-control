@@ -13,6 +13,7 @@
 - `core/modules/` — 골라 켜는 모듈. 각 모듈의 `module.md`가 자기소개(언제 켜나 · 따라오는 것 ·
   전제)입니다. 목록은 `python core/base/scripts/module.py list`로 봅니다.
 - `center-change-log.md` · `center-remaining-work.md` — 중앙 규칙의 이력과 남은 일.
+- `center-tool-specs/` — 규칙만 들어가고 도구가 아직 없는 것의 구현 명세. 중앙 남은 작업이 이름으로 가리킵니다.
 - `README.md` — 받아 가는 법.
 
 **base와 modules를 가르는 기준**은 「이 규칙을 안 켠 프로젝트가 있을 수 있는가」, **중앙과 프로젝트를
@@ -35,7 +36,7 @@
 <!-- gen:read-gates -->
 | 경로 | 규칙 |
 |---|---|
-| `core/modules/` | **기본 참조 금지.** 프로젝트 모듈은 그 프로젝트의 `{폴더}-modules.json`에 켜져 있을 때만, 워크스페이스 모듈은 `workspace.json`의 `modules`에 있을 때만 읽습니다. `scope: host` 모듈은 그 컴퓨터의 환경을 다룰 때만 읽습니다 |
+| `core/modules/` | **기본 참조 금지.** 프로젝트 모듈은 그 프로젝트의 `{폴더}-modules.json`이나, 제품 폴더 아래의 업무 프로젝트라면 그 제품의 `{제품}-module-config.json`에 켜져 있을 때만, 워크스페이스 모듈은 `workspace.json`의 `modules`에 있을 때만 읽습니다. `scope: host` 모듈은 그 컴퓨터의 환경을 다룰 때만 읽습니다 |
 | 프로젝트의 change-log | 작업 전 **항상 먼저 읽습니다** — 「현행 기준」 블록에서 정본 등록대장과 현재 용어 · 상시 규칙을 찾습니다. 작성 규칙은 `core/base/rules/change-log-writing.md` |
 | 프로젝트의 remaining-work | 작업 전 **항상 먼저 읽습니다** — 할 일의 정본(다음 작업 큐 · 결정 대기 · 백로그). 규칙은 `core/base/rules/remaining-work.md` |
 | `{폴더}-structure.json` | 등록된 자료의 경로 · 역할 · 참조 · 생성 관계의 정본입니다. 아래 기본 자리는 설정이 없는 프로젝트의 기본안입니다 |
