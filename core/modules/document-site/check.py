@@ -9,7 +9,9 @@ HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE / "scripts"))
 import shell
 
-with tempfile.TemporaryDirectory() as tmp:
+# 생성기는 입력과 저장소의 상대 경로를 구하므로, 임시 폴더를 저장소와 같은 드라이브(이 모듈 폴더 안)에 둡니다.
+# 시스템 임시 폴더를 쓰면 Windows에서 드라이브가 다를 때 os.path.relpath가 ValueError로 멈춥니다.
+with tempfile.TemporaryDirectory(dir=HERE, prefix=".check-") as tmp:
     root = Path(tmp)
     (root / "workspace.json").write_text("{}", encoding="utf-8")
     project = root / "projects" / "sample"

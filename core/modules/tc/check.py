@@ -6,6 +6,8 @@
   ① scripts/의 도구를 실제로 불러 봅니다.
   ② design-template/의 빈 입력 골격으로 TC 시트를 한 장 만들어 봅니다. 게이팅 상태 목록은
      프로젝트가 정하므로 중앙에서는 비어 있고, **빈 목록으로도 만들어져야** 합니다.
+  ③ 두 노드짜리 시험 골격으로 기능 골격 HTML을 한 장 만들어 봅니다. 생성기는 document-site의
+     마스터를 `main()` 안에서 읽으므로, 불러오기(①)만으로는 마스터 경로가 틀려도 지나갑니다.
 
 무엇을 안 보나
 -------------
@@ -42,7 +44,28 @@ def main():
         made.append("TC 시트 생성이 실패했습니다 — %s" % (tail[-1] if tail else "출력 없음"))
     else:
         made = modcheck.wrote(out, "TC 시트가 비어 있습니다")
-    return modcheck.done("tc", modcheck.imports(__file__), made)
+    return modcheck.done("tc", modcheck.imports(__file__), made, feature_tree(here))
+
+
+def feature_tree(here):
+    """시험 골격으로 기능 골격 HTML을 만들어 봅니다."""
+    # 셸이 출력과 저장소의 상대 경로를 구하므로, 임시 폴더를 저장소와 같은 드라이브(이 모듈 폴더 안)에 둡니다
+    with tempfile.TemporaryDirectory(dir=here, prefix=".check-") as tmp:
+        tree = os.path.join(tmp, "spec", "probe-feature-tree.md")
+        os.makedirs(os.path.dirname(tree))
+        with open(tree, "w", encoding="utf-8") as f:
+            f.write("# probe 기능 골격 v1.0\n\n## 트리\n"
+                    "- 영역 [범위: 구현]\n"
+                    "  - 기능 [유형: 결정적] [P: High] [출처: REF] [범위: 구현]\n")
+        out = os.path.join(tmp, "probe.html")
+        r = subprocess.run(
+            [sys.executable, os.path.join(here, "scripts", "gen_feature_tree_html.py"),
+             tree, "-o", out],
+            capture_output=True)
+        if r.returncode != 0:
+            tail = r.stderr.decode("utf-8", "replace").strip().splitlines()
+            return ["기능 골격 HTML 생성이 실패했습니다 — %s" % (tail[-1] if tail else "출력 없음")]
+        return modcheck.wrote(out, "기능 골격 HTML이 비어 있습니다")
 
 
 if __name__ == "__main__":

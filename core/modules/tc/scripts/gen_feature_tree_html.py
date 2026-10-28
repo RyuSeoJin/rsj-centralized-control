@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# CHANGELOG · 2026-10-28: (변경) document-site 마스터 경로를 이 파일 기준 상대 경로로 계산
 # CHANGELOG · 2026-10-12: 공통 셸을 document-site에서 참조하고 TC 집계를 tc 도구로 분리합니다.
 """feature-tree.md (정본) -> feature-tree.html (파생, 자기완결 단일 파일)
 
@@ -110,12 +111,13 @@ def main():
     if not data["nodes"]:
         sys.exit("트리 노드를 찾지 못함")
 
-    # scripts → tc → modules → core. 이름이 repo면 저장소 루트로 읽혀 다음 이동에서 조용히 틀린다
-    core = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-    css_path = os.path.join(core, "modules", "document-site", "design-guide", "design-guide-master.css")
+    # 마스터는 document-site가 소유합니다 — 셸 경로(위 sys.path)와 같이 이 파일 기준으로 셉니다.
+    # dirname을 겹쳐 올라가면 횟수가 한 번만 어긋나도 없는 자리(core/modules/modules/…)를 찾습니다
+    guide = os.path.join(_HERE, "..", "..", "document-site", "design-guide")
+    css_path = os.path.join(guide, "design-guide-master.css")
     with io.open(css_path, encoding="utf-8") as f:
         css = f.read()
-    js_path = os.path.join(core, "modules", "document-site", "design-guide", "design-guide-master.js")
+    js_path = os.path.join(guide, "design-guide-master.js")
     js = io.open(js_path, encoding="utf-8").read() if os.path.exists(js_path) else ""
     css_ver = "v1.0"
     for line in css.splitlines():

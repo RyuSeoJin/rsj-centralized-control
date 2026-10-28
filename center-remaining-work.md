@@ -45,25 +45,17 @@
    띠별 위끝 맞춤 · 연결 표식 함께 이동 · 겹침 0 확인)를 도구로 둡니다. 구현 명세는 `center-tool-specs/wireframe-board-layout.md`. 산출물: 도구
 14. **원문 행 골격 도구** — tc 「기획 원문 표에서 골격을 만드는 선택지」의 생성 · `--check` · `--stamp`(행 해시
    `basis`)를 tc 도구로 둡니다. 구현 명세는 `center-tool-specs/tc-basis.md`. 산출물: 도구 + 시험
-15. **tc 기능 골격 HTML 생성기 경로** — `gen_feature_tree_html.py`가 `dirname`을 세 번만 올라가 `core/modules/modules/
-   document-site/…`를 찾고 실패합니다(같은 실행의 다른 작업도 멈춤). 파일 기준 상대 경로로 고치고 `check.py`에
-   골격 HTML 생성 한 번을 더합니다. 구현 명세는 `center-tool-specs/tc-feature-tree-path-fix.md`. 산출물: 수정 + 케이스
-16. **용어집 생성기의 상단 주석** — document-site `gen_dictionary_html.py`가 md 첫 줄의 파일 CHANGELOG 주석을
+15. **용어집 생성기의 상단 주석** — document-site `gen_dictionary_html.py`가 md 첫 줄의 파일 CHANGELOG 주석을
    머리말 문단에 글자로 보입니다. `parse()`가 주석을 먼저 지우게 합니다. 같은 갈래의 결함(번호 없는 `##`에서
    멈춤 · 주석을 h1로 씀)을 공용 렌더러를 들일 때 함께 막습니다. 구현 명세는 `center-tool-specs/document-site-generator-fixes.md`. 산출물: 수정 + 케이스
-17. **묶음 허브 생성기** — document-site 「묶음 허브 — 통합 허브와 업무별 허브」의 생성기를 둡니다. 구현 명세는 `center-tool-specs/product-hub.md`.
+16. **묶음 허브 생성기** — document-site 「묶음 허브 — 통합 허브와 업무별 허브」의 생성기를 둡니다. 구현 명세는 `center-tool-specs/product-hub.md`.
    산출물: 도구 + 시험
-18. **app-wireframe 규칙의 서비스 용어** — `wireframe.md` 「화면과 상태를 배치합니다」 · 「순서도 배치」에 특정 서비스의
+17. **app-wireframe 규칙의 서비스 용어** — `wireframe.md` 「화면과 상태를 배치합니다」 · 「순서도 배치」에 특정 서비스의
    첫 체험 흐름 이름이 남아 있습니다. 「첫 체험 · 일반」처럼 일반 표현으로 바꿉니다.
-19. **출시 스펙 확정 점검표 생성기** — planning-spec 「출시 스펙 확정 점검표는 정본에서 만듭니다」의 생성기를
+18. **출시 스펙 확정 점검표 생성기** — planning-spec 「출시 스펙 확정 점검표는 정본에서 만듭니다」의 생성기를
    planning-spec 도구로 둡니다(정본 폴더 · 출력 · 먼저 정할 것 설정을 인자로 받음 · 「만든 날」을 뺀 `--check`).
    요약본 대조 검사기와 같은 때 넣으면 `check.py` 하나로 둘을 봅니다. 구현 명세는
    `center-tool-specs/launch-checklist.md`. 산출물: 도구 + `check.py`
-20. **document-site 점검이 다른 드라이브에서 실패함** — `core/modules/document-site/check.py`가 임시 폴더에
-   견본을 만들어 `gen_dictionary_html.py`를 돌리는데, 생성기가 `os.path.relpath`로 입력과 저장소의 상대 경로를
-   구합니다. Windows에서 임시 폴더와 저장소의 드라이브가 다르면 `ValueError`로 멈춥니다(2026-10-28 확인 ·
-   임시 폴더 C:, 저장소 E:). 점검의 임시 폴더를 저장소와 같은 드라이브에 만들지, 생성기가 다른 드라이브를
-   견디게 할지 정해 고칩니다. 산출물: 수정 + 점검 통과
 
 ## 사용자 결정 대기
 
@@ -121,7 +113,7 @@
 
 - app-planning-slides 기능별 예시의 `A2-04`(마감 · 대기 제안 시트 · 이전 형식의 `n8`) 노드 다음 경로를 정합니다. 새 검사가 출구 누락을 경고합니다. 대기 신청 정책이 미결이므로 종료·복귀·다음 기능 이동 중 실제 의도를 확인한 뒤 예시 입력과 견본을 함께 갱신합니다.
 
-- `qa-site`의 진입 페이지 생성기에 있는 「`base/design-guide/` — 형식의 정본」 카드는 이제 base 마스터
+- `document-site`의 진입 페이지 생성기(`core/modules/document-site/scripts/gen_intro_html.py`)에 있는 「`base/design-guide/` — 형식의 정본」 카드는 이제 base 마스터
   (UE 마스터)를 가리킵니다. 문구가 사용자 확정 문구라 바꾸지 않았고, 그 저장소 사용자에게 확인이
   필요합니다(`change-scope.md` §3).
 - **모듈 소개 페이지** — 옛 판의 「TC 설계 규칙」 장을 `tc` 모듈의 소개로 다시 만듭니다. 프로젝트
