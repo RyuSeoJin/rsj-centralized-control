@@ -17,8 +17,10 @@ import modcheck  # noqa: E402
 def node_rule():
     """REA가 받는 Node.js 버전 경계를 바르게 가르는지 봅니다."""
     import rea_env
-    cases = {"v22.19.0": True, "v22.18.9": False, "v24.11.0": True, "v24.10.0": False,
-             "v23.9.0": False, "v26.0.0": True, "v20.11.1": False, "": False}
+    cases = {"v22.23.4": True, "v22.23.3": False, "v22.24.0": True, "v22.19.0": False,
+             "v24.22.1": True, "v24.22.0": False, "v24.13.0": False, "v24.23.0": True,
+             "v26.12.1": True, "v26.12.0": False, "v26.13.0": True, "v27.0.0": True,
+             "v23.9.0": False, "v20.11.1": False, "": False}
     return ["Node.js 판정 — %r는 %s이어야 합니다" % (k, "통과" if want else "실패")
             for k, want in cases.items() if rea_env.node_ok(k)[0] != want]
 

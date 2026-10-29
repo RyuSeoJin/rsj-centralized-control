@@ -25,9 +25,12 @@ import sys
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
-# REA가 받는 Node.js — 주 버전별 최소 부 버전. 26 이상은 모두 받습니다.
-NODE_MIN = {22: 19, 24: 11}
-NODE_OPEN_FROM = 26
+# REA가 받는 Node.js — 주 버전별 최소 (부, 수) 버전. 27 이상은 모두 받습니다.
+# REA 자신의 하한(22.19 · 24.11 · 26)보다 높게, Brotli 해제기 결함(CVE-2026-111497)을
+# 고친 2026-10-21 보안 릴리스를 하한으로 둡니다.
+NODE_MIN = {22: (23, 4), 24: (22, 1), 26: (12, 1)}
+NODE_OPEN_FROM = 27
+NODE_NEED = "22.23.4+ · 24.22.1+ · 26.12.1+"
 
 
 def _run(args, timeout=120):
@@ -45,24 +48,24 @@ def node_ok(text):
     m = re.search(r"v?(\d+)\.(\d+)\.(\d+)", text or "")
     if not m:
         return False, None
-    major, minor = int(m.group(1)), int(m.group(2))
+    major, minor, patch = int(m.group(1)), int(m.group(2)), int(m.group(3))
     ver = "%s.%s.%s" % m.groups()
     if major >= NODE_OPEN_FROM:
         return True, ver
     if major in NODE_MIN:
-        return minor >= NODE_MIN[major], ver
+        return (minor, patch) >= NODE_MIN[major], ver
     return False, ver
 
 
 def node_status():
     exe = shutil.which("node")
     if not exe:
-        return False, "찾지 못함 (Node.js 22.19+ · 24.11+ · 26+ 설치 필요)"
+        return False, "찾지 못함 (Node.js %s 설치 필요)" % NODE_NEED
     code, out = _run([exe, "--version"], timeout=30)
     ok, ver = node_ok(out)
     if ver is None:
         return False, "버전을 읽지 못함"
-    return ok, ver + ("" if ok else " — 맞지 않음 (22.19+ · 24.11+ · 26+)")
+    return ok, ver + ("" if ok else " — 맞지 않음 (%s)" % NODE_NEED)
 
 
 def mcp_status(name="rea"):
