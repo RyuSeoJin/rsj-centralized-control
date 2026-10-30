@@ -56,6 +56,9 @@
    planning-spec 도구로 둡니다(정본 폴더 · 출력 · 먼저 정할 것 설정을 인자로 받음 · 「만든 날」을 뺀 `--check`).
    요약본 대조 검사기와 같은 때 넣으면 `check.py` 하나로 둘을 봅니다. 구현 명세는
    `center-tool-specs/launch-checklist.md`. 산출물: 도구 + `check.py`
+19. **Penpot 그리기 키트** — penpot-ux 「코드로 그릴 때」의 플러그인을 범용 부품(`penpot-kit.js`)과 화면 사양 JSON을
+   읽는 빌더로 나눠 둡니다. 흐름도 도형은 `core/base/rules/flowchart.md`의 값으로 그립니다. 근거가 한 프로젝트라
+   두 번째 프로젝트가 쓸 때 넣는 것도 방법입니다. 구현 명세는 `center-tool-specs/penpot-kit.md`. 산출물: 키트 + 사양 검사 `check.py`
 
 ## 사용자 결정 대기
 
@@ -90,9 +93,16 @@
 - **근거 단위 해시의 공통 원리** — tc 원문 행 `basis`와 탐색기 캡처 흐름별 개정을 「근거 단위 해시로 낡음 판정」
   한 원리로 묶어 base에 둘지.
 - **용어 「독자용 요약본」** — 중앙 용어집에 등록할지.
+- **app-wireframe의 분야** — 새 분야 「화면 설계」(`ux-design`)에 penpot-ux만 두었습니다. Figma 와이어프레임
+  모듈인 app-wireframe도 「앱 체험 · 프로토타입」에서 이 분야로 옮길지.
 
 
 ## 백로그
+
+- **흐름도 규칙의 겹친 본문 정리** — 흐름도의 뜻은 `core/base/rules/flowchart.md`로 모았지만, workflow-explorer
+  `explorer.md` 「화면과 동작」과 app-planning-slides `slide-patterns.md` 「기능 흐름도 기호」 · 「서비스 흐름도의 공통 기준」에
+  같은 뜻을 풀어 쓴 문장이 남아 있습니다(지금은 두 곳 모두 base를 기준으로 가리킴). 구현값(크기 · 간격 · 상호작용)만
+  남기고 뜻 설명은 base 참조로 줄입니다. 생성물이 바뀌지 않는지 확인하며 합니다.
 
 - **§번호 참조를 항목 제목으로** — 원격 미배포 작업을 옮길 때 원격이 같은 자리를 새로 쓴 곳은 원격 문장을 따라
   §번호 참조가 남았습니다: `central-sync.md` 「되돌려 보내기」와 그것을 가리키는 `remaining-work.md` · 저장소 서식

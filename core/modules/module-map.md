@@ -64,6 +64,12 @@
   - 언제 켜나: 앱·서비스의 사용자 흐름을 기획자·개발자가 함께 따라가며 검토해야 할 때 켭니다. 흐름 데이터가 이미 있거나, 기획서·구현에서 흐름을 정리할 프로젝트가 대상입니다.
   - 전제 사슬: `workflow-explorer` ← `document-site` ← `planning-spec`
 
+### 화면 설계 — 화면 구조 · 흐름 · 와이어프레임을 디자인 도구에서 설계하나요?
+
+- `penpot-ux` — Penpot으로 화면 흐름도 · 와이어프레임 · 공통 컴포넌트를 설계합니다
+  - 언제 켜나: 화면 구조 · 흐름 · 와이어프레임을 Penpot에서 설계하는가? 그렇다면 켭니다. 앱 시뮬레이터의 화면을 Figma 키트로 옮기는 것이 목적이면 `app-wireframe`이 맞습니다.
+  - 전제 사슬: `penpot-ux` ← `planning-spec`
+
 ### 게임 프로토타입 — 게임 화면과 규칙을 HTML로 만들어 직접 플레이하며 검토하나요?
 
 - `game-html` — 게임 화면과 규칙을 한 파일 HTML로 만들어 직접 플레이하며 검토합니다
@@ -122,12 +128,15 @@
 | `tc` | `reverse-analysis` | 역분석한 기능의 동작에서 테스트 케이스를 뽑을 때 함께 켬 |
 | `app-planning-slides` | `ui-terms` | 앱 기획 문서의 화면 설명을 이 용어집의 이름으로 씀 |
 | `gdd` | `ui-terms` | 기획서에 화면을 적을 때 부품 이름을 이 용어집으로 맞춤 |
+| `gdd` | `penpot-ux` | 기획서의 화면 목록 · 존 지도를 Penpot 보드로 그려 합의할 때 함께 켬 |
 | `gdd` | `game-html` | 게임 프로토타입을 HTML로 만들 때 그 만드는 법 · 서식 · 점검 도구를 함께 씀 / 기획서로 합의한 규칙을 이 모듈의 프로토타입으로 확인할 때 함께 켬 |
 | `gdd` | `ue-doc` | UE 프로젝트면 구현 문서용으로 함께 켬 / 구현 전에 기획을 문서로 합의하면 함께 켬 |
 | `gdd` | `reverse-analysis` | 역분석으로 알아낸 시스템을 역기획서 · 자기 기획서로 정리할 때 함께 켬 |
 | `ui-terms` | `app-simulator` | 앱 프로토타입의 화면을 요청 · 검토할 때 부품 이름을 맞춤 |
+| `ui-terms` | `penpot-ux` | 보드 · 컴포넌트 이름을 화면 부품 용어집의 이름으로 맞춤 |
 | `ui-terms` | `game-html` | HTML 프로토타입의 화면을 AI에게 요청할 때 용어 + 동작 + 조건으로 씀 |
 | `app-simulator` | `workflow-explorer` | 탐색기 안에서 시뮬레이터를 불러 흐름을 따라감 |
+| `penpot-ux` | `ue-umg` | 보드의 Flex · Grid 값을 사양으로 읽어 UMG C++ 화면으로 옮길 때 함께 켬 |
 | `ue-build` | `ue-umg` | 코드로 만든 UI를 빌드하고 자동 시험 · 화면 사진으로 확인할 때 함께 켬 |
 | `ue-localization` | `ue-umg` | 여러 언어의 글자 폭 · 번역 없음을 UI 칸과 함께 볼 때 함께 켬 |
 | `pixel-art` | `aseprite` | Aseprite 실행 · 배치 모드 환경 점검을 맡음 / Aseprite로 그리는 픽셀 아트의 그림 규칙을 맡음 |
@@ -142,3 +151,4 @@
 | `app-planning-slides` | 앱 기획 문서를 슬라이드로 공유하는 것이 목적일 때 | `gdd` | 구현 전 시스템 하나를 깊게 합의하는 HTML 기획서가 목적일 때 |
 | `app-preview` | 화면 데이터를 여러 기기 크기에서 나란히 비교할 때 | `app-simulator` | 프로토타입 앱 하나를 기기 틀과 개발용 조작으로 돌려 볼 때 |
 | `app-preview` | 화면 크기별 전환 비교가 목적일 때 | `workflow-explorer` | 흐름의 갈래와 주체(유저 · 시스템)를 따라가며 읽을 때 |
+| `app-wireframe` | 앱 시뮬레이터의 화면을 Figma 키트로 와이어프레임을 만들 때 | `penpot-ux` | 시뮬레이터 없이 Penpot에서 화면 흐름도 · 와이어프레임을 설계할 때 |

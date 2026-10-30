@@ -3,5 +3,11 @@
   "group": "app-experience",
   "creates": [
     "wireframes"
+  ],
+  "instead": [
+    {
+      "name": "penpot-ux",
+      "why": "시뮬레이터 없이 Penpot에서 화면 흐름도 · 와이어프레임을 설계할 때"
+    }
   ]
 }
