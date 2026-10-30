@@ -14,18 +14,30 @@
 | 예 | 작업 전에 읽을 것 · 요청 범위 · 문서 문체 · 변경 이력 · git 규칙 | TC 시트(`tc`) · 앱 기획 슬라이드(`app-planning-slides`) · Penpot 화면 설계(`penpot-ux`) · 언리얼 빌드(`ue-build`) |
 | 목록 | 아래 「base 규칙 — 하는 일별」 · [base 규칙 지도](core/base/base-map.md) | 아래 「모듈 한눈에」 · [모듈 지도](core/modules/module-map.md) |
 
+### 중앙 규칙 저장소에 들어 있는 것
+
 ```mermaid
 flowchart LR
-  subgraph C["이 저장소 — 규칙 정본"]
-    direction TB
-    B["core/base<br/>항상 전부 따르는 규칙"]
-    M["core/modules<br/>골라 켜는 도구"]
+  subgraph B["중앙 저장소 · core/base — 항상 전부 따름"]
+    b1["작업 시작 · 범위"]
+    b2["문서 만들기"]
+    b3["정본과 기록"]
+    b4["저장소 · 프로젝트"]
+    b5["용어집 · 서식 · 도구"]
   end
-  C -->|sync_core.py로 받기| RC["받는 저장소의<br/>core/ 사본"]
-  RC -->|base 전부 + 켠 모듈| P1["프로젝트 A"]
-  RC -->|base 전부 + 켠 모듈| P2["프로젝트 B"]
-  P1 -.->|겪은 문제는 이 저장소에서 고침| C
+  subgraph M["중앙 저장소 · core/modules — 필요할 때 골라 켬"]
+    m1["QA · 기획 문서"]
+    m2["화면 설계 · 앱 체험"]
+    m3["게임 · UE · 아트"]
+    m4["역분석 · 에이전트 · 컴퓨터 환경"]
+  end
+  L["중앙 저장소 · center-change-log<br/>무엇이 바뀌었고 받는 쪽은 무엇을 하나"]
+  B -->|받으면 전부 적용| R["받는 저장소<br/>core/ 사본"]
+  M -->|필요한 것만 프로젝트에서 켬| R
+  L -.->|다시 받을 때 태그 처리| R
 ```
+
+받는 저장소에서 겪은 문제는 그 저장소의 `core/`가 아니라 이 저장소에서 고칩니다(「중앙 규칙을 바꾸고 싶을 때」).
 
 ### 저장소를 새로 만들면
 
@@ -38,6 +50,42 @@ flowchart LR
    순서를 알려 줍니다.
 5. 중앙 규칙이 바뀌면 다시 받습니다(「다시 받기」). 받는 쪽이 할 일은 [center-change-log.md](center-change-log.md)의
    항목마다 「태그」로 적혀 있습니다.
+
+프로젝트를 만들고 모듈을 켜는 흐름입니다. 위 띠는 사용자가 하는 일, 아래 띠는 도구가 하는 일이고, 파란 선은
+「예」, 빨간 선은 「아니오」입니다([흐름도 규칙](core/base/rules/flowchart.md)).
+
+```mermaid
+flowchart LR
+  subgraph SY["시스템 구역"]
+    O1[/"프로젝트 생성<br/>base 전부 적용 · 모듈 0개"/]
+    D1{"전제 모듈이<br/>모두 켜져 있는가?"}
+    P1["모듈 켜짐<br/>규칙 · 서식 · 도구 적용<br/>필요한 폴더 생성"]
+    O2[/"멈추고 켤 순서 안내"/]
+  end
+  subgraph U["유저 구역"]
+    S(["core/ 받기"])
+    A1["new_project.py로<br/>프로젝트 만들기"]
+    A2["프로젝트 작업 진행"]
+    A3["필요해진 모듈 켜기<br/>module.py on"]
+    A4["알려 준 전제 모듈부터 켜기"]
+    E(["작업 계속<br/>또 필요하면 같은 순서"])
+  end
+  S --> A1
+  A1 --> O1
+  O1 --> A2
+  A2 --> A3
+  A3 --> D1
+  D1 -->|예| P1
+  D1 -->|아니오| O2
+  O2 --> A4
+  A4 --> A3
+  P1 --> E
+  linkStyle 0,1,2,3,4,7,8,9 stroke:#1E1E1E
+  linkStyle 5 stroke:#2563EB,color:#2563EB
+  linkStyle 6 stroke:#DC2626,color:#DC2626
+```
+
+<!-- 고치는 사람에게: 시스템 구역을 먼저 적어야 Mermaid가 유저 구역을 위에 그립니다. 순서를 바꾸면 구역이 뒤집힙니다. -->
 
 ### base가 크게 제공하는 것
 
