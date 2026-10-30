@@ -3,5 +3,13 @@
   "group": "qa",
   "creates": [
     "test-case"
+  ],
+  "external": [
+    {
+      "name": "openpyxl",
+      "kind": "library",
+      "use": "TC 시트 xlsx 생성",
+      "required": true
+    }
   ]
 }

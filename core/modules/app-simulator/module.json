@@ -12,5 +12,19 @@
       "name": "app-preview",
       "why": "화면 데이터를 여러 기기 크기에서 나란히 비교할 때"
     }
+  ],
+  "external": [
+    {
+      "name": "Node.js",
+      "kind": "runtime",
+      "use": "점검의 문법 검사",
+      "required": false
+    },
+    {
+      "name": "Chrome · Edge",
+      "kind": "program",
+      "use": "화면 캡처 · 녹화의 영역 캡처",
+      "required": false
+    }
   ]
 }

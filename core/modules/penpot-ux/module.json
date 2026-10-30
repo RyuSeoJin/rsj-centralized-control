@@ -23,5 +23,13 @@
       "name": "app-wireframe",
       "why": "앱 시뮬레이터의 화면을 Figma 키트로 와이어프레임을 만들 때"
     }
+  ],
+  "external": [
+    {
+      "name": "Penpot",
+      "kind": "service",
+      "use": "흐름도 · 와이어프레임 · 컴포넌트를 그리는 디자인 파일(웹 버전 또는 직접 설치)",
+      "required": true
+    }
   ]
 }

@@ -7,7 +7,8 @@
   core/modules/*/module.json        (정본 — 분야 · 적용 범위 · 함께 쓰는 짝 · 고르는 짝)
   core/modules/*/module.md          (정본 — 한 줄 설명 · 언제 켜나 · 전제 모듈)
     │  이 스크립트 — module.py의 읽기 함수를 그대로 씁니다
-    └──▶ core/modules/module-map.md (파생 — 손으로 고치지 않습니다)
+    ├──▶ core/modules/module-map.md (파생 — 손으로 고치지 않습니다)
+    └──▶ README.md의 표시 구역       (파생 — 「모듈 한눈에」. 표시가 있는 README만 씁니다)
 
   · base는 모듈 이름을 모릅니다. 폴더를 훑기만 하므로 모듈이 늘거나 줄어도 이 파일은 안 바뀝니다.
   · 출력은 결정적입니다 — 순서를 고정하고 날짜 · 시각을 넣지 않습니다. 그래야 같은 정본에서
@@ -18,6 +19,8 @@
     python core/base/scripts/gen_module_map.py              지도를 다시 씁니다
     python core/base/scripts/gen_module_map.py --check      쓰지 않고 다른지만 봅니다
     python core/base/scripts/gen_module_map.py --core 경로  다른 core 폴더를 봅니다(시험용)
+    python core/base/scripts/gen_module_map.py --readme README.md [--check]
+                                                            README의 표시 구역만 다시 씁니다
 """
 import argparse
 import io
@@ -30,6 +33,11 @@ import module as modlib  # noqa: E402
 CMD = "python core/base/scripts/gen_module_map.py"
 
 SCOPE_LABEL = {"workspace": "워크스페이스", "host": "호스트"}
+KIND_LABEL = dict(modlib.EXTERNAL_KINDS)
+
+#: README에서 이 두 줄 사이만 생성기가 씁니다. 표시가 없는 README는 건드리지 않습니다
+README_START = "<!-- module-overview:start — 생성물입니다. 손으로 고치지 않습니다(gen_module_map.py --readme) -->"
+README_END = "<!-- module-overview:end -->"
 
 
 def cell(text):
@@ -51,8 +59,151 @@ def collect(core=None):
                 "chain": modlib.prereq_chain(name, core),
                 "pairs": modlib.pairs(name, core),
                 "instead": modlib.instead(name, core),
+                "external": modlib.external(name, core),
             }
     return groups, order, info
+
+
+def external_text(items):
+    """Figma, Node.js(선택) — 표 칸 하나에 넣는 외부 도구 목록.
+
+    도구 이름 안에 ` · `가 들어가는 일이 있어(Chrome · Edge) 도구 사이는 쉼표로 가릅니다.
+    """
+    return ", ".join(x["name"] + ("" if x["required"] else "(선택)") for x in items) or "—"
+
+
+def module_table(mods, info):
+    """한 분야의 모듈 표 — 모듈 · 하는 일 · 외부 도구."""
+    L = ["| 모듈 | 하는 일 | 외부 도구 |", "|---|---|---|"]
+    for m in mods:
+        name = m[0]
+        it = info[name]
+        mod = "`%s`" % name
+        if it["scope"] in SCOPE_LABEL:
+            mod += " (%s)" % SCOPE_LABEL[it["scope"]]
+        L.append("| %s | %s | %s |" % (mod, cell(it["title"]), cell(external_text(it["external"]))))
+    return L
+
+
+def node_id(name):
+    return "m_" + "".join(c if c.isalnum() else "_" for c in name)
+
+
+def group_edges(names, order, info):
+    """이 분야의 모듈이 한쪽 끝에 있는 연결 — [(앞, 뒤, 선 모양), ...]. 순서는 전제 · 함께 · 고르기입니다."""
+    inside = set(names)
+    known = set(order)
+    out = []
+    for name in order:
+        for parent in info[name]["needs"]:
+            if parent in known and (name in inside or parent in inside):
+                out.append((parent, name, "-->"))
+    for key, arrow in (("pairs", "-.-"), ("instead", "<-.->")):
+        for a, b, _wa, _wb in pair_rows(order, info, key):
+            if a in known and b in known and (a in inside or b in inside):
+                out.append((a, b, arrow))
+    return out
+
+
+def group_graph(mods, order, info, group_of):
+    """한 분야의 연결 그림(Mermaid). 다른 분야의 모듈은 이 분야와 직접 이어진 것만 회색 점선 상자로
+    그리고 분야 이름을 붙입니다. 이어진 것이 없는 분야는 빈 목록입니다."""
+    names = [m[0] for m in mods]
+    edges = group_edges(names, order, info)
+    if not edges:
+        return []
+    outside = []
+    for a, b, _arrow in edges:
+        for n in (a, b):
+            if n not in names and n not in outside:
+                outside.append(n)
+    L = ["```mermaid", "flowchart LR"]
+    for n in names:
+        L.append('  %s["%s"]' % (node_id(n), n))
+    for n in outside:
+        L.append('  %s["%s<br/>(%s)"]:::other' % (node_id(n), n, group_of.get(n, "").replace('"', "'")))
+    for a, b, arrow in edges:
+        L.append("  %s %s %s" % (node_id(a), arrow, node_id(b)))
+    if outside:
+        L.append("  classDef other fill:#f3f4f6,stroke:#9ca3af,stroke-dasharray:4 3,color:#4b5563")
+    L.append("```")
+    return L
+
+
+def group_sections(groups, order, info, level):
+    """분야마다 제목 · 질문 · 모듈 표 · 연결 그림. level은 제목의 # 수입니다."""
+    group_of = dict((m[0], g["label"]) for g, mods in groups for m in mods)
+    L = []
+    for g, mods in groups:
+        L += ["#" * level + " " + g["label"], ""]
+        if g.get("ask"):
+            L += ["**" + g["ask"] + "**", ""]
+        L += module_table(mods, info)
+        pic = group_graph(mods, order, info, group_of)
+        if pic:
+            L += [""] + pic
+        L.append("")
+    return L
+
+
+GRAPH_LEGEND = ("그림에서 `A --> B`는 B를 켜려면 A가 먼저 켜져 있어야 한다는 뜻(전제)입니다. 점선은 함께 켜면 "
+                "더 잘 맞는 짝, 양쪽 화살표 점선은 하는 일이 겹쳐 보통 하나만 켜는 짝입니다. 회색 점선 상자는 "
+                "다른 분야의 모듈입니다. (선택)은 그 모듈의 일부 기능에만 필요한 외부 도구입니다.")
+
+
+def external_rows(order, info):
+    """외부 도구마다 한 행 — [(이름, 종류 이름, [(모듈, 필수, 용도), ...]), ...]. 이름 순입니다."""
+    tools = {}
+    for name in order:
+        for x in info[name]["external"]:
+            t = tools.setdefault(x["name"], {"kinds": [], "mods": []})
+            label = KIND_LABEL.get(x["kind"], x["kind"] or "—")
+            if label not in t["kinds"]:
+                t["kinds"].append(label)
+            t["mods"].append((name, x["required"], x["use"]))
+    return [(n, " · ".join(tools[n]["kinds"]), tools[n]["mods"])
+            for n in sorted(tools, key=lambda s: s.lower())]
+
+
+def external_table(order, info, detail):
+    """외부 도구 표. detail이면 모듈마다 한 행으로 용도까지, 아니면 도구마다 한 행입니다."""
+    rows = external_rows(order, info)
+    if not rows:
+        return ["아직 적힌 외부 도구가 없습니다."]
+    if detail:
+        L = ["| 외부 도구 | 종류 | 모듈 | 꼭 있어야 하나 | 용도 |", "|---|---|---|---|---|"]
+        for tool, kinds, mods in rows:
+            for i, (m, req, use) in enumerate(mods):
+                L.append("| %s | %s | `%s` | %s | %s |" % (cell(tool) if i == 0 else "", kinds if i == 0 else "",
+                                                          m, "예" if req else "선택", cell(use)))
+        return L
+    L = ["| 외부 도구 | 종류 | 쓰는 모듈 |", "|---|---|---|"]
+    for tool, kinds, mods in rows:
+        used = ", ".join("`%s`%s" % (m, "" if req else "(선택)") for m, req, _u in mods)
+        L.append("| %s | %s | %s |" % (cell(tool), kinds, used))
+    return L
+
+
+def render_overview(core=None):
+    """README 표시 구역에 넣을 「모듈 한눈에」 — 분야마다 표와 연결 그림, 끝에 외부 도구."""
+    groups, order, info = collect(core)
+    L = [GRAPH_LEGEND + " 고르는 기준은 [모듈 지도](core/modules/module-map.md)에 있습니다.", ""]
+    L += group_sections(groups, order, info, 3) if groups else ["아직 모듈이 없습니다.", ""]
+    L += ["### 밖에서 끌어다 쓰는 도구", "",
+          "모듈이 쓰는 웹 서비스 · 설치 프로그램 · MCP 서버 · 라이브러리입니다. 정본은 각 모듈의 "
+          "`module.json` `external`입니다.", ""]
+    L += external_table(order, info, detail=False)
+    return "\n".join(L) + "\n"
+
+
+def replace_block(text, body):
+    """README 글에서 표시 두 줄 사이를 body로 바꿉니다. 표시가 없으면 None."""
+    s = text.find(README_START)
+    e = text.find(README_END)
+    if s < 0 or e < s:
+        return None
+    head = text[:s + len(README_START)]
+    return head + "\n\n" + body + "\n" + text[e:]
 
 
 def pair_rows(order, info, key):
@@ -174,7 +325,59 @@ def render(core=None):
         L.append("아직 적힌 짝이 없습니다.")
     L.append("")
 
+    # 5. 분야별 연결
+    L.append("## 5. 분야별 연결")
+    L.append("")
+    L.append(GRAPH_LEGEND)
+    L.append("")
+    L += group_sections(groups, order, info, 3)
+
+    # 6. 외부 도구
+    L.append("## 6. 밖에서 끌어다 쓰는 도구")
+    L.append("")
+    L.append("모듈이 쓰는 웹 서비스 · 설치 프로그램 · MCP 서버 · 라이브러리 · 실행 환경입니다. 「선택」은 그")
+    L.append("모듈의 일부 기능에만 필요합니다. 정본은 각 모듈의 `module.json` `external`입니다.")
+    L.append("")
+    L += external_table(order, info, detail=True)
+    L.append("")
+
     return "\n".join(L).rstrip("\n") + "\n"
+
+
+def has_block(path):
+    """README에 표시 구역이 있는가 — regen.py가 작업을 넣을지 정할 때 씁니다."""
+    try:
+        with io.open(path, encoding="utf-8") as f:
+            text = f.read()
+    except OSError:
+        return False
+    return README_START in text and README_END in text
+
+
+def write_readme(path, core=None, check=False):
+    try:
+        with io.open(path, encoding="utf-8", newline="") as f:
+            old = f.read()
+    except OSError:
+        print("README가 없습니다: %s" % path)
+        return 1
+    new = replace_block(old, render_overview(core))
+    if new is None:
+        print("README에 표시 구역이 없습니다 — 쓰지 않습니다: %s" % path)
+        return 0
+    if check:
+        if old != new:
+            print("README의 「모듈 한눈에」가 정본과 다릅니다 — %s --readme %s 로 다시 만드세요." % (CMD, path))
+            return 1
+        print("README의 「모듈 한눈에」가 최신입니다.")
+        return 0
+    if old != new:
+        with io.open(path, "w", encoding="utf-8", newline="") as f:
+            f.write(new)
+    else:
+        os.utime(path, None)
+    print("README의 「모듈 한눈에」를 썼습니다: %s" % path)
+    return 0
 
 
 def default_out(core=None):
@@ -191,11 +394,14 @@ def main(argv=None):
     ap.add_argument("--core", help="core 폴더 (기본: 이 스크립트가 속한 core)")
     ap.add_argument("--out", help="산출물 경로 (기본: core/modules/module-map.md)")
     ap.add_argument("--check", action="store_true", help="쓰지 않고 다른지만 봅니다")
+    ap.add_argument("--readme", help="이 README의 표시 구역(「모듈 한눈에」)만 다시 씁니다")
     args = ap.parse_args(argv)
     core = os.path.abspath(args.core) if args.core else None
     if not os.path.isdir(modlib.modules_dir(core)):
         print("모듈 폴더가 없습니다 — 만들 지도가 없습니다.")
         return 0
+    if args.readme:
+        return write_readme(args.readme, core, args.check)
     out = args.out or default_out(core)
     text = render(core)
     try:

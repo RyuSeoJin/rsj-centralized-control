@@ -10,5 +10,19 @@
       "name": "workflow-explorer",
       "why": "흐름의 갈래와 주체(유저 · 시스템)를 따라가며 읽을 때"
     }
+  ],
+  "external": [
+    {
+      "name": "Node.js",
+      "kind": "runtime",
+      "use": "실행기 문법 점검",
+      "required": false
+    },
+    {
+      "name": "Playwright",
+      "kind": "library",
+      "use": "브라우저 동작 시험",
+      "required": false
+    }
   ]
 }

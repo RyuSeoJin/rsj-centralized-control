@@ -250,6 +250,8 @@ def check_module_checks(root):
 
 
 MODULE_SCOPES = ("project", "workspace", "host")
+#: module.json `external[].kind` — 값과 뜻은 module.py EXTERNAL_KINDS와 같습니다
+EXTERNAL_KINDS = ("service", "program", "mcp", "library", "runtime")
 
 
 def module_prereq(mods, name):
@@ -369,6 +371,22 @@ def check_module_meta(root):
                         hits.append((rel, 0, "모듈 관계",
                                      "`%s`을(를) instead로 적었지만 그쪽 instead에 `%s`이(가) "
                                      "없습니다 — 고르는 관계는 양쪽에 적습니다" % (other, name)))
+        ext = mj.get("external", [])
+        if not isinstance(ext, list):
+            hits.append((rel, 0, "외부 도구", "`external`은(는) 목록입니다"))
+            ext = []
+        for it in ext:
+            if not isinstance(it, dict) or not str(it.get("name", "")).strip():
+                hits.append((rel, 0, "외부 도구", "항목마다 name · kind · use를 적습니다"))
+                continue
+            tool = it["name"]
+            if it.get("kind") not in EXTERNAL_KINDS:
+                hits.append((rel, 0, "외부 도구", "`%s`의 kind `%s` — %s 중 하나입니다"
+                             % (tool, it.get("kind"), " · ".join(EXTERNAL_KINDS))))
+            if not str(it.get("use", "")).strip():
+                hits.append((rel, 0, "외부 도구", "`%s`에 use가 비어 있습니다 — 무엇에 쓰는지 한 줄로 적습니다" % tool))
+            if "required" in it and not isinstance(it["required"], bool):
+                hits.append((rel, 0, "외부 도구", "`%s`의 required는 true · false입니다" % tool))
     return hits
 
 

@@ -9,5 +9,19 @@
       "name": "gdd",
       "why": "구현 전 시스템 하나를 깊게 합의하는 HTML 기획서가 목적일 때"
     }
+  ],
+  "external": [
+    {
+      "name": "python-pptx",
+      "kind": "library",
+      "use": ".pptx 생성",
+      "required": true
+    },
+    {
+      "name": "Google Slides",
+      "kind": "service",
+      "use": "공유본 — .pptx를 Google Drive에서 변환해 함께 고침",
+      "required": false
+    }
   ]
 }

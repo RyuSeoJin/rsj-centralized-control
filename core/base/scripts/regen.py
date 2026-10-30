@@ -111,8 +111,15 @@ def module_map_job():
         d = os.path.join(mods, name)
         if os.path.isdir(d):
             srcs += [os.path.join(d, "module.json"), os.path.join(d, "module.md")]
-    return [("모듈 지도 — core/modules/module-map.md", srcs,
+    jobs = [("모듈 지도 — core/modules/module-map.md", srcs,
              os.path.join(mods, "module-map.md"), [sys.executable, gen])]
+    #: README에 「모듈 한눈에」 표시 구역이 있을 때만 — 받아 가는 저장소의 README는 보통 표시가 없습니다
+    readme = os.path.join(ROOT, "README.md")
+    sys.path.insert(0, scripts)
+    import gen_module_map
+    if gen_module_map.has_block(readme):
+        jobs.append(("모듈 한눈에 — README.md", srcs, readme, [sys.executable, gen, "--readme", readme]))
+    return jobs
 
 
 def structure_jobs(folder):

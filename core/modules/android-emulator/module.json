@@ -1,4 +1,12 @@
 {
   "scope": "host",
-  "group": "host-env"
+  "group": "host-env",
+  "external": [
+    {
+      "name": "Android Studio · SDK · Emulator",
+      "kind": "program",
+      "use": "가상 기기(AVD) 구성과 실행",
+      "required": true
+    }
+  ]
 }

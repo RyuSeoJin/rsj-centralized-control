@@ -14,5 +14,13 @@
       "name": "tc",
       "why": "역분석한 기능의 동작에서 테스트 케이스를 뽑을 때 함께 켬"
     }
+  ],
+  "external": [
+    {
+      "name": "REA",
+      "kind": "mcp",
+      "use": "분석 도구 — 설치 점검은 rea 모듈",
+      "required": true
+    }
   ]
 }

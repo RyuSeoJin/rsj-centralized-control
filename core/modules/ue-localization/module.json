@@ -1,4 +1,18 @@
 {
   "scope": "project",
-  "group": "game-ue"
+  "group": "game-ue",
+  "external": [
+    {
+      "name": "Unreal Engine",
+      "kind": "program",
+      "use": "번역 모으기 · .po 가져오기 · .locres 만들기",
+      "required": true
+    },
+    {
+      "name": "스프레드시트",
+      "kind": "service",
+      "use": "번역 원본 시트 — CSV로 주고받음",
+      "required": true
+    }
+  ]
 }

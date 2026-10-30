@@ -11,5 +11,25 @@
       "name": "aseprite",
       "why": "Aseprite 실행 · 배치 모드 환경 점검을 맡음"
     }
+  ],
+  "external": [
+    {
+      "name": "Pillow",
+      "kind": "library",
+      "use": "변환 · 검사 · 시트 도구",
+      "required": true
+    },
+    {
+      "name": "Aseprite",
+      "kind": "program",
+      "use": "그림 편집 · 배치 모드 — 설치 점검은 aseprite 모듈",
+      "required": false
+    },
+    {
+      "name": "Spine",
+      "kind": "program",
+      "use": "파츠 리깅 · 뼈대 애니메이션",
+      "required": false
+    }
   ]
 }

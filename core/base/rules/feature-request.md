@@ -1,3 +1,4 @@
+<!-- CHANGELOG · 2026-10-30: (추가) 「모듈의 모양」에 module.json 외부 도구(external) 필드 -->
 <!-- CHANGELOG · 2026-10-12: 다중 부모 전제 선언과 검사 규칙 -->
 
 # feature-request — 「이 기능을 넣고 싶다」가 나왔을 때 무엇부터 보는가
@@ -97,7 +98,7 @@ python core/base/scripts/module.py list {프로젝트}
 ```
 core/modules/{모듈}/
 ├─ module.md        자기소개 — 언제 켜나 · 켜면 따라오는 것 · 전제 모듈
-├─ module.json      적용 범위(scope) · 분야(group) · 켜면 만들 폴더(creates) · 짝(pairs · instead)
+├─ module.json      적용 범위(scope) · 분야(group) · 켜면 만들 폴더(creates) · 짝(pairs · instead) · 외부 도구(external)
 ├─ rules/           규칙
 ├─ scripts/         도구 — 있으면 check.py를 반드시 둡니다
 ├─ check.py         모듈 자기 점검 (modcheck.py로 몇 줄)
@@ -110,6 +111,19 @@ core/modules/{모듈}/
 | `project` (기본) | 프로젝트별 선택 규칙 | 프로젝트의 `{폴더}-modules.json` |
 | `workspace` | 저장소 전체에 걸리는 규칙 · 산출물(진입 층 등) | `workspace.json`의 `modules` |
 | `host` | 한 컴퓨터에 설치되어 여러 프로젝트가 함께 쓰는 환경 | 켜지 않습니다 — 점검 도구로 설치 상태만 확인합니다 |
+
+모듈이 밖에서 끌어다 쓰는 도구(웹 서비스 · 설치 프로그램 · MCP 서버 · 라이브러리 · 실행 환경)는
+`module.json`의 `external`에 적습니다. 모듈 지도와 중앙 README의 「모듈 한눈에」가 이 값으로 「무엇을 깔아야
+하나」를 보여 주므로, `module.md` 본문에만 적어 두지 않습니다.
+
+```json
+"external": [{"name": "{도구 이름}", "kind": "service", "use": "{무엇에 쓰는지 한 줄}", "required": true}]
+```
+
+| 키 | 값 |
+|---|---|
+| `kind` | `service` 웹 서비스 · `program` 설치 프로그램 · `mcp` MCP 서버 · `library` 라이브러리 · `runtime` 실행 환경 |
+| `required` | 일부 기능에만 필요하면 `false`(「선택」으로 보임). 적지 않으면 꼭 있어야 하는 것으로 봅니다 |
 
 **모듈은 저절로 켜지지 않습니다.** 켜는 순간 규칙 전부가 적용되고, 폴더가 늘고, 재생성 대상이
 바뀝니다. 그래서 항상 **제안 → 동의 → 활성화**입니다. 전제도 자동으로 켜지지 않습니다 — 꺼진

@@ -10,5 +10,13 @@
       "name": "ue-localization",
       "why": "여러 언어의 글자 폭 · 번역 없음을 UI 칸과 함께 볼 때 함께 켬"
     }
+  ],
+  "external": [
+    {
+      "name": "Unreal Engine",
+      "kind": "program",
+      "use": "UMG 화면을 C++로 만드는 엔진",
+      "required": true
+    }
   ]
 }

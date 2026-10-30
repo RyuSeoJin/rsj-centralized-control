@@ -12,5 +12,25 @@
       "name": "app-preview",
       "why": "화면 크기별 전환 비교가 목적일 때"
     }
+  ],
+  "external": [
+    {
+      "name": "Playwright",
+      "kind": "library",
+      "use": "화면 썸네일 캡처 — 탐색기 조립에는 필요 없음",
+      "required": false
+    },
+    {
+      "name": "Pillow",
+      "kind": "library",
+      "use": "캡처 그림 줄이기",
+      "required": false
+    },
+    {
+      "name": "Microsoft Edge",
+      "kind": "program",
+      "use": "캡처용 브라우저",
+      "required": false
+    }
   ]
 }

@@ -1,4 +1,12 @@
 {
   "scope": "project",
-  "group": "game-ue"
+  "group": "game-ue",
+  "external": [
+    {
+      "name": "Unreal Engine",
+      "kind": "program",
+      "use": "C++ 빌드(Build.bat)와 게임 창 실행 점검",
+      "required": true
+    }
+  ]
 }

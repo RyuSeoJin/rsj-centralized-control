@@ -105,6 +105,26 @@ def instead(name, core=None):
     return _links(name, "instead", core)
 
 
+#: 외부 도구의 종류 — module.json `external[].kind`의 값과 보이는 이름
+EXTERNAL_KINDS = (("service", "웹 서비스"), ("program", "설치 프로그램"), ("mcp", "MCP 서버"),
+                  ("library", "라이브러리"), ("runtime", "실행 환경"))
+
+
+def external(name, core=None):
+    """모듈이 끌어다 쓰는 외부 도구 — [{"name", "kind", "use", "required"}, ...].
+
+    정본은 각 모듈의 module.json `external`입니다. 이름이 없는 항목은 버리고,
+    `required`를 적지 않았으면 꼭 있어야 하는 것으로 봅니다.
+    """
+    out = []
+    items = module_json(name, core).get("external") or ()
+    for x in items if isinstance(items, list) else ():
+        if isinstance(x, dict) and str(x.get("name") or "").strip():
+            out.append({"name": str(x["name"]).strip(), "kind": str(x.get("kind") or ""),
+                        "use": str(x.get("use") or ""), "required": x.get("required", True) is not False})
+    return out
+
+
 def creates(name, core=None):
     """모듈을 켜면 프로젝트에 생기는 폴더. 정본은 각 모듈의 module.json · module.md입니다.
 

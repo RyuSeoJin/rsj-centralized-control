@@ -9,5 +9,19 @@
       "name": "penpot-ux",
       "why": "시뮬레이터 없이 Penpot에서 화면 흐름도 · 와이어프레임을 설계할 때"
     }
+  ],
+  "external": [
+    {
+      "name": "Figma",
+      "kind": "service",
+      "use": "와이어프레임을 만드는 Design 파일과 키트",
+      "required": true
+    },
+    {
+      "name": "Figma MCP · 스킬",
+      "kind": "mcp",
+      "use": "Figma에 쓰기 — 모듈 도구는 Figma API를 직접 부르지 않음",
+      "required": true
+    }
   ]
 }

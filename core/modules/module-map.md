@@ -152,3 +152,309 @@
 | `app-preview` | 화면 데이터를 여러 기기 크기에서 나란히 비교할 때 | `app-simulator` | 프로토타입 앱 하나를 기기 틀과 개발용 조작으로 돌려 볼 때 |
 | `app-preview` | 화면 크기별 전환 비교가 목적일 때 | `workflow-explorer` | 흐름의 갈래와 주체(유저 · 시스템)를 따라가며 읽을 때 |
 | `app-wireframe` | 앱 시뮬레이터의 화면을 Figma 키트로 와이어프레임을 만들 때 | `penpot-ux` | 시뮬레이터 없이 Penpot에서 화면 흐름도 · 와이어프레임을 설계할 때 |
+
+## 5. 분야별 연결
+
+그림에서 `A --> B`는 B를 켜려면 A가 먼저 켜져 있어야 한다는 뜻(전제)입니다. 점선은 함께 켜면 더 잘 맞는 짝, 양쪽 화살표 점선은 하는 일이 겹쳐 보통 하나만 켜는 짝입니다. 회색 점선 상자는 다른 분야의 모듈입니다. (선택)은 그 모듈의 일부 기능에만 필요한 외부 도구입니다.
+
+### QA · 검증
+
+**만든 것을 테스트 케이스로 검증하나요?**
+
+| 모듈 | 하는 일 | 외부 도구 |
+|---|---|---|
+| `tc` | 테스트 케이스를 설계하고 시트로 냅니다 | openpyxl |
+| `automation` | TC를 사람이 아니라 코드가 돌립니다 | — |
+| `sut` | 검증 대상을 직접 만들고 결함을 심어 탐지력을 봅니다 | — |
+| `llm` | 출력을 생성하는 기능을 무엇으로 검증하는가 | — |
+
+```mermaid
+flowchart LR
+  m_tc["tc"]
+  m_automation["automation"]
+  m_sut["sut"]
+  m_llm["llm"]
+  m_qa_site["qa-site<br/>(문서 외형 · 사이트)"]:::other
+  m_reverse_analysis["reverse-analysis<br/>(역분석)"]:::other
+  m_qa_site --> m_tc
+  m_tc --> m_automation
+  m_automation --> m_sut
+  m_tc --> m_llm
+  m_tc -.- m_reverse_analysis
+  classDef other fill:#f3f4f6,stroke:#9ca3af,stroke-dasharray:4 3,color:#4b5563
+```
+
+### 기획 문서
+
+**구현 전에 기획을 문서로 합의 · 공유하나요?**
+
+| 모듈 | 하는 일 | 외부 도구 |
+|---|---|---|
+| `planning-spec` | 기능 골격과 상세 사양으로 기획 정본을 작성합니다 | — |
+| `app-planning-slides` | 앱 기획 문서를 프롬프트로 채워 Google Slides로 냅니다 | python-pptx, Google Slides(선택) |
+| `gdd` | 코드 전에 시스템 하나를 합의하는 기획서를 쓰고, 프로토타입으로 확인합니다 | — |
+| `ui-terms` | 화면 부품을 같은 이름으로 부르는 UI 용어집 | — |
+
+```mermaid
+flowchart LR
+  m_planning_spec["planning-spec"]
+  m_app_planning_slides["app-planning-slides"]
+  m_gdd["gdd"]
+  m_ui_terms["ui-terms"]
+  m_app_simulator["app-simulator<br/>(앱 체험 · 프로토타입)"]:::other
+  m_app_wireframe["app-wireframe<br/>(앱 체험 · 프로토타입)"]:::other
+  m_workflow_explorer["workflow-explorer<br/>(앱 체험 · 프로토타입)"]:::other
+  m_penpot_ux["penpot-ux<br/>(화면 설계)"]:::other
+  m_game_html["game-html<br/>(게임 프로토타입)"]:::other
+  m_ue_doc["ue-doc<br/>(게임 · UE)"]:::other
+  m_reverse_analysis["reverse-analysis<br/>(역분석)"]:::other
+  m_planning_spec --> m_app_planning_slides
+  m_planning_spec --> m_gdd
+  m_planning_spec --> m_app_simulator
+  m_planning_spec --> m_app_wireframe
+  m_planning_spec --> m_workflow_explorer
+  m_planning_spec --> m_penpot_ux
+  m_app_planning_slides -.- m_ui_terms
+  m_gdd -.- m_ui_terms
+  m_gdd -.- m_penpot_ux
+  m_gdd -.- m_game_html
+  m_gdd -.- m_ue_doc
+  m_gdd -.- m_reverse_analysis
+  m_ui_terms -.- m_app_simulator
+  m_ui_terms -.- m_penpot_ux
+  m_ui_terms -.- m_game_html
+  m_app_planning_slides <-.-> m_gdd
+  classDef other fill:#f3f4f6,stroke:#9ca3af,stroke-dasharray:4 3,color:#4b5563
+```
+
+### 문서 외형 · 사이트
+
+**문서를 한 사이트나 공용 디자인으로 묶어 내나요?**
+
+| 모듈 | 하는 일 | 외부 도구 |
+|---|---|---|
+| `document-site` (워크스페이스) | 공통 HTML 디자인과 문서 탐색을 제공합니다 | — |
+| `qa-site` (워크스페이스) | QA 분석 서식과 메뉴를 공통 문서 사이트에 더합니다 | — |
+| `html-design-kit` | 자기완결 HTML 문서를 조립하는 공용 디자인 킷 | — |
+
+```mermaid
+flowchart LR
+  m_document_site["document-site"]
+  m_qa_site["qa-site"]
+  m_html_design_kit["html-design-kit"]
+  m_tc["tc<br/>(QA · 검증)"]:::other
+  m_workflow_explorer["workflow-explorer<br/>(앱 체험 · 프로토타입)"]:::other
+  m_qa_site --> m_tc
+  m_document_site --> m_qa_site
+  m_document_site --> m_workflow_explorer
+  classDef other fill:#f3f4f6,stroke:#9ca3af,stroke-dasharray:4 3,color:#4b5563
+```
+
+### 앱 체험 · 프로토타입
+
+**앱 화면과 흐름을 직접 눌러 보며 검토하나요?**
+
+| 모듈 | 하는 일 | 외부 도구 |
+|---|---|---|
+| `app-preview` | 가상 화면에서 앱 플로우를 비교하는 체험 도구 | Node.js(선택), Playwright(선택) |
+| `app-simulator` | 앱 프로토타입을 기기 틀 안에서 돌리는 시뮬레이터 | Node.js(선택), Chrome · Edge(선택) |
+| `app-wireframe` | 시뮬레이터를 키트 기반 Figma 와이어프레임으로 정리합니다 | Figma, Figma MCP · 스킬 |
+| `workflow-explorer` | 앱 워크플로우를 조작하며 따라가는 탐색기 | Playwright(선택), Pillow(선택), Microsoft Edge(선택) |
+
+```mermaid
+flowchart LR
+  m_app_preview["app-preview"]
+  m_app_simulator["app-simulator"]
+  m_app_wireframe["app-wireframe"]
+  m_workflow_explorer["workflow-explorer"]
+  m_planning_spec["planning-spec<br/>(기획 문서)"]:::other
+  m_document_site["document-site<br/>(문서 외형 · 사이트)"]:::other
+  m_ui_terms["ui-terms<br/>(기획 문서)"]:::other
+  m_penpot_ux["penpot-ux<br/>(화면 설계)"]:::other
+  m_planning_spec --> m_app_simulator
+  m_planning_spec --> m_app_wireframe
+  m_app_simulator --> m_app_wireframe
+  m_planning_spec --> m_workflow_explorer
+  m_document_site --> m_workflow_explorer
+  m_ui_terms -.- m_app_simulator
+  m_app_simulator -.- m_workflow_explorer
+  m_app_preview <-.-> m_app_simulator
+  m_app_preview <-.-> m_workflow_explorer
+  m_app_wireframe <-.-> m_penpot_ux
+  classDef other fill:#f3f4f6,stroke:#9ca3af,stroke-dasharray:4 3,color:#4b5563
+```
+
+### 화면 설계
+
+**화면 구조 · 흐름 · 와이어프레임을 디자인 도구에서 설계하나요?**
+
+| 모듈 | 하는 일 | 외부 도구 |
+|---|---|---|
+| `penpot-ux` | Penpot으로 화면 흐름도 · 와이어프레임 · 공통 컴포넌트를 설계합니다 | Penpot |
+
+```mermaid
+flowchart LR
+  m_penpot_ux["penpot-ux"]
+  m_planning_spec["planning-spec<br/>(기획 문서)"]:::other
+  m_gdd["gdd<br/>(기획 문서)"]:::other
+  m_ui_terms["ui-terms<br/>(기획 문서)"]:::other
+  m_ue_umg["ue-umg<br/>(게임 · UE)"]:::other
+  m_app_wireframe["app-wireframe<br/>(앱 체험 · 프로토타입)"]:::other
+  m_planning_spec --> m_penpot_ux
+  m_gdd -.- m_penpot_ux
+  m_ui_terms -.- m_penpot_ux
+  m_penpot_ux -.- m_ue_umg
+  m_app_wireframe <-.-> m_penpot_ux
+  classDef other fill:#f3f4f6,stroke:#9ca3af,stroke-dasharray:4 3,color:#4b5563
+```
+
+### 게임 프로토타입
+
+**게임 화면과 규칙을 HTML로 만들어 직접 플레이하며 검토하나요?**
+
+| 모듈 | 하는 일 | 외부 도구 |
+|---|---|---|
+| `game-html` | 게임 화면과 규칙을 한 파일 HTML로 만들어 직접 플레이하며 검토합니다 | — |
+
+```mermaid
+flowchart LR
+  m_game_html["game-html"]
+  m_gdd["gdd<br/>(기획 문서)"]:::other
+  m_ui_terms["ui-terms<br/>(기획 문서)"]:::other
+  m_gdd -.- m_game_html
+  m_ui_terms -.- m_game_html
+  classDef other fill:#f3f4f6,stroke:#9ca3af,stroke-dasharray:4 3,color:#4b5563
+```
+
+### 게임 · UE
+
+**언리얼 엔진으로 게임을 만드나요?**
+
+| 모듈 | 하는 일 | 외부 도구 |
+|---|---|---|
+| `ue-build` | UE C++ 프로젝트를 명령으로 빌드하고 게임 창을 직접 조작해 점검합니다 | Unreal Engine |
+| `ue-doc` | 언리얼 엔진 문서를 지식 위키와 프로젝트 문서로 나눠 씁니다 | — |
+| `ue-localization` | 번역을 시트에서 관리하고 UE 표준 번역 파일로 넣습니다 | Unreal Engine, 스프레드시트 |
+| `ue-umg` | UMG 화면을 위젯 블루프린트 대신 C++ 코드로 만들 때의 함정을 피합니다 | Unreal Engine |
+
+```mermaid
+flowchart LR
+  m_ue_build["ue-build"]
+  m_ue_doc["ue-doc"]
+  m_ue_localization["ue-localization"]
+  m_ue_umg["ue-umg"]
+  m_gdd["gdd<br/>(기획 문서)"]:::other
+  m_penpot_ux["penpot-ux<br/>(화면 설계)"]:::other
+  m_gdd -.- m_ue_doc
+  m_penpot_ux -.- m_ue_umg
+  m_ue_build -.- m_ue_umg
+  m_ue_localization -.- m_ue_umg
+  classDef other fill:#f3f4f6,stroke:#9ca3af,stroke-dasharray:4 3,color:#4b5563
+```
+
+### 아트
+
+**게임 · 앱에 쓸 그림을 만드나요?**
+
+| 모듈 | 하는 일 | 외부 도구 |
+|---|---|---|
+| `app-asset` | 앱 UI 에셋을 제작하고 한 벌로 관리합니다 | 이미지 생성 도구(선택) |
+| `pixel-art` | 픽셀 아트 그림을 같은 규칙으로 만들고 화면에 매끄럽게 올립니다 | Pillow, Aseprite(선택), Spine(선택) |
+
+```mermaid
+flowchart LR
+  m_app_asset["app-asset"]
+  m_pixel_art["pixel-art"]
+  m_aseprite["aseprite<br/>(컴퓨터 환경)"]:::other
+  m_pixel_art -.- m_aseprite
+  classDef other fill:#f3f4f6,stroke:#9ca3af,stroke-dasharray:4 3,color:#4b5563
+```
+
+### 역분석
+
+**출시된 게임 · 앱 · 웹의 동작을 소스 없이 분석하나요?**
+
+| 모듈 | 하는 일 | 외부 도구 |
+|---|---|---|
+| `reverse-analysis` | 출시된 게임 · 앱 · 웹을 소스 없이 분석하고, 근거와 함께 기록합니다 | REA |
+
+```mermaid
+flowchart LR
+  m_reverse_analysis["reverse-analysis"]
+  m_tc["tc<br/>(QA · 검증)"]:::other
+  m_gdd["gdd<br/>(기획 문서)"]:::other
+  m_rea["rea<br/>(컴퓨터 환경)"]:::other
+  m_tc -.- m_reverse_analysis
+  m_gdd -.- m_reverse_analysis
+  m_reverse_analysis -.- m_rea
+  classDef other fill:#f3f4f6,stroke:#9ca3af,stroke-dasharray:4 3,color:#4b5563
+```
+
+### AI 에이전트 협업
+
+**작업을 여러 AI 에이전트에 나눠 맡기고 그 모습을 지켜보나요?**
+
+| 모듈 | 하는 일 | 외부 도구 |
+|---|---|---|
+| `agent-office` | AI 에이전트들이 나눠 하는 일을 로컬 사무실 화면에서 지켜봅니다 | AI 사무실 앱, Node.js, Claude Code(선택) |
+
+### 컴퓨터 환경
+
+**이 컴퓨터에 작업 도구를 설치 · 점검하나요?**
+
+| 모듈 | 하는 일 | 외부 도구 |
+|---|---|---|
+| `android-emulator` (호스트) | Android Emulator 환경을 재현 가능하게 관리합니다 | Android Studio · SDK · Emulator |
+| `aseprite` (호스트) | 이 컴퓨터에서 Aseprite를 배치 모드로 돌리고 MCP로 연결하는 환경을 점검합니다 | Aseprite, aseprite MCP 서버(선택) |
+| `rea` (호스트) | 이 컴퓨터에 REA(역분석 MCP 서버)를 설치하고 연결 상태를 점검합니다 | REA, Node.js, Ghidra · Hopper · IDA(선택) |
+
+```mermaid
+flowchart LR
+  m_android_emulator["android-emulator"]
+  m_aseprite["aseprite"]
+  m_rea["rea"]
+  m_pixel_art["pixel-art<br/>(아트)"]:::other
+  m_reverse_analysis["reverse-analysis<br/>(역분석)"]:::other
+  m_pixel_art -.- m_aseprite
+  m_reverse_analysis -.- m_rea
+  classDef other fill:#f3f4f6,stroke:#9ca3af,stroke-dasharray:4 3,color:#4b5563
+```
+
+## 6. 밖에서 끌어다 쓰는 도구
+
+모듈이 쓰는 웹 서비스 · 설치 프로그램 · MCP 서버 · 라이브러리 · 실행 환경입니다. 「선택」은 그
+모듈의 일부 기능에만 필요합니다. 정본은 각 모듈의 `module.json` `external`입니다.
+
+| 외부 도구 | 종류 | 모듈 | 꼭 있어야 하나 | 용도 |
+|---|---|---|---|---|
+| AI 사무실 앱 | 설치 프로그램 | `agent-office` | 예 | 에이전트 업무를 사무실 화면과 업무 일지로 보여 주는 로컬 앱(기본 127.0.0.1:4318) |
+| Android Studio · SDK · Emulator | 설치 프로그램 | `android-emulator` | 예 | 가상 기기(AVD) 구성과 실행 |
+| Aseprite | 설치 프로그램 | `pixel-art` | 선택 | 그림 편집 · 배치 모드 — 설치 점검은 aseprite 모듈 |
+|  |  | `aseprite` | 예 | 1.3 이상 · 배치 모드 실행(유료 프로그램이라 도구가 설치하지 않음) |
+| aseprite MCP 서버 | MCP 서버 | `aseprite` | 선택 | AI 세션에서 그림 편집 |
+| Chrome · Edge | 설치 프로그램 | `app-simulator` | 선택 | 화면 캡처 · 녹화의 영역 캡처 |
+| Claude Code | 설치 프로그램 | `agent-office` | 선택 | 서브에이전트 배정 · 시작 · 끝을 사무실에 알리는 훅(지켜보기) |
+| Figma | 웹 서비스 | `app-wireframe` | 예 | 와이어프레임을 만드는 Design 파일과 키트 |
+| Figma MCP · 스킬 | MCP 서버 | `app-wireframe` | 예 | Figma에 쓰기 — 모듈 도구는 Figma API를 직접 부르지 않음 |
+| Ghidra · Hopper · IDA | 설치 프로그램 | `rea` | 선택 | 실행 파일 분석 엔진 |
+| Google Slides | 웹 서비스 | `app-planning-slides` | 선택 | 공유본 — .pptx를 Google Drive에서 변환해 함께 고침 |
+| Microsoft Edge | 설치 프로그램 | `workflow-explorer` | 선택 | 캡처용 브라우저 |
+| Node.js | 실행 환경 | `app-preview` | 선택 | 실행기 문법 점검 |
+|  |  | `app-simulator` | 선택 | 점검의 문법 검사 |
+|  |  | `agent-office` | 예 | 사무실 앱 실행 — 20 이상 |
+|  |  | `rea` | 예 | REA 실행 — 22.23.4 · 24.22.1 · 26.12.1 이상 |
+| openpyxl | 라이브러리 | `tc` | 예 | TC 시트 xlsx 생성 |
+| Penpot | 웹 서비스 | `penpot-ux` | 예 | 흐름도 · 와이어프레임 · 컴포넌트를 그리는 디자인 파일(웹 버전 또는 직접 설치) |
+| Pillow | 라이브러리 | `workflow-explorer` | 선택 | 캡처 그림 줄이기 |
+|  |  | `pixel-art` | 예 | 변환 · 검사 · 시트 도구 |
+| Playwright | 라이브러리 | `app-preview` | 선택 | 브라우저 동작 시험 |
+|  |  | `workflow-explorer` | 선택 | 화면 썸네일 캡처 — 탐색기 조립에는 필요 없음 |
+| python-pptx | 라이브러리 | `app-planning-slides` | 예 | .pptx 생성 |
+| REA | MCP 서버 | `reverse-analysis` | 예 | 분석 도구 — 설치 점검은 rea 모듈 |
+|  |  | `rea` | 예 | 역분석 MCP 서버 · 명령줄 도구 |
+| Spine | 설치 프로그램 | `pixel-art` | 선택 | 파츠 리깅 · 뼈대 애니메이션 |
+| Unreal Engine | 설치 프로그램 | `ue-build` | 예 | C++ 빌드(Build.bat)와 게임 창 실행 점검 |
+|  |  | `ue-localization` | 예 | 번역 모으기 · .po 가져오기 · .locres 만들기 |
+|  |  | `ue-umg` | 예 | UMG 화면을 C++로 만드는 엔진 |
+| 스프레드시트 | 웹 서비스 | `ue-localization` | 예 | 번역 원본 시트 — CSV로 주고받음 |
+| 이미지 생성 도구 | 웹 서비스 | `app-asset` | 선택 | AI 에셋 제작 요청 — 어떤 도구를 쓸지는 프로젝트가 정함 |
