@@ -62,50 +62,72 @@ flowchart LR
 
 받는 저장소에서 겪은 문제는 그 저장소의 `core/`가 아니라 이 저장소에서 고칩니다(「중앙 규칙을 바꾸고 싶을 때」).
 
-### 저장소를 새로 만들면
+### 언제 무엇을 하나요
 
-1. 이 저장소의 `core/`를 받습니다(「처음 받기」). base와 모든 모듈 폴더가 함께 들어옵니다.
-2. **base는 받는 순간부터 전부 적용됩니다.** 따로 켤 것이 없고, 작업마다 무엇을 읽을지는
-   [읽기 게이트](core/base/rules/read-gates.md)가 정합니다.
-3. 프로젝트를 만들면(`new_project.py`) **모듈은 하나도 켜져 있지 않습니다.**
-4. 프로젝트를 진행하면서 필요해진 모듈을 그때 켭니다(`module.py on {프로젝트} {모듈}`). 켜면 그 모듈의 규칙 ·
-   서식 · 도구가 적용되고 필요한 폴더가 생깁니다. 먼저 켜야 하는 모듈(전제)이 꺼져 있으면 도구가 멈추고 켤
-   순서를 알려 줍니다.
-5. 중앙 규칙이 바뀌면 다시 받습니다(「다시 받기」). 받는 쪽이 할 일은 [center-change-log.md](center-change-log.md)의
-   항목마다 「태그」로 적혀 있습니다.
+| 경우 | 하는 일 | 그 결과 |
+|---|---|---|
+| **① 저장소를 새로 만들 때** | 이 저장소의 `core/`를 받습니다 | **base가 전부 적용됩니다.** 모듈 폴더도 함께 들어오지만 아직 아무 프로젝트에도 켜져 있지 않습니다 |
+| **② 저장소에서 프로젝트를 만들 때** | `new_project.py`로 프로젝트를 만듭니다 | 관리 파일과 빈 모듈 목록이 생깁니다. **base는 그대로 적용되고, 모듈은 0개**입니다 |
+| **③ 프로젝트를 만든 후, 필요해진 모듈을 켜고 싶을 때** | `module.py on`으로 그 모듈을 켭니다 | 그 모듈의 규칙 · 서식 · 도구가 **이 프로젝트에만** 적용되고 필요한 폴더가 생깁니다 |
 
-프로젝트를 만들고 모듈을 켜는 흐름입니다. 위 띠는 사용자가 하는 일, 아래 띠는 도구가 하는 일이고, 파란 선은
-「예」, 빨간 선은 「아니오」입니다([흐름도 규칙](core/base/rules/flowchart.md)).
+#### ① 저장소를 새로 만들 때
+
+```bash
+python {이 저장소 clone}/core/base/scripts/sync_core.py --from https://github.com/RyuSeoJin/rsj-centralized-control --repo-root {받는 저장소}
+```
+
+- 받기 전에 저장소 루트에 이름표 `workspace.json`을 두고, 받은 뒤 진입점 · 저장소 이력을 둡니다. 자세한 순서는 아래 「처음 받기」입니다.
+- 이때부터 **base는 따로 켤 것 없이 전부 적용**됩니다. 작업마다 무엇을 읽을지는 [읽기 게이트](core/base/rules/read-gates.md)가 정합니다.
+- 중앙 규칙이 바뀌면 다시 받고, [center-change-log.md](center-change-log.md) 항목의 「태그」대로 처리합니다(「다시 받기」).
+
+#### ② 저장소에서 프로젝트를 만들 때
+
+```bash
+python core/base/scripts/new_project.py {프로젝트}
+```
+
+- 만들어지는 것: `{프로젝트}-change-log.md` · `{프로젝트}-remaining-work.md` · `{프로젝트}-dictionary.md`와 빈 `{프로젝트}-modules.json`(`"on": []`)
+- **모듈은 하나도 켜져 있지 않습니다.** 무엇을 켤지는 프로젝트를 진행하며 정합니다.
+- 규칙보다 먼저 만든 옛 폴더는 옮기지 않고 등록만 합니다(`core/base/rules/project-scaffold.md` 「옛 프로젝트 등록 — 옮기지 않고」).
+
+#### ③ 프로젝트를 만든 후, 필요해진 모듈을 켜고 싶을 때
+
+```bash
+python core/base/scripts/module.py list {프로젝트}          # 켤 수 있는 모듈과 켜짐 상태
+python core/base/scripts/module.py on {프로젝트} {모듈}     # 켜기
+```
+
+- 어떤 모듈이 맞는지는 아래 「모듈 한눈에」나 [모듈 지도](core/modules/module-map.md)에서 찾습니다.
+- 그 모듈보다 **먼저 켜야 하는 모듈(전제)**이 꺼져 있으면 도구가 멈추고 켤 순서를 알려 줍니다. 전제부터 켜고 다시 켭니다.
+- 켠 모듈은 그 프로젝트에만 적용됩니다. 같은 저장소의 다른 프로젝트에는 영향이 없습니다.
+
+위 띠는 사용자가 하는 일, 아래 띠는 도구가 하는 일이고, 파란 선은 「예」, 빨간 선은 「아니오」입니다([흐름도 규칙](core/base/rules/flowchart.md)).
 
 ```mermaid
 flowchart LR
   subgraph SY["시스템 구역"]
-    O1[/"프로젝트 생성<br/>base 전부 적용 · 모듈 0개"/]
     D1{"전제 모듈이<br/>모두 켜져 있는가?"}
     P1["모듈 켜짐<br/>규칙 · 서식 · 도구 적용<br/>필요한 폴더 생성"]
     O2[/"멈추고 켤 순서 안내"/]
   end
   subgraph U["유저 구역"]
-    S(["core/ 받기"])
-    A1["new_project.py로<br/>프로젝트 만들기"]
-    A2["프로젝트 작업 진행"]
-    A3["필요해진 모듈 켜기<br/>module.py on"]
+    S(["작업 중 모듈이 필요해짐"])
+    A0["켤 수 있는 모듈 보기<br/>module.py list"]
+    A3["모듈 켜기<br/>module.py on"]
     A4["알려 준 전제 모듈부터 켜기"]
     E(["작업 계속<br/>또 필요하면 같은 순서"])
   end
-  S --> A1
-  A1 --> O1
-  O1 --> A2
-  A2 --> A3
+  S --> A0
+  A0 --> A3
   A3 --> D1
   D1 -->|예| P1
   D1 -->|아니오| O2
   O2 --> A4
   A4 --> A3
   P1 --> E
-  linkStyle 0,1,2,3,4,7,8,9 stroke:#1E1E1E
-  linkStyle 5 stroke:#2563EB,color:#2563EB
-  linkStyle 6 stroke:#DC2626,color:#DC2626
+  linkStyle 0,1,2,5,6,7 stroke:#1E1E1E
+  linkStyle 3 stroke:#2563EB,color:#2563EB
+  linkStyle 4 stroke:#DC2626,color:#DC2626
 ```
 
 <!-- 고치는 사람에게: 시스템 구역을 먼저 적어야 Mermaid가 유저 구역을 위에 그립니다. 순서를 바꾸면 구역이 뒤집힙니다. -->
