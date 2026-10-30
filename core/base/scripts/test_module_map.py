@@ -127,8 +127,10 @@ class ModuleMapTest(unittest.TestCase):
         self.assertNotIn("낡은 것", text)
         self.assertTrue(text.startswith("# 제목\n\n앞글\n\n"))
         self.assertTrue(text.endswith("\n\n뒷글\n"))
-        self.assertIn("### 둘째 분야\n\n**둘째 일을 하나요?**\n\n| 모듈 | 하는 일 | 외부 도구 |", text)
-        self.assertIn("| `zz` | 바닥 | — |", text)
+        self.assertIn("| 분야 | 모듈 | 하는 일 | 외부 도구 |", text)
+        self.assertIn("| 둘째 분야 | `zz` | 바닥 | — |", text)
+        self.assertIn("|  | `bb` | 곁가지 | Tool, lib(선택) |", text)
+        self.assertNotIn("```mermaid", text)                # 그림은 모듈 지도에만
         self.assertIn("| Tool | 설치 프로그램 | `bb` |", text)
         self.assertIn("| lib | 라이브러리 | `bb`(선택) |", text)
         self.assertIn("| Tool, lib(선택) |", text)

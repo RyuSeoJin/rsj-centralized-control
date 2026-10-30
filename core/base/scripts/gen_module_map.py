@@ -185,11 +185,21 @@ def external_table(order, info, detail):
 
 
 def render_overview(core=None):
-    """README 표시 구역에 넣을 「모듈 한눈에」 — 분야마다 표와 연결 그림, 끝에 외부 도구."""
+    """README 표시 구역에 넣을 「모듈 한눈에」 — 분야 칸이 있는 표 하나와 외부 도구 표.
+
+    분야별 연결 그림은 README를 길게 만들어 모듈 지도에만 둡니다.
+    """
     groups, order, info = collect(core)
-    L = [GRAPH_LEGEND + " 고르는 기준은 [모듈 지도](core/modules/module-map.md)에 있습니다.", ""]
-    L += group_sections(groups, order, info, 3) if groups else ["아직 모듈이 없습니다.", ""]
-    L += ["### 밖에서 끌어다 쓰는 도구", "",
+    L = ["분야별 연결 그림 · 함께 쓰는 짝 · 고르는 기준 · 외부 도구의 용도는 "
+         "[모듈 지도](core/modules/module-map.md)에 있습니다. (선택)은 일부 기능에만 필요한 외부 도구입니다.", ""]
+    if groups:
+        L += ["| 분야 | 모듈 | 하는 일 | 외부 도구 |", "|---|---|---|---|"]
+        for g, mods in groups:
+            for i, row in enumerate(module_table(mods, info)[2:]):
+                L.append("| %s %s" % (cell(g["label"]) if i == 0 else "", row))
+    else:
+        L.append("아직 모듈이 없습니다.")
+    L += ["", "### 밖에서 끌어다 쓰는 도구", "",
           "모듈이 쓰는 웹 서비스 · 설치 프로그램 · MCP 서버 · 라이브러리입니다. 정본은 각 모듈의 "
           "`module.json` `external`입니다.", ""]
     L += external_table(order, info, detail=False)
