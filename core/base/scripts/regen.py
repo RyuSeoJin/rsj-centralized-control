@@ -10,7 +10,9 @@
 무엇을 다시 만드나
 -----------------
   base           읽기 게이트 두 자리(AGENTS.md · CLAUDE.md 참조 규칙)
+                 base 규칙 지도(core/base/base-groups.json이 있을 때)
                  모듈 지도(모듈 폴더에 groups.json이 있을 때 — 폴더를 훑어 만듭니다)
+                 README.md의 표시 구역(「base 규칙」 · 「모듈 한눈에」 — 표시가 있을 때만)
                  프로젝트 구조 설정({폴더}-structure.json)에 등록된 생성 작업
   켠 모듈        그 모듈의 jobs.py가 내놓는 작업 — 워크스페이스 모듈은 저장소 전체에,
                  프로젝트 모듈은 켠 프로젝트에만
@@ -90,8 +92,30 @@ def base_jobs():
             ("claude", os.path.join(ROOT, "CLAUDE.md"), "읽기 게이트 — CLAUDE.md 참조 규칙")):
         out.append((label, [gates, gen_g], out_path,
                     [sys.executable, gen_g, "--repo-root", ROOT, "--target", target]))
+    out += base_map_job()
     out += module_map_job()
     return out
+
+
+def base_map_job():
+    """base 규칙 지도 — base-groups.json이 있을 때만. README에 표시 구역이 있으면 그 요약도 넣습니다."""
+    base = os.path.join(CORE, "base")
+    groups = os.path.join(base, "base-groups.json")
+    if not os.path.isfile(groups):
+        return []
+    scripts = os.path.join(base, "scripts")
+    gen = os.path.join(scripts, "gen_base_map.py")
+    srcs = [groups, gen, os.path.join(base, "doc-playbook.md"), os.path.join(base, "dictionary.md")]
+    rules = os.path.join(base, "rules")
+    srcs += [os.path.join(rules, n) for n in sorted(os.listdir(rules)) if n.endswith(".md")]
+    jobs = [("base 규칙 지도 — core/base/base-map.md", srcs, os.path.join(base, "base-map.md"),
+             [sys.executable, gen])]
+    readme = os.path.join(ROOT, "README.md")
+    sys.path.insert(0, scripts)
+    import gen_base_map
+    if gen_base_map.has_block(readme):
+        jobs.append(("base 규칙 요약 — README.md", srcs, readme, [sys.executable, gen, "--readme", readme]))
+    return jobs
 
 
 def module_map_job():

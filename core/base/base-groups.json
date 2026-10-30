@@ -1,0 +1,34 @@
+{
+  "groups": [
+    {
+      "id": "start",
+      "label": "작업을 시작하고 범위를 정할 때",
+      "rules": ["rules/read-gates.md", "rules/change-scope.md", "rules/rule-conflict.md",
+                "rules/feature-request.md", "rules/agent-delegation.md"]
+    },
+    {
+      "id": "docs",
+      "label": "문서를 만들 때",
+      "rules": ["doc-playbook.md", "rules/writing-principles.md", "rules/doc-write-style.md",
+                "rules/html-output.md", "rules/code-example.md", "rules/flowchart.md"]
+    },
+    {
+      "id": "record",
+      "label": "정본과 기록을 다룰 때",
+      "rules": ["rules/canonical-source.md", "rules/change-log-writing.md", "rules/remaining-work.md",
+                "rules/completion-evidence.md", "rules/external-material.md"]
+    },
+    {
+      "id": "repo",
+      "label": "저장소 · 프로젝트를 꾸릴 때",
+      "rules": ["rules/site-structure.md", "rules/project-scaffold.md", "rules/central-sync.md",
+                "rules/git-rules.md"]
+    },
+    {
+      "id": "terms",
+      "label": "용어를 찾을 때",
+      "rules": ["dictionary.md"]
+    }
+  ],
+  "hubs": ["rules/read-gates.md", "doc-playbook.md", "dictionary.md"]
+}

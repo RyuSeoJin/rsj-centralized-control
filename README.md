@@ -45,15 +45,38 @@ flowchart LR
 
 ## base 규칙 — 하는 일별
 
-모든 규칙 파일은 `core/base/rules/`에 있습니다(표의 두 문서만 `core/base/` 바로 아래).
+아래 구역은 `core/base/base-groups.json`(분류)과 각 규칙 문서 · 읽기 게이트에서 `regen.py`가 다시 만듭니다.
+손으로 고치지 않습니다. 「언제 읽나」는 읽기 게이트에 적힌 상황이며, 비어 있는 규칙은 다른 규칙을 거쳐 읽힙니다.
 
-| 하는 일 | 규칙 |
-|---|---|
-| 작업을 시작하고 범위를 정할 때 | [read-gates](core/base/rules/read-gates.md) 무엇을 먼저 읽는가 · [change-scope](core/base/rules/change-scope.md) 요청 범위 밖은 제안만 · [rule-conflict](core/base/rules/rule-conflict.md) 규칙이 어긋날 때 · [feature-request](core/base/rules/feature-request.md) 기능을 넣고 싶을 때 · [agent-delegation](core/base/rules/agent-delegation.md) 여러 에이전트에 나눠 맡길 때 |
-| 문서를 만들 때 | [doc-playbook](core/base/doc-playbook.md) 문서 제작 절차 · [writing-principles](core/base/rules/writing-principles.md) 작성 원칙 · [doc-write-style](core/base/rules/doc-write-style.md) 문체 · [html-output](core/base/rules/html-output.md) HTML 산출물 · [code-example](core/base/rules/code-example.md) 코드 보여 주기 · [flowchart](core/base/rules/flowchart.md) 흐름도 · 순서도 그리기 |
-| 정본과 기록을 다룰 때 | [canonical-source](core/base/rules/canonical-source.md) 정본과 파생물 · [change-log-writing](core/base/rules/change-log-writing.md) 변경 이력 · [remaining-work](core/base/rules/remaining-work.md) 남은 일 · [completion-evidence](core/base/rules/completion-evidence.md) 완료 증명 · [external-material](core/base/rules/external-material.md) 외부 자료 반입 · 전달 |
-| 저장소 · 프로젝트를 꾸릴 때 | [site-structure](core/base/rules/site-structure.md) 무엇을 어디에 두는가 · [project-scaffold](core/base/rules/project-scaffold.md) 새 프로젝트 · 옛 폴더 등록 · [central-sync](core/base/rules/central-sync.md) 받기 · 되돌려 보내기 · [git-rules](core/base/rules/git-rules.md) 커밋 · push · 태그 |
-| 용어를 찾을 때 | [dictionary](core/base/dictionary.md) 중앙 용어집 색인 |
+<!-- base-overview:start — 생성물입니다. 손으로 고치지 않습니다(gen_base_map.py --readme) -->
+
+규칙마다 주요 절 · 가리키는 규칙 · 분야별 관계 그림은 [base 규칙 지도](core/base/base-map.md)에 있습니다.
+
+| 분야 | 규칙 | 내용 | 언제 읽나 |
+|---|---|---|---|
+| 작업을 시작하고 범위를 정할 때 | [read-gates](core/base/rules/read-gates.md) | 작업 전에 무엇을 읽는가 | 모든 작업 — 무엇을 더 읽을지 정합니다 |
+|  | [change-scope](core/base/rules/change-scope.md) | 요청받은 범위 밖을 고치지 않는 규칙 | 모든 작업 |
+|  | [rule-conflict](core/base/rules/rule-conflict.md) | 규칙이 어긋날 때 무엇을 기준으로 고르는가 | 규칙끼리 어긋날 때 |
+|  | [feature-request](core/base/rules/feature-request.md) | 「이 기능을 넣고 싶다」가 나왔을 때 무엇부터 보는가 | 「이 기능(규칙 · 서식 · 도구)을 넣고 싶다」 |
+|  | [agent-delegation](core/base/rules/agent-delegation.md) | 일을 여러 에이전트에 나눠 맡길 때의 규칙 | 일을 여러 에이전트에 나눠 맡길 때 |
+| 문서를 만들 때 | [doc-playbook](core/base/doc-playbook.md) | 문서 제작 요청을 받았을 때 처음부터 끝까지 따르는 절차 | 문서 제작 (설명 · 분석 · 설계 · 기획서) |
+|  | [writing-principles](core/base/rules/writing-principles.md) | 처음 보는 사람도 혼자 읽고 따라 할 수 있게 쓰는 법 | 문서 제작 (설명 · 분석 · 설계 · 기획서) |
+|  | [doc-write-style](core/base/rules/doc-write-style.md) | 문체와 문장 구조를 정하는 문서 | 문서를 쓰거나 고칠 때 |
+|  | [html-output](core/base/rules/html-output.md) | HTML 산출물을 한 파일로 완결되게 내보내는 규칙 | HTML 산출물을 만들 때 |
+|  | [code-example](core/base/rules/code-example.md) | 코드를 보여 줄 때 파일 자리 · 주석 · 설명을 어떻게 쓰는가 | 코드를 보여 주거나 예제 코드를 쓸 때 (채팅 포함) |
+|  | [flowchart](core/base/rules/flowchart.md) | 흐름을 도형과 선으로 그릴 때 | 흐름도 · 순서도 · 화면 이동 지도를 도형으로 그릴 때 (도구 · 매체 무관) |
+| 정본과 기록을 다룰 때 | [canonical-source](core/base/rules/canonical-source.md) | 책임 범위별 정본과 파생물을 관리하는 규칙 | 사양 · 구현 · 파생물을 만들거나 고칠 때 |
+|  | [change-log-writing](core/base/rules/change-log-writing.md) | 변경 이력을 어디에 어떤 모양으로 남기는가 | change-log에 항목을 쓸 때 |
+|  | [remaining-work](core/base/rules/remaining-work.md) | 앞으로 할 일을 대화가 아니라 파일에 남기는 규칙 | — |
+|  | [completion-evidence](core/base/rules/completion-evidence.md) | 무엇으로 「완료」를 증명했는가 | 작업 완료를 보고하거나 검증 결과를 기록할 때 |
+|  | [external-material](core/base/rules/external-material.md) | 외부 자료를 들여오고 외부 도구에 자료를 보낼 때 | 외부 도구의 자료를 반입하거나 외부 AI에 자료 묶음을 보낼 때 |
+| 저장소 · 프로젝트를 꾸릴 때 | [site-structure](core/base/rules/site-structure.md) | 무엇을 어디에 두고, 중앙과 프로젝트를 어떻게 가르는가 | — |
+|  | [project-scaffold](core/base/rules/project-scaffold.md) | 새 프로젝트가 무엇을 갖고 시작하고, 옛 폴더는 어떻게 등록하는가 | 새 프로젝트를 시작하거나 옛 폴더를 등록할 때 |
+|  | [central-sync](core/base/rules/central-sync.md) | 중앙 저장소에서 규칙을 받아 가고 되돌려 보내는 절차 | 중앙 규칙을 받거나 되돌려 보낼 때 |
+|  | [git-rules](core/base/rules/git-rules.md) | 커밋 · push · 브랜치 · 버전 태그 규칙 | 작업 단위 하나가 끝났을 때 / 커밋 · push |
+| 용어를 찾을 때 | [dictionary](core/base/dictionary.md) | 중앙 용어집 (색인) | — |
+
+<!-- base-overview:end -->
 
 ## 모듈 한눈에
 
