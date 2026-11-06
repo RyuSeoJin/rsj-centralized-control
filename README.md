@@ -1,154 +1,126 @@
-# central-rules — 여러 저장소가 함께 쓰는 중앙 규칙 저장소
+# rsj-centralized-control
 
-## 무슨 저장소인가요?
+AI(Claude Code · Codex)와 함께 작업하는 여러 저장소에, **같은 작업 규칙을 한 곳에서 나눠 주는 중앙 규칙 저장소**입니다.
 
-여러 작업 저장소가 **같은 규칙으로 문서를 만들고 운영되도록**, 그 규칙을 한 곳에 모아 두고 나눠 주는
-저장소입니다. 규칙은 이 저장소에서만 고치고, 각 작업 저장소는 `core/`를 받아 씁니다.
+규칙은 이 저장소에서만 고치고, 각 작업 저장소는 `core/` 폴더를 받아서 씁니다. 받은 저장소의 `CLAUDE.md` · `AGENTS.md`가 그 규칙을 가리키도록 만들어지기 때문에, AI는 작업을 시작할 때 필요한 규칙만 골라 읽습니다.
 
-## 왜 만들었나요?
+## 왜 만들었나요
 
-게임 기획서 · 프로그램 개발 · 언리얼 엔진 공부 · QA 테스트 · 앱 기획 · 발표 자료처럼 성격이 다른
-프로젝트를 AI(Claude Code · Codex)와 함께 진행하다 보면 두 가지 문제가 생깁니다.
+게임 기획서, 프로그램 개발, 언리얼 엔진 공부, QA 테스트, 앱 기획, 발표 자료까지 성격이 다른 일을 저장소 여러 개에서 AI와 함께 진행하고 있습니다.
 
-- 한 프로젝트에서 겪은 일로 규칙을 고쳐도, 다른 저장소에는 예전 규칙이 그대로 남습니다.
-- 새 프로젝트마다 같은 설명을 다시 해야 하고, 결과물의 모양이 들쭉날쭉해집니다.
+일하다 보면 "이 부분은 이렇게 쓰자", "이건 하지 말자" 같은 규칙이 계속 생깁니다. 그런데 한 저장소에서 고친 규칙은 다른 저장소에 전해지지 않았고, 새 저장소를 열 때마다 AI에게 같은 설명을 처음부터 다시 해야 했습니다. 결과물의 모양도 저장소마다 조금씩 달라졌습니다.
 
-그래서 「모든 저장소가 따르는 규칙」은 이 저장소 한 곳에서만 고치고, 작업 저장소는 그것을 받아 쓰도록
-나눴습니다.
+그래서 모든 저장소가 따르는 규칙은 한 곳에 모으고, 각 저장소는 그것을 받아 가도록 나눴습니다. 자세한 이야기는 [블로그 소개글](https://ryuseojin.com/github-rsj-centralized-control)에 있습니다.
 
-## 무엇이 들어 있나요?
+## 어떻게 돌아가나요
 
-| 자리 | 내용 |
-|---|---|
-| `core/base/` | 꼭 따르는 기본 규칙(아래 「base 규칙」) · 디자인 마스터 · 빈 서식 · 검사와 받기 도구 |
-| `core/modules/` | 필요한 프로젝트만 골라 켜는 모듈. 켜면 그 모듈의 규칙 · 서식 · 도구가 따라옵니다 |
-| `center-change-log.md` | 중앙 규칙의 변경 이력과, 받아 가는 쪽이 할 일(태그) |
-| `center-remaining-work.md` | 중앙 규칙에 남은 일 · 사용자 결정 대기 · 백로그 |
-| `center-tool-specs/` | 규칙은 있지만 도구가 아직 없는 것의 구현 명세 |
+```mermaid
+flowchart LR
+  C["중앙 규칙 저장소<br/>(이 저장소)"] -->|sync_core.py 로 받기| A["작업 저장소 A<br/>core/ 사본"]
+  C -->|sync_core.py 로 받기| B["작업 저장소 B<br/>core/ 사본"]
+  A -.->|고칠 규칙은 중앙에서 고침| C
+```
 
-## 한눈에 보기
-
-중앙 규칙은 **base**와 **모듈** 두 가지로 나뉩니다.
+중앙 규칙은 두 종류로 나뉩니다.
 
 | | `core/base` | `core/modules` |
 |---|---|---|
-| 무엇인가 | 작업 과정에서 따라야 하는 **전체 규칙**과 그 규칙을 지키게 하는 도구 | 필요에 따라 **골라 켜서 쓰는 도구** — 한 가지 일을 위한 규칙 · 서식 · 도구의 묶음 |
-| 언제 적용되나 | 받은 저장소의 모든 프로젝트에 **항상 전부** 적용됩니다. 켜고 끄지 않습니다 | 프로젝트마다 **필요한 것만** 켭니다. 켜지 않은 모듈은 AI가 읽지 않습니다 |
-| 예 | 작업 전에 읽을 것 · 요청 범위 · 문서 문체 · 변경 이력 · git 규칙 | TC 시트(`tc`) · 앱 기획 슬라이드(`app-planning-slides`) · Penpot 화면 설계(`penpot-ux`) · 언리얼 빌드(`ue-build`) |
-| 목록 | 아래 「base 규칙 — 하는 일별」 · [base 규칙 지도](core/base/base-map.md) | 아래 「모듈 한눈에」 · [모듈 지도](core/modules/module-map.md) |
+| 무엇인가 | 어떤 저장소든 항상 따르는 기본 규칙과 도구 | 한 가지 일을 위한 규칙 · 서식 · 도구 묶음 |
+| 적용 | 받으면 전부 적용됩니다 | 프로젝트마다 필요한 것만 켭니다. 켜지 않은 모듈은 AI가 읽지 않습니다 |
+| 예 | 작업 전에 읽을 것, 요청 범위, 문서 문체, 변경 이력, git 규칙 | 테스트 케이스(`tc`), 앱 기획 슬라이드(`app-planning-slides`), 언리얼 빌드(`ue-build`) |
 
-### 중앙 규칙 저장소에 들어 있는 것
+규칙이 언제 왜 바뀌었는지는 [center-change-log.md](center-change-log.md)에 남고, 받아 가는 쪽이 할 일이 「태그」로 함께 적힙니다.
 
-```mermaid
-flowchart LR
-  subgraph B["중앙 저장소 · core/base — 항상 전부 따름"]
-    b1["작업 시작 · 범위"]
-    b2["문서 만들기"]
-    b3["정본과 기록"]
-    b4["저장소 · 프로젝트"]
-    b5["용어집 · 서식 · 도구"]
-  end
-  subgraph M["중앙 저장소 · core/modules — 필요할 때 골라 켬"]
-    m1["QA · 기획 문서"]
-    m2["화면 설계 · 앱 체험"]
-    m3["게임 · UE · 아트"]
-    m4["역분석 · 에이전트 · 컴퓨터 환경"]
-  end
-  L["중앙 저장소 · center-change-log<br/>무엇이 바뀌었고 받는 쪽은 무엇을 하나"]
-  B -->|받으면 전부 적용| R["받는 저장소<br/>core/ 사본"]
-  M -->|필요한 것만 프로젝트에서 켬| R
-  L -.->|다시 받을 때 태그 처리| R
-```
+## 내 중앙 규칙 저장소로 쓰기
 
-받는 저장소에서 겪은 문제는 그 저장소의 `core/`가 아니라 이 저장소에서 고칩니다(「중앙 규칙을 바꾸고 싶을 때」).
+이 저장소를 그대로 받아 써도 되고, fork해서 내 규칙으로 바꿔 써도 됩니다.
 
-### 언제 무엇을 하나요
+1. **fork합니다.** 비공개로 쓰고 싶다면 fork 대신 새 비공개 저장소를 만들고 이 저장소 내용을 복사해 올립니다. 공개 저장소의 fork는 공개이기 때문입니다.
+2. **이름표를 바꿉니다.** 루트의 `workspace.json`에서 `name` · `repo` · `visibility`를 내 저장소에 맞게 고칩니다.
+3. **규칙을 고칩니다.** 기본 규칙은 `core/base/rules/`에, 모듈은 `core/modules/{모듈}/`에 있습니다. 모듈을 새로 만드는 방법은 `core/base/rules/feature-request.md`에 정리되어 있습니다.
+4. **검사합니다.** 커밋 전에 아래를 돌립니다. 이 README의 규칙 목록과 모듈 목록도 이때 다시 만들어집니다.
 
-| 경우 | 하는 일 | 그 결과 |
-|---|---|---|
-| **① 저장소를 새로 만들 때** | 이 저장소의 `core/`를 받습니다 | **base가 전부 적용됩니다.** 모듈 폴더도 함께 들어오지만 아직 아무 프로젝트에도 켜져 있지 않습니다 |
-| **② 저장소에서 프로젝트를 만들 때** | `new_project.py`로 프로젝트를 만듭니다 | 관리 파일과 빈 모듈 목록이 생깁니다. **base는 그대로 적용되고, 모듈은 0개**입니다 |
-| **③ 프로젝트를 만든 후, 필요해진 모듈을 켜고 싶을 때** | `module.py on`으로 그 모듈을 켭니다 | 그 모듈의 규칙 · 서식 · 도구가 **이 프로젝트에만** 적용되고 필요한 폴더가 생깁니다 |
+   ```bash
+   python core/base/scripts/regen.py
+   python core/base/scripts/check_rules.py
+   python -m unittest discover -s core/base/scripts -p "test_*.py"
+   ```
+5. **작업 저장소에서 받습니다.** 아래 「작업 저장소에서 쓰기」의 `--from` 주소를 내 저장소 주소로 바꿔 쓰면 됩니다.
 
-#### ① 저장소를 새로 만들 때
+> 작업 저장소는 이 저장소를 fork해서 만들지 않습니다. 새 저장소를 만들고 `core/`만 받아 옵니다. 그래야 작업 내용이 중앙 저장소로 섞여 들어가지 않습니다.
+
+## 작업 저장소에서 쓰기
+
+### 처음 받기
+
+받을 저장소 루트에 이름표 파일 `workspace.json`을 두고 받습니다. 이름표 모양은 `core/base/rules/site-structure.md` §3에 있습니다.
 
 ```bash
-python {이 저장소 clone}/core/base/scripts/sync_core.py --from https://github.com/RyuSeoJin/rsj-centralized-control --repo-root {받는 저장소}
+python {이 저장소를 받은 위치}/core/base/scripts/sync_core.py --from https://github.com/RyuSeoJin/rsj-centralized-control --repo-root {받을 저장소}
 ```
 
-- 받기 전에 저장소 루트에 이름표 `workspace.json`을 두고, 받은 뒤 진입점 · 저장소 이력을 둡니다. 자세한 순서는 아래 「처음 받기」입니다.
-- 이때부터 **base는 따로 켤 것 없이 전부 적용**됩니다. 작업마다 무엇을 읽을지는 [읽기 게이트](core/base/rules/read-gates.md)가 정합니다.
-- 중앙 규칙이 바뀌면 다시 받고, [center-change-log.md](center-change-log.md) 항목의 「태그」대로 처리합니다(「다시 받기」).
-
-#### ② 저장소에서 프로젝트를 만들 때
+받은 뒤 진입점과 저장소 이력을 둡니다. 빈 서식은 `core/base/design-template/repo/`에 있습니다. 그다음 읽기 규칙을 만들고 검사합니다.
 
 ```bash
-python core/base/scripts/new_project.py {프로젝트}
+python core/base/scripts/regen.py
+python core/base/scripts/check_rules.py
 ```
 
-- 만들어지는 것: `{프로젝트}-change-log.md` · `{프로젝트}-remaining-work.md` · `{프로젝트}-dictionary.md`와 빈 `{프로젝트}-modules.json`(`"on": []`)
-- **모듈은 하나도 켜져 있지 않습니다.** 무엇을 켤지는 프로젝트를 진행하며 정합니다.
-- 규칙보다 먼저 만든 옛 폴더는 옮기지 않고 등록만 합니다(`core/base/rules/project-scaffold.md` 「옛 프로젝트 등록 — 옮기지 않고」).
+이미 있는 폴더는 옮기지 않고 프로젝트로 등록만 합니다. 옮기면 링크와 참조가 깨지기 때문입니다(`core/base/rules/project-scaffold.md` §5).
 
-#### ③ 프로젝트를 만든 후, 필요해진 모듈을 켜고 싶을 때
+### 프로젝트를 만들고 모듈 켜기
 
 ```bash
+python core/base/scripts/new_project.py {프로젝트}          # 관리 파일을 가진 새 프로젝트
 python core/base/scripts/module.py list {프로젝트}          # 켤 수 있는 모듈과 켜짐 상태
-python core/base/scripts/module.py on {프로젝트} {모듈}     # 켜기
+python core/base/scripts/module.py on {프로젝트} {모듈}     # 켜기 (off 로 끄기)
 ```
 
-- 어떤 모듈이 맞는지는 아래 「모듈 한눈에」나 [모듈 지도](core/modules/module-map.md)에서 찾습니다.
-- 그 모듈보다 **먼저 켜야 하는 모듈(전제)**이 꺼져 있으면 도구가 멈추고 켤 순서를 알려 줍니다. 전제부터 켜고 다시 켭니다.
-- 켠 모듈은 그 프로젝트에만 적용됩니다. 같은 저장소의 다른 프로젝트에는 영향이 없습니다.
+모듈은 그 프로젝트에만 적용됩니다. 먼저 켜야 하는 모듈이 꺼져 있으면 도구가 멈추고 켤 순서를 알려 줍니다. 어떤 모듈이 맞는지는 아래 「모듈 목록」이나 [모듈 지도](core/modules/module-map.md)에서 찾을 수 있습니다.
 
-위 띠는 사용자가 하는 일, 아래 띠는 도구가 하는 일이고, 파란 선은 「예」, 빨간 선은 「아니오」입니다([흐름도 규칙](core/base/rules/flowchart.md)).
+### 규칙이 바뀌면 다시 받기
 
-```mermaid
-flowchart LR
-  subgraph SY["시스템 구역"]
-    D1{"전제 모듈이<br/>모두 켜져 있는가?"}
-    P1["모듈 켜짐<br/>규칙 · 서식 · 도구 적용<br/>필요한 폴더 생성"]
-    O2[/"멈추고 켤 순서 안내"/]
-  end
-  subgraph U["유저 구역"]
-    S(["작업 중 모듈이 필요해짐"])
-    A0["켤 수 있는 모듈 보기<br/>module.py list"]
-    A3["모듈 켜기<br/>module.py on"]
-    A4["알려 준 전제 모듈부터 켜기"]
-    E(["작업 계속<br/>또 필요하면 같은 순서"])
-  end
-  S --> A0
-  A0 --> A3
-  A3 --> D1
-  D1 -->|예| P1
-  D1 -->|아니오| O2
-  O2 --> A4
-  A4 --> A3
-  P1 --> E
-  linkStyle 0,1,2,5,6,7 stroke:#1E1E1E
-  linkStyle 3 stroke:#2563EB,color:#2563EB
-  linkStyle 4 stroke:#DC2626,color:#DC2626
+```bash
+python core/base/scripts/sync_core.py --from https://github.com/RyuSeoJin/rsj-centralized-control --check
+python core/base/scripts/sync_core.py --from https://github.com/RyuSeoJin/rsj-centralized-control
 ```
 
-<!-- 고치는 사람에게: 시스템 구역을 먼저 적어야 Mermaid가 유저 구역을 위에 그립니다. 순서를 바꾸면 구역이 뒤집힙니다. -->
+`--check`로 무엇이 바뀌는지 먼저 보고 받습니다. 받은 뒤에는 `center-change-log.md`의 새 항목에 적힌 태그를 처리하고 `regen.py` · `check_rules.py`를 다시 돌립니다(`core/base/rules/central-sync.md` §2).
 
-### base가 크게 제공하는 것
+### AI에게 맡길 때
 
-| 분야 | 무엇을 정해 주나 |
+작업 저장소에서 세션을 열고 이 저장소 폴더를 함께 추가한 뒤, 이렇게 요청하면 위 순서대로 진행합니다.
+
+> 이 저장소에 중앙 규칙을 처음 받아 주세요. 중앙 규칙 폴더는 `../rsj-centralized-control`입니다. 기존 폴더는 옮기지 말고 프로젝트로 등록해 주세요.
+
+## 중앙 규칙을 고치고 싶을 때
+
+작업 저장소에서 `core/`를 직접 고치지 않습니다. 고친 파일이 있으면 다음에 받을 때 도구가 멈추고, 덮어쓰면 그 수정이 사라집니다.
+
+대신 이 저장소를 작업 저장소 옆에 받아 두고 함께 엽니다. 고칠 곳을 발견하면 이 저장소에서 바로 고치고, 작업 저장소는 다시 받습니다. 이때 특정 프로젝트의 이름이나 값은 빼고 적습니다. "문장에서 프로젝트 이름을 지워도 말이 되는가"가 중앙 규칙과 프로젝트 규칙을 가르는 기준입니다(`core/base/rules/site-structure.md` §2).
+
+```
+{작업 폴더}/
+├─ rsj-centralized-control/   ← 공개 · 규칙 정본
+├─ {작업 저장소 A}/            ← 비공개 · core/ 사본 + 작업물
+└─ {작업 저장소 B}/
+```
+
+프로젝트 파일이 중앙 저장소에 섞여 들어오면 GitHub Actions(`.github/workflows/central-gate.yml`)가 막습니다. 이 저장소에서 일할 때의 절차는 [CLAUDE.md](CLAUDE.md)에 있습니다.
+
+## 들어 있는 것
+
+| 자리 | 내용 |
 |---|---|
-| 작업을 시작하고 범위를 정할 때 | 작업 전에 반드시 읽을 파일과 멈출 자리 · 요청받은 범위 밖은 제안만 하기 · 규칙끼리 어긋날 때 고르는 순서 · 「기능을 넣고 싶다」를 다루는 순서 · 여러 에이전트에 일을 나눠 맡기는 법 |
-| 문서를 만들 때 | 문서 제작 절차(아웃라인 확인 → 템플릿 판별 → 작성 → 이력) · 처음 보는 사람도 따라 할 수 있게 쓰는 원칙과 문체 · HTML을 한 파일로 내보내는 법 · 코드 예시 표기 · 흐름도 그리기 |
-| 정본과 기록을 다룰 때 | 무엇이 기준(정본)이고 무엇이 파생물인가 · 변경 이력과 남은 일을 남기는 법 · 「완료」를 무엇으로 증명하나 · 외부 자료를 들여오고 보내는 법 |
-| 저장소 · 프로젝트를 꾸릴 때 | 무엇을 어디에 두나 · 새 프로젝트와 옛 폴더 등록 · 중앙 규칙 받기와 되돌려 보내기 · 커밋 · push · 태그와 저작권 게이트 |
-| 용어를 찾을 때 | 중앙 용어집 색인 |
-| 함께 오는 것 | 디자인 마스터와 빈 서식(`design-guide/` · `design-template/`), 도구(`regen.py` 다시 만들기 · `check_rules.py` 규칙 검사 · `sync_core.py` 받기 · `module.py` 모듈 켜기 · `new_project.py` 새 프로젝트 · `check_copyright.py` 저작권 게이트) |
+| `core/base/` | 기본 규칙(`rules/`), 문서 제작 절차, 용어집, 디자인 마스터, 빈 서식, 도구(`scripts/`) |
+| `core/modules/` | 골라 켜는 모듈. 모듈마다 `module.md`가 자기소개입니다 |
+| `center-change-log.md` | 중앙 규칙의 변경 이력과 받는 쪽이 할 일 |
+| `center-remaining-work.md` | 남은 일과 결정 대기 |
+| `center-tool-specs/` | 규칙은 있지만 아직 도구가 없는 것의 구현 명세 |
 
-규칙 하나하나는 아래 「base 규칙 — 하는 일별」 표와 [base 규칙 지도](core/base/base-map.md)에 있습니다.
+## base 규칙 목록
 
-## base 규칙 — 하는 일별
-
-아래 구역은 `core/base/base-groups.json`(분류)과 각 규칙 문서 · 읽기 게이트에서 `regen.py`가 다시 만듭니다.
-손으로 고치지 않습니다. 「언제 읽나」는 읽기 게이트에 적힌 상황이며, 비어 있는 규칙은 다른 규칙을 거쳐 읽힙니다.
+아래 표는 `core/base/base-groups.json`과 각 규칙 문서에서 `regen.py`가 만듭니다. 직접 고치지 않습니다.
 
 <!-- base-overview:start — 생성물입니다. 손으로 고치지 않습니다(gen_base_map.py --readme) -->
 
@@ -180,9 +152,9 @@ flowchart LR
 
 <!-- base-overview:end -->
 
-## 모듈 한눈에
+## 모듈 목록
 
-아래 구역은 각 모듈의 `module.json` · `module.md`에서 `regen.py`가 다시 만듭니다. 손으로 고치지 않습니다.
+아래 표는 각 모듈의 `module.json` · `module.md`에서 `regen.py`가 만듭니다. 직접 고치지 않습니다.
 
 <!-- module-overview:start — 생성물입니다. 손으로 고치지 않습니다(gen_module_map.py --readme) -->
 
@@ -250,102 +222,10 @@ flowchart LR
 
 <!-- module-overview:end -->
 
-## 처음 받기
+## 기여
 
-1. 받는 저장소 루트에 이름표 `workspace.json`을 씁니다(`core/base/rules/site-structure.md` §3).
-2. 이 저장소의 도구로 받습니다. 태그가 붙은 판으로 받으려면 `--ref {태그}`를 더합니다.
+규칙이 이상하거나 더 나은 방법이 있다면 [Issues](https://github.com/RyuSeoJin/rsj-centralized-control/issues)에 남겨 주세요. PR도 환영합니다. PR을 올리면 중앙 검사(`central-gate`)가 돌고, 프로젝트 파일이 섞여 있으면 합쳐지지 않습니다.
 
-   ```bash
-   python {이 저장소 clone}/core/base/scripts/sync_core.py --from https://github.com/RyuSeoJin/rsj-centralized-control --repo-root {받는 저장소}
-   ```
-3. 받는 저장소 루트에 진입점과 저장소 이력을 둡니다 — 빈 서식은 `core/base/design-template/repo/`.
-4. 기존 프로젝트 폴더가 있으면 옮기지 않고 등록합니다(`core/base/rules/project-scaffold.md` §5).
-5. `python core/base/scripts/regen.py`로 읽기 게이트(`AGENTS.md` · `CLAUDE.md` 참조 규칙)와 모듈 지도를
-   만들고, `python core/base/scripts/check_rules.py`로 확인합니다.
+## 라이선스
 
-### AI에게 맡길 때
-
-세션은 받는 저장소에서 열고, 이 저장소 폴더를 함께 추가해 둡니다(「중앙 규칙을 바꾸고 싶을 때」의 배치).
-그다음 아래처럼 요청하면 위 1~5를 순서대로 진행합니다.
-
-**이미 있는 저장소에 적용할 때**
-
-> 이 저장소에 중앙 규칙을 처음 받아 주세요. 중앙 규칙 폴더는 `../{이 저장소}`입니다.
-> 기존 폴더는 옮기지 말고 프로젝트로 등록해 주세요.
-
-「폴더 구조를 바꿔 주세요」라고 하지 않습니다. 기존 폴더는 옮기지 않고 등록만 합니다 — 옮기면 링크와 참조가
-깨집니다(`core/base/rules/project-scaffold.md` §5).
-
-**새 저장소를 만들 때**
-
-> 중앙 규칙을 받은 새 저장소를 `../{새 저장소}`에 만들어 주세요. GitHub에는 private으로 올려 주세요.
-> 첫 프로젝트는 `{프로젝트}`이고, `{모듈}` 모듈을 켜 주세요.
-
-폴더 만들기 → `git init` → 처음 받기 → `new_project.py` → 모듈 켜기 순으로 진행하고, GitHub 저장소를 만들고
-push하는 단계는 실행 전에 확인을 받습니다. 켤 모듈을 모르면 「모듈 지도를 보고 이 프로젝트에 맞는 모듈을
-추천해 주세요」라고 먼저 묻습니다.
-
-- **공개 여부를 꼭 적습니다.** 한 번 공개로 올라간 내용은 나중에 비공개로 바꿔도 그사이 받아 간 사본이 남습니다.
-- **이 저장소를 fork하지 않습니다.** 공개 저장소의 fork는 공개입니다. 새 저장소를 만들고 `core/`를 받아 옵니다.
-
-## 다시 받기
-
-```bash
-python core/base/scripts/sync_core.py --from https://github.com/RyuSeoJin/rsj-centralized-control --check
-python core/base/scripts/sync_core.py --from https://github.com/RyuSeoJin/rsj-centralized-control
-```
-
-1. `--check`로 무엇이 바뀌는지와 새 중앙 이력 항목을 먼저 봅니다.
-2. 받은 뒤 **새 중앙 이력 항목의 태그를 처리합니다** — 받는 쪽이 할 일이 거기 적혀 있습니다.
-3. `regen.py`와 `check_rules.py`를 돌립니다.
-4. 받는 저장소의 `repo-change-log.md`에 받은 커밋과 처리한 태그를 적습니다.
-
-자세한 절차는 `core/base/rules/central-sync.md` §2입니다.
-
-**언제 확인하나** — 받는 저장소에서 작업을 시작할 때마다 AI가 먼저 `sync_core.py --check`를 돌립니다
-(`--from`을 생략하면 지난번 받은 자리에서 봅니다). 바뀐 것이 있으면 받을지 묻고, 승인 뒤에만 받습니다.
-받는 저장소 진입점 서식(`core/base/design-template/repo/CLAUDE.md`)에 이 규칙이 들어 있습니다.
-
-## 프로젝트와 모듈
-
-```bash
-python core/base/scripts/new_project.py {프로젝트}          # 관리 파일만 가진 새 프로젝트
-python core/base/scripts/module.py list {프로젝트}          # 모듈 목록과 켜짐 상태
-python core/base/scripts/module.py on {프로젝트} {모듈}     # 켜기 (off로 끄기)
-```
-
-목록은 분야별로 묶여 나옵니다. 하는 일에서 켤 모듈을 찾을 때는 [모듈 지도](core/modules/module-map.md)(분야별
-질문 · 함께 쓰는 모듈 · 둘 중 하나를 고르는 기준 · 분야별 연결 그림 · 모듈별 외부 도구와 용도)를 봅니다. 모듈 하나하나의
-소개는 그 모듈 폴더의 `module.md`에 있습니다.
-
-모듈을 새로 만들 때는 `module.json`에 분야(`group`) · 짝(`pairs` · `instead`) · 외부 도구(`external`)를 적습니다
-(`core/base/rules/feature-request.md` 「모듈의 모양」). 이 README의 「모듈 한눈에」와 모듈 지도는 그 값에서 만들어집니다.
-
-## 중앙 규칙을 바꾸고 싶을 때
-
-받은 저장소에서 `core/`를 직접 고치지 않습니다. 고친 파일이 있으면 다음 받기에서 도구가 멈추고, 덮어쓰면
-그 수정이 사라집니다. 대신 이 저장소를 받는 저장소 옆에 받아 두고 작업 세션에 함께 엽니다. 발견한 자리에서
-이 저장소를 바로 고치고(프로젝트 이름과 값은 벗깁니다), 받는 저장소는 이 폴더에서 다시 받습니다 — 요청서를 따로
-쓰지 않습니다. 함께 열 수 없을 때만 받는 저장소의 `repo-remaining-work.md`에 「중앙에 되돌려 보낼 것」으로
-적어 두었다가 옮깁니다(`core/base/rules/central-sync.md` §3).
-
-```
-{작업 폴더}/
-├─ {이 저장소}/        ← 공개 · 규칙 정본
-├─ {받는 저장소 A}/    ← 비공개 · core/ 사본 + 작업물
-└─ {받는 저장소 B}/
-```
-
-이 저장소가 공개이면, 받는 저장소의 내용이 바깥으로 나가는 길은 이 저장소에 커밋하는 순간뿐입니다. 커밋 전에
-바뀐 내용 · `center-change-log.md` 항목 · 커밋 메시지에 프로젝트 이름과 값이 없는지 한 번 훑습니다.
-
-## 지키는 원칙
-
-- **규칙은 여기서만 고칩니다.** 작업 저장소에서 고치면 다음에 받을 때 사라집니다.
-- **중앙 규칙에는 특정 프로젝트의 이름 · 값을 적지 않습니다.** 「문장에서 프로젝트 이름을 지워도
-  성립하는가」로 중앙 규칙과 프로젝트 규칙을 가릅니다(`core/base/rules/site-structure.md` §2).
-- **사람이 지키길 기대하지 않고 도구로 막습니다.** 검사 도구와 GitHub Actions(`.github/workflows/central-gate.yml`)가
-  돌고, 프로젝트 파일이 중앙에 섞여 들어오면 합쳐지지 않습니다.
-- **목록은 손으로 적지 않습니다.** 모듈 목록 · 연결 · 외부 도구처럼 자주 바뀌는 것은 정본에서 생성합니다.
-
-이 저장소에서 규칙을 고칠 때의 절차와 커밋 전 검사 셋은 [CLAUDE.md](CLAUDE.md)에 있습니다.
+[MIT](LICENSE) © 2026 Ryu Seo Jin
